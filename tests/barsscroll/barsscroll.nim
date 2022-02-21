@@ -23,6 +23,8 @@ proc drawMain() =
       box 50, 0, barW, float max(int root.getBox().h, h)
       fill "#DFDFE0"
       scrollable true
+      font "IBM Plex Sans", 16, 200, 0, hLeft, vCenter
+      strokeWeight 1
 
       # Draw a list of bars using a simple for loop.
       for i, bar in bars.mpairs:
@@ -32,8 +34,6 @@ proc drawMain() =
           text "text":
             box 61, 0, 70, 20
             fill "#46607e"
-            strokeWeight 1
-            font "IBM Plex Sans", 16, 200, 0, hLeft, vCenter
             characters "scroll " & $i
 
           # Draw the decrement button to make the bar go down.
@@ -42,14 +42,17 @@ proc drawMain() =
             fill "#AEB5C0"
             cornerRadius 5
             onHover:
-              fill "#FF4400"
+              fill "#46DE5F"
             onClick:
-              echo "clicked: " 
               bar -= 0.05
               bar = bar.clamp(0.0, 1.0)
+            instance "arrow":
+              box 0, 0, 40, 40
+              rotation -180
+              image "arrow.png"
 
           onScroll:
-            echo "scrolled: ", mouse.wheelDelta
+            # echo "scrolled: ", mouse.wheelDelta
             bar += mouse.wheelDelta * 1.0e-3
 
           # Draw the increment button to make the bar go up.
@@ -58,11 +61,13 @@ proc drawMain() =
             fill "#AEB5C0"
             cornerRadius 5
             onHover:
-              fill "#FF4400"
+              fill "#46DE5F"
             onClick:
-              echo "clicked: " 
               bar += 0.05
               bar = bar.clamp(0.0, 1.0)
+            instance "arrow":
+              box 0, 0, 40, 40
+              image "arrow.png"
 
           # Draw the bar itself.
           group "bar":
