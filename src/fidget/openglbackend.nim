@@ -244,7 +244,7 @@ proc processEventsPre*(parent, node: Node) =
   if not mouse.consumed and mouse.pos.overlaps(node.screenBox):
     if mouse.wheelDelta != 0:
       if node.scrollable:
-        let yoffset = mouse.wheelDelta * common.uiScale
+        let yoffset = mouse.wheelDelta * 2*common.uiScale
         node.offset.y -= yoffset
         node.offset.y = node.offset.y.clamp(0, node.screenBox.h)
         mouse.consumed = true
