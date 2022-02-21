@@ -61,6 +61,14 @@ proc postNode() =
 
   current.removeExtraChildren()
 
+  if not mouse.consumed and mouse.pos.overlaps(current.screenBox):
+    if mouse.wheelDelta != 0:
+      if current.scrollable:
+        let yoffset = mouse.wheelDelta * 2*common.uiScale
+        current.offset.y -= yoffset
+        current.offset.y = current.offset.y.clamp(0, current.screenBox.h)
+        mouse.consumed = true
+
   # Pop the stack.
   discard nodeStack.pop()
   if nodeStack.len > 1:

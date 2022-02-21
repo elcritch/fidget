@@ -241,15 +241,13 @@ proc processEventsPre*(parent, node: Node) =
   ## process events (?)
   for n in node.nodes:
     processEventsPre(node, n)
-  if not mouse.consumed and mouse.pos.overlaps(node.screenBox):
-    if mouse.wheelDelta != 0:
-      if node.scrollable:
-        let yoffset = mouse.wheelDelta * 2*common.uiScale
-        node.offset.y -= yoffset
-        node.offset.y = node.offset.y.clamp(0, node.screenBox.h)
-        mouse.consumed = true
-        # echo "node.scrollable: ", node.offset
-        # echo "parent.box: ", parent.getBox(true), " .scroll: ", scrollBox, " windowSize: ", windowSize
+  # if not mouse.consumed and mouse.pos.overlaps(node.screenBox):
+  #   if mouse.wheelDelta != 0:
+  #     if node.scrollable:
+  #       let yoffset = mouse.wheelDelta * 2*common.uiScale
+  #       node.offset.y -= yoffset
+  #       node.offset.y = node.offset.y.clamp(0, node.screenBox.h)
+  #       mouse.consumed = true
 
 proc processEventsPost*(parent, node: Node) =
   ## post calc
