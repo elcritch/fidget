@@ -272,8 +272,6 @@ proc draw*(node: Node) =
 
   ctx.saveTransform()
   ctx.translate(node.screenBox.xy)
-  if node.offset.y != 0.0:
-    echo "draw:node: ", node.idPath, " offset: ", node.offset, " trn: ", $(node.screenBox.xy + node.offset)
   if node.rotation != 0:
     ctx.translate(node.screenBox.wh/2)
     ctx.rotate(node.rotation/180*PI)
