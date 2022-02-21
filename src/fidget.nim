@@ -134,7 +134,7 @@ template rectangle*(color: string|Color) =
 
 proc mouseOverlapLogic*(): bool =
   ## Returns true if mouse overlaps the current node.
-  let mpos = mouse.pos + current.offset
+  let mpos = mouse.pos + current.totalOffset 
   let act = 
     (not popupActive or inPopup) and
     current.screenBox.w > 0 and

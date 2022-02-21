@@ -253,11 +253,7 @@ proc processEventsPre*(parent, node: Node) =
 
 proc processEventsPost*(parent, node: Node) =
   ## post calc
-  if parent.offset ~= 0.0:
-    if node.offset ~= 0.0:
-      node.offset = parent.offset
-    else:
-      node.offset += parent.offset
+  node.totalOffset = parent.totalOffset + parent.offset
   for n in node.nodes:
     processEventsPost(node, n)
     

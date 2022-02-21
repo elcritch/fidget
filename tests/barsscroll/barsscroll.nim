@@ -29,6 +29,7 @@ proc drawMain() =
         group "bar":
           box 20, 20 + 60 * i, barW, 60
 
+          scrollable true
 
           text "text":
             box 61, 0, 70, 20
@@ -41,6 +42,7 @@ proc drawMain() =
           rectangle "dec":
             box 0, 0, 40, 40
             fill "#AEB5C0"
+            cornerRadius 5
             onHover:
               fill "#FF4400"
             onClick:
@@ -51,6 +53,7 @@ proc drawMain() =
           rectangle "inc":
             box barW-80, 0, 40, 40
             fill "#AEB5C0"
+            cornerRadius 5
             onHover:
               fill "#FF4400"
             onClick:

@@ -103,6 +103,7 @@ type
     rotation*: float32
     screenBox*: Rect
     offset*: Vec2
+    totalOffset*: Vec2
     mouseBase*: Vec2
     fill*: Color
     transparency*: float32
@@ -525,5 +526,5 @@ template descaled*(node, box: untyped): untyped =
   node.`box`/uiScale
 
 proc `~=`*(rect: Vec2, val: float32): bool =
-  result = abs((rect.x.abs + rect.y.abs) - val) > 0.1 
+  result = rect.x ~= val and rect.y ~= val
 
