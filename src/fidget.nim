@@ -134,10 +134,14 @@ template rectangle*(color: string|Color) =
 
 proc mouseOverlapLogic*(): bool =
   ## Returns true if mouse overlaps the current node.
-  (not popupActive or inPopup) and
-  current.screenBox.w > 0 and
-  current.screenBox.h > 0 and
-  mouse.pos.overlaps(current.screenBox)
+  let mpos = mouse.pos + current.offset
+  let act = 
+    (not popupActive or inPopup) and
+    current.screenBox.w > 0 and
+    current.screenBox.h > 0 
+  if act:
+    echo "mouseOverlap: ", $mpos, " morig: ", $mouse.pos
+  act and mpos.overlaps(current.screenBox)
 
 template onClick*(inner: untyped) =
   ## On click event handler.

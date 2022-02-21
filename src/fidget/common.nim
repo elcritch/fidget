@@ -524,4 +524,6 @@ proc getOrgBox*(node: Node, raw: static[bool] = false): Rect =
 template descaled*(node, box: untyped): untyped =
   node.`box`/uiScale
 
+proc `~=`*(rect: Vec2, val: float32): bool =
+  result = abs((rect.x.abs + rect.y.abs) - val) > 0.1 
 
