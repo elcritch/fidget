@@ -98,8 +98,8 @@ type
     text*: string
     code*: string
     nodes*: seq[Node]
-    box*: Rect
-    orgBox*: Rect
+    box: Rect
+    orgBox: Rect
     rotation*: float32
     screenBox*: Rect
     textOffset*: Vec2
@@ -494,6 +494,36 @@ proc computeScreenBox*(parent, node: Node) =
     node.screenBox = node.box + parent.screenBox
   for n in node.nodes:
     computeScreenBox(node, n)
+
+proc setBox*(node: Node, rect: Rect, raw: static[bool] = false) =
+  when raw:
+    node.box = rect
+  else:
+    node.box = rect * uiScale
+
+proc setBox*(node: Node, x, y, w, h: float32, raw: static[bool]) =
+  node.setBox(Rect(x: x, y: y, w: w, h: h), raw)
+
+proc getBox*(node: Node, raw: static[bool] = false): Rect =
+  when raw:
+    result = node.box
+  else:
+    result = node.box / uiScale
+
+proc setOrgBox*(node: Node, rect: Rect, raw: static[bool] = false) =
+  when raw:
+    node.orgBox = rect
+  else:
+    node.orgBox = rect * uiScale
+
+proc setOrgBox*(node: Node, x, y, w, h: float32, raw: static[bool]) =
+  node.setOrgBox(Rect(x: x, y: y, w: w, h: h), raw)
+
+proc getOrgBox*(node: Node, raw: static[bool] = false): Rect =
+  when raw:
+    result = node.orgBox
+  else:
+    result = node.orgBox / uiScale
 
 template getScaled*(node, box: untyped): untyped =
   node.`box`/uiScale

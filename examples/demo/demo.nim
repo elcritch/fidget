@@ -18,7 +18,7 @@ var
 
 proc basicText() =
   frame "autoLayoutText":
-    box 130, 0, root.getScaled(box).w - 130, 491
+    box 130, 0, root.getBox().w - 130, 491
     fill "#ffffff"
     layout lmVertical
     counterAxisSizingMode csFixed
@@ -122,7 +122,7 @@ proc basicControls() =
     strokeWeight 1
     rectangle "fill":
       progress = selectedButton.len / 5 * 100
-      box 2, 2, clamp(int((parent.getScaled(box).w - 4) * (progress/100)), 1, parent.getScaled(box).w.int), 8
+      box 2, 2, clamp(int((parent.getBox().w - 4) * (progress/100)), 1, parent.getBox().w.int), 8
       fill "#9fe7f8"
       cornerRadius 5
 
@@ -303,7 +303,7 @@ proc basicConstraints() =
     # Got to specify orgBox for constraints to work.
     orgBox 0, 0, 400, 400
     # Then grow the normal box.
-    box 130, 0, root.getScaled(box).w - 130, root.getScaled(box).h
+    box 130, 0, root.getBox().w - 130, root.getBox().h
     # Constraints will work on the difference between orgBox and box.
     fill "#ffffff"
     rectangle "Center":
@@ -340,12 +340,12 @@ proc drawMain() =
 
   component "iceUI":
     orgBox 0, 0, 530, 185
-    box root.getScaled(box)
+    box root.getBox()
     fill "#ffffff"
 
     group "shadow":
       orgBox 0, 0, 530, 3
-      box 0, 0, root.getScaled(box).w, 3
+      box 0, 0, root.getBox().w, 3
       rectangle "l1":
         box 0, 0, 530, 1
         constraints cStretch, cMin

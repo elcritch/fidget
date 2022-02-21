@@ -268,17 +268,13 @@ proc image*(imageName: string) =
 
 proc orgBox*(x, y, w, h: int|float32|float32) =
   ## Sets the box dimensions of the original element for constraints.
-  current.orgBox.x = common.uiScale * float32 x
-  current.orgBox.y = common.uiScale * float32 y
-  current.orgBox.w = common.uiScale * float32 w
-  current.orgBox.h = common.uiScale * float32 h
+  let b = Rect(x: float32 x, y: float32 y, w: float32 w, h: float32 h)
+  current.setOrgBox(b, raw=false)
 
 proc box*(x, y, w, h: float32) =
   ## Sets the box dimensions.
-  current.box.x = common.uiScale*x
-  current.box.y = common.uiScale*y
-  current.box.w = common.uiScale*w
-  current.box.h = common.uiScale*h
+  let b = Rect(x: x, y: y, w: w, h: h)
+  current.setBox(b, raw=false)
 
 proc box*(
   x: int|float32|float64,
