@@ -129,7 +129,7 @@ template instance*(inner: untyped): untyped =
 template rectangle*(color: string|Color) =
   ## Shorthand for rectangle with fill.
   rectangle "":
-    box 0, 0, parent.box.w, parent.box.h
+    box 0, 0, parent.getBox().w, parent.getBox().h
     fill color
 
 proc mouseOverlapLogic*(): bool =
@@ -418,15 +418,15 @@ proc counterAxisSizingMode*(mode: CounterAxisSizingMode) =
 
 proc horizontalPadding*(v: float32) =
   ## Set the horizontal padding for auto layout.
-  current.horizontalPadding = v
+  current.horizontalPadding = v * common.uiScale
 
 proc verticalPadding*(v: float32) =
   ## Set the vertical padding for auto layout.
-  current.verticalPadding = v
+  current.verticalPadding = v * common.uiScale
 
 proc itemSpacing*(v: float32) =
   ## Set the item spacing for auto layout.
-  current.itemSpacing = v
+  current.itemSpacing = v * common.uiScale
 
 proc selectable*(v: bool) =
   ## Set text selectable flag.

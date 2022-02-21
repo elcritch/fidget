@@ -495,11 +495,11 @@ proc computeScreenBox*(parent, node: Node) =
   for n in node.nodes:
     computeScreenBox(node, n)
 
-proc setBox*(node: Node, rect: Rect, raw: static[bool] = false) =
+proc setBox*(node: var Node, rect: Rect, raw: static[bool] = false) =
   when raw: node.box = rect
   else: node.box = rect * uiScale
 
-proc setBox*(node: Node, x, y, w, h: float32, raw: static[bool]) =
+proc setBox*(node: var Node, x, y, w, h: float32, raw: static[bool]) =
   node.setBox(Rect(x: x, y: y, w: w, h: h), raw)
 
 proc getBox*(node: Node, raw: static[bool] = false): Rect =
