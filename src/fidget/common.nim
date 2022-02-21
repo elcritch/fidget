@@ -102,7 +102,7 @@ type
     orgBox: Rect
     rotation*: float32
     screenBox*: Rect
-    textOffset*: Vec2
+    offset*: Vec2
     fill*: Color
     transparency*: float32
     strokeWeight*: float32
@@ -164,6 +164,7 @@ type
     wheelDelta*: float32
     cursorStyle*: MouseCursorStyle ## Sets the mouse cursor icon
     prevCursorStyle*: MouseCursorStyle
+    consumed*: bool ## Consumed - need to prevent default action.
 
   Keyboard* = ref object
     state*: KeyState
@@ -288,7 +289,7 @@ proc resetToDefault*(node: Node)=
   node.orgBox = rect(0,0,0,0)
   node.rotation = 0
   # node.screenBox = rect(0,0,0,0)
-  node.textOffset = vec2(0, 0)
+  # node.offset = vec2(0, 0)
   node.fill = color(0, 0, 0, 0)
   node.transparency = 0
   node.strokeWeight = 0

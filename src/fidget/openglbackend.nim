@@ -237,18 +237,34 @@ proc removeExtraChildren*(node: Node) =
   ## Deal with removed nodes.
   node.nodes.setLen(node.diffIndex)
 
+proc processEvents*(parent, node: Node) =
+  ## process events (?)
+  
+  for n in node.nodes:
+    processEvents(node, n)
+
+  if not mouse.consumed and mouse.pos.overlaps(node.screenBox):
+    if mouse.wheelDelta != 0:
+      if node.scrollable:
+        let yoffset = mouse.wheelDelta * common.uiScale
+        node.offset.y += yoffset
+        # echo "scrolled: ", node.idPath, " offset: ", node.offset
+    
+
 proc draw*(node: Node) =
   ## Draws the node.
+  if node.scrollable:
+    ctx.saveTransform()
+    ctx.translate(node.offset)
+
   ctx.saveTransform()
   ctx.translate(node.screenBox.xy)
+  if node.offset.y != 0.0:
+    echo "draw:node: ", node.idPath, " offset: ", node.offset, " trn: ", $(node.screenBox.xy + node.offset)
   if node.rotation != 0:
     ctx.translate(node.screenBox.wh/2)
     ctx.rotate(node.rotation/180*PI)
     ctx.translate(-node.screenBox.wh/2)
-
-  if mouse.pos.overlaps(node.screenBox):
-    if node.scrollable and mouse.wheelDelta != 0:
-      echo "scrollable: ", $mouse.wheelDelta
 
   if node.clipContent:
     ctx.beginMask()
@@ -298,6 +314,10 @@ proc draw*(node: Node) =
   if node.clipContent:
     ctx.popMask()
 
+  if node.scrollable:
+    ctx.restoreTransform()
+
+
 proc openBrowser*(url: string) =
   ## Opens a URL in a browser
   discard
@@ -333,6 +353,8 @@ proc setupFidget(
 
     if textBox != nil:
       keyboard.input = textBox.text
+
+    processEvents(nil, root)
 
     drawMain()
 

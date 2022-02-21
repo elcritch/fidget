@@ -30,7 +30,7 @@ proc drawMain() =
           box 20, 20 + 60 * i, barW, 60
 
           # If current box is not on screen, don't draw children.
-          if current.screenBox.overlaps(scrollBox):
+          if true: # current.screenBox.overlaps(scrollBox):
 
             text "text":
               box 61, 0, 70, 20
@@ -68,6 +68,7 @@ proc drawMain() =
                 fill "#46D15F"
 
           else:
-            echo "not drawn: " & $i
+            # echo "not drawn: " & $i
+            discard
 
 startFidget(drawMain, uiScale=1.5)
