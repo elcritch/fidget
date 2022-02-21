@@ -139,8 +139,8 @@ proc mouseOverlapLogic*(): bool =
     (not popupActive or inPopup) and
     current.screenBox.w > 0 and
     current.screenBox.h > 0 
-  if act:
-    echo "mouseOverlap: ", $mpos, " morig: ", $mouse.pos
+  # if act:
+    # echo "mouseOverlap: ", $mpos, " morig: ", $mouse.pos
   act and mpos.overlaps(current.screenBox)
 
 template onClick*(inner: untyped) =
