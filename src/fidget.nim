@@ -359,6 +359,10 @@ proc scrollBars*(scrollBars: bool) =
   ## Causes the parent to clip the children and draw scroll bars.
   current.scrollBars = scrollBars
 
+proc scrollable*(scrollable: bool) =
+  ## Causes the parent to clip the children and draw scroll bars.
+  current.scrollable = scrollable
+
 proc cursorColor*(color: Color) =
   ## Sets the color of the text cursor.
   current.cursorColor = color

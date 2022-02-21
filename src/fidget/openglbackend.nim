@@ -94,28 +94,29 @@ proc drawText(node: Node) =
 
   let mousePos = mouse.pos - node.screenBox.xy
 
-  if node.selectable and mouse.wheelDelta != 0:
-    keyboard.focus(node)
-  elif node.selectable and mouse.down and mouse.pos.overlaps(node.screenBox):
-    # mouse actions click, drag, double clicking
-    keyboard.focus(node)
-    if mouse.click:
-      if epochTime() - lastClickTime < 0.5:
-        inc multiClick
-      else:
-        multiClick = 0
-      lastClickTime = epochTime()
-      if multiClick == 1:
-        textBox.selectWord(mousePos)
-        buttonDown[MOUSE_LEFT] = false
-      elif multiClick == 2:
-        textBox.selectParagraph(mousePos)
-        buttonDown[MOUSE_LEFT] = false
-      elif multiClick == 3:
-        textBox.selectAll()
-        buttonDown[MOUSE_LEFT] = false
-      else:
-        textBox.mouseAction(mousePos, click = true, keyboard.shiftKey)
+  if mouse.pos.overlaps(node.screenBox):
+    if node.selectable and mouse.wheelDelta != 0:
+      keyboard.focus(node)
+    elif node.selectable and mouse.down:
+      # mouse actions click, drag, double clicking
+      keyboard.focus(node)
+      if mouse.click:
+        if epochTime() - lastClickTime < 0.5:
+          inc multiClick
+        else:
+          multiClick = 0
+        lastClickTime = epochTime()
+        if multiClick == 1:
+          textBox.selectWord(mousePos)
+          buttonDown[MOUSE_LEFT] = false
+        elif multiClick == 2:
+          textBox.selectParagraph(mousePos)
+          buttonDown[MOUSE_LEFT] = false
+        elif multiClick == 3:
+          textBox.selectAll()
+          buttonDown[MOUSE_LEFT] = false
+        else:
+          textBox.mouseAction(mousePos, click = true, keyboard.shiftKey)
 
   if textBox != nil and
       mouse.down and
@@ -244,6 +245,10 @@ proc draw*(node: Node) =
     ctx.translate(node.screenBox.wh/2)
     ctx.rotate(node.rotation/180*PI)
     ctx.translate(-node.screenBox.wh/2)
+
+  if mouse.pos.overlaps(node.screenBox):
+    if node.scrollable and mouse.wheelDelta != 0:
+      echo "scrollable: ", $mouse.wheelDelta
 
   if node.clipContent:
     ctx.beginMask()

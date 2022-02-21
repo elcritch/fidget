@@ -21,7 +21,8 @@ proc drawMain() =
 
     group "center":
       box 50, 0, barW, float max(int root.getBox().h, h)
-      fill "#FFFFFF"
+      fill "#DFDFE0"
+      scrollable true
 
       # Draw a list of bars using a simple for loop.
       for i, bar in bars.mpairs:
@@ -65,5 +66,8 @@ proc drawMain() =
               rectangle "barFg":
                 box 0, 0, (barW - 80*2) * float(bar), 40
                 fill "#46D15F"
+
+          else:
+            echo "not drawn: " & $i
 
 startFidget(drawMain, uiScale=1.5)
