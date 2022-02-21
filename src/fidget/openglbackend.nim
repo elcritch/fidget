@@ -237,18 +237,33 @@ proc removeExtraChildren*(node: Node) =
   ## Deal with removed nodes.
   node.nodes.setLen(node.diffIndex)
 
-proc processEvents*(parent, node: Node) =
+proc processEventsPre*(parent, node: Node) =
   ## process events (?)
-  
   for n in node.nodes:
-    processEvents(node, n)
+    processEventsPre(node, n)
 
   if not mouse.consumed and mouse.pos.overlaps(node.screenBox):
     if mouse.wheelDelta != 0:
       if node.scrollable:
         let yoffset = mouse.wheelDelta * common.uiScale
         node.offset.y += yoffset
-        # echo "scrolled: ", node.idPath, " offset: ", node.offset
+        mouse.consumed = true
+        echo "scrolled: ", node.idPath, " offset: ", node.offset
+
+proc processEventsPost*(parent, node: Node) =
+  ## post calc
+  if parent == nil:
+    return
+  if parent.offset.y != 0.0 or parent.offset.x != 0.0:
+    node.offset += parent.offset
+  
+  for n in node.nodes:
+    processEventsPost(node, n)
+    
+proc processEvents*(parent, node: Node) =
+  ## process events (?)
+  processEventsPre(parent, node)
+  # processEventsPost(parent, node)
     
 
 proc draw*(node: Node) =

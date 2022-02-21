@@ -103,6 +103,7 @@ type
     rotation*: float32
     screenBox*: Rect
     offset*: Vec2
+    mouseBase*: Vec2
     fill*: Color
     transparency*: float32
     strokeWeight*: float32
@@ -341,6 +342,7 @@ proc setupRoot*() =
 proc clearInputs*() =
 
   mouse.wheelDelta = 0
+  mouse.consumed = false
 
   # Reset key and mouse press to default state
   for i in 0 ..< buttonPress.len:
