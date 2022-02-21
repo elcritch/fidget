@@ -498,7 +498,7 @@ proc computeScreenBox*(parent, node: Node) =
     node.totalOffset = node.offset
   else:
     node.screenBox = node.box + parent.screenBox
-    node.totalOffset = parent.offset
+    node.totalOffset = node.offset + parent.totalOffset
   for n in node.nodes:
     computeScreenBox(node, n)
 

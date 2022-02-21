@@ -201,6 +201,12 @@ template onHover*(inner: untyped) =
   if mouseOverlapLogic():
     inner
 
+template onScroll*(inner: untyped) =
+  ## Code in the block will run when this box is hovered.
+  if mouse.wheelDelta != 0.0 and mouseOverlapLogic():
+    mouse.consumed = true
+    inner
+
 template onHoverOut*(inner: untyped) =
   ## Code in the block will run when hovering outside the box.
   if not mouseOverlapLogic():

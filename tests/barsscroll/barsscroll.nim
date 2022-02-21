@@ -29,8 +29,6 @@ proc drawMain() =
         group "bar":
           box 20, 20 + 60 * i, barW, 60
 
-          scrollable true
-
           text "text":
             box 61, 0, 70, 20
             fill "#46607e"
@@ -46,8 +44,13 @@ proc drawMain() =
             onHover:
               fill "#FF4400"
             onClick:
-              bar -= 0.1
-              if bar < 0.0: bar = 0.0
+              echo "clicked: " 
+              bar -= 0.05
+              bar = bar.clamp(0.0, 1.0)
+
+          onScroll:
+            echo "scrolled: ", mouse.wheelDelta
+            bar += mouse.wheelDelta * 1.0e-3
 
           # Draw the increment button to make the bar go up.
           rectangle "inc":
@@ -57,8 +60,9 @@ proc drawMain() =
             onHover:
               fill "#FF4400"
             onClick:
-              bar += 0.1
-              if bar > 1.0: bar = 1.0
+              echo "clicked: " 
+              bar += 0.05
+              bar = bar.clamp(0.0, 1.0)
 
           # Draw the bar itself.
           group "bar":
@@ -67,5 +71,7 @@ proc drawMain() =
             rectangle "barFg":
               box 0, 0, (barW - 80*2) * float(bar), 40
               fill "#46D15F"
+          
+          bar = bar.clamp(0.0, 1.0)
 
 startFidget(drawMain, uiScale=1.5)
