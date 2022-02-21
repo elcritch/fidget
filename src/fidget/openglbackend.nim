@@ -263,7 +263,7 @@ proc processEventsPost*(parent, node: Node) =
 proc processEvents*(parent, node: Node) =
   ## process events (?)
   processEventsPre(parent, node)
-  # processEventsPost(parent, node)
+  processEventsPost(parent, node)
     
 
 proc draw*(node: Node) =
