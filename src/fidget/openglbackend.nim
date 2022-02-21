@@ -241,24 +241,20 @@ proc processEventsPre*(parent, node: Node) =
   ## process events (?)
   for n in node.nodes:
     processEventsPre(node, n)
-
   if not mouse.consumed and mouse.pos.overlaps(node.screenBox):
     if mouse.wheelDelta != 0:
       if node.scrollable:
         let yoffset = mouse.wheelDelta * common.uiScale
         node.offset.y -= yoffset
         mouse.consumed = true
-        echo "scrolled: ", node.idPath, " offset: ", node.offset
 
 proc processEventsPost*(parent, node: Node) =
   ## post calc
   if parent.offset ~= 0.0:
-    echo "set child offset: ", repr parent.offset
     if node.offset ~= 0.0:
       node.offset = parent.offset
     else:
       node.offset = parent.offset
-  
   for n in node.nodes:
     processEventsPost(node, n)
     
