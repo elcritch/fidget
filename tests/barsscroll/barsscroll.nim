@@ -50,10 +50,6 @@ proc drawMain() =
               rotation -180
               image "arrow.png"
 
-          onScroll:
-            # echo "scrolled: ", mouse.wheelDelta
-            bar += mouse.wheelDelta * 1.0e-3
-
           # Draw the increment button to make the bar go up.
           rectangle "inc":
             box barW-80, 0, 40, 40
@@ -78,5 +74,9 @@ proc drawMain() =
               box 0, 0, (barW - 80*2) * float(bar), 40
               fill "#46D15F"
               cornerRadius 5
+            onScroll:
+              # echo "scrolled: ", mouse.wheelDelta
+              bar += mouse.wheelDelta * 1.0e-3
+
 
 startFidget(drawMain, uiScale=1.5)
