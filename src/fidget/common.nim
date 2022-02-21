@@ -514,7 +514,7 @@ proc setOrgBox*(node: Node, rect: Rect, raw: static[bool] = false) =
   when raw:
     node.orgBox = rect
   else:
-    node.orgBox = rect * uiScale
+    node.orgBox = rect * common.uiScale
 
 proc setOrgBox*(node: Node, x, y, w, h: float32, raw: static[bool]) =
   node.setOrgBox(Rect(x: x, y: y, w: w, h: h), raw)
@@ -523,9 +523,9 @@ proc getOrgBox*(node: Node, raw: static[bool] = false): Rect =
   when raw:
     result = node.orgBox
   else:
-    result = node.orgBox / uiScale
+    result = node.orgBox / common.uiScale
 
-template getScaled*(node, box: untyped): untyped =
+template scaled*(node, box: untyped): untyped =
   node.`box`/uiScale
 
 
