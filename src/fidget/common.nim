@@ -496,34 +496,26 @@ proc computeScreenBox*(parent, node: Node) =
     computeScreenBox(node, n)
 
 proc setBox*(node: Node, rect: Rect, raw: static[bool] = false) =
-  when raw:
-    node.box = rect
-  else:
-    node.box = rect * uiScale
+  when raw: node.box = rect
+  else: node.box = rect * uiScale
 
 proc setBox*(node: Node, x, y, w, h: float32, raw: static[bool]) =
   node.setBox(Rect(x: x, y: y, w: w, h: h), raw)
 
 proc getBox*(node: Node, raw: static[bool] = false): Rect =
-  when raw:
-    result = node.box
-  else:
-    result = node.box / uiScale
+  when raw: result = node.box
+  else: result = node.box / uiScale
 
 proc setOrgBox*(node: Node, rect: Rect, raw: static[bool] = false) =
-  when raw:
-    node.orgBox = rect
-  else:
-    node.orgBox = rect * common.uiScale
+  when raw: node.orgBox = rect
+  else: node.orgBox = rect * common.uiScale
 
 proc setOrgBox*(node: Node, x, y, w, h: float32, raw: static[bool]) =
   node.setOrgBox(Rect(x: x, y: y, w: w, h: h), raw)
 
 proc getOrgBox*(node: Node, raw: static[bool] = false): Rect =
-  when raw:
-    result = node.orgBox
-  else:
-    result = node.orgBox / common.uiScale
+  when raw: result = node.orgBox
+  else: result = node.orgBox / common.uiScale
 
 template descaled*(node, box: untyped): untyped =
   node.`box`/uiScale
