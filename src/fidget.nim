@@ -61,7 +61,8 @@ proc postNode() =
 
   current.removeExtraChildren()
 
-  if not mouse.consumed and mouse.pos.overlaps(current.screenBox):
+  let mpos = mouse.pos + current.totalOffset 
+  if not mouse.consumed and mpos.overlaps(current.screenBox):
     if mouse.wheelDelta != 0:
       if current.scrollable:
         let yoffset = mouse.wheelDelta * 2*common.uiScale
