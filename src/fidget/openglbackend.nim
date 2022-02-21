@@ -246,7 +246,7 @@ proc processEventsPre*(parent, node: Node) =
       if node.scrollable:
         let yoffset = mouse.wheelDelta * common.uiScale
         node.offset.y -= yoffset
-        node.offset.y = node.offset.y.clamp( 0, node.screenBox.h)
+        node.offset.y = node.offset.y.clamp(0, node.screenBox.h)
         mouse.consumed = true
         # echo "node.scrollable: ", node.offset
         # echo "parent.box: ", parent.getBox(true), " .scroll: ", scrollBox, " windowSize: ", windowSize
@@ -257,7 +257,7 @@ proc processEventsPost*(parent, node: Node) =
     if node.offset ~= 0.0:
       node.offset = parent.offset
     else:
-      node.offset = parent.offset
+      node.offset += parent.offset
   for n in node.nodes:
     processEventsPost(node, n)
     
