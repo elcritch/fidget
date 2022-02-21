@@ -173,7 +173,7 @@ proc basicControls() =
     onClick:
       pipDrag = true
     if pipDrag:
-      pipPos = int(mouse.scaled(pos).x - current.scaled(screenBox).x)
+      pipPos = int(mouse.descaled(pos).x - current.descaled(screenBox).x)
       pipPos = clamp(pipPos, 1, 240)
       pipDrag = buttonDown[MOUSE_LEFT]
     rectangle "pip":

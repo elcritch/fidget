@@ -525,7 +525,7 @@ proc getOrgBox*(node: Node, raw: static[bool] = false): Rect =
   else:
     result = node.orgBox / common.uiScale
 
-template scaled*(node, box: untyped): untyped =
+template descale*(node, box: untyped): untyped =
   node.`box`/uiScale
 
 
