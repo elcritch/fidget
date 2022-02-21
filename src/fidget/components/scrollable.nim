@@ -164,36 +164,6 @@ proc cursorPos*(scrollBox: ScrollBox): Vec2 =
   ## Position where cursor should be drawn.
   scrollBox.cursorRect.xy
 
-proc selectorRect*(scrollBox: ScrollBox): Rect =
-  ## Rectangle where selection cursor should be drawn.
-  scrollBox.locationRect(scrollBox.selector)
-
-proc selectorPos*(scrollBox: ScrollBox): Vec2 =
-  ## Position where selection cursor should be drawn.
-  scrollBox.cursorRect.xy
-
-proc selectionRegions*(scrollBox: ScrollBox): seq[Rect] =
-  ## Selection regions to draw selection of text.
-  let sel = scrollBox.selection
-  scrollBox.layout.getSelection(sel.a, sel.b)
-
-proc removedSelection*(scrollBox: ScrollBox): bool =
-  ## Removes selected runes if they are selected.
-  ## Returns true if anything was removed.
-  let sel = scrollBox.selection
-  if sel.a != sel.b:
-    scrollBox.runes.delete(sel.a, sel.b - 1)
-    scrollBox.glyphs.setLen(0)
-    scrollBox.cursor = sel.a
-    scrollBox.selector = scrollBox.cursor
-    scrollBox.hasChange = true
-    return true
-  return false
-
-proc removeSelection(scrollBox: ScrollBox) =
-  ## Removes selected runes if they are selected.
-  discard scrollBox.removedSelection()
-
 proc adjustScroll*(scrollBox: ScrollBox) =
   ## Adjust scroll to make sure cursor is in the window.
   if scrollBox.scrollable and not scrollBox.wasScrolled:
@@ -210,117 +180,10 @@ proc adjustScroll*(scrollBox: ScrollBox) =
     if r.x + r.w > scrollBox.scroll.x + float scrollBox.width:
       scrollBox.scroll.x = r.x + r.w - float scrollBox.width
 
-proc typeCharacter*(scrollBox: ScrollBox, rune: Rune) =
-  ## Add a character to the text box.
-  if not scrollBox.editable:
-    return
-  scrollBox.removeSelection()
-  # don't add new lines in a single line box.
-  if not scrollBox.multiline and rune == Rune(10):
-    return
-  if scrollBox.cursor == scrollBox.runes.len:
-    scrollBox.runes.add(rune)
-  else:
-    scrollBox.runes.insert(rune, scrollBox.cursor)
-  inc scrollBox.cursor
-  scrollBox.selector = scrollBox.cursor
-  scrollBox.glyphs.setLen(0)
-  scrollBox.adjustScroll()
-  scrollBox.hasChange = true
-
-proc typeCharacter*(scrollBox: ScrollBox, letter: char) =
-  ## Add a character to the text box.
-  scrollBox.typeCharacter(Rune(letter))
-
-proc typeCharacters*(scrollBox: ScrollBox, s: string) =
-  ## Add a character to the text box.
-  if not scrollBox.editable:
-    return
-  scrollBox.removeSelection()
-  for rune in runes(s):
-    scrollBox.runes.insert(rune, scrollBox.cursor)
-    inc scrollBox.cursor
-  scrollBox.selector = scrollBox.cursor
-  scrollBox.glyphs.setLen(0)
-  scrollBox.adjustScroll()
-  scrollBox.hasChange = true
-
-proc copy*(scrollBox: ScrollBox): string =
-  ## Returns the text that was copied.
-  let sel = scrollBox.selection
-  if sel.a != sel.b:
-    return $scrollBox.runes[sel.a ..< sel.b]
-
-proc paste*(scrollBox: ScrollBox, s: string) =
-  ## Pastes a string.
-  if not scrollBox.editable:
-    return
-  scrollBox.typeCharacters(s)
-  scrollBox.savedX = scrollBox.cursorPos.x
-
-proc cut*(scrollBox: ScrollBox): string =
-  ## Returns the text that was cut.
-  result = scrollBox.copy()
-  if not scrollBox.editable:
-    return
-  scrollBox.removeSelection()
-  scrollBox.savedX = scrollBox.cursorPos.x
-
 proc setCursor*(scrollBox: ScrollBox, loc: int) =
   scrollBox.cursor = clamp(loc, 0, scrollBox.runes.len + 1)
   scrollBox.selector = scrollBox.cursor
 
-proc backspace*(scrollBox: ScrollBox, shift = false) =
-  ## Backspace command.
-  if not scrollBox.editable:
-    return
-  if scrollBox.removedSelection(): return
-  if scrollBox.cursor > 0:
-    scrollBox.runes.delete(scrollBox.cursor - 1)
-    scrollBox.glyphs.setLen(0)
-    scrollBox.adjustScroll()
-    dec scrollBox.cursor
-    scrollBox.selector = scrollBox.cursor
-    scrollBox.hasChange = true
-
-proc delete*(scrollBox: ScrollBox, shift = false) =
-  ## Delete command.
-  if not scrollBox.editable:
-    return
-  if scrollBox.removedSelection(): return
-  if scrollBox.cursor < scrollBox.runes.len:
-    scrollBox.runes.delete(scrollBox.cursor)
-    scrollBox.glyphs.setLen(0)
-    scrollBox.adjustScroll()
-    scrollBox.hasChange = true
-
-proc backspaceWord*(scrollBox: ScrollBox, shift = false) =
-  ## Backspace word command. (Usually ctr + backspace).
-  if not scrollBox.editable:
-    return
-  if scrollBox.removedSelection(): return
-  if scrollBox.cursor > 0:
-    while scrollBox.cursor > 0 and
-      not scrollBox.runes[scrollBox.cursor - 1].isWhiteSpace():
-      scrollBox.runes.delete(scrollBox.cursor - 1)
-      dec scrollBox.cursor
-    scrollBox.glyphs.setLen(0)
-    scrollBox.adjustScroll()
-    scrollBox.selector = scrollBox.cursor
-    scrollBox.hasChange = true
-
-proc deleteWord*(scrollBox: ScrollBox, shift = false) =
-  ## Delete word command. (Usually ctr + delete).
-  if not scrollBox.editable:
-    return
-  if scrollBox.removedSelection(): return
-  if scrollBox.cursor < scrollBox.runes.len:
-    while scrollBox.cursor < scrollBox.runes.len and
-      not scrollBox.runes[scrollBox.cursor].isWhiteSpace():
-      scrollBox.runes.delete(scrollBox.cursor)
-    scrollBox.glyphs.setLen(0)
-    scrollBox.adjustScroll()
-    scrollBox.hasChange = true
 
 proc left*(scrollBox: ScrollBox, shift = false) =
   ## Move cursor left.
@@ -376,87 +239,6 @@ proc up*(scrollBox: ScrollBox, shift = false) =
     if not shift:
       scrollBox.selector = scrollBox.cursor
 
-proc leftWord*(scrollBox: ScrollBox, shift = false) =
-  ## Move cursor left by a word (Usually ctr + left).
-  if scrollBox.cursor > 0:
-    dec scrollBox.cursor
-  while scrollBox.cursor > 0 and
-    not scrollBox.runes[scrollBox.cursor - 1].isWhiteSpace():
-    dec scrollBox.cursor
-  scrollBox.adjustScroll()
-  if not shift:
-    scrollBox.selector = scrollBox.cursor
-  scrollBox.savedX = scrollBox.cursorPos.x
-
-proc rightWord*(scrollBox: ScrollBox, shift = false) =
-  ## Move cursor right by a word (Usually ctr + right).
-  if scrollBox.cursor < scrollBox.runes.len:
-    inc scrollBox.cursor
-  while scrollBox.cursor < scrollBox.runes.len and
-    not scrollBox.runes[scrollBox.cursor].isWhiteSpace():
-    inc scrollBox.cursor
-  scrollBox.adjustScroll()
-  if not shift:
-    scrollBox.selector = scrollBox.cursor
-  scrollBox.savedX = scrollBox.cursorPos.x
-
-proc startOfLine*(scrollBox: ScrollBox, shift = false) =
-  ## Move cursor left by a word.
-  while scrollBox.cursor > 0 and
-    scrollBox.runes[scrollBox.cursor - 1] != Rune(10):
-    dec scrollBox.cursor
-  scrollBox.adjustScroll()
-  if not shift:
-    scrollBox.selector = scrollBox.cursor
-  scrollBox.savedX = scrollBox.cursorPos.x
-
-proc endOfLine*(scrollBox: ScrollBox, shift = false) =
-  ## Move cursor right by a word.
-  while scrollBox.cursor < scrollBox.runes.len and
-    scrollBox.runes[scrollBox.cursor] != Rune(10):
-    inc scrollBox.cursor
-  scrollBox.adjustScroll()
-  if not shift:
-    scrollBox.selector = scrollBox.cursor
-  scrollBox.savedX = scrollBox.cursorPos.x
-
-proc pageUp*(scrollBox: ScrollBox, shift = false) =
-  ## Move cursor up by half a text box height.
-  if scrollBox.layout.len == 0:
-    return
-  let
-    pos = vec2(scrollBox.savedX, scrollBox.cursorPos.y - float(scrollBox.height) * 0.5)
-    g = scrollBox.layout.pickGlyphAt(pos)
-  if g.character != "":
-    scrollBox.cursor = g.count
-    scrollBox.adjustScroll()
-    if not shift:
-      scrollBox.selector = scrollBox.cursor
-  elif pos.y <= scrollBox.layout[0].selectRect.y:
-    # Above the first line? Then jump to start location 0.
-    scrollBox.cursor = 0
-    scrollBox.adjustScroll()
-    if not shift:
-      scrollBox.selector = scrollBox.cursor
-
-proc pageDown*(scrollBox: ScrollBox, shift = false) =
-  ## Move cursor down up by half a text box height.
-  if scrollBox.layout.len == 0:
-    return
-  let
-    pos = vec2(scrollBox.savedX, scrollBox.cursorPos.y + float(scrollBox.height) * 0.5)
-    g = scrollBox.layout.pickGlyphAt(pos)
-  if g.character != "":
-    scrollBox.cursor = g.count
-    scrollBox.adjustScroll()
-    if not shift:
-      scrollBox.selector = scrollBox.cursor
-  elif pos.y > scrollBox.layout[^1].selectRect.y:
-    # Bellow the last line? Then jump to start location last.
-    scrollBox.cursor = scrollBox.runes.len
-    scrollBox.adjustScroll()
-    if not shift:
-      scrollBox.selector = scrollBox.cursor
 
 proc mouseAction*(
   scrollBox: ScrollBox,
@@ -490,36 +272,6 @@ proc mouseAction*(
 
   if not shift and click:
     scrollBox.selector = scrollBox.cursor
-
-proc selectWord*(scrollBox: ScrollBox, mousePos: Vec2, extraSpace = true) =
-  ## Select word under the cursor (double click).
-  scrollBox.mouseAction(mousePos, click = true)
-  while scrollBox.cursor > 0 and
-    not scrollBox.runes[scrollBox.cursor - 1].isWhiteSpace():
-    dec scrollBox.cursor
-  while scrollBox.selector < scrollBox.runes.len and
-    not scrollBox.runes[scrollBox.selector].isWhiteSpace():
-    inc scrollBox.selector
-  if extraSpace:
-    # Select extra space to the right if its there.
-    if scrollBox.selector < scrollBox.runes.len and
-      scrollBox.runes[scrollBox.selector] == Rune(32):
-      inc scrollBox.selector
-
-proc selectParagraph*(scrollBox: ScrollBox, mousePos: Vec2) =
-  ## Select paragraph under the cursor (triple click).
-  scrollBox.mouseAction(mousePos, click = true)
-  while scrollBox.cursor > 0 and
-    scrollBox.runes[scrollBox.cursor - 1] != Rune(10):
-    dec scrollBox.cursor
-  while scrollBox.selector < scrollBox.runes.len and
-    scrollBox.runes[scrollBox.selector] != Rune(10):
-    inc scrollBox.selector
-
-proc selectAll*(scrollBox: ScrollBox) =
-  ## Select all text (quad click).
-  scrollBox.cursor = 0
-  scrollBox.selector = scrollBox.runes.len
 
 proc resize*(scrollBox: ScrollBox, size: Vec2) =
   ## Resize text box.
