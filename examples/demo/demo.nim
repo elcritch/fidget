@@ -303,7 +303,7 @@ proc basicConstraints() =
     # Got to specify orgBox for constraints to work.
     orgBox 0, 0, 400, 400
     # Then grow the normal box.
-    box 130, 0, root.getBox(raw=true).w - 130, root.getBox(raw=true).h
+    box 130, 0, root.getBox().w - 130, root.getBox().h
     # Constraints will work on the difference between orgBox and box.
     fill "#ffffff"
     rectangle "Center":

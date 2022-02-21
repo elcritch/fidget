@@ -324,7 +324,7 @@ proc setupFidget(
     scrollBox.y = float 0
     scrollBox.w = windowLogicalSize.x
     scrollBox.h = windowLogicalSize.y
-    root.setBox(scrollBox, raw=false)
+    root.setBox(scrollBox, raw=true)
 
     if textBox != nil:
       keyboard.input = textBox.text
