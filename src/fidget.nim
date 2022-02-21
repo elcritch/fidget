@@ -234,15 +234,15 @@ proc fontFamily*(fontFamily: string) =
 
 proc fontSize*(fontSize: float32) =
   ## Sets the font size in pixels.
-  current.textStyle.fontSize = fontSize*3.0
+  current.textStyle.fontSize = fontSize * common.uiScale
 
 proc fontWeight*(fontWeight: float32) =
   ## Sets the font weight.
-  current.textStyle.fontWeight = 3*fontWeight
+  current.textStyle.fontWeight = fontWeight * common.uiScale
 
 proc lineHeight*(lineHeight: float32) =
   ## Sets the font size.
-  current.textStyle.lineHeight = 3*lineHeight
+  current.textStyle.lineHeight = lineHeight * common.uiScale
 
 proc textAlign*(textAlignHorizontal: HAlign, textAlignVertical: VAlign) =
   ## Sets the horizontal and vertical alignment.
