@@ -9,7 +9,7 @@ proc drawMain() =
   font "IBM Plex Sans Regular", 12, 200, 16, hLeft, vTop
 
   frame "main":
-    box 0, 0, int root.box.w, root.box.h
+    box 0, 0, int root.getBox().w, root.getBox().h
 
     text "noClipped":
       box 100, 80, 100, 20
@@ -54,4 +54,4 @@ proc drawMain() =
         textAlign hLeft, vTop
         characters "Some text here"
 
-startFidget(drawMain)
+startFidget(drawMain, uiScale=2)

@@ -1,5 +1,7 @@
 import bumpy, fidget, math, random
 
+loadFont("IBM Plex Sans", "IBMPlexSans-Regular.ttf")
+
 # Create an array of 30 bars.
 var bars = newSeq[float](30)
 for i, bar in bars:
@@ -29,6 +31,13 @@ proc drawMain() =
           # If current box is not on screen, don't draw children.
           if current.screenBox.overlaps(scrollBox):
 
+            text "text":
+              box 61, 0, 70, 20
+              fill "#46607e"
+              strokeWeight 1
+              font "IBM Plex Sans", 16, 200, 0, hLeft, vCenter
+              characters "scroll " & $i
+
             # Draw the decrement button to make the bar go down.
             rectangle "dec":
               box 0, 0, 40, 40
@@ -57,4 +66,4 @@ proc drawMain() =
                 box 0, 0, (barW - 80*2) * float(bar), 40
                 fill "#46D15F"
 
-startFidget(drawMain)
+startFidget(drawMain, uiScale=1.5)
