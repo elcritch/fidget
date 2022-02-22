@@ -201,7 +201,7 @@ template onHover*(inner: untyped) =
   if mouseOverlapLogic():
     inner
 
-template em*(size: float32): float32 =
+template Em*(size: float32): float32 =
   ## Code in the block will run when this box is hovered.
   current.textStyle.fontSize * 0.5 * size
 

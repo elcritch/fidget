@@ -69,7 +69,7 @@ proc basicControls() =
 
   group "dropdown":
     font "IBM Plex Sans", 16, 200, 0, hCenter, vCenter
-    box 260, 115, 100, 1.2.em
+    box 260, 115, 100, Em 1.2
     fill "#72bdd0"
     cornerRadius 5
     strokeWeight 1
@@ -78,42 +78,48 @@ proc basicControls() =
     onClick:
       dropDownOpen = not dropDownOpen
     instance "arrow":
-      box 80, 0, 20, 1.2.em
+      box 80, 0, 20, Em 1.2
       if dropDownOpen:
         rotation -90
       image "arrow.png"
     text "text":
       # textPadding: 0.375.em.int
-      box 0, 0, 80, 1.2.em
+      box 0, 0, 80, Em 1.2
       fill "#ffffff"
       strokeWeight 1
       characters "Dropdown"
 
     if dropDownOpen:
-      frame "dropDown":
-        box 0, em 1.2, 10, 100
-        fill "#ffffff"
-        cornerRadius 5
-        layout lmVertical
-        counterAxisSizingMode csAuto
-        horizontalPadding 0
-        verticalPadding 0
-        itemSpacing 0
+      group "dropDownScroller":
+        box 0, Em 1.2, 100, 4.Em
         clipContent true
-        for buttonName in reverse(@["Nim", "UI", "in", "100%", "Nim"]):
-          group "button":
-            box 0, 1.em, 100, 20
-            layoutAlign laCenter
-            fill "#72bdd0"
-            onHover:
-              fill "#5C8F9C"
-              dropDownOpen = true
-            onClick:
-              dropDownOpen = false
-            text "text":
-              box 0, 0, 100, 20
-              fill "#ffffff"
-              characters buttonName
+
+        group "dropDown":
+          scrollable true
+          cornerRadius 5
+          layout lmVertical
+          counterAxisSizingMode csAuto
+          horizontalPadding 0
+          verticalPadding 0
+          itemSpacing 0
+          let items = @["Nim", "UI", "in", "100%", "Nim"]
+          for buttonName in reverse(items & items):
+            rectangle "dash":
+              box 0, 0.Em, 100, 0.02.Em
+              fill "#ffffff", 0.6
+            group "button":
+              box 0, 0.Em, 100, 1.Em
+              layoutAlign laCenter
+              fill "#72bdd0", 0.9
+              onHover:
+                fill "#5C8F9C", 0.9
+                dropDownOpen = true
+              onClick:
+                dropDownOpen = false
+              text "text":
+                box 0, 0, 100, 20
+                fill "#ffffff"
+                characters buttonName
 
   group "progress":
     box 260, 149, 250, 12
