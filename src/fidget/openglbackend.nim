@@ -8,6 +8,8 @@ when not defined(emscripten) and not defined(fidgetNoAsync):
 
 export input
 
+import sugar
+
 type
   Context = context.Context
 
@@ -237,12 +239,8 @@ proc removeExtraChildren*(node: Node) =
   ## Deal with removed nodes.
   node.nodes.setLen(node.diffIndex)
 
-proc draw*(node: Node) =
+proc draw*(node, parent: Node) =
   ## Draws the node.
-  if node.scrollable:
-    ctx.saveTransform()
-    ctx.translate(-node.offset)
-
   ctx.saveTransform()
   ctx.translate(node.screenBox.xy)
   if node.rotation != 0:
@@ -292,14 +290,38 @@ proc draw*(node: Node) =
 
   ctx.restoreTransform()
 
-  for j in 1 .. node.nodes.len:
-    node.nodes[^j].draw()
+  if node.scrollable:
+    ctx.saveTransform()
+    ctx.translate(-node.offset)
 
-  if node.clipContent:
-    ctx.popMask()
+  for j in 1 .. node.nodes.len:
+    node.nodes[^j].draw(node)
 
   if node.scrollable:
     ctx.restoreTransform()
+    let
+      xo = node.offset.x()
+      yo = node.offset.y()
+    node.cursorColor = parseHtmlColor("#5C8F9C")
+    node.cursorColor.a = 0.4
+    # echo "parent.screenBox: ", parent.screenBox
+    # echo "node.yo: ", yo
+    # echo "node.screenBox: ", node.idPath, " screen: ", node.screenBox
+    let
+      ph = parent.screenBox.h
+      nh = node.screenBox.h - ph
+      perc = ph/nh/2
+      hPerc = yo/nh
+      sh = perc*ph
+      bx = Rect(x: 0, y: hPerc*(ph - sh), w: 100, h: sh)
+
+    # echo "node.hPerc: ", hPerc, " perc: ", perc
+    dump((nh, ph, perc, hPerc, ))
+    ctx.fillRect(bx, node.cursorColor)
+    # echo "scrollable: ", node.screenBox
+
+  if node.clipContent:
+    ctx.popMask()
 
 
 proc openBrowser*(url: string) =
@@ -346,7 +368,7 @@ proc setupFidget(
     computeScreenBox(nil, root)
 
     # Only draw the root after everything was done:
-    root.draw()
+    root.draw(root)
 
     ctx.restoreTransform()
     ctx.endFrame()

@@ -15,6 +15,23 @@ proc drawMain() =
   let barH = bars.len.float32 * 60 + 20
   let barW = root.box().w - 100
 
+  group "button":
+    box 0, 0, 90, 20
+    cornerRadius 5
+    fill "#72bdd0"
+    onHover:
+      fill "#5C8F9C"
+    onDown:
+      fill "#3E656F"
+    onClick:
+      echo "button: "
+      dumpTree(root)
+    text "text":
+      box 0, 0, 90, 20
+      fill "#ffffff"
+      font "IBM Plex Sans", 12, 200, 0, hCenter, vCenter
+      characters "Button"
+
   frame "main":
     box 0, 0, root.box().w, root.box().h - 20
     fill "#F7F7F9"

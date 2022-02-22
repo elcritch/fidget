@@ -65,9 +65,14 @@ proc postNode() =
   if not mouse.consumed and mpos.overlaps(current.screenBox):
     if mouse.wheelDelta != 0:
       if current.scrollable:
-        let yoffset = mouse.wheelDelta * 2*common.uiScale
+        let
+          yoffset = mouse.wheelDelta * 2*common.uiScale
+          ph = parent.screenBox.h
+          ch = current.screenBox.h - ph
+          perc = ph/ch
+          hPerc = yoffset/ch
         current.offset.y -= yoffset
-        current.offset.y = current.offset.y.clamp(0, current.screenBox.h)
+        current.offset.y = current.offset.y.clamp(0, ch)
         mouse.consumed = true
 
   # Pop the stack.
