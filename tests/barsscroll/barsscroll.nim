@@ -23,6 +23,7 @@ proc drawMain() =
       box 50, 0, barW, float max(int root.getBox().h, h)
       fill "#DFDFE0"
       scrollable true
+      scrollBars true
       font "IBM Plex Sans", 16, 200, 0, hLeft, vCenter
       strokeWeight 1
 

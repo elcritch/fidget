@@ -237,30 +237,6 @@ proc removeExtraChildren*(node: Node) =
   ## Deal with removed nodes.
   node.nodes.setLen(node.diffIndex)
 
-proc processEventsPre*(parent, node: Node) =
-  ## process events (?)
-  for n in node.nodes:
-    processEventsPre(node, n)
-  # if not mouse.consumed and mouse.pos.overlaps(node.screenBox):
-  #   if mouse.wheelDelta != 0:
-  #     if node.scrollable:
-  #       let yoffset = mouse.wheelDelta * 2*common.uiScale
-  #       node.offset.y -= yoffset
-  #       node.offset.y = node.offset.y.clamp(0, node.screenBox.h)
-  #       mouse.consumed = true
-
-proc processEventsPost*(parent, node: Node) =
-  ## post calc
-  node.totalOffset = parent.totalOffset + parent.offset
-  for n in node.nodes:
-    processEventsPost(node, n)
-    
-proc processEvents*(parent, node: Node) =
-  ## process events (?)
-  processEventsPre(parent, node)
-  for n in node.nodes: processEventsPost(node, n)
-    
-
 proc draw*(node: Node) =
   ## Draws the node.
   if node.scrollable:
@@ -361,8 +337,6 @@ proc setupFidget(
 
     if textBox != nil:
       keyboard.input = textBox.text
-
-    processEvents(nil, root)
 
     drawMain()
 
