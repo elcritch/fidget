@@ -201,6 +201,10 @@ template onHover*(inner: untyped) =
   if mouseOverlapLogic():
     inner
 
+template em*(size: float32): float32 =
+  ## Code in the block will run when this box is hovered.
+  current.textStyle.fontSize * 0.5 * size
+
 template onScroll*(inner: untyped) =
   ## Code in the block will run when this box is hovered.
   if mouse.wheelDelta != 0.0 and mouseOverlapLogic():

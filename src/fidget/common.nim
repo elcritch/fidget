@@ -1,4 +1,5 @@
 import chroma, input, sequtils, tables, vmath, json, bumpy
+import strutils
 
 when defined(js):
   import dom2, html/ajax

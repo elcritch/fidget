@@ -68,7 +68,8 @@ proc basicText() =
 proc basicControls() =
 
   group "dropdown":
-    box 260, 115, 100, 20
+    font "IBM Plex Sans", 16, 200, 0, hCenter, vCenter
+    box 260, 115, 100, 1.2.em
     fill "#72bdd0"
     cornerRadius 5
     strokeWeight 1
@@ -77,20 +78,20 @@ proc basicControls() =
     onClick:
       dropDownOpen = not dropDownOpen
     instance "arrow":
-      box 80, 0, 20, 20
+      box 80, 0, 20, 1.2.em
       if dropDownOpen:
         rotation -90
       image "arrow.png"
     text "text":
-      box 0, 0, 80, 20
+      # textPadding: 0.375.em.int
+      box 0, 0, 80, 1.2.em
       fill "#ffffff"
       strokeWeight 1
-      font "IBM Plex Sans", 12, 200, 0, hCenter, vCenter
       characters "Dropdown"
 
     if dropDownOpen:
       frame "dropDown":
-        box 0, 30, 100, 100
+        box 0, em 1.2, 10, 100
         fill "#ffffff"
         cornerRadius 5
         layout lmVertical
@@ -101,17 +102,17 @@ proc basicControls() =
         clipContent true
         for buttonName in reverse(@["Nim", "UI", "in", "100%", "Nim"]):
           group "button":
-            box 0, 80, 100, 20
+            box 0, 1.em, 100, 20
             layoutAlign laCenter
             fill "#72bdd0"
             onHover:
               fill "#5C8F9C"
+              dropDownOpen = true
             onClick:
               dropDownOpen = false
             text "text":
               box 0, 0, 100, 20
               fill "#ffffff"
-              font "IBM Plex Sans", 12, 400, 0, hCenter, vCenter
               characters buttonName
 
   group "progress":
