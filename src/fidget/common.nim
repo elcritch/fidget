@@ -514,6 +514,10 @@ proc getBox*(node: Node, raw: static[bool] = false): Rect =
   when raw: result = node.box
   else: result = node.box / uiScale
 
+proc box*(node: Node, raw: static[bool] = false): Rect =
+  when raw: result = node.box
+  else: result = node.box / uiScale
+
 proc setOrgBox*(node: Node, rect: Rect, raw: static[bool] = false) =
   when raw: node.orgBox = rect
   else: node.orgBox = rect * common.uiScale

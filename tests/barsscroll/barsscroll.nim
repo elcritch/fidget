@@ -12,18 +12,19 @@ proc drawMain() =
   setTitle("Fidget Bars Example")
 
   # Use simple math to layout things.
-  let h = bars.len * 60 + 20
-  let barW = root.getBox.w - 100
+  let barH = bars.len.float32 * 60 + 20
+  let barW = root.box().w - 100
 
   frame "main":
-    box 0, 0, int root.getBox().w, max(int root.getBox().h, h)
+    box 0, 0, root.box().w, root.box().h - 20
     fill "#F7F7F9"
+    clipContent true
 
     group "center":
-      box 50, 0, barW, float max(int root.getBox().h, h)
-      fill "#DFDFE0"
       scrollable true
-      scrollBars true
+
+      box 50, 0, barW, barH
+      fill "#DFDFE0"
       font "IBM Plex Sans", 16, 200, 0, hLeft, vCenter
       strokeWeight 1
 
