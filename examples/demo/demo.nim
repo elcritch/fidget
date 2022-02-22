@@ -68,7 +68,7 @@ proc basicText() =
 proc basicControls() =
 
   group "dropdown":
-    font "IBM Plex Sans", 16, 200, 0, hCenter, vCenter
+    font "IBM Plex Sans", 14, 200, 0, hCenter, vCenter
     box 260, 115, 100, Em 1.2
     fill "#72bdd0"
     cornerRadius 5
