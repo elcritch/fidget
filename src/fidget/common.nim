@@ -146,7 +146,7 @@ type
     ## Can the text be selected.
     selectable*: bool
     scrollBars*: bool ## Should it have scroll bars if children are clipped.
-    postHooks*: seq[proc() {.nimcall.}]
+    postHooks*: seq[proc() {.closure.}]
 
   KeyState* = enum
     Empty

@@ -492,7 +492,7 @@ proc parseParams*(): Table[string, string] =
       val = arr[1]
     result[key] = val
 
-proc scrollBars*(scrollBars: bool) =
+proc scrollBars*(scrollBars: bool, halign: HAlign = hRight) =
   ## Causes the parent to clip the children and draw scroll bars.
   current.scrollBars = scrollBars
   if scrollBars == true:
@@ -512,10 +512,12 @@ proc scrollBars*(scrollBars: bool) =
       yo = current.descaled(offset).y()
       ph = parent.descaled(screenBox).h
       nh = current.descaled(screenBox).h - ph
+      nw = current.descaled(screenBox).w
       perc = ph/nh/2
       hPerc = yo/nh
       sh = perc*ph
-      bx = Rect(x: 0, y: hPerc*(ph - sh), w: 1.Em, h: sh)
+      xx = if halign == hLeft: 0'f32 else: nw - 10
+      bx = Rect(x: xx, y: hPerc*(ph - sh), w: 10, h: sh)
 
     var idx = -1
     for i, child in current.nodes:
