@@ -496,7 +496,6 @@ var
   pipDrag = true
   pipHPosLast = 0'f32
   pipHPos = 0'f32
-  pipPercPos = 0'f32
   pipOffLast = 0'f32
 
 proc scrollBars*(scrollBars: bool, hAlign = hRight) =
@@ -534,8 +533,9 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight) =
     if pipDrag:
       pipHPos = mouse.descaled(pos).y 
       pipDrag = buttonDown[MOUSE_LEFT]
+      let pipDelta = (pipHPos - pipHPosLast)
       ## ick, this is slightly off, not sure how to fix 
-      current.offset.y = 4*uiScale*(pipHPos - pipHPosLast) + uiScale*(pipOffLast)
+      current.offset.y = 4*uiScale*pipDelta + uiScale*(pipOffLast)
       current.offset.y = current.offset.y.clamp(0, uiScale*ch)
 
     let
