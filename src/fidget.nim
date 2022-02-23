@@ -116,6 +116,10 @@ template instance*(id: string, inner: untyped): untyped =
   ## Starts a new instance of a component.
   node(nkInstance, id, inner)
 
+template scroller*(id: string, inner: untyped): untyped =
+  ## Starts a new node.
+  node(nkGroup, id, inner)
+
 template group*(inner: untyped): untyped =
   ## Starts a new node.
   node(nkGroup, "", inner)
@@ -390,8 +394,31 @@ proc scrollBars*(scrollBars: bool) =
 proc scrollable*(scrollable: bool) =
   ## Causes the parent to clip the children and draw scroll bars.
   current.scrollable = scrollable
-  if scrollable:
+  if scrollable == true:
     current.clipContent = scrollable
+
+  # echo "parent.screenBox: ", parent.screenBox
+  # echo "node.yo: ", yo
+  # echo "node.screenBox: ", node.idPath, " screen: ", node.screenBox
+  let
+    xo = current.descaled(offset).x()
+    yo = current.descaled(offset).y()
+    ph = parent.descaled(screenBox).h
+    nh = current.descaled(screenBox).h - ph
+    perc = ph/nh/2
+    hPerc = yo/nh
+    sh = perc*ph
+    bx = Rect(x: 0, y: hPerc*(ph - sh), w: 100, h: sh)
+
+  rectangle "$scrollbar":
+    box bx
+    fill "#5C8F9C", 0.4
+    # cornerRadius 5
+  # echo "node.hPerc: ", hPerc, " perc: ", perc
+  # dump((nh, ph, perc, hPerc, ))
+  # ctx.fillRect(bx, node.cursorColor)
+  # echo "scrollable: ", node.screenBox
+
 
 proc cursorColor*(color: Color) =
   ## Sets the color of the text cursor.

@@ -38,12 +38,12 @@ proc drawMain() =
     clipContent true
 
     group "center":
-      scrollable true
-
       box 50, 0, barW, barH
       fill "#DFDFE0"
       font "IBM Plex Sans", 16, 200, 0, hLeft, vCenter
       strokeWeight 1
+
+      scrollable true
 
       # Draw a list of bars using a simple for loop.
       for i, bar in bars.mpairs:

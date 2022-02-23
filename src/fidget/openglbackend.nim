@@ -241,6 +241,10 @@ proc removeExtraChildren*(node: Node) =
 
 proc draw*(node, parent: Node) =
   ## Draws the node.
+  if node.id == "$scrollbar":
+    ctx.saveTransform()
+    ctx.translate(parent.offset)
+
   ctx.saveTransform()
   ctx.translate(node.screenBox.xy)
   if node.rotation != 0:
@@ -299,29 +303,12 @@ proc draw*(node, parent: Node) =
 
   if node.scrollable:
     ctx.restoreTransform()
-    let
-      xo = node.offset.x()
-      yo = node.offset.y()
-    node.cursorColor = parseHtmlColor("#5C8F9C")
-    node.cursorColor.a = 0.4
-    # echo "parent.screenBox: ", parent.screenBox
-    # echo "node.yo: ", yo
-    # echo "node.screenBox: ", node.idPath, " screen: ", node.screenBox
-    let
-      ph = parent.screenBox.h
-      nh = node.screenBox.h - ph
-      perc = ph/nh/2
-      hPerc = yo/nh
-      sh = perc*ph
-      bx = Rect(x: 0, y: hPerc*(ph - sh), w: 100, h: sh)
-
-    # echo "node.hPerc: ", hPerc, " perc: ", perc
-    dump((nh, ph, perc, hPerc, ))
-    ctx.fillRect(bx, node.cursorColor)
-    # echo "scrollable: ", node.screenBox
 
   if node.clipContent:
     ctx.popMask()
+
+  if node.id == "$scrollbar":
+    ctx.restoreTransform()
 
 
 proc openBrowser*(url: string) =
