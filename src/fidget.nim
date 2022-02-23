@@ -58,13 +58,18 @@ proc preNode(kind: NodeKind, id: string) =
 
 proc postNode() =
   ## Node drawing is done.
+  
+  # run after inner hooks
+  for hook in current.postHooks:
+    hook()
+  current.postHooks = @[]
 
   current.removeExtraChildren()
 
   let mpos = mouse.pos + current.totalOffset 
   if not mouse.consumed and mpos.overlaps(current.screenBox):
     if mouse.wheelDelta != 0:
-      if current.scrollable:
+      if current.scrollBars:
         let
           yoffset = mouse.wheelDelta * 2*common.uiScale
           ph = parent.screenBox.h
@@ -115,10 +120,6 @@ template component*(id: string, inner: untyped): untyped =
 template instance*(id: string, inner: untyped): untyped =
   ## Starts a new instance of a component.
   node(nkInstance, id, inner)
-
-template scroller*(id: string, inner: untyped): untyped =
-  ## Starts a new node.
-  node(nkGroup, id, inner)
 
 template group*(inner: untyped): untyped =
   ## Starts a new node.
@@ -387,37 +388,48 @@ proc clipContent*(clipContent: bool) =
   ## Causes the parent to clip the children.
   current.clipContent = clipContent
 
+
 proc scrollBars*(scrollBars: bool) =
   ## Causes the parent to clip the children and draw scroll bars.
   current.scrollBars = scrollBars
-
-proc scrollable*(scrollable: bool) =
-  ## Causes the parent to clip the children and draw scroll bars.
-  current.scrollable = scrollable
-  if scrollable == true:
-    current.clipContent = scrollable
-
-  # echo "parent.screenBox: ", parent.screenBox
-  # echo "node.yo: ", yo
-  # echo "node.screenBox: ", node.idPath, " screen: ", node.screenBox
-  let
-    xo = current.descaled(offset).x()
-    yo = current.descaled(offset).y()
-    ph = parent.descaled(screenBox).h
-    nh = current.descaled(screenBox).h - ph
-    perc = ph/nh/2
-    hPerc = yo/nh
-    sh = perc*ph
-    bx = Rect(x: 0, y: hPerc*(ph - sh), w: 100, h: sh)
+  if scrollbars == true:
+    current.clipContent = scrollBars
 
   rectangle "$scrollbar":
-    box bx
+    box 0, 0, 0, 0
     fill "#5C8F9C", 0.4
-    # cornerRadius 5
-  # echo "node.hPerc: ", hPerc, " perc: ", perc
-  # dump((nh, ph, perc, hPerc, ))
-  # ctx.fillRect(bx, node.cursorColor)
-  # echo "scrollable: ", node.screenBox
+    onHover:
+      fill "#5C8F9C", 0.9
+
+  ## add post inner callback to calculate the scrollbar box
+  current.postHooks.add proc() =
+    let
+      curr = current
+      par = parent
+
+      yo = curr.descaled(offset).y()
+      ph = par.descaled(screenBox).h
+      nh = curr.descaled(screenBox).h - ph
+      perc = ph/nh/2
+      hPerc = yo/nh
+      sh = perc*ph
+      bx = Rect(x: 0, y: hPerc*(ph - sh), w: 1.Em, h: sh)
+
+    var idx = -1
+    for i, child in curr.nodes:
+      if child.id == "$scrollbar":
+        idx = i
+        break
+    
+    if idx >= 0:
+      var sb = curr.nodes[idx]
+      sb.setBox(bx)
+      sb.offset = curr.offset * -1.0'f32
+      curr.nodes.delete(idx)
+      curr.nodes.insert(sb, 0)
+    else:
+      raise newException(Exception, "scrollbar defined but node is missing")
+
 
 
 proc cursorColor*(color: Color) =

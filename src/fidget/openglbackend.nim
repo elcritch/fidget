@@ -294,14 +294,14 @@ proc draw*(node, parent: Node) =
 
   ctx.restoreTransform()
 
-  if node.scrollable:
+  if node.scrollBars:
     ctx.saveTransform()
     ctx.translate(-node.offset)
 
   for j in 1 .. node.nodes.len:
     node.nodes[^j].draw(node)
 
-  if node.scrollable:
+  if node.scrollBars:
     ctx.restoreTransform()
 
   if node.clipContent:

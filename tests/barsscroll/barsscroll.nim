@@ -42,8 +42,7 @@ proc drawMain() =
       fill "#DFDFE0"
       font "IBM Plex Sans", 16, 200, 0, hLeft, vCenter
       strokeWeight 1
-
-      scrollable true
+      scrollBars true
 
       # Draw a list of bars using a simple for loop.
       for i, bar in bars.mpairs:
