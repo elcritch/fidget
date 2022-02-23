@@ -492,7 +492,7 @@ proc parseParams*(): Table[string, string] =
       val = arr[1]
     result[key] = val
 
-proc scrollBars*(scrollBars: bool, halign: HAlign = hRight) =
+proc scrollBars*(scrollBars: bool) =
   ## Causes the parent to clip the children and draw scroll bars.
   current.scrollBars = scrollBars
   if scrollBars == true:
@@ -508,7 +508,9 @@ proc scrollBars*(scrollBars: bool, halign: HAlign = hRight) =
   ## add post inner callback to calculate the scrollbar box
   current.postHooks.add proc() =
     let
-      a = 3.0'f32
+      halign: HAlign = hRight
+      cr = 4.0'f32
+      width = 14'f32
       yo = current.descaled(offset).y()
       ph = parent.descaled(screenBox).h
       nh = current.descaled(screenBox).h - ph
@@ -516,8 +518,8 @@ proc scrollBars*(scrollBars: bool, halign: HAlign = hRight) =
       perc = ph/nh/2
       hPerc = yo/nh
       sh = perc*ph
-      xx = if halign == hLeft: 0'f32 else: nw - 10
-      bx = Rect(x: xx, y: hPerc*(ph - sh), w: 10, h: sh)
+      xx = if halign == hLeft: 0'f32 else: nw - width
+      bx = Rect(x: xx, y: hPerc*(ph - sh), w: width, h: sh)
 
     var idx = -1
     for i, child in current.nodes:
@@ -528,9 +530,9 @@ proc scrollBars*(scrollBars: bool, halign: HAlign = hRight) =
     if idx >= 0:
       var sb = current.nodes[idx]
       sb.setBox(bx)
-      sb.offset = current.offset * -1.0'f32
+      sb.offset = current.offset * -1'f32
       if (bx.w + bx.h) > 0.0:
-        sb.cornerRadius = (3*a, 3*a, 3*a, 3*a)
+        sb.cornerRadius = (3*cr, 3*cr, 3*cr, 3*cr)
       current.nodes.delete(idx)
       current.nodes.insert(sb, 0)
     else:
