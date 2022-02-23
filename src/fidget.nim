@@ -492,7 +492,7 @@ proc parseParams*(): Table[string, string] =
       val = arr[1]
     result[key] = val
 
-proc scrollBars*(scrollBars: bool) =
+proc scrollBars*(scrollBars: bool, hAlign = hRight) =
   ## Causes the parent to clip the children and draw scroll bars.
   current.scrollBars = scrollBars
   if scrollBars == true:
@@ -508,7 +508,7 @@ proc scrollBars*(scrollBars: bool) =
   ## add post inner callback to calculate the scrollbar box
   current.postHooks.add proc() =
     let
-      halign: HAlign = hRight
+      halign: HAlign = hAlign
       cr = 4.0'f32
       width = 14'f32
       yo = current.descaled(offset).y()
