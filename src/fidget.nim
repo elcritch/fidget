@@ -389,49 +389,6 @@ proc clipContent*(clipContent: bool) =
   current.clipContent = clipContent
 
 
-proc scrollBars*(scrollBars: bool) =
-  ## Causes the parent to clip the children and draw scroll bars.
-  current.scrollBars = scrollBars
-  if scrollbars == true:
-    current.clipContent = scrollBars
-
-  rectangle "$scrollbar":
-    box 0, 0, 0, 0
-    fill "#5C8F9C", 0.4
-    onHover:
-      fill "#5C8F9C", 0.9
-
-  ## add post inner callback to calculate the scrollbar box
-  current.postHooks.add proc() =
-    let
-      curr = current
-      par = parent
-
-      yo = curr.descaled(offset).y()
-      ph = par.descaled(screenBox).h
-      nh = curr.descaled(screenBox).h - ph
-      perc = ph/nh/2
-      hPerc = yo/nh
-      sh = perc*ph
-      bx = Rect(x: 0, y: hPerc*(ph - sh), w: 1.Em, h: sh)
-
-    var idx = -1
-    for i, child in curr.nodes:
-      if child.id == "$scrollbar":
-        idx = i
-        break
-    
-    if idx >= 0:
-      var sb = curr.nodes[idx]
-      sb.setBox(bx)
-      sb.offset = curr.offset * -1.0'f32
-      curr.nodes.delete(idx)
-      curr.nodes.insert(sb, 0)
-    else:
-      raise newException(Exception, "scrollbar defined but node is missing")
-
-
-
 proc cursorColor*(color: Color) =
   ## Sets the color of the text cursor.
   current.cursorColor = color
@@ -534,3 +491,43 @@ proc parseParams*(): Table[string, string] =
       key = arr[0]
       val = arr[1]
     result[key] = val
+
+proc scrollBars*(scrollBars: bool) =
+  ## Causes the parent to clip the children and draw scroll bars.
+  current.scrollBars = scrollBars
+  if scrollBars == true:
+    current.clipContent = scrollBars
+
+  # define basics of scrollbar
+  rectangle "$scrollbar":
+    box 0, 0, 0, 0
+    fill "#5C8F9C", 0.4
+    onHover:
+      fill "#5C8F9C", 0.9
+
+  ## add post inner callback to calculate the scrollbar box
+  current.postHooks.add proc() =
+    let
+      yo = current.descaled(offset).y()
+      ph = parent.descaled(screenBox).h
+      nh = current.descaled(screenBox).h - ph
+      perc = ph/nh/2
+      hPerc = yo/nh
+      sh = perc*ph
+      bx = Rect(x: 0, y: hPerc*(ph - sh), w: 1.Em, h: sh)
+
+    var idx = -1
+    for i, child in current.nodes:
+      if child.id == "$scrollbar":
+        idx = i
+        break
+    
+    if idx >= 0:
+      var sb = current.nodes[idx]
+      sb.setBox(bx)
+      sb.offset = current.offset * -1.0'f32
+      current.nodes.delete(idx)
+      current.nodes.insert(sb, 0)
+    else:
+      raise newException(Exception, "scrollbar defined but node is missing")
+
