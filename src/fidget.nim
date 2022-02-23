@@ -516,7 +516,7 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight) =
       pipHPosLast = mouse.descaled(pos).y 
       pipOffLast = -current.descaled(offset).y
 
-  echo "pipOffLast : ", pipOffLast, " curr: ", current.descaled(offset).y
+  # echo "pipOffLast : ", pipOffLast, " curr: ", current.descaled(offset).y
   ## add post inner callback to calculate the scrollbar box
   current.postHooks.add proc() =
     let
