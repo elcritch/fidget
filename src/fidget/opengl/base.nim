@@ -194,6 +194,8 @@ proc glGetInteger*(what: GLenum): int =
 proc onResize(handle: staticglfw.Window, w, h: int32) {.cdecl.} =
   updateWindowSize()
   updateLoop(poll = false)
+  loopMode = RepaintOnFrame
+  updateLoop(poll = false)
 
 proc onFocus(window: staticglfw.Window, state: cint) {.cdecl.} =
   focused = state == 1
