@@ -534,6 +534,7 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight) =
     if pipDrag:
       pipHPos = mouse.descaled(pos).y 
       pipDrag = buttonDown[MOUSE_LEFT]
+      ## ick, this is slightly off, not sure how to fix 
       current.offset.y = 4*uiScale*(pipHPos - pipHPosLast) + uiScale*(pipOffLast)
       current.offset.y = current.offset.y.clamp(0, uiScale*ch)
 
