@@ -492,6 +492,13 @@ proc parseParams*(): Table[string, string] =
       val = arr[1]
     result[key] = val
 
+var
+  pipDrag = true
+  pipHPosLast = 0'f32
+  pipHPos = 0'f32
+  pipPercPos = 0'f32
+  pipOffLast = 0'f32
+
 proc scrollBars*(scrollBars: bool, hAlign = hRight) =
   ## Causes the parent to clip the children and draw scroll bars.
   current.scrollBars = scrollBars
@@ -504,20 +511,35 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight) =
     fill "#5C8F9C", 0.4
     onHover:
       fill "#5C8F9C", 0.9
+    onClick:
+      pipDrag = true
+      pipHPosLast = mouse.descaled(pos).y 
+      pipOffLast = -current.descaled(offset).y
 
+  echo "pipOffLast : ", pipOffLast, " curr: ", current.descaled(offset).y
   ## add post inner callback to calculate the scrollbar box
   current.postHooks.add proc() =
     let
       halign: HAlign = hAlign
       cr = 4.0'f32
       width = 14'f32
-      yo = current.descaled(offset).y()
+
       ph = parent.descaled(screenBox).h
       nh = current.descaled(screenBox).h - ph
       nw = current.descaled(screenBox).w
+      ch = current.descaled(screenBox).h - ph
       perc = ph/nh/2
-      hPerc = yo/nh
       sh = perc*ph
+
+    if pipDrag:
+      pipHPos = mouse.descaled(pos).y 
+      pipDrag = buttonDown[MOUSE_LEFT]
+      current.offset.y = 4*uiScale*(pipHPos - pipHPosLast) + uiScale*(pipOffLast)
+      current.offset.y = current.offset.y.clamp(0, uiScale*ch)
+
+    let
+      yo = current.descaled(offset).y()
+      hPerc = yo/nh
       xx = if halign == hLeft: 0'f32 else: nw - width
       bx = Rect(x: xx, y: hPerc*(ph - sh), w: width, h: sh)
 
