@@ -216,7 +216,7 @@ template Em*(size: float32): float32 =
   current.textStyle.fontSize * 0.5 * size
 
 template onScroll*(inner: untyped) =
-  ## Code in the block will run when this box is hovered.
+  ## Code in the block will run when mouse scrolls
   if mouse.wheelDelta != 0.0 and mouseOverlapLogic():
     mouse.consumed = true
     inner
@@ -508,6 +508,7 @@ proc scrollBars*(scrollBars: bool) =
   ## add post inner callback to calculate the scrollbar box
   current.postHooks.add proc() =
     let
+      a = 3.0'f32
       yo = current.descaled(offset).y()
       ph = parent.descaled(screenBox).h
       nh = current.descaled(screenBox).h - ph
@@ -526,6 +527,8 @@ proc scrollBars*(scrollBars: bool) =
       var sb = current.nodes[idx]
       sb.setBox(bx)
       sb.offset = current.offset * -1.0'f32
+      if (bx.w + bx.h) > 0.0:
+        sb.cornerRadius = (3*a, 3*a, 3*a, 3*a)
       current.nodes.delete(idx)
       current.nodes.insert(sb, 0)
     else:
