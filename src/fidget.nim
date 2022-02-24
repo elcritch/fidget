@@ -158,8 +158,9 @@ proc mouseOverlapLogic*(): bool =
     (not popupActive or inPopup) and
     current.screenBox.w > 0 and
     current.screenBox.h > 0 
-  # if act:
-    # echo "mouseOverlap: ", $mpos, " morig: ", $mouse.pos
+  if current.id == "$scrollbar":
+    let res = act and mpos.overlaps(current.screenBox)
+    echo "mouseOverlap: : ", res, " mpos: ", $mpos, " sb: ", $current.screenBox
   act and mpos.overlaps(current.screenBox)
 
 template onClick*(inner: untyped) =
@@ -565,8 +566,8 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight) =
       sb.offset = current.offset * -1'f32
       if (bx.w + bx.h) > 0.0:
         sb.cornerRadius = (3*cr, 3*cr, 3*cr, 3*cr)
-      current.nodes.delete(idx)
-      current.nodes.insert(sb, 0)
+      # current.nodes.delete(idx)
+      # current.nodes.insert(sb, 0)
     else:
       raise newException(Exception, "scrollbar defined but node is missing")
 

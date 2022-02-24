@@ -104,6 +104,7 @@ proc basicControls() =
           horizontalPadding 0
           verticalPadding 0
           itemSpacing 0
+          scrollBars true
 
           let items = @["Nim", "UI", "in", "100%", "Nim", "to", 
             "OpenGL", "Immediate", "mode"]
@@ -116,7 +117,7 @@ proc basicControls() =
               layoutAlign laCenter
               fill "#72bdd0", 0.9
               onHover:
-                fill "#5C8F9C", 0.9
+                fill "#5C8F9C", 0.8
                 dropDownOpen = true
               onClick:
                 dropDownOpen = false
@@ -124,7 +125,6 @@ proc basicControls() =
                 box 0, 0, 100, 20
                 fill "#ffffff"
                 characters buttonName
-          scrollBars true
 
   group "progress":
     box 260, 149, 250, 12
