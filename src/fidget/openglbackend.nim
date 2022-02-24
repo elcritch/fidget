@@ -47,6 +47,16 @@ computeTextLayout = proc(node: Node) =
   node.textLayoutWidth = boundsMax.x - boundsMin.x
   node.textLayoutHeight = boundsMax.y - boundsMin.y
 
+proc processHooks(parent, node: Node) =
+  ## compute hooks
+  if node.id == "dropdown":
+    echo "draw:scroll:id: ", node.idPath,
+         " ph: ", parent.descaled(screenBox),
+         " curr: ", node.descaled(screenBox)
+
+  for child in node.nodes:
+    processHooks(node, child)
+
 proc refresh*() =
   ## Request the screen be redrawn
   requestedFrame = true
@@ -353,6 +363,7 @@ proc setupFidget(
 
     computeLayout(nil, root)
     computeScreenBox(nil, root)
+    processHooks(nil, root)
 
     # Only draw the root after everything was done:
     root.draw(root)

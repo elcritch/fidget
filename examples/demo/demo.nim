@@ -70,6 +70,7 @@ proc basicControls() =
   group "dropdown":
     font "IBM Plex Sans", 14, 200, 0, hCenter, vCenter
     box 260, 115, 100, Em 1.2
+    orgBox 260, 115, 100, Em 1.2
     fill "#72bdd0"
     cornerRadius 5
     strokeWeight 1
@@ -95,15 +96,19 @@ proc basicControls() =
         clipContent true
 
         group "dropDown":
-          scrollable true
-          cornerRadius 5
+          # cornerRadius 5
+          box 0, 0, 100, 4.Em
+          orgBox 0, 0, 100, 4.Em
           layout lmVertical
           counterAxisSizingMode csAuto
           horizontalPadding 0
           verticalPadding 0
           itemSpacing 0
-          let items = @["Nim", "UI", "in", "100%", "Nim"]
-          for buttonName in reverse(items & items):
+          scrollBars true
+
+          let items = @["Nim", "UI", "in", "100%", "Nim", "to", 
+            "OpenGL", "Immediate", "mode"]
+          for buttonName in reverse(items):
             rectangle "dash":
               box 0, 0.Em, 100, 0.02.Em
               fill "#ffffff", 0.6
@@ -129,7 +134,9 @@ proc basicControls() =
     strokeWeight 1
     rectangle "fill":
       progress = selectedButton.len / 5 * 100
-      box 2, 2, clamp(int((parent.getBox().w - 4) * (progress/100)), 1, parent.getBox().w.int), 8
+      let pw = progress/100 * (parent.box().w - 4).
+                clamp(1.0, parent.box().w)
+      box 2, 2, pw, 8
       fill "#9fe7f8"
       cornerRadius 5
 
@@ -344,6 +351,23 @@ proc basicConstraints() =
 
 proc drawMain() =
   setTitle("Fidget Example")
+
+  group "button":
+    box 0, 0, 90, 20
+    cornerRadius 5
+    fill "#72bdd0"
+    onHover:
+      fill "#5C8F9C"
+    onDown:
+      fill "#3E656F"
+    onClick:
+      echo "button: "
+      dumpTree(root)
+    text "text":
+      box 0, 0, 90, 20
+      fill "#ffffff"
+      font "IBM Plex Sans", 12, 200, 0, hCenter, vCenter
+      characters "Button"
 
   component "iceUI":
     orgBox 0, 0, 530, 185

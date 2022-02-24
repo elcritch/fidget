@@ -544,6 +544,12 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight) =
       xx = if halign == hLeft: 0'f32 else: nw - width
       bx = Rect(x: xx, y: hPerc*(ph - sh), w: width, h: sh)
 
+    echo ""
+    echo "scroll:ph: ", ph, " curr: ", current.descaled(screenBox).h
+    echo "scroll:box: ", " curr: ", current.box(),  " parent: ", parent.box()
+    echo "scroll:", " sh: ", sh, " perc: ", perc, " ph: ", ph, " nh: ", nh
+    echo "scroll:box: ", bx
+
     var idx = -1
     for i, child in current.nodes:
       if child.id == "$scrollbar":
@@ -552,12 +558,13 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight) =
     
     if idx >= 0:
       var sb = current.nodes[idx]
-      sb.setBox(bx)
-      sb.offset = current.offset * -1'f32
-      if (bx.w + bx.h) > 0.0:
-        sb.cornerRadius = (3*cr, 3*cr, 3*cr, 3*cr)
-      current.nodes.delete(idx)
-      current.nodes.insert(sb, 0)
+      echo "sb: ", sb.idPath, " bx: ", bx
+      # sb.setBox(bx)
+      # sb.offset = current.offset * -1'f32
+      # if (bx.w + bx.h) > 0.0:
+        # sb.cornerRadius = (3*cr, 3*cr, 3*cr, 3*cr)
+      # current.nodes.delete(idx)
+      # current.nodes.insert(sb, 0)
     else:
       raise newException(Exception, "scrollbar defined but node is missing")
 

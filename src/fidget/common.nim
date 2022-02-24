@@ -225,6 +225,7 @@ var
   pathChecker*: Table[string, bool]
 
   computeTextLayout*: proc(node: Node)
+  computeHooks*: proc(parent, node: Node)
 
   lastUId: int
   nodeLookup*: Table[string, Node]
@@ -495,9 +496,11 @@ proc computeLayout*(parent, node: Node) =
 proc computeScreenBox*(parent, node: Node) =
   ## Setups screenBoxes for the whole tree.
   if parent == nil:
+    echo "compScreenBox: ", node.idPath, " bx: ", node.box
     node.screenBox = node.box
     node.totalOffset = node.offset
   else:
+    echo "compScreenBox: ", node.idPath, " bx: ", node.box, " parent:sb: ", parent.screenBox
     node.screenBox = node.box + parent.screenBox
     node.totalOffset = node.offset + parent.totalOffset
   for n in node.nodes:
