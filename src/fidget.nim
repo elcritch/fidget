@@ -539,10 +539,16 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight) =
     if pipDrag:
       pipHPos = mouse.descaled(pos).y 
       pipDrag = buttonDown[MOUSE_LEFT]
-      let pipDelta = (pipHPos - pipHPosLast)
+      let pipDelta =  (pipHPos - pipHPosLast)
       ## ick, this is slightly off, not sure how to fix 
-      echo "perc: ", 1/perc
-      current.offset.y = (2.0+perc/4)*uiScale*pipDelta + uiScale*(pipOffLast)
+      let pipPerc =  (pipHPos - pipHPosLast) / (ph - sh)
+      let pipOffset =
+        if pipPerc > -2 and pipPerc < 2.0:
+          pipPerc * ch
+        else:
+          pipDelta
+      echo "pipPerc: ", pipPerc, " po: ", pipOffset
+      current.offset.y = uiScale*pipOffset + uiScale*(pipOffLast)
       current.offset.y = current.offset.y.clamp(0, uiScale*ch)
 
     let
@@ -568,8 +574,8 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight) =
       echo "sb: ", sb.idPath, " bx: ", bx
       sb.setBox(bx)
       sb.offset = current.offset * -1'f32
-      if (bx.w + bx.h) > 0.0:
-        sb.cornerRadius = (3*cr, 3*cr, 3*cr, 3*cr)
+      # if (bx.w + bx.h) > 0.0:
+        # sb.cornerRadius = (3*cr, 3*cr, 3*cr, 3*cr)
       # current.nodes.delete(idx)
       # current.nodes.insert(sb, 0)
     else:
