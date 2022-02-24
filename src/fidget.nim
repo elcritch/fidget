@@ -511,6 +511,7 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight) =
     fill "#5C8F9C", 0.4
     onHover:
       fill "#5C8F9C", 0.9
+      echo "$scrollbar: ", current.box(), " sb: ", current.descaled(screenbox) 
     onClick:
       pipDrag = true
       pipHPosLast = mouse.descaled(pos).y 
