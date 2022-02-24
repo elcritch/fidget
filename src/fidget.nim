@@ -507,6 +507,7 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight) =
   # define basics of scrollbar
   rectangle "$scrollbar":
     box 0, 0, 0, 0
+    layoutAlign laIgnore
     fill "#5C8F9C", 0.4
     onHover:
       fill "#5C8F9C", 0.9
@@ -559,12 +560,12 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight) =
     if idx >= 0:
       var sb = current.nodes[idx]
       echo "sb: ", sb.idPath, " bx: ", bx
-      # sb.setBox(bx)
-      # sb.offset = current.offset * -1'f32
-      # if (bx.w + bx.h) > 0.0:
-        # sb.cornerRadius = (3*cr, 3*cr, 3*cr, 3*cr)
-      # current.nodes.delete(idx)
-      # current.nodes.insert(sb, 0)
+      sb.setBox(bx)
+      sb.offset = current.offset * -1'f32
+      if (bx.w + bx.h) > 0.0:
+        sb.cornerRadius = (3*cr, 3*cr, 3*cr, 3*cr)
+      current.nodes.delete(idx)
+      current.nodes.insert(sb, 0)
     else:
       raise newException(Exception, "scrollbar defined but node is missing")
 

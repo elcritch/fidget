@@ -49,10 +49,10 @@ computeTextLayout = proc(node: Node) =
 
 proc processHooks(parent, node: Node) =
   ## compute hooks
-  if node.id == "dropdown":
-    echo "draw:scroll:id: ", node.idPath,
-         " ph: ", parent.descaled(screenBox),
-         " curr: ", node.descaled(screenBox)
+  # if node.id == "dropdown":
+    # echo "draw:scroll:id: ", node.idPath,
+        #  " ph: ", parent.descaled(screenBox),
+        #  " curr: ", node.descaled(screenBox)
 
   for child in node.nodes:
     processHooks(node, child)

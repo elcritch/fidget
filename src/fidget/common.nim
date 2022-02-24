@@ -56,6 +56,7 @@ type
     laCenter
     laMax
     laStretch
+    laIgnore
 
   LayoutMode* = enum
     ## The auto-layout mode on a frame.
@@ -382,6 +383,9 @@ proc computeLayout*(parent, node: Node) =
   for n in node.nodes:
     computeLayout(node, n)
 
+  if node.layoutAlign == laIgnore:
+    return
+
   # Constraints code.
   case node.constraintsVertical:
     of cMin: discard
@@ -443,8 +447,9 @@ proc computeLayout*(parent, node: Node) =
     var at = 0.0
     at += node.verticalPadding
     for i, n in node.nodes.reversePairs:
-      if i > 0:
-        at += node.itemSpacing
+      if n.layoutAlign == laIgnore:
+        continue
+      if i > 0: at += node.itemSpacing
       n.box.y = at
       case n.layoutAlign:
         of laMin:
@@ -458,6 +463,8 @@ proc computeLayout*(parent, node: Node) =
           n.box.w = node.box.w - node.horizontalPadding * 2
           # Redo the layout for child node.
           computeLayout(node, n)
+        of laIgnore:
+          continue
       at += n.box.h
     at += node.verticalPadding
     node.box.h = at
@@ -474,6 +481,8 @@ proc computeLayout*(parent, node: Node) =
     var at = 0.0
     at += node.horizontalPadding
     for i, n in node.nodes.reversePairs:
+      if n.layoutAlign == laIgnore:
+        continue
       if i > 0:
         at += node.itemSpacing
       n.box.x = at
@@ -489,6 +498,8 @@ proc computeLayout*(parent, node: Node) =
           n.box.h = node.box.h - node.verticalPadding * 2
           # Redo the layout for child node.
           computeLayout(node, n)
+        of laIgnore:
+          continue
       at += n.box.w
     at += node.horizontalPadding
     node.box.w = at
@@ -496,11 +507,11 @@ proc computeLayout*(parent, node: Node) =
 proc computeScreenBox*(parent, node: Node) =
   ## Setups screenBoxes for the whole tree.
   if parent == nil:
-    echo "compScreenBox: ", node.idPath, " bx: ", node.box
+    # echo "compScreenBox: ", node.idPath, " bx: ", node.box
     node.screenBox = node.box
     node.totalOffset = node.offset
   else:
-    echo "compScreenBox: ", node.idPath, " bx: ", node.box, " parent:sb: ", parent.screenBox
+    # echo "compScreenBox: ", node.idPath, " bx: ", node.box, " parent:sb: ", parent.screenBox
     node.screenBox = node.box + parent.screenBox
     node.totalOffset = node.offset + parent.totalOffset
   for n in node.nodes:
