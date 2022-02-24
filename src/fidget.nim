@@ -165,7 +165,8 @@ proc mouseOverlapLogic*(): bool =
 
 template onClick*(inner: untyped) =
   ## On click event handler.
-  if mouse.click and mouseOverlapLogic():
+  if mouse.click and mouseOverlapLogic() and evClick notin common.consumed:
+    common.consumed.incl evClick
     inner
 
 template onClickOutside*(inner: untyped) =
@@ -209,7 +210,9 @@ template onInput*(inner: untyped) =
 
 template onHover*(inner: untyped) =
   ## Code in the block will run when this box is hovered.
-  if mouseOverlapLogic():
+  if mouseOverlapLogic() and evHovered notin common.consumed:
+    common.consumed.incl evHovered
+    echo "HOVER: ", current.idPath
     inner
 
 template Em*(size: float32): float32 =
@@ -538,7 +541,8 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight) =
       pipDrag = buttonDown[MOUSE_LEFT]
       let pipDelta = (pipHPos - pipHPosLast)
       ## ick, this is slightly off, not sure how to fix 
-      current.offset.y = 4*uiScale*pipDelta + uiScale*(pipOffLast)
+      echo "perc: ", 1/perc
+      current.offset.y = (2.0+perc/4)*uiScale*pipDelta + uiScale*(pipOffLast)
       current.offset.y = current.offset.y.clamp(0, uiScale*ch)
 
     let

@@ -185,6 +185,11 @@ type
     textCursor*: int ## At which character in the input string are we
     selectionCursor*: int ## To which character are we selecting to
 
+  EventType* = enum
+    evClick,
+    evHovered,
+    evDown
+
   HttpStatus* = enum
     Starting
     Ready
@@ -238,6 +243,7 @@ var
 
   # UI Scale
   uiScale*: float32 = 1.0
+  consumed*: set[EventType]
 
 proc newUId*(): string =
   # Returns next numerical unique id.
@@ -347,6 +353,7 @@ proc clearInputs*() =
 
   mouse.wheelDelta = 0
   mouse.consumed = false
+  common.consumed = {}
 
   # Reset key and mouse press to default state
   for i in 0 ..< buttonPress.len:
