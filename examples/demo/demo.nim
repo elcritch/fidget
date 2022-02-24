@@ -121,6 +121,7 @@ proc basicControls() =
                 dropDownOpen = true
               onClick:
                 dropDownOpen = false
+                echo "clicked: ", buttonName
               text "text":
                 box 0, 0, 100, 20
                 fill "#ffffff"
