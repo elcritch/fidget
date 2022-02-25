@@ -78,17 +78,19 @@ proc basicControls() =
       fill "#5C8F9C"
     onClick:
       dropDownOpen = not dropDownOpen
-    instance "arrow":
-      box 80, 0, 20, Em 1.2
-      if dropDownOpen:
-        rotation -90
-      image "arrow.png"
     text "text":
       # textPadding: 0.375.em.int
       box 0, 0, 80, Em 1.2
       fill "#ffffff"
       strokeWeight 1
       characters "Dropdown"
+    text "text":
+      box 100-1.Em, 0, 1.Em, Em 1.1
+      font "IBM Plex Sans", 14, 200, 0, hCenter, vCenter
+      fill "#ffffff"
+      if dropDownOpen:
+        rotation -90
+      characters ">"
 
     if dropDownOpen:
       group "dropDownScroller":
@@ -147,14 +149,19 @@ proc basicControls() =
       checkBoxValue = not checkBoxValue
     rectangle "square":
       box 0, 2, 16, 16
-
       if checkBoxValue:
         fill "#9FE7F8"
+        text "text":
+          font "IBM Plex Sans", 16, 200, 0, hCenter, vCenter
+          box 0, 0, 12, 16
+          fill "#46607e"
+          characters "✓"
       else:
         fill "#ffffff"
       stroke "#70bdcf"
       cornerRadius 5
       strokeWeight 1
+    
     text "text":
       box 21, 0, 70, 20
 
@@ -171,6 +178,12 @@ proc basicControls() =
       box 0, 2, 16, 16
       if radioBoxValue:
         fill "#9FE7F8"
+        text "text":
+          box 0, 0, 14, 16
+          fill "#46607e"
+          strokeWeight 1
+          font "IBM Plex Sans", 12, 200, 0, hCenter, vCenter
+          characters "✓"
       else:
         fill "#ffffff"
       stroke "#72bdd0"
