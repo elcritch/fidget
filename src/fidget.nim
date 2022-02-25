@@ -158,9 +158,9 @@ proc mouseOverlapLogic*(): bool =
     (not popupActive or inPopup) and
     current.screenBox.w > 0 and
     current.screenBox.h > 0 
-  if current.id == "$scrollbar":
-    let res = act and mpos.overlaps(current.screenBox)
-    echo "mouseOverlap: : ", res, " mpos: ", $mpos, " sb: ", $current.screenBox
+  # if current.id == "$scrollbar":
+    # let res = act and mpos.overlaps(current.screenBox)
+    # echo "mouseOverlap: : ", res, " mpos: ", $mpos, " sb: ", $current.screenBox
   act and mpos.overlaps(current.screenBox)
 
 template onClick*(inner: untyped) =
@@ -212,7 +212,7 @@ template onHover*(inner: untyped) =
   ## Code in the block will run when this box is hovered.
   if mouseOverlapLogic() and evHovered notin common.consumed:
     common.consumed.incl evHovered
-    echo "HOVER: ", current.idPath
+    # echo "HOVER: ", current.idPath
     inner
 
 template Em*(size: float32): float32 =
@@ -515,7 +515,6 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight) =
     fill "#5C8F9C", 0.4
     onHover:
       fill "#5C8F9C", 0.9
-      echo "$scrollbar: ", current.box(), " sb: ", current.descaled(screenbox) 
     onClick:
       pipDrag = true
       pipHPosLast = mouse.descaled(pos).y 
@@ -547,7 +546,7 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight) =
           pipPerc * ch
         else:
           pipDelta
-      echo "pipPerc: ", pipPerc, " po: ", pipOffset
+      # echo "pipPerc: ", pipPerc, " po: ", pipOffset
       current.offset.y = uiScale*pipOffset + uiScale*(pipOffLast)
       current.offset.y = current.offset.y.clamp(0, uiScale*ch)
 
@@ -557,11 +556,11 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight) =
       xx = if halign == hLeft: 0'f32 else: nw - width
       bx = Rect(x: xx, y: hPerc*(ph - sh), w: width, h: sh)
 
-    echo ""
-    echo "scroll:ph: ", ph, " curr: ", current.descaled(screenBox).h
-    echo "scroll:box: ", " curr: ", current.box(),  " parent: ", parent.box()
-    echo "scroll:", " sh: ", sh, " perc: ", perc, " ph: ", ph, " nh: ", nh
-    echo "scroll:box: ", bx
+    # echo ""
+    # echo "scroll:ph: ", ph, " curr: ", current.descaled(screenBox).h
+    # echo "scroll:box: ", " curr: ", current.box(),  " parent: ", parent.box()
+    # echo "scroll:", " sh: ", sh, " perc: ", perc, " ph: ", ph, " nh: ", nh
+    # echo "scroll:box: ", bx
 
     var idx = -1
     for i, child in current.nodes:
@@ -571,7 +570,7 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight) =
     
     if idx >= 0:
       var sb = current.nodes[idx]
-      echo "sb: ", sb.idPath, " bx: ", bx
+      # echo "sb: ", sb.idPath, " bx: ", bx
       sb.setBox(bx)
       sb.offset = current.offset * -1'f32
       # if (bx.w + bx.h) > 0.0:

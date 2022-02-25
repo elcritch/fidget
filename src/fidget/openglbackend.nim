@@ -306,7 +306,7 @@ proc draw*(node, parent: Node) =
 
   if node.scrollBars:
     ctx.saveTransform()
-    echo "draw:node: ", node.idPath, " offset: ", node.offset, " sb: ", node.screenBox
+    # echo "draw:node: ", node.idPath, " offset: ", node.offset, " sb: ", node.screenBox
     ctx.translate(-node.offset)
 
   for j in 1 .. node.nodes.len:
