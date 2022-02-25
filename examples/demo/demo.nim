@@ -134,7 +134,7 @@ proc basicControls() =
     cornerRadius 5
     strokeWeight 1
     rectangle "fill":
-      progress = selectedButton.len / 5 * 100
+      progress = selectedButton.len / 5 * 100 + 1
       let pw = progress/100 * (parent.box().w - 4).
                 clamp(1.0, parent.box().w)
       box 2, 2, pw, 8
