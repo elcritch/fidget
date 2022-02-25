@@ -8,7 +8,7 @@ loadFont("IBM Plex Sans Bold", "IBMPlexSans-Bold.ttf")
 var
   textInputVar = ""
   checkBoxValue: bool
-  radioBoxValue: bool
+  radioBoxValue: int
   selectedTab = "Controls"
   selectedButton = @["This"]
   pipDrag = false
@@ -171,30 +171,49 @@ proc basicControls() =
       characters "Checkbox"
 
   group "radiobox":
-    box 152, 115, 91, 20
-    onClick:
-      radioBoxValue = not radioBoxValue
-    rectangle "circle":
-      box 0, 2, 16, 16
-      if radioBoxValue:
-        fill "#9FE7F8"
+    box 152, 115, 100, 20
+    orgBox 152, 115, 100, 20
+    layout lmVertical
+    counterAxisSizingMode csAuto
+    horizontalPadding 0
+    verticalPadding 0
+    itemSpacing 0
+    scrollBars true
+
+    for i in countdown(2,0):
+      group "radiobox":
+        box 0, 0, 100, 20
+        onClick:
+          radioBoxValue = i
+        rectangle "circle":
+          box 0, 2, 16, 16
+          if radioBoxValue == i:
+            fill "#9FE7F8"
+            text "text":
+              box 0, 0, 14, 16
+              fill "#46607e"
+              strokeWeight 1
+              font "IBM Plex Sans", 12, 200, 0, hCenter, vCenter
+              characters "✓"
+          else:
+            fill "#ffffff"
+          stroke "#72bdd0"
+          cornerRadius 8
+          strokeWeight 1
         text "text":
-          box 0, 0, 14, 16
+          box 21, 0, 70, 20
           fill "#46607e"
           strokeWeight 1
-          font "IBM Plex Sans", 12, 200, 0, hCenter, vCenter
-          characters "✓"
-      else:
-        fill "#ffffff"
-      stroke "#72bdd0"
-      cornerRadius 8
-      strokeWeight 1
+          font "IBM Plex Sans", 12, 200, 0, hLeft, vCenter
+          characters "Radio " & $i
+    
     text "text":
-      box 21, 0, 70, 20
+      box 0, 0, 100, 20
       fill "#46607e"
       strokeWeight 1
       font "IBM Plex Sans", 12, 200, 0, hLeft, vCenter
       characters "Radiobox"
+
 
   group "slider":
     box 260, 90, 250, 10
