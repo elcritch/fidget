@@ -178,7 +178,6 @@ proc basicControls() =
     horizontalPadding 0
     verticalPadding 0
     itemSpacing 0
-    scrollBars true
 
     for i in countdown(2,0):
       group "radiobox":
@@ -385,22 +384,22 @@ proc basicConstraints() =
 proc drawMain() =
   setTitle("Fidget Example")
 
-  group "button":
-    box 0, 0, 90, 20
-    cornerRadius 5
-    fill "#72bdd0"
-    onHover:
-      fill "#5C8F9C"
-    onDown:
-      fill "#3E656F"
-    onClick:
-      echo "button: "
-      dumpTree(root)
-    text "text":
-      box 0, 0, 90, 20
-      fill "#ffffff"
-      font "IBM Plex Sans", 12, 200, 0, hCenter, vCenter
-      characters "Button"
+  # group "button":
+  #   box 0, 0, 90, 20
+  #   cornerRadius 5
+  #   fill "#72bdd0", 0.2
+  #   onHover:
+  #     fill "#5C8F9C"
+  #   onDown:
+  #     fill "#3E656F"
+  #   onClick:
+  #     echo "button: "
+  #     dumpTree(root)
+  #   text "text":
+  #     box 0, 0, 90, 20
+  #     fill "#ffffff"
+  #     font "IBM Plex Sans", 12, 200, 0, hCenter, vCenter
+  #     characters "Button"
 
   component "iceUI":
     orgBox 0, 0, 530, 185
