@@ -502,7 +502,7 @@ proc parseParams*(): Table[string, string] =
     result[key] = val
 
 var
-  pipDrag = true
+  pipDrag = false
   pipHPosLast = 0'f32
   pipHPos = 0'f32
   pipOffLast = 0'f32
@@ -544,11 +544,8 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight) =
       pipHPos = mouse.descaled(pos).y 
       pipDrag = buttonDown[MOUSE_LEFT]
       let pipDelta =  (pipHPos - pipHPosLast)
-      ## ick, this is slightly off, not sure how to fix 
-      let pipPerc =  (pipHPos - pipHPosLast) / (ph - sh)
-      let pipOffset = pipDelta
-      echo "pipPerc: ", pipPerc, " po: ", pipOffset, fmt" ch: {ch:6.4f}"
-      current.offset.y = uiScale*pipOffset + uiScale*(pipOffLast)
+      echo fmt"pipPerc: pd: {pipDelta:6.4f} pl: {pipOffLast:6.4f} ch: {ch:6.4f}"
+      current.offset.y = uiScale*(pipOffLast + pipDelta * 1/perc)
       current.offset.y = current.offset.y.clamp(0, uiScale*ch)
 
     let
