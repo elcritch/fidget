@@ -1,6 +1,6 @@
 import algorithm, chroma, fidget/common, fidget/input, json, macros, strutils,
     tables, vmath, bumpy
-import math
+import math, strformat
 
 export chroma, common, input, vmath
 
@@ -537,7 +537,8 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight) =
       nh = current.descaled(screenBox).h - ph
       nw = current.descaled(screenBox).w
       ch = current.descaled(screenBox).h - ph
-      perc = ph/nh/2
+      rh = current.descaled(screenBox).h
+      perc = ph/rh/2
       sh = perc*ph
 
     if pipDrag:
@@ -557,14 +558,14 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight) =
 
     let
       yo = current.descaled(offset).y()
-      hPerc = (yo/nh).clamp(0.1, 0.9)
+      hPerc = (yo/nh).clamp(0.0, 1.0)
       xx = if halign == hLeft: 0'f32 else: nw - width
       bx = Rect(x: xx, y: hPerc*(ph - sh), w: width, h: sh)
 
     echo ""
     echo "scroll:ph: ", ph, " curr: ", current.descaled(screenBox).h
     echo "scroll:box: ", " curr: ", current.box(),  " parent: ", parent.box()
-    echo "scroll:", " sh: ", sh, " perc: ", perc, " ph: ", ph, " nh: ", nh
+    echo fmt"scroll: sh: {sh:6.4f} perc: {perc:6.4f} ph: {ph:6.4f} ch: {current.descaled(screenBox).h:6.4f} nh: {nh:6.4f}"
     echo "scroll:box: ", bx
     echo "post offset: ", current.offset
 
