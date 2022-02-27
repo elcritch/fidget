@@ -1,5 +1,6 @@
 import algorithm, chroma, fidget/common, fidget/input, json, macros, strutils,
     tables, vmath, bumpy
+import math
 
 export chroma, common, input, vmath
 
@@ -171,7 +172,8 @@ template onClick*(inner: untyped) =
 
 template onClickOutside*(inner: untyped) =
   ## On click outside event handler. Useful for deselecting things.
-  if mouse.click and not mouseOverlapLogic():
+  if mouse.click and not mouseOverlapLogic() and evClick notin common.consumed:
+    common.consumed.incl evClick
     inner
 
 template onRightClick*(inner: untyped) =
@@ -217,7 +219,7 @@ template onHover*(inner: untyped) =
 
 template Em*(size: float32): float32 =
   ## Code in the block will run when this box is hovered.
-  current.textStyle.fontSize * 0.5 * size
+  current.textStyle.fontSize * size / common.uiScale
 
 template onScroll*(inner: untyped) =
   ## Code in the block will run when mouse scrolls
@@ -261,7 +263,9 @@ proc font*(
   current.textStyle.fontFamily = fontFamily
   current.textStyle.fontSize = common.uiScale*fontSize
   current.textStyle.fontWeight = common.uiScale*fontWeight
-  current.textStyle.lineHeight = if lineHeight != 0.0: common.uiScale*lineHeight else: common.uiScale*fontSize
+  current.textStyle.lineHeight =
+      if lineHeight != 0.0: common.uiScale*lineHeight
+      else: common.uiScale*fontSize
   current.textStyle.textAlignHorizontal = textAlignHorizontal
   current.textStyle.textAlignVertical = textAlignVertical
 

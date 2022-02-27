@@ -28,21 +28,21 @@ proc basicText() =
     text "p2":
       box 30, 361, 326, 100
       fill "#000000"
-      font "IBM Plex Sans", 14, 400, 20, hLeft, vTop
+      font "IBM Plex Sans", 14, 400, 0, hLeft, vTop
       characters "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
       textAutoResize tsHeight
       layoutAlign laStretch
     text "title2":
       box 30, 319, 326, 32
       fill "#000000"
-      font "IBM Plex Sans", 20, 400, 32, hLeft, vTop
+      font "IBM Plex Sans", 20, 400, 0, hLeft, vTop
       characters "Lorem Ipsum"
       textAutoResize tsHeight
       layoutAlign laStretch
     text "imgCaption":
       box 30, 289, 326, 20
       fill "#9c9c9c"
-      font "IBM Plex Sans", 14, 400, 20, hCenter, vTop
+      font "IBM Plex Sans", 14, 400, 0, hCenter, vTop
       characters "Lorem ipsum dolor sit ame"
       textAutoResize tsHeight
       layoutAlign laStretch
@@ -69,23 +69,21 @@ proc basicControls() =
 
   group "dropdown":
     font "IBM Plex Sans", 12, 200, 0, hCenter, vCenter
-    box 260, 115, 100, Em 2
-    orgBox 260, 115, 100, Em 2
+    box 260, 115, 100, Em 1.8
+    orgBox 260, 115, 100, Em 1.8
     fill "#72bdd0"
     cornerRadius 5
     strokeWeight 1
     onHover:
       fill "#5C8F9C"
-    onClick:
-      dropDownOpen = not dropDownOpen
     text "text":
       # textPadding: 0.375.em.int
-      box 0, 0, 80, Em 2
+      box 0, 0, 80, Em 1.8
       fill "#ffffff"
       strokeWeight 1
       characters "Dropdown"
     text "text":
-      box 100-1.5.Em, 0, 1.Em, Em 2
+      box 100-1.5.Em, 0, 1.Em, Em 1.8
       fill "#ffffff"
       if dropDownOpen:
         rotation -90
@@ -93,7 +91,7 @@ proc basicControls() =
 
     if dropDownOpen:
       group "dropDownScroller":
-        box 0, Em 2, 100, 80
+        box 0, Em 2.0, 100, 80
         clipContent true
 
         group "dropDown":
@@ -105,6 +103,10 @@ proc basicControls() =
           verticalPadding 0
           itemSpacing 0
           scrollBars true
+
+          onClickOutside:
+            echo "click outside: ", dropDownOpen
+            dropDownOpen = false
 
           let items = @["Nim", "UI", "in", "100%", "Nim", "to", 
             "OpenGL", "Immediate", "mode"]
@@ -126,6 +128,10 @@ proc basicControls() =
                 box 0, 0, 100, 1.4.Em
                 fill "#ffffff"
                 characters buttonName
+    onClick:
+      echo "drop click: ", dropDownOpen
+      dropDownOpen = not dropDownOpen
+    
 
   group "progress":
     box 260, 149, 250, 12
@@ -444,7 +450,7 @@ proc drawMain() =
               fill "#ffffff"
             else:
               fill "#46607e"
-            font "IBM Plex Sans", 12, 400, 12, hLeft, vCenter
+            font "IBM Plex Sans", 12, 400, 0, hLeft, vCenter
             characters tabName
 
     rectangle "bg":
@@ -462,4 +468,4 @@ proc drawMain() =
       of "Constraints":
         basicConstraints()
 
-startFidget(drawMain, w = 3*530, h = 3*300, uiScale=2.0)
+startFidget(drawMain, w = 3*530, h = 3*300, uiScale=3.0)
