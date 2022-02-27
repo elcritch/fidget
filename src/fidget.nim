@@ -534,11 +534,10 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight) =
       width = 14'f32
 
       ph = parent.descaled(screenBox).h
-      nh = max(current.descaled(screenBox).h - ph, 1)
       nw = current.descaled(screenBox).w
-      ch = current.descaled(screenBox).h - ph
+      ch = max(current.descaled(screenBox).h - ph, 0)
       rh = current.descaled(screenBox).h
-      perc = ph/rh/2
+      perc = (ph/rh).clamp(0.0, 1.0)
       sh = perc*ph
 
     if pipDrag:
@@ -547,16 +546,13 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight) =
       let pipDelta =  (pipHPos - pipHPosLast)
       ## ick, this is slightly off, not sure how to fix 
       let pipPerc =  (pipHPos - pipHPosLast) / (ph - sh)
-      let pipOffset =
-        if pipPerc > -2 and pipPerc < 2.0:
-          pipPerc * ch
-        else:
-          pipDelta
-      echo "pipPerc: ", pipPerc, " po: ", pipOffset
+      let pipOffset = pipDelta
+      echo "pipPerc: ", pipPerc, " po: ", pipOffset, fmt" ch: {ch:6.4f}"
       current.offset.y = uiScale*pipOffset + uiScale*(pipOffLast)
       current.offset.y = current.offset.y.clamp(0, uiScale*ch)
 
     let
+      nh = current.descaled(screenBox).h - ph
       yo = current.descaled(offset).y()
       hPerc = (yo/nh).clamp(0.0, 1.0)
       xx = if halign == hLeft: 0'f32 else: nw - width
