@@ -27,6 +27,7 @@ proc basicText() =
     horizontalPadding 30
     verticalPadding 30
     itemSpacing 10
+    scrollBars true
     text "p2":
       box 30, 361, 326, 100
       fill "#000000"
@@ -335,6 +336,7 @@ proc basicImage() =
   frame "images":
     box 130, 0, 400, 400
     fill "#ffffff"
+    scrollBars true
     group "img1":
       box 260, 260, 100, 100
       image "img1.png"

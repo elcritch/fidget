@@ -337,6 +337,7 @@ proc resetToDefault*(node: Node)=
   node.clipContent = false
   node.diffIndex = 0
   node.selectable = false
+  node.scrollBars = false
 
 proc setupRoot*() =
   if root == nil:
