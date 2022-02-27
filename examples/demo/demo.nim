@@ -68,9 +68,9 @@ proc basicText() =
 proc basicControls() =
 
   group "dropdown":
-    font "IBM Plex Sans", 14, 200, 0, hCenter, vCenter
-    box 260, 115, 100, Em 1.2
-    orgBox 260, 115, 100, Em 1.2
+    font "IBM Plex Sans", 12, 200, 0, hCenter, vCenter
+    box 260, 115, 100, Em 2
+    orgBox 260, 115, 100, Em 2
     fill "#72bdd0"
     cornerRadius 5
     strokeWeight 1
@@ -80,13 +80,12 @@ proc basicControls() =
       dropDownOpen = not dropDownOpen
     text "text":
       # textPadding: 0.375.em.int
-      box 0, 0, 80, Em 1.2
+      box 0, 0, 80, Em 2
       fill "#ffffff"
       strokeWeight 1
       characters "Dropdown"
     text "text":
-      box 100-1.Em, 0, 1.Em, Em 1.1
-      font "IBM Plex Sans", 14, 200, 0, hCenter, vCenter
+      box 100-1.5.Em, 0, 1.Em, Em 2
       fill "#ffffff"
       if dropDownOpen:
         rotation -90
@@ -94,11 +93,10 @@ proc basicControls() =
 
     if dropDownOpen:
       group "dropDownScroller":
-        box 0, Em 1.2, 100, 4.Em
+        box 0, Em 2, 100, 80
         clipContent true
 
         group "dropDown":
-          # cornerRadius 5
           box 0, 0, 100, 4.Em
           orgBox 0, 0, 100, 4.Em
           layout lmVertical
@@ -112,10 +110,10 @@ proc basicControls() =
             "OpenGL", "Immediate", "mode"]
           for buttonName in reverse(items):
             rectangle "dash":
-              box 0, 0.Em, 100, 0.02.Em
+              box 0, 0.Em, 100, 0.1.Em
               fill "#ffffff", 0.6
             group "button":
-              box 0, 0.Em, 100, 1.Em
+              box 0, 0.Em, 100, 1.4.Em
               layoutAlign laCenter
               fill "#72bdd0", 0.9
               onHover:
@@ -125,7 +123,7 @@ proc basicControls() =
                 dropDownOpen = false
                 echo "clicked: ", buttonName
               text "text":
-                box 0, 0, 100, 20
+                box 0, 0, 100, 1.4.Em
                 fill "#ffffff"
                 characters buttonName
 
@@ -464,4 +462,4 @@ proc drawMain() =
       of "Constraints":
         basicConstraints()
 
-startFidget(drawMain, w = 3*530, h = 3*300, uiScale=3.0)
+startFidget(drawMain, w = 3*530, h = 3*300, uiScale=2.0)
