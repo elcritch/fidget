@@ -172,8 +172,8 @@ template onClick*(inner: untyped) =
 
 template onClickOutside*(inner: untyped) =
   ## On click outside event handler. Useful for deselecting things.
-  if mouse.click and not mouseOverlapLogic() and evClick notin common.consumed:
-    common.consumed.incl evClick
+  if mouse.click and not mouseOverlapLogic():
+    common.consumed.incl evClickOut
     inner
 
 template onRightClick*(inner: untyped) =

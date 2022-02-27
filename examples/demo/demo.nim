@@ -15,6 +15,7 @@ var
   pipPos = 89
   progress = 20.0
   dropDownOpen = false
+  dropDownToClose = false
 
 proc basicText() =
   frame "autoLayoutText":
@@ -105,8 +106,8 @@ proc basicControls() =
           scrollBars true
 
           onClickOutside:
-            echo "click outside: ", dropDownOpen
             dropDownOpen = false
+            dropDownToClose = true
 
           let items = @["Nim", "UI", "in", "100%", "Nim", "to", 
             "OpenGL", "Immediate", "mode"]
@@ -128,9 +129,12 @@ proc basicControls() =
                 box 0, 0, 100, 1.4.Em
                 fill "#ffffff"
                 characters buttonName
+    onClickOutside:
+      dropDownToClose = false
     onClick:
-      echo "drop click: ", dropDownOpen
-      dropDownOpen = not dropDownOpen
+      if not dropDownToClose:
+        dropDownOpen = not dropDownOpen
+      dropDownToClose = false
     
 
   group "progress":
@@ -388,22 +392,22 @@ proc basicConstraints() =
 proc drawMain() =
   setTitle("Fidget Example")
 
-  # group "button":
-  #   box 0, 0, 90, 20
-  #   cornerRadius 5
-  #   fill "#72bdd0", 0.2
-  #   onHover:
-  #     fill "#5C8F9C"
-  #   onDown:
-  #     fill "#3E656F"
-  #   onClick:
-  #     echo "button: "
-  #     dumpTree(root)
-  #   text "text":
-  #     box 0, 0, 90, 20
-  #     fill "#ffffff"
-  #     font "IBM Plex Sans", 12, 200, 0, hCenter, vCenter
-  #     characters "Button"
+  group "button":
+    box 0, 0, 90, 20
+    cornerRadius 5
+    fill "#72bdd0", 0.2
+    onHover:
+      fill "#5C8F9C"
+    onDown:
+      fill "#3E656F"
+    onClick:
+      echo "button: "
+      dumpTree(root)
+    text "text":
+      box 0, 0, 90, 20
+      fill "#ffffff"
+      font "IBM Plex Sans", 12, 200, 0, hCenter, vCenter
+      characters "Button"
 
   component "iceUI":
     orgBox 0, 0, 530, 185

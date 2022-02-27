@@ -187,6 +187,7 @@ type
 
   EventType* = enum
     evClick,
+    evClickOut,
     evHovered,
     evDown
 
@@ -271,7 +272,7 @@ mouse = Mouse()
 mouse.pos = vec2(0)
 
 proc dumpTree*(node: Node, indent = "") =
-  echo indent, node.id, node.screenBox
+  echo indent, "`", node.id, "`", " sb: ", node.screenBox, " org: ", node.orgBox
   for n in node.nodes:
     dumpTree(n, "  " & indent)
 
