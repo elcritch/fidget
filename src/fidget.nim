@@ -534,7 +534,7 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight) =
       width = 14'f32
 
       ph = parent.descaled(screenBox).h
-      nh = current.descaled(screenBox).h - ph
+      nh = max(current.descaled(screenBox).h - ph, 1)
       nw = current.descaled(screenBox).w
       ch = current.descaled(screenBox).h - ph
       rh = current.descaled(screenBox).h
