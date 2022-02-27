@@ -16,6 +16,7 @@ var
   progress = 20.0
   dropDownOpen = false
   dropDownToClose = false
+  dropSelected = ""
 
 proc basicText() =
   frame "autoLayoutText":
@@ -68,6 +69,9 @@ proc basicText() =
 
 proc basicControls() =
 
+  let dropItems = @["Nim", "UI", "in", "100%", "Nim", "to", 
+                    "OpenGL", "Immediate", "mode"]
+
   group "dropdown":
     font "IBM Plex Sans", 12, 200, 0, hCenter, vCenter
     box 260, 115, 100, Em 1.8
@@ -109,9 +113,7 @@ proc basicControls() =
             dropDownOpen = false
             dropDownToClose = true
 
-          let items = @["Nim", "UI", "in", "100%", "Nim", "to", 
-            "OpenGL", "Immediate", "mode"]
-          for buttonName in reverse(items):
+          for buttonName in reverse(dropItems):
             rectangle "dash":
               box 0, 0.Em, 100, 0.1.Em
               fill "#ffffff", 0.6
@@ -125,6 +127,7 @@ proc basicControls() =
               onClick:
                 dropDownOpen = false
                 echo "clicked: ", buttonName
+                dropSelected = buttonName
               text "text":
                 box 0, 0, 100, 1.4.Em
                 fill "#ffffff"
@@ -135,6 +138,14 @@ proc basicControls() =
       if not dropDownToClose:
         dropDownOpen = not dropDownOpen
       dropDownToClose = false
+
+  group "progress":
+    font "IBM Plex Sans", 12, 200, 0, hLeft, vCenter
+    text "text":
+      box 370, 115, 250, 1.8.Em
+      fill "#72bdd0"
+      strokeWeight 1
+      characters "selected: " & dropSelected
     
 
   group "progress":
