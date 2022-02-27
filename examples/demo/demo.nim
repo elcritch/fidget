@@ -134,6 +134,7 @@ proc basicControls() =
     onClick:
       if not dropDownToClose:
         dropDownOpen = not dropDownOpen
+      dropDownToClose = false
     
 
   group "progress":
