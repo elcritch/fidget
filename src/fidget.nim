@@ -75,11 +75,11 @@ proc postNode() =
           yoffset = mouse.wheelDelta * 2*common.uiScale
           ph = parent.screenBox.h
           ch = (current.screenBox.h - ph).clamp(0, current.screenBox.h)
-        echo "postNode offset:pre: ", current.offset
+        # echo "postNode offset:pre: ", current.offset
         current.offset.y -= yoffset
         current.offset.y = current.offset.y.clamp(0, ch)
         mouse.consumed = true
-        echo "postNode offset:after: ", current.offset
+        # echo "postNode offset:after: ", current.offset
 
   # Pop the stack.
   discard nodeStack.pop()
@@ -525,7 +525,7 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight) =
       pipHPosLast = mouse.descaled(pos).y 
       pipOffLast = -current.descaled(offset).y
 
-  echo "pipOffLast : ", pipOffLast, " curr: ", current.descaled(offset).y
+  # echo "pipOffLast : ", pipOffLast, " curr: ", current.descaled(offset).y
   ## add post inner callback to calculate the scrollbar box
   current.postHooks.add proc() =
     let
@@ -544,7 +544,7 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight) =
       pipHPos = mouse.descaled(pos).y 
       pipDrag = buttonDown[MOUSE_LEFT]
       let pipDelta =  (pipHPos - pipHPosLast)
-      echo fmt"pipPerc: pd: {pipDelta:6.4f} pl: {pipOffLast:6.4f} ch: {ch:6.4f}"
+      # echo fmt"pipPerc: pd: {pipDelta:6.4f} pl: {pipOffLast:6.4f} ch: {ch:6.4f}"
       current.offset.y = uiScale*(pipOffLast + pipDelta * 1/perc)
       current.offset.y = current.offset.y.clamp(0, uiScale*ch)
 
@@ -555,12 +555,12 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight) =
       xx = if halign == hLeft: 0'f32 else: nw - width
       bx = Rect(x: xx, y: hPerc*(ph - sh), w: width, h: sh)
 
-    echo ""
-    echo "scroll:ph: ", ph, " curr: ", current.descaled(screenBox).h
-    echo "scroll:box: ", " curr: ", current.box(),  " parent: ", parent.box()
-    echo fmt"scroll: sh: {sh:6.4f} perc: {perc:6.4f} ph: {ph:6.4f} ch: {current.descaled(screenBox).h:6.4f} nh: {nh:6.4f}"
-    echo "scroll:box: ", bx
-    echo "post offset: ", current.offset
+    # echo ""
+    # echo "scroll:ph: ", ph, " curr: ", current.descaled(screenBox).h
+    # echo "scroll:box: ", " curr: ", current.box(),  " parent: ", parent.box()
+    # echo fmt"scroll: sh: {sh:6.4f} perc: {perc:6.4f} ph: {ph:6.4f} ch: {current.descaled(screenBox).h:6.4f} nh: {nh:6.4f}"
+    # echo "scroll:box: ", bx
+    # echo "post offset: ", current.offset
 
     var idx = -1
     for i, child in current.nodes:
