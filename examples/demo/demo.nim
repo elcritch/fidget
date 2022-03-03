@@ -20,7 +20,7 @@ var
 
 proc basicText() =
   frame "autoLayoutText":
-    box 130, 0, root.getBox().w - 130, 491
+    box 130, 0, root.box().w - 130, root.box().h
     fill "#ffffff"
     layout lmVertical
     counterAxisSizingMode csFixed
