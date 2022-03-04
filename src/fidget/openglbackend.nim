@@ -411,7 +411,7 @@ proc asyncPoll() =
 import os
 proc timerFunc() {.thread.} =
   while true:
-    echo fmt"fps: {fps=} avgFrameTime: {avgFrameTime=}"
+    echo fmt"dtAvg: {dtAvg=} fps: {fps=} avgFrameTime: {avgFrameTime=}"
     os.sleep(1_000)
 
 proc startFidget*(

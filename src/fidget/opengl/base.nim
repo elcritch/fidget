@@ -37,7 +37,7 @@ var
   tpsTimeSeries = newTimeSeries()
   prevFrameTime* = programStartTime
   frameTime* = prevFrameTime
-  dt*, fps*, tps*, avgFrameTime*: float64
+  dt*, dtAvg*, fps*, tps*, avgFrameTime*: float64
   frameCount*, tickCount*: int
   lastDraw, lastTick: int64
 
@@ -110,6 +110,7 @@ proc drawAndSwap() =
 
   frameTime = epochTime()
   dt = frameTime - prevFrameTime
+  dtAvg = (dtAvg + dt) / 2.0
   prevFrameTime = frameTime
 
   assert drawFrame != nil
