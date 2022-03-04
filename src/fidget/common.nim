@@ -280,16 +280,16 @@ mouse = Mouse()
 mouse.pos = vec2(0)
 
 proc dumpTree*(node: Node, indent = "") =
-  node.idPath = ""
-  when defined(StringUID):
-    node.idPath = ""
-    for i, g in nodeStack:
-      if i != 0:
-        node.idPath.add "."
-      if g.id != "":
-        node.idPath.add g.id
-      else:
-        node.idPath.add $g.diffIndex
+  # node.idPath = ""
+  # when defined(StringUID):
+  #   node.idPath = ""
+  #   for i, g in nodeStack:
+  #     if i != 0:
+  #       node.idPath.add "."
+  #     if g.id != "":
+  #       node.idPath.add g.id
+  #     else:
+  #       node.idPath.add $g.diffIndex
 
   echo indent, "`", node.id, "`", " sb: ", node.screenBox, " org: ", node.orgBox
   for n in node.nodes:
