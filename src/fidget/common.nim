@@ -11,6 +11,11 @@ const
   whiteColor* = color(1, 1, 1, 1)
   blackColor* = color(0, 0, 0, 1)
 
+when defined(js) or defined(StringUID):
+  type NodeUID* = string
+else:
+  type NodeUID* = int64
+
 type
   Constraint* = enum
     cMin
@@ -94,7 +99,7 @@ type
 
   Node* = ref object
     id*: string
-    uid*: string
+    uid*: NodeUID
     idPath*: string
     kind*: NodeKind
     text*: string
@@ -246,10 +251,13 @@ var
   uiScale*: float32 = 1.0
   consumed*: set[EventType]
 
-proc newUId*(): string =
+proc newUId*(): NodeUID =
   # Returns next numerical unique id.
   inc lastUId
-  $lastUId
+  when defined(js) or defined(StringUID):
+    $lastUId
+  else:
+    NodeUID(lastUId)
 
 when not defined(js):
   var
@@ -272,6 +280,17 @@ mouse = Mouse()
 mouse.pos = vec2(0)
 
 proc dumpTree*(node: Node, indent = "") =
+  node.idPath = ""
+  when defined(StringUID):
+    node.idPath = ""
+    for i, g in nodeStack:
+      if i != 0:
+        node.idPath.add "."
+      if g.id != "":
+        node.idPath.add g.id
+      else:
+        node.idPath.add $g.diffIndex
+
   echo indent, "`", node.id, "`", " sb: ", node.screenBox, " org: ", node.orgBox
   for n in node.nodes:
     dumpTree(n, "  " & indent)

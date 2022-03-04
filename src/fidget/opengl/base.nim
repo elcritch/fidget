@@ -101,6 +101,8 @@ proc postTick() =
   inc tickCount
   lastTick += deltaTick
 
+import std/times
+
 proc drawAndSwap() =
   ## Does drawing operations.
   inc frameCount
@@ -108,13 +110,14 @@ proc drawAndSwap() =
   fps = float64(fpsTimeSeries.num())
   avgFrameTime = fpsTimeSeries.avg()
 
-  frameTime = epochTime()
-  dt = frameTime - prevFrameTime
-  dtAvg = (dtAvg + dt) / 2.0
-  prevFrameTime = frameTime
+  prevFrameTime = cpuTime()
 
   assert drawFrame != nil
   drawFrame()
+
+  frameTime = cpuTime()
+  dt = frameTime - prevFrameTime
+  dtAvg = dtAvg * (1.0-1.0/100.0) + dt / 100.0
 
   var error: GLenum
   while (error = glGetError(); error != GL_NO_ERROR):

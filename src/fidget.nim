@@ -46,15 +46,6 @@ proc preNode(kind: NodeKind, id: string) =
   nodeStack.add(current)
   inc parent.diffIndex
 
-  current.idPath = ""
-  for i, g in nodeStack:
-    if i != 0:
-      current.idPath.add "."
-    if g.id != "":
-      current.idPath.add g.id
-    else:
-      current.idPath.add $g.diffIndex
-
   current.diffIndex = 0
 
 proc postNode() =
