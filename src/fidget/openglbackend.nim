@@ -408,6 +408,12 @@ proc asyncPoll() =
     if haveCalls:
       poll()
 
+import os
+proc timerFunc() {.thread.} =
+  while true:
+    echo fmt"fps: {fps=} avgFrameTime: {avgFrameTime=}"
+    os.sleep(1_000)
+
 proc startFidget*(
   draw: proc(),
   tick: proc() = nil,
@@ -441,6 +447,8 @@ proc startFidget*(
       updateLoop()
     emscripten_set_main_loop(main_loop, 0, true)
   else:
+    var thr: Thread[void]
+    createThread(thr, timerFunc)
     while base.running:
       updateLoop()
       asyncPoll()
