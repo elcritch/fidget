@@ -7,17 +7,9 @@ loadFont("IBM Plex Sans", "IBMPlexSans-Regular.ttf")
 
 let start = epochTime()
 
-proc ticker() {.async.} =
-  ## This simple procedure will echo out "tick" ten times with 100ms between
-  ## each tick. We use it to visualise the time between other procedures.
-  for i in 1..10:
-    await sleepAsync(100)
-    echo "tick ",
-         i*100, "ms ",
-         split($((epochTime() - start)*1000), '.')[0], "ms (real)"
  
 # Create an array of 30 bars.
-var bar: float = 0.5
+var bar: float = 0.02
 
 proc drawMain() =
   # Set the window title.
@@ -67,8 +59,6 @@ proc drawMain() =
           characters fmt"progress: {bar:4.2f}"
 
         # Draw the decrement button to make the bar go down.
-        bar = bar.clamp(0.001, 1.0)
-
         rectangle "animate":
           box barW-80, 0, 40, 40
           fill "#AEB5C0"
@@ -77,6 +67,14 @@ proc drawMain() =
             fill "#46DE5F"
           onClick:
             echo "clicked"
+            proc ticker() {.async.} =
+              ## This simple procedure will echo out "tick" ten times with 100ms between
+              ## each tick. We use it to visualise the time between other procedures.
+              for i in 1..10:
+                await sleepAsync(500)
+                bar = 0.1 * i.toFloat()
+                echo fmt"tick {bar}"
+                refresh()
             let ticks = ticker()
             echo "done"
 
@@ -86,6 +84,8 @@ proc drawMain() =
             font "IBM Plex Sans", 36, 200, 0, hCenter, vCenter
             characters "+"
 
+        bar = bar.clamp(0.001, 1.0)
+
 
         # Draw the bar itself.
         group "bar":
@@ -93,7 +93,7 @@ proc drawMain() =
           fill "#F7F7F9"
           cornerRadius 5
           rectangle "barFg":
-            box 0, 0, (barW - 80*2) * float(bar), 40
+            box 0, 0, (barW - 100*2) * float(bar), 40
             fill "#46D15F"
             cornerRadius 5
 
