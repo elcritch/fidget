@@ -1,4 +1,5 @@
 import bumpy, fidget, math, random
+import std/strformat
 
 loadFont("IBM Plex Sans", "IBMPlexSans-Regular.ttf")
 
@@ -10,7 +11,7 @@ proc drawMain() =
   setTitle("Fidget Bars Example")
 
   # Use simple math to layout things.
-  let barH = 60 + 20
+  let barH = 1.0'f32 * 60 + 20
   let barW = root.box().w - 100
 
   group "button":
@@ -41,49 +42,23 @@ proc drawMain() =
       fill "#DFDFE0"
       font "IBM Plex Sans", 16, 200, 0, hLeft, vCenter
       strokeWeight 1
-      scrollBars true
 
       # Draw a list of bars using a simple for loop.
       group "bar":
-        box 20, 20 + 60, barW, 60
+        box 20, 20 + 60 * 0, barW, 60
 
         text "text":
-          box 61, 0, 70, 20
+          box 0, 0, 70, 40
           fill "#46607e"
-          characters "progress"
+          font "IBM Plex Sans", 16, 200, 0, hLeft, vCenter
+          characters fmt"progress: {bar:4.2f}"
 
         # Draw the decrement button to make the bar go down.
-        rectangle "dec":
-          box 0, 0, 40, 40
-          fill "#AEB5C0"
-          cornerRadius 3
-          onHover:
-            fill "#46DE5F"
-          onClick:
-            bar -= 0.05
-          instance "arrow":
-            box 0, 0, 40, 40
-            rotation -180
-            image "arrow.png"
-
-        # Draw the increment button to make the bar go up.
-        rectangle "inc":
-          box barW-80, 0, 40, 40
-          fill "#AEB5C0"
-          cornerRadius 3
-          onHover:
-            fill "#46DE5F"
-          onClick:
-            bar += 0.05
-          instance "arrow":
-            box 0, 0, 40, 40
-            image "arrow.png"
-
         bar = bar.clamp(0.001, 1.0)
 
         # Draw the bar itself.
         group "bar":
-          box 60, 0, barW - 80*2, 40
+          box 100, 0, barW - 80*2, 40
           fill "#F7F7F9"
           cornerRadius 5
           rectangle "barFg":
@@ -95,4 +70,4 @@ proc drawMain() =
             bar += mouse.wheelDelta * 1.0e-3
 
 
-startFidget(drawMain, uiScale=1.5)
+startFidget(drawMain, uiScale=2.0)
