@@ -56,18 +56,30 @@ proc drawMain() =
         # Draw the decrement button to make the bar go down.
         bar = bar.clamp(0.001, 1.0)
 
+        rectangle "animate":
+          box barW-80, 0, 40, 40
+          fill "#AEB5C0"
+          cornerRadius 3
+          onHover:
+            fill "#46DE5F"
+          onClick:
+            echo "clicked"
+          text "text":
+            box 0, 0, 36, 36
+            fill "#46607e"
+            font "IBM Plex Sans", 36, 200, 0, hCenter, vCenter
+            characters "+"
+
+
         # Draw the bar itself.
         group "bar":
-          box 100, 0, barW - 80*2, 40
+          box 100, 0, barW - 100*2, 40
           fill "#F7F7F9"
           cornerRadius 5
           rectangle "barFg":
             box 0, 0, (barW - 80*2) * float(bar), 40
             fill "#46D15F"
             cornerRadius 5
-          onScroll:
-            # echo "scrolled: ", mouse.wheelDelta
-            bar += mouse.wheelDelta * 1.0e-3
 
 
 startFidget(drawMain, uiScale=2.0)
