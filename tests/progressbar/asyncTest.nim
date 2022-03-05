@@ -22,5 +22,8 @@ let
   delayedEchoFuture = delayedEcho("Hello world", 550)
   tickerFuture = ticker()
  
-waitFor tickerFuture and delayedEchoFuture
-echo delayedEchoFuture.finished
+# waitFor tickerFuture and delayedEchoFuture
+# echo delayedEchoFuture.finished
+
+for i in 0..4:
+  poll()

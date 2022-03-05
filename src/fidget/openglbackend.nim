@@ -400,13 +400,16 @@ proc setupFidget(
 
 proc asyncPoll() =
   when not defined(emscripten) and not defined(fidgetNoAsync):
-    var haveCalls = false
-    for call in httpCalls.values:
-      if call.status == Loading:
-        haveCalls = true
-        break
-    if haveCalls:
+    if hasPendingOperations():
       poll()
+
+    # var haveCalls = false
+    # for call in httpCalls.values:
+    #   if call.status == Loading:
+    #     haveCalls = true
+    #     break
+    # if haveCalls:
+    #   poll()
 
 import os
 proc timerFunc() {.thread.} =
@@ -447,8 +450,8 @@ proc startFidget*(
       updateLoop()
     emscripten_set_main_loop(main_loop, 0, true)
   else:
-    var thr: Thread[void]
-    createThread(thr, timerFunc)
+    # var thr: Thread[void]
+    # createThread(thr, timerFunc)
     while base.running:
       updateLoop()
       asyncPoll()

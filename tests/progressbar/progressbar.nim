@@ -1,8 +1,21 @@
 import bumpy, fidget, math, random
 import std/strformat
+import asyncdispatch # This is what provides us with async and the dispatcher
+import times, strutils # This is to provide the timing output
 
 loadFont("IBM Plex Sans", "IBMPlexSans-Regular.ttf")
 
+let start = epochTime()
+
+proc ticker() {.async.} =
+  ## This simple procedure will echo out "tick" ten times with 100ms between
+  ## each tick. We use it to visualise the time between other procedures.
+  for i in 1..10:
+    await sleepAsync(100)
+    echo "tick ",
+         i*100, "ms ",
+         split($((epochTime() - start)*1000), '.')[0], "ms (real)"
+ 
 # Create an array of 30 bars.
 var bar: float = 0.5
 
@@ -64,6 +77,9 @@ proc drawMain() =
             fill "#46DE5F"
           onClick:
             echo "clicked"
+            let ticks = ticker()
+            echo "done"
+
           text "text":
             box 0, 0, 36, 36
             fill "#46607e"
