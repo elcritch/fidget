@@ -24,16 +24,16 @@ proc drawMain() =
     onDown:
       fill "#3E656F"
     onClick:
-      echo "button: "
+      echo "dump: "
       dumpTree(root)
     text "text":
       box 0, 0, 90, 20
       fill "#ffffff"
       font "IBM Plex Sans", 12, 200, 0, hCenter, vCenter
-      characters "Button"
+      characters "dump"
 
   frame "main":
-    box 0, 0, root.box().w, root.box().h - 20
+    box 0, 40, root.box().w, root.box().h - 20
     fill "#F7F7F9"
     # clipContent true
 
