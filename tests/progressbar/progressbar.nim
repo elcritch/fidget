@@ -11,11 +11,12 @@ let start = epochTime()
 var
   bar: float = 0.02
   count: int = 0
-  ticks: Future[void] = emptyFuture()
+  ticks: Future[void] = emptyFuture() ##\
+    # Create an completed "empty" future
 
 proc ticker() {.async.} =
-  ## This simple procedure will echo out "tick" ten times with 100ms between
-  ## each tick. We use it to visualise the time between other procedures.
+  ## This simple procedure will "tick" ten times delayed 1,000ms each.
+  ## Every tick will increment the progress bar 10% until its done. 
   for i in 1..10:
     await sleepAsync(1_000)
     bar = 0.1 * i.toFloat()
@@ -23,37 +24,15 @@ proc ticker() {.async.} =
     refresh()
 
 proc drawMain() =
-
-  # setup ticks
-
   # Set the window title.
-  setTitle("Fidget Bars Example")
-
+  setTitle("Fidget Animated Progress Example")
   # Use simple math to layout things.
   let barH = 1.0'f32 * 60 + 20
   let barW = root.box().w - 100
 
-  group "button":
-    box 0, 0, 90, 20
-    cornerRadius 5
-    fill "#72bdd0"
-    onHover:
-      fill "#5C8F9C"
-    onDown:
-      fill "#3E656F"
-    onClick:
-      echo "dump: "
-      dumpTree(root)
-    text "text":
-      box 0, 0, 90, 20
-      fill "#ffffff"
-      font "IBM Plex Sans", 12, 200, 0, hCenter, vCenter
-      characters "dump"
-
   frame "main":
     box 0, 40, root.box().w, root.box().h - 20
     fill "#F7F7F9"
-    # clipContent true
 
     group "center":
       box 50, 0, barW, barH
@@ -65,7 +44,6 @@ proc drawMain() =
       # Draw a list of bars using a simple for loop.
       group "bar":
         box 20, 20 + 60 * 0, barW, 60
-
         text "text":
           box 0, 0, 70, 40
           fill "#46607e"
@@ -93,7 +71,6 @@ proc drawMain() =
             characters "Run"
 
         bar = bar.clamp(0.001, 1.0)
-
 
         # Draw the bar itself.
         group "bar":
