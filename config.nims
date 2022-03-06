@@ -26,3 +26,7 @@ if defined(emscripten):
   # switch("passL", "-o wasm.html")
   # #switch("--preload-file data")
   # switch("--shell-file src/shell_minimal.html")
+
+elif defined(macosx):
+  --d:pixieNoSimd
+  --d:kqueueUserEvent

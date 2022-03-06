@@ -326,6 +326,11 @@ proc openBrowser*(url: string) =
   ## Opens a URL in a browser
   discard
 
+# proc windowLoop() {.thread.} =
+#   base.start(openglVersion, msaa, mainLoopMode)
+#   while true:
+#     echo "window: "
+
 proc setupFidget(
   openglVersion: (int, int),
   msaa: MSAA,
@@ -336,6 +341,9 @@ proc setupFidget(
   pixelScale = forcePixelScale
 
   base.start(openglVersion, msaa, mainLoopMode)
+  # var thr: Thread[void]
+  # createThread(thr, timerFunc)
+
   setWindowTitle(windowTitle)
   ctx = newContext(pixelate = pixelate, pixelScale = pixelScale)
   requestedFrame = true
@@ -402,6 +410,10 @@ proc asyncPoll() =
   when not defined(emscripten) and not defined(fidgetNoAsync):
     if hasPendingOperations():
       poll()
+      if isEvent:
+        isEvent = false
+        eventTimePost = epochTime()
+        echo "event ts: ", eventTimePost - eventTimePre
 
     # var haveCalls = false
     # for call in httpCalls.values:

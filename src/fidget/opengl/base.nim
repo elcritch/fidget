@@ -1,5 +1,6 @@
 import ../common, ../input, ../internal, chroma, pixie, opengl, os, perf,
     staticglfw, times, typography/textboxes, unicode, vmath, strformat, bumpy
+import std/asyncdispatch
 
 when defined(glDebugMessageCallback):
   import strformat, strutils
@@ -46,6 +47,14 @@ var
   cursorPointer*: CursorHandle
   cursorGrab*: CursorHandle
   cursorNSResize*: CursorHandle
+
+var
+  uiEvent*: AsyncEvent
+
+var
+  eventTimePre* = epochTime()
+  eventTimePost* = epochTime()
+  isEvent* = false
 
 proc setCursor*(cursor: CursorHandle) =
   echo "set cursor"
@@ -202,9 +211,11 @@ proc onResize(handle: staticglfw.Window, w, h: int32) {.cdecl.} =
   loopMode = RepaintOnFrame
   updateLoop(poll = false)
   loopMode = prevloopMode
+  uiEvent.trigger()
 
 proc onFocus(window: staticglfw.Window, state: cint) {.cdecl.} =
   focused = state == 1
+  uiEvent.trigger()
 
 proc onSetKey(
   window: staticglfw.Window, key, scancode, action, modifiers: cint
@@ -276,6 +287,10 @@ proc onSetKey(
     if buttonDown[key] == true and setKey == false:
       buttonRelease[key] = true
     buttonDown[key] = setKey
+  # ui event
+  isEvent = true
+  eventTimePre = epochTime()
+  uiEvent.trigger()
 
 proc onScroll(window: staticglfw.Window, xoffset, yoffset: float64) {.cdecl.} =
   requestedFrame = true
@@ -284,10 +299,12 @@ proc onScroll(window: staticglfw.Window, xoffset, yoffset: float64) {.cdecl.} =
     textBox.scrollBy(-yoffset * 1)
   else:
     mouse.wheelDelta += yoffset
+  uiEvent.trigger()
 
 proc onMouseButton(
   window: staticglfw.Window, button, action, modifiers: cint
 ) {.cdecl.} =
+  echo "mouse click: ", $( (button, action, ) )
   requestedFrame = true
   let
     setKey = action != 0
@@ -298,18 +315,23 @@ proc onMouseButton(
     buttonDown[button] = setKey
   if buttonDown[button] == false and setKey == false:
     buttonRelease[button] = true
+  uiEvent.trigger()
 
 proc onMouseMove(window: staticglfw.Window, x, y: cdouble) {.cdecl.} =
   requestedFrame = true
+  # echo "mouse move: ", $( (x, y, ) )
+  uiEvent.trigger()
 
 proc onSetCharCallback(window: staticglfw.Window, character: cuint) {.cdecl.} =
   requestedFrame = true
+  echo "key: ", char character
   if keyboard.focusNode != nil:
     keyboard.state = KeyState.Press
     textBox.typeCharacter(Rune(character))
   else:
     keyboard.state = KeyState.Press
     keyboard.keyString = Rune(character).toUTF8()
+  uiEvent.trigger()
 
 proc start*(openglVersion: (int, int), msaa: MSAA, mainLoopMode: MainLoopMode) =
   if init() == 0:
@@ -390,6 +412,15 @@ proc start*(openglVersion: (int, int), msaa: MSAA, mainLoopMode: MainLoopMode) =
     echo "GL_VERSION:", cast[cstring](glGetString(GL_VERSION))
     echo "GL_SHADING_LANGUAGE_VERSION:",
       cast[cstring](glGetString(GL_SHADING_LANGUAGE_VERSION))
+
+  echo "setting up new UI Event "
+  uiEvent = newAsyncEvent()
+  let uiEventCb =
+    proc (fd: AsyncFD): bool =
+      echo "UI event!"
+      return true
+  addEvent(uiEvent, uiEventCb)
+  echo "setup new UI Event ", repr uiEvent
 
   discard window.setFramebufferSizeCallback(onResize)
   discard window.setWindowFocusCallback(onFocus)

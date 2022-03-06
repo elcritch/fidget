@@ -6,12 +6,19 @@ import times, strutils # This is to provide the timing output
 loadFont("IBM Plex Sans", "IBMPlexSans-Regular.ttf")
 
 let start = epochTime()
-
  
 # Create an array of 30 bars.
-var bar: float = 0.02
+var
+  bar: float = 0.02
+  ticks: Future[void]
+
+ticks = newFuture[void]()
+ticks.complete()
 
 proc drawMain() =
+
+  # setup ticks
+
   # Set the window title.
   setTitle("Fidget Bars Example")
 
@@ -71,18 +78,23 @@ proc drawMain() =
               ## This simple procedure will echo out "tick" ten times with 100ms between
               ## each tick. We use it to visualise the time between other procedures.
               for i in 1..10:
-                await sleepAsync(500)
+                await sleepAsync(1_000)
                 bar = 0.1 * i.toFloat()
                 echo fmt"tick {bar}"
                 refresh()
-            let ticks = ticker()
-            echo "done"
+            
+            if ticks.finished():
+              echo "setup new ticker"
+              ticks = ticker()
+            else:
+              echo "ticker already running!"
+            echo "click done"
 
           text "text":
             box 0, 0, 36, 36
             fill "#46607e"
-            font "IBM Plex Sans", 36, 200, 0, hCenter, vCenter
-            characters "+"
+            font "IBM Plex Sans", 16, 200, 0, hCenter, vCenter
+            characters "Run"
 
         bar = bar.clamp(0.001, 1.0)
 
