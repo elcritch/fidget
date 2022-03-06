@@ -5,14 +5,10 @@ import times, strutils # This is to provide the timing output
 
 loadFont("IBM Plex Sans", "IBMPlexSans-Regular.ttf")
 
-let start = epochTime()
- 
-# Create an array of 30 bars.
 var
   bar: float = 0.02
   count: int = 0
-  ticks: Future[void] = emptyFuture() ##\
-    # Create an completed "empty" future
+  ticks: Future[void] = emptyFuture() ## Create an completed "empty" future
 
 proc ticker() {.async.} =
   ## This simple procedure will "tick" ten times delayed 1,000ms each.
