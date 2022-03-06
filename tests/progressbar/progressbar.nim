@@ -10,6 +10,7 @@ let start = epochTime()
 # Create an array of 30 bars.
 var
   bar: float = 0.02
+  count: int = 0
   ticks: Future[void] = emptyFuture()
 
 proc ticker() {.async.} =
@@ -104,5 +105,23 @@ proc drawMain() =
             fill "#46D15F"
             cornerRadius 5
 
+      group "counter":
+        box 0, 20 + 60 * 2, barW, 60
+        font "IBM Plex Sans", 16, 200, 0, hCenter, vCenter
+
+        # Draw the decrement button to make the bar go down.
+        rectangle "count":
+          box barW-80-20.Em, 0, 20.Em, 2.Em
+          fill "#AEB5C0"
+          cornerRadius 3
+          onHover:
+            fill "#46DE5F"
+          onClick:
+            count.inc()
+
+          text "text":
+            box 0, 0, 20.Em, 2.Em
+            fill "#46607e"
+            characters "Clicked: " & $count
 
 startFidget(drawMain, uiScale=2.0)
