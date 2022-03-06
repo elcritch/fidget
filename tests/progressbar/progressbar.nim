@@ -33,16 +33,16 @@ proc drawMain() =
   frame "main":
     box 0, 40, root.box().w, root.box().h - 20
     fill "#F7F7F9"
+    font "IBM Plex Sans", 16, 200, 0, hCenter, vCenter
 
     group "center":
       box 50, 0, barW, barH
       orgBox 50, 0, barW, barH
       fill "#DFDFE0"
-      font "IBM Plex Sans", 16, 200, 0, hLeft, vCenter
       strokeWeight 1
 
-      # Draw a list of bars using a simple for loop.
       group "bar":
+        # Draw a progress bars 
         box 20, 20 + 60 * 0, barW, 60
         text "text":
           box 0, 0, 70, 40
@@ -50,13 +50,11 @@ proc drawMain() =
           font "IBM Plex Sans", 16, 200, 0, hLeft, vCenter
           characters fmt"progress: {bar:4.2f}"
 
-        # Draw the decrement button to make the bar go down.
         rectangle "animate":
+          # add a button to trigger "animation"
           box barW-80, 0, 40, 40
           fill "#AEB5C0"
           cornerRadius 3
-          onHover:
-            fill "#46DE5F"
           onClick:
             if ticks.finished():
               echo "setup new ticker"
@@ -67,7 +65,6 @@ proc drawMain() =
           text "text":
             box 0, 0, 36, 36
             fill "#46607e"
-            font "IBM Plex Sans", 16, 200, 0, hCenter, vCenter
             characters "Run"
 
         bar = bar.clamp(0.001, 1.0)
