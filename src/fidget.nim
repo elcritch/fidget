@@ -304,6 +304,10 @@ proc orgBox*(x, y, w, h: int|float32|float32) =
   let b = Rect(x: float32 x, y: float32 y, w: float32 w, h: float32 h)
   current.setOrgBox(b, raw=false)
 
+proc orgBox*(rect: Rect) =
+  ## Sets the box dimensions with integers
+  orgBox(rect.x, rect.y, rect.w, rect.h)
+
 proc box*(x, y, w, h: float32) =
   ## Sets the box dimensions.
   let b = Rect(x: x, y: y, w: w, h: h)
@@ -323,6 +327,9 @@ proc box*(
 proc box*(rect: Rect) =
   ## Sets the box dimensions with integers
   box(rect.x, rect.y, rect.w, rect.h)
+
+template boxOf*(node: Node) =
+  box(node.box())
 
 proc rotation*(rotationInDeg: float32) =
   ## Sets rotation in degrees.

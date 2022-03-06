@@ -6,6 +6,7 @@ proc drawMain() =
   frame "constraints":
     # Got to specify orgBox for constraints to work.
     orgBox 0, 0, 400, 400
+    orgBox 0, 0, 400, root.box.h
     # Then grow the normal box.
     box root.box
     # Constraints will work on the difference between orgBox and box.
