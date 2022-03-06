@@ -30,3 +30,4 @@ if defined(emscripten):
 elif defined(macosx):
   --d:pixieNoSimd
   --d:kqueueUserEvent
+  --threads:on

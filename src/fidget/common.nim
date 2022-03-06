@@ -370,6 +370,10 @@ proc setupRoot*() =
   current = root
   root.diffIndex = 0
 
+proc emptyFuture*(): Future[void] =
+  result = newFuture[void]()
+  result.complete()
+
 proc clearInputs*() =
 
   mouse.wheelDelta = 0

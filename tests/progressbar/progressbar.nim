@@ -10,10 +10,16 @@ let start = epochTime()
 # Create an array of 30 bars.
 var
   bar: float = 0.02
-  ticks: Future[void]
+  ticks: Future[void] = emptyFuture()
 
-ticks = newFuture[void]()
-ticks.complete()
+proc ticker() {.async.} =
+  ## This simple procedure will echo out "tick" ten times with 100ms between
+  ## each tick. We use it to visualise the time between other procedures.
+  for i in 1..10:
+    await sleepAsync(1_000)
+    bar = 0.1 * i.toFloat()
+    echo fmt"tick {bar}"
+    refresh()
 
 proc drawMain() =
 
@@ -73,22 +79,11 @@ proc drawMain() =
           onHover:
             fill "#46DE5F"
           onClick:
-            echo "clicked"
-            proc ticker() {.async.} =
-              ## This simple procedure will echo out "tick" ten times with 100ms between
-              ## each tick. We use it to visualise the time between other procedures.
-              for i in 1..10:
-                await sleepAsync(1_000)
-                bar = 0.1 * i.toFloat()
-                echo fmt"tick {bar}"
-                refresh()
-            
             if ticks.finished():
               echo "setup new ticker"
               ticks = ticker()
             else:
               echo "ticker already running!"
-            echo "click done"
 
           text "text":
             box 0, 0, 36, 36

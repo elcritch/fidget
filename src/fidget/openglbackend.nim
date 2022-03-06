@@ -413,7 +413,7 @@ proc asyncPoll() =
       if isEvent:
         isEvent = false
         eventTimePost = epochTime()
-        echo "event ts: ", eventTimePost - eventTimePre
+        echo "user input event delay: ", eventTimePost - eventTimePre
 
     # var haveCalls = false
     # for call in httpCalls.values:
