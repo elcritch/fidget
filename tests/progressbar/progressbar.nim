@@ -13,7 +13,7 @@ var
 proc ticker() {.async.} =
   ## This simple procedure will "tick" ten times delayed 1,000ms each.
   ## Every tick will increment the progress bar 10% until its done. 
-  let n = 230
+  let n = 130
   let durs = 2_000
   for i in 1..n:
     await sleepAsync(durs / n)
