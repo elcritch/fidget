@@ -304,7 +304,6 @@ proc onScroll(window: staticglfw.Window, xoffset, yoffset: float64) {.cdecl.} =
 proc onMouseButton(
   window: staticglfw.Window, button, action, modifiers: cint
 ) {.cdecl.} =
-  echo "mouse click: ", $( (button, action, ) )
   requestedFrame = true
   let
     setKey = action != 0
@@ -319,12 +318,10 @@ proc onMouseButton(
 
 proc onMouseMove(window: staticglfw.Window, x, y: cdouble) {.cdecl.} =
   requestedFrame = true
-  # echo "mouse move: ", $( (x, y, ) )
   uiEvent.trigger()
 
 proc onSetCharCallback(window: staticglfw.Window, character: cuint) {.cdecl.} =
   requestedFrame = true
-  echo "key: ", char character
   if keyboard.focusNode != nil:
     keyboard.state = KeyState.Press
     textBox.typeCharacter(Rune(character))

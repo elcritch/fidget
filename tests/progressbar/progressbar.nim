@@ -13,10 +13,12 @@ var
 proc ticker() {.async.} =
   ## This simple procedure will "tick" ten times delayed 1,000ms each.
   ## Every tick will increment the progress bar 10% until its done. 
-  for i in 1..10:
-    await sleepAsync(1_000)
-    bar = 0.1 * i.toFloat()
-    echo fmt"tick {bar}"
+  let n = 230
+  let durs = 2_000
+  for i in 1..n:
+    await sleepAsync(durs / n)
+    bar = 1.0/n.toFloat() * i.toFloat()
+    # echo fmt"tick {bar}"
     refresh()
 
 proc drawMain() =
@@ -44,7 +46,7 @@ proc drawMain() =
           box 0, 0, 70, 40
           fill "#46607e"
           font "IBM Plex Sans", 16, 200, 0, hLeft, vCenter
-          characters fmt"progress: {bar:4.2f}"
+          characters fmt"progress: {bar:5.3f}"
 
         rectangle "animate":
           # add a button to trigger "animation"
