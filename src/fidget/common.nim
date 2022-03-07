@@ -211,6 +211,9 @@ type
     else:
       future*: Future[string]
 
+const
+  DataDirPath* {.strdefine.} = "data"
+
 var
   parent*: Node
   root*: Node
@@ -242,7 +245,7 @@ var
   lastUId: int
   nodeLookup*: Table[string, Node]
 
-  dataDir*: string = "data"
+  dataDir*: string = DataDirPath
 
   ## Used for HttpCalls
   httpCalls*: Table[string, HttpCall]

@@ -3,6 +3,8 @@ switch("styleCheck", "hint")
 if not defined(emscripten):
   --threads:on
 
+switch("define", "DataDirPath:./data/")
+
 if defined(emscripten):
   # This path will only run if -d:emscripten is passed to nim.
 
