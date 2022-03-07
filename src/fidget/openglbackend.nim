@@ -430,8 +430,13 @@ proc timerFunc() {.thread.} =
     echo fmt"dtAvg: {dtAvg=} fps: {fps=} avgFrameTime: {avgFrameTime=}"
     os.sleep(1_000)
 
+type
+  WidgetProcEmpty* = proc () 
+  WidgetProc*[T] = proc (args: var T) 
+  MainProc* = proc () 
+
 proc startFidget*(
-  draw: proc(),
+  draw: MainProc,
   tick: proc() = nil,
   load: proc() = nil,
   fullscreen = false,
