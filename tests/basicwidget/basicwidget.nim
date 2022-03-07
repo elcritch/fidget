@@ -6,27 +6,32 @@ import times, strutils # This is to provide the timing output
 
 loadFont("IBM Plex Sans", "IBMPlexSans-Regular.ttf")
 
+type
+  BarValue = ref object
+    value: float
+
+var
+  ticks: Future[void] = emptyFuture() ## Create an completed "empty" future
+
+proc ticker(bar: var BarValue) {.async.} =
+  ## This simple procedure will "tick" ten times delayed 1,000ms each.
+  ## Every tick will increment the progress bar 10% until its done. 
+  let n = 130
+  let durs = 2_000
+  for i in 1..n:
+    await sleepAsync(durs / n)
+    bar.value = 1.0/n.toFloat() * i.toFloat()
+    echo fmt"tick {bar.value}"
+    refresh()
 
 proc progressBar(): WidgetProcEmpty =
 
-  var
-    bar: float = 0.2
-    count: int = 0
-    ticks: Future[void] = emptyFuture() ## Create an completed "empty" future
+  var bar: BarValue
+  new(bar)
+  bar.value = 0.2
 
   proc impl() {.closure.} = 
     let barW = root.box().w - 100
-
-    proc ticker() {.async.} =
-      ## This simple procedure will "tick" ten times delayed 1,000ms each.
-      ## Every tick will increment the progress bar 10% until its done. 
-      let n = 130
-      let durs = 2_000
-      for i in 1..n:
-        await sleepAsync(durs / n)
-        bar = 1.0/n.toFloat() * i.toFloat()
-        # echo fmt"tick {bar}"
-        refresh()
 
     group "bar":
       # Draw a progress bars 
@@ -35,7 +40,7 @@ proc progressBar(): WidgetProcEmpty =
         box 0, 0, 70, 40
         fill "#46607e"
         font "IBM Plex Sans", 16, 200, 0, hLeft, vCenter
-        characters fmt"progress: {bar:5.3f}"
+        characters fmt"progress: {bar.value:5.3f}"
 
       rectangle "animate":
         # add a button to trigger "animation"
@@ -45,7 +50,7 @@ proc progressBar(): WidgetProcEmpty =
         onClick:
           if ticks.finished():
             echo "setup new ticker"
-            ticks = ticker()
+            ticks = ticker(bar)
           else:
             echo "ticker already running!"
 
@@ -54,7 +59,7 @@ proc progressBar(): WidgetProcEmpty =
           fill "#46607e"
           characters "Run"
 
-      bar = bar.clamp(0.001, 1.0)
+      bar.value = bar.value.clamp(0.001, 1.0)
 
       # Draw the bar itself.
       group "bar":
@@ -62,14 +67,14 @@ proc progressBar(): WidgetProcEmpty =
         fill "#F7F7F9"
         cornerRadius 5
         rectangle "barFg":
-          box 0, 0, (barW - 100*2) * float(bar), 40
+          box 0, 0, (barW - 100*2) * float(bar.value), 40
           fill "#46D15F"
           cornerRadius 5
+
   impl
 
 var
-  bar1: float = 0.02
-  count: int = 0
+  count = 0
 
 proc drawMain() =
 
