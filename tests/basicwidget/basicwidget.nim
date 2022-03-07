@@ -67,53 +67,49 @@ proc progressBar(): WidgetProcEmpty =
           cornerRadius 5
   impl
 
-proc drawMain(): MainProc =
+var
+  bar1: float = 0.02
+  count: int = 0
 
-  var
-    bar1: float = 0.02
-    count: int = 0
+proc drawMain() =
 
-  proc drawImpl() {.closure.} = 
+  # Set the window title.
+  setTitle("Fidget Animated Progress Example")
+  # Use simple math to layout things.
+  let barH = 1.0'f32 * 60 + 20
+  let barW = root.box().w - 100
 
-    # Set the window title.
-    setTitle("Fidget Animated Progress Example")
-    # Use simple math to layout things.
-    let barH = 1.0'f32 * 60 + 20
-    let barW = root.box().w - 100
+  frame "main":
+    box 0, 40, root.box().w, root.box().h - 20
+    fill "#F7F7F9"
+    font "IBM Plex Sans", 16, 200, 0, hCenter, vCenter
 
-    frame "main":
-      box 0, 40, root.box().w, root.box().h - 20
-      fill "#F7F7F9"
-      font "IBM Plex Sans", 16, 200, 0, hCenter, vCenter
+    group "center":
+      box 50, 0, barW, barH
+      orgBox 50, 0, barW, barH
+      fill "#DFDFE0"
+      strokeWeight 1
 
-      group "center":
-        box 50, 0, barW, barH
-        orgBox 50, 0, barW, barH
-        fill "#DFDFE0"
-        strokeWeight 1
+      var progress1 = progressBar()
+      progress1()
 
-        var progress1 = progressBar()
-        progress1()
+      group "counter":
+        box 0, 20 + 60 * 2, barW, 60
+        font "IBM Plex Sans", 16, 200, 0, hCenter, vCenter
 
-        group "counter":
-          box 0, 20 + 60 * 2, barW, 60
-          font "IBM Plex Sans", 16, 200, 0, hCenter, vCenter
+        # Draw the decrement button to make the bar go down.
+        rectangle "count":
+          box barW-80-20.Em, 0, 20.Em, 2.Em
+          fill "#AEB5C0"
+          cornerRadius 3
+          onHover:
+            fill "#46DE5F"
+          onClick:
+            count.inc()
 
-          # Draw the decrement button to make the bar go down.
-          rectangle "count":
-            box barW-80-20.Em, 0, 20.Em, 2.Em
-            fill "#AEB5C0"
-            cornerRadius 3
-            onHover:
-              fill "#46DE5F"
-            onClick:
-              count.inc()
+          text "text":
+            box 0, 0, 20.Em, 2.Em
+            fill "#46607e"
+            characters "Clicked: " & $count
 
-            text "text":
-              box 0, 0, 20.Em, 2.Em
-              fill "#46607e"
-              characters "Clicked: " & $count
-
-  drawImpl
-
-startFidget(drawMain(), uiScale=2.0)
+startFidget(drawMain, uiScale=2.0)

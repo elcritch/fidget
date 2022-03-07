@@ -436,7 +436,7 @@ type
   MainProc* = proc () 
 
 proc startFidget*(
-  draw: MainProc,
+  draw: proc() = nil,
   tick: proc() = nil,
   load: proc() = nil,
   fullscreen = false,
