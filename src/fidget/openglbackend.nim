@@ -336,7 +336,8 @@ proc setupFidget(
   msaa: MSAA,
   mainLoopMode: MainLoopMode,
   pixelate: bool,
-  forcePixelScale: float32
+  forcePixelScale: float32,
+  atlasSize: int = 1024
 ) =
   pixelScale = forcePixelScale
 
@@ -345,7 +346,7 @@ proc setupFidget(
   # createThread(thr, timerFunc)
 
   setWindowTitle(windowTitle)
-  ctx = newContext(pixelate = pixelate, pixelScale = pixelScale)
+  ctx = newContext(atlasSize = atlasSize, pixelate = pixelate, pixelScale = pixelScale)
   requestedFrame = true
 
   base.drawFrame = proc() =
@@ -451,7 +452,9 @@ proc startFidget*(
   drawMain = draw
   tickMain = tick
   loadMain = load
-  setupFidget(openglVersion, msaa, mainLoopMode, pixelate, pixelScale)
+  let atlasStartSz = 1024 shl uiScale.round().toInt()
+  echo fmt"{atlasStartSz=}"
+  setupFidget(openglVersion, msaa, mainLoopMode, pixelate, pixelScale, atlasStartSz)
   mouse.pixelScale = pixelScale
   when defined(emscripten):
     # Emscripten can't block so it will call this callback instead.
