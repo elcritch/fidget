@@ -10,8 +10,7 @@ type
   BarValue = ref object
     value: float
 
-iterator progressBar(): int {.closure.} =
-
+iterator progressBar(): void {.closure.} =
   var
     ticks: Future[void] = emptyFuture() ## Create an completed "empty" future
 
@@ -21,10 +20,9 @@ iterator progressBar(): int {.closure.} =
     let n = 130
     let durs = 2_000
     for i in 1..n:
-      echo "root:", repr cast[pointer](root)
       await sleepAsync(durs / n)
       bar.value = 1.0/n.toFloat() * i.toFloat()
-      echo fmt"tick {bar.value}"
+      # echo fmt"tick {bar.value}"
       refresh()
 
   var bar = BarValue(value: 0.2)
@@ -69,7 +67,7 @@ iterator progressBar(): int {.closure.} =
           box 0, 0, (barW - 100*2) * float(bar.value), 40
           fill "#46D15F"
           cornerRadius 5
-    yield 0
+    yield
 
 
 var
@@ -96,8 +94,7 @@ iterator drawWidget(): void {.closure.} =
         fill "#DFDFE0"
         strokeWeight 1
 
-        let res = progress1()
-        echo "res: ", repr res
+        progress1()
 
         group "counter":
           box 0, 20 + 60 * 2, barW, 60
