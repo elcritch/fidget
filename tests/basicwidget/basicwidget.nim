@@ -13,7 +13,7 @@ type
 var
   ticks: Future[void] = emptyFuture() ## Create an completed "empty" future
 
-proc ticker(bar: var BarValue) {.async.} =
+proc ticker(bar: BarValue) {.async.} =
   ## This simple procedure will "tick" ten times delayed 1,000ms each.
   ## Every tick will increment the progress bar 10% until its done. 
   let n = 130
@@ -75,9 +75,9 @@ proc progressBar(): WidgetProcEmpty =
 
 var
   count = 0
+  progress1 = progressBar()
 
 proc drawMain() =
-
   # Set the window title.
   setTitle("Fidget Animated Progress Example")
   # Use simple math to layout things.
@@ -95,7 +95,6 @@ proc drawMain() =
       fill "#DFDFE0"
       strokeWeight 1
 
-      var progress1 = progressBar()
       progress1()
 
       group "counter":
