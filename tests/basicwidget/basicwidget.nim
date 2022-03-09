@@ -10,7 +10,7 @@ type
   BarValue = ref object
     value: float
 
-proc progressBar(): WidgetProcEmpty =
+iterator progressBar(): int {.closure.} =
 
   var
     ticks: Future[void] = emptyFuture() ## Create an completed "empty" future
@@ -29,7 +29,7 @@ proc progressBar(): WidgetProcEmpty =
 
   var bar = BarValue(value: 0.2)
 
-  proc impl() {.closure.} = 
+  while true:
     let barW = root.box().w - 100
 
     group "bar":
@@ -69,50 +69,59 @@ proc progressBar(): WidgetProcEmpty =
           box 0, 0, (barW - 100*2) * float(bar.value), 40
           fill "#46D15F"
           cornerRadius 5
+    yield 0
 
-  impl
 
 var
   count = 0
-  progress1 = progressBar()
+  progress1 = progressBar
+
+iterator drawWidget(): void {.closure.} =
+
+  while true:
+    # Set the window title.
+    setTitle("Fidget Animated Progress Example")
+    # Use simple math to layout things.
+    let barH = 1.0'f32 * 60 + 20
+    let barW = root.box().w - 100
+
+    frame "main":
+      box 0, 40, root.box().w, root.box().h - 20
+      fill "#F7F7F9"
+      font "IBM Plex Sans", 16, 200, 0, hCenter, vCenter
+
+      group "center":
+        box 50, 0, barW, barH
+        orgBox 50, 0, barW, barH
+        fill "#DFDFE0"
+        strokeWeight 1
+
+        let res = progress1()
+        echo "res: ", repr res
+
+        group "counter":
+          box 0, 20 + 60 * 2, barW, 60
+          font "IBM Plex Sans", 16, 200, 0, hCenter, vCenter
+
+          # Draw the decrement button to make the bar go down.
+          rectangle "count":
+            box barW-80-20.Em, 0, 20.Em, 2.Em
+            fill "#AEB5C0"
+            cornerRadius 3
+            onHover:
+              fill "#46DE5F"
+            onClick:
+              count.inc()
+
+            text "text":
+              box 0, 0, 20.Em, 2.Em
+              fill "#46607e"
+              characters "Clicked: " & $count
+    yield 
+
+var widget = drawWidget
 
 proc drawMain() =
-  # Set the window title.
-  setTitle("Fidget Animated Progress Example")
-  # Use simple math to layout things.
-  let barH = 1.0'f32 * 60 + 20
-  let barW = root.box().w - 100
-
-  frame "main":
-    box 0, 40, root.box().w, root.box().h - 20
-    fill "#F7F7F9"
-    font "IBM Plex Sans", 16, 200, 0, hCenter, vCenter
-
-    group "center":
-      box 50, 0, barW, barH
-      orgBox 50, 0, barW, barH
-      fill "#DFDFE0"
-      strokeWeight 1
-
-      progress1()
-
-      group "counter":
-        box 0, 20 + 60 * 2, barW, 60
-        font "IBM Plex Sans", 16, 200, 0, hCenter, vCenter
-
-        # Draw the decrement button to make the bar go down.
-        rectangle "count":
-          box barW-80-20.Em, 0, 20.Em, 2.Em
-          fill "#AEB5C0"
-          cornerRadius 3
-          onHover:
-            fill "#46DE5F"
-          onClick:
-            count.inc()
-
-          text "text":
-            box 0, 0, 20.Em, 2.Em
-            fill "#46607e"
-            characters "Clicked: " & $count
+  widget()
 
 startFidget(drawMain, uiScale=2.0)
