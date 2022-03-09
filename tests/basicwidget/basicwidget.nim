@@ -70,11 +70,11 @@ iterator progressBar(): void {.closure.} =
     yield
 
 
-var
-  count = 0
-  progress1 = progressBar
-
 iterator drawWidget(): void {.closure.} =
+
+  var
+    count = 0
+    progress1 = progressBar
 
   while true:
     # Set the window title.
