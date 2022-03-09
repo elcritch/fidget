@@ -10,21 +10,22 @@ type
   BarValue = ref object
     value: float
 
-var
-  ticks: Future[void] = emptyFuture() ## Create an completed "empty" future
-
-proc ticker(bar: BarValue) {.async.} =
-  ## This simple procedure will "tick" ten times delayed 1,000ms each.
-  ## Every tick will increment the progress bar 10% until its done. 
-  let n = 130
-  let durs = 2_000
-  for i in 1..n:
-    await sleepAsync(durs / n)
-    bar.value = 1.0/n.toFloat() * i.toFloat()
-    echo fmt"tick {bar.value}"
-    refresh()
-
 proc progressBar(): WidgetProcEmpty =
+
+  var
+    ticks: Future[void] = emptyFuture() ## Create an completed "empty" future
+
+  proc ticker(bar: BarValue) {.async.} =
+    ## This simple procedure will "tick" ten times delayed 1,000ms each.
+    ## Every tick will increment the progress bar 10% until its done. 
+    let n = 130
+    let durs = 2_000
+    for i in 1..n:
+      echo "root:", repr cast[pointer](root)
+      await sleepAsync(durs / n)
+      bar.value = 1.0/n.toFloat() * i.toFloat()
+      echo fmt"tick {bar.value}"
+      refresh()
 
   var bar: BarValue
   new(bar)
