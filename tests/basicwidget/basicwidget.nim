@@ -27,9 +27,7 @@ proc progressBar(): WidgetProcEmpty =
       echo fmt"tick {bar.value}"
       refresh()
 
-  var bar: BarValue
-  new(bar)
-  bar.value = 0.2
+  var bar = BarValue(value: 0.2)
 
   proc impl() {.closure.} = 
     let barW = root.box().w - 100
