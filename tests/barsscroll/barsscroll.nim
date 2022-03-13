@@ -85,7 +85,7 @@ proc drawMain() =
           bar = bar.clamp(0.001, 1.0)
 
           # Draw the bar itself.
-          group "bar":
+          group "innerbar":
             box 60, 0, barW - 80*2, 40
             fill "#F7F7F9"
             cornerRadius 5

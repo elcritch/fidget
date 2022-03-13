@@ -20,7 +20,6 @@ proc preNode(kind: NodeKind, id: string) =
   parent = nodeStack[^1]
 
   # TODO: maybe a better node differ?
-
   if parent.nodes.len <= parent.diffIndex:
     # Create Node.
     current = Node()
@@ -30,13 +29,15 @@ proc preNode(kind: NodeKind, id: string) =
   else:
     # Reuse Node.
     current = parent.nodes[parent.diffIndex]
-    if current.id == id:
+    if current.id == id and
+        current.nIndex == parent.diffIndex:
       # Same node.
       discard
     else:
       # Big change.
       current.id = id
-    current.resetToDefault()
+      current.nIndex = parent.diffIndex
+      current.resetToDefault()
 
   current.kind = kind
   current.textStyle = parent.textStyle

@@ -139,6 +139,7 @@ type
     verticalPadding*: float32
     itemSpacing*: float32
     clipContent*: bool
+    nIndex*: int
     diffIndex*: int
     when not defined(js):
       textLayout*: seq[GlyphPosition]
