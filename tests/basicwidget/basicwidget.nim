@@ -12,7 +12,7 @@ type
 
 iterator progressBar(): void {.closure.} =
   var
-    ticks: Future[void] = emptyFuture() ## Create an completed "empty" future
+    ticks: Future[void] = emptyFuture() ## Create a completed "empty" future
 
   proc ticker(bar: BarValue) {.async.} =
     ## This simple procedure will "tick" ten times delayed 1,000ms each.
