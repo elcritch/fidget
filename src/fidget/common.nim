@@ -154,6 +154,7 @@ type
     selectable*: bool
     scrollBars*: bool ## Should it have scroll bars if children are clipped.
     postHooks*: seq[proc() {.closure.}]
+    dataPtr*: pointer
 
   KeyState* = enum
     Empty

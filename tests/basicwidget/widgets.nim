@@ -1,5 +1,8 @@
 import macros, tables, strutils, strformat
 
+type
+  WidgetProc = proc()
+
 iterator attributes(blk: NimNode): (int, string, NimNode) =
   for idx, item in blk:
     if item.kind == nnkCall:
@@ -42,22 +45,29 @@ proc makeType(name: string, body: NimNode): NimNode =
   var tp = quote do:
     type `tpName` = ref object
       a: int
-  # echo "tp: ", tp.treeRepr
   var rec = newNimNode(nnkRecList)
   for pd, pv in propTypes:
     echo "pd: ", pd, " => ", pv.treeRepr
     rec.add newIdentDefs(ident pd, pv)
-  # echo "tp:Rec: ", tp.treeRepr
   tp[0][^1][0][^1] = rec
-  # echo "tp:Rec: ", tp.treeRepr
   result.add tp
-  # echo "propDefs: "
-  # for pd, pv in propDefs:
-    # echo "pd: ", pd, " => ", pv.treeRepr
 
-macro Widget*(name, blk: untyped) =
-  var body = blk
-  let typeName = name.strVal.capitalizeAscii()
+macro widget*(blk: untyped) =
+  var
+    procDef = blk
+    body = procDef.body()
+    params = procDef.params()
+    preBody = newStmtList()
+
+  let
+    procName = procDef.name().strVal
+    typeName = procName.capitalizeAscii()
+    preName = ident("pre")
+    postName = ident("post")
+
+  echo "typeName: ", typeName
+  # echo "widget: ", treeRepr blk
+
   var impl: NimNode
   for idx, name, code in body.attributes():
     echo fmt"{idx=} {name=}"
@@ -67,19 +77,31 @@ macro Widget*(name, blk: untyped) =
     of "body":
       impl = code
     of "properties":
-      # echo code.treeRepr
       let wType = typeName.makeType(code)
-      echo fmt"{wType.repr=}"
-      let wInit = typeName.makeType(code)
-      echo fmt"{wType.repr=}"
-      body[idx] = wType
+      preBody.add wType
+
+  procDef.body= quote do:
+    group `procName`:
+      if `preName` == nil: `preName`()
+      `body`
+      if `postName` == nil: `postName`()
+  
+  let
+    nilValue = quote do: nil
+    stateArg = newIdentDefs(ident("self"), ident(typeName))
+    preArg = newIdentDefs(ident("pre"), bindSym"WidgetProc", nilValue)
+    postArg = newIdentDefs(ident("post"), bindSym"WidgetProc", nilValue)
+  
+  echo "procTp: ", preArg.treeRepr
+  params.add stateArg
+  params.add preArg
+  params.add postArg 
+  echo "params: ", treeRepr params
 
   result = newStmtList()
-  result.add quote do:
-    `body`
-    proc `name`() = 
-      echo "hi" # `impl`
-  echo "Widget: "
+  result.add preBody 
+  result.add procDef
+  echo "\n=== Widget === "
   echo result.repr
 
 macro WidgetBody*(blk: untyped) =
