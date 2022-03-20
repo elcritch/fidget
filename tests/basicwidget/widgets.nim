@@ -10,18 +10,6 @@ iterator attributes(blk: NimNode): (int, string, NimNode) =
       var code = item[1]
       yield (idx, name, code)
 
-# iterator splitAttributes(blk: var NimNode): TableRef[string, NimNode] =
-#   result = newTable[string, NimNode]()
-#   var others = newStmtList()
-#   for item in blk:
-#     if item.kind == nnkCall:
-#       var name = item[0].repr
-#       var code = item[1]
-#       result[name] = code
-#     else:
-#       others.add item
-#   blk = others
-
 proc makeType(name: string, body: NimNode): NimNode =
   echo "\nprops: "
   var propDefs = newTable[string, NimNode]()
@@ -62,13 +50,15 @@ macro widget*(blk: untyped) =
   let
     procName = procDef.name().strVal
     typeName = procName.capitalizeAscii()
-    preName = ident("pre")
+    preName = ident("setup")
     postName = ident("post")
 
   echo "typeName: ", typeName
   # echo "widget: ", treeRepr blk
 
   var impl: NimNode
+  var hasProperty = false
+
   for idx, name, code in body.attributes():
     echo fmt"{idx=} {name=}"
     body[idx] = newStmtList()
@@ -77,23 +67,27 @@ macro widget*(blk: untyped) =
     of "body":
       impl = code
     of "properties":
+      hasProperty = true
       let wType = typeName.makeType(code)
       preBody.add wType
 
   procDef.body= quote do:
     group `procName`:
-      if `preName` == nil: `preName`()
+      if `preName` != nil:
+        `preName`()
       `body`
-      if `postName` == nil: `postName`()
+      if `postName` != nil:
+        `postName`()
   
   let
     nilValue = quote do: nil
     stateArg = newIdentDefs(ident("self"), ident(typeName))
-    preArg = newIdentDefs(ident("pre"), bindSym"WidgetProc", nilValue)
+    preArg = newIdentDefs(preName, bindSym"WidgetProc", nilValue)
     postArg = newIdentDefs(ident("post"), bindSym"WidgetProc", nilValue)
   
   echo "procTp: ", preArg.treeRepr
-  params.add stateArg
+  if hasProperty:
+    params.add stateArg
   params.add preArg
   params.add postArg 
   echo "params: ", treeRepr params
