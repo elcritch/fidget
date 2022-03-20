@@ -14,13 +14,13 @@ type
 proc progressBar*(value: var Unit) {.widget.} =
 
   # Draw a progress bars 
-  init:
+  Init:
     box 0, 0, parent.box().w, 1.Em
 
   let
     bw = current.box().w
     bh = 2.Em
-    barW = bw - 1.Em
+    barW = bw
 
   group "progress":
     text "text":
@@ -68,35 +68,26 @@ proc button*(msg: string, clicker: proc()) {.widget.} =
 
 
 AppWidget(exampleApp):
-
-  properties:
+  Properties:
     count: int
     value: Unit
-
-  init:
+  Init:
     count = 1
     value = Unit(0.33)
 
   frame "main":
-    box 0, 0, root.box().w, root.box().h
-
-    # Set the window title.
     setTitle("Fidget Animated Progress Example")
-    fill "#F7F7F9"
-    # Use simple math to layout things.
-    let barH = root.box().h
-    let barW = root.box().w - 100
-
     font "IBM Plex Sans", 16, 200, 0, hCenter, vCenter
+    fill "#F7F7F9"
 
     group "center":
-      box 50, 0, barW, barH
-      orgBox 50, 0, barW, barH
+      box 50, 0, 100.Vw - 100, 100.Vh
+      orgBox 50, 0, 100.Vw, 100.Vw
       fill "#DFDFE0"
       strokeWeight 1
 
       progressBar(self.value) do:
-        box 20, 20, barW - 30, 1.Em
+        box 10.WPerc, 20, 80.WPerc, 1.Em
 
       # Draw the decrement button to make the bar go down.
       button(fmt"Clicked: {self.count:4d}"):

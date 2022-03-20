@@ -214,6 +214,22 @@ template Em*(size: float32): float32 =
   ## Code in the block will run when this box is hovered.
   current.textStyle.fontSize * size / common.uiScale
 
+template Vw*(size: float32): float32 =
+  ## Code in the block will run when this box is hovered.
+  root.box().w * size / 100.0  
+
+template Vh*(size: float32): float32 =
+  ## Code in the block will run when this box is hovered.
+  root.box().h * size / 100.0  
+
+template HPerc*(size: float32): float32 =
+  ## Code in the block will run when this box is hovered.
+  parent.box().h * size / 100.0  
+
+template WPerc*(size: float32): float32 =
+  ## Code in the block will run when this box is hovered.
+  parent.box().w * size / 100.0  
+
 template onScroll*(inner: untyped) =
   ## Code in the block will run when mouse scrolls
   if mouse.wheelDelta != 0.0 and mouseOverlapLogic():

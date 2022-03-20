@@ -64,9 +64,9 @@ macro widget*(blk: untyped) =
     body[idx] = newStmtList()
     echo "widget:property: ", name
     case name:
-    of "body":
+    of "Body":
       impl = code
-    of "properties":
+    of "Properties":
       hasProperty = true
       let wType = typeName.makeType(code)
       preBody.add wType
@@ -123,9 +123,9 @@ macro AppWidget*(pname, blk: untyped) =
     body[idx] = newStmtList()
     echo "widget:property: ", name
     case name:
-    of "body":
+    of "Body":
       impl = code
-    of "properties":
+    of "Properties":
       hasProperty = true
       let wType = typeName.makeType(code)
       preBody.add wType
