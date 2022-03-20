@@ -11,8 +11,10 @@ loadFont("IBM Plex Sans", "IBMPlexSans-Regular.ttf")
 type
   Unit* = range[0.0'f32..1.0'f32]
 
-proc progressBar*(value: var Unit) {.widget.} =
+# proc progressBar*(value: var Unit) {.widget.} =
+Widget progressBar(value: var Unit, bar: int):
 
+  let a = 1
   # Draw a progress bars 
   Init:
     box 0, 0, parent.box().w, 1.Em
@@ -89,7 +91,7 @@ AppWidget(exampleApp):
       fill "#DFDFE0"
       strokeWeight 1
 
-      progressBar(self.value) do:
+      progressBar(self.value, 0) do:
         box 10.WPerc, 20, 80.WPerc, 1.Em
 
       # Draw the decrement button to make the bar go down.
@@ -99,12 +101,12 @@ AppWidget(exampleApp):
       do:
         box root.box().w-16.Em, 100, 8.Em, 2.Em
 
-      onFidget button(fmt"Clicked: {self.count:4d}"):
-        setup:
-          box root.box().w-16.Em, 100, 8.Em, 2.Em
-        onClick:
-          self.count.inc()
-          self.value = (self.value + 0.07) mod 1.0
+      # onFidget button(fmt"Clicked: {self.count:4d}"):
+      #   setup:
+      #     box root.box().w-16.Em, 100, 8.Em, 2.Em
+      #   onClick:
+      #     self.count.inc()
+      #     self.value = (self.value + 0.07) mod 1.0
 
 
 var state = ExampleApp(count: 1, value: 0.33)
