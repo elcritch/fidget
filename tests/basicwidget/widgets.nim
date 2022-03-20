@@ -97,17 +97,3 @@ macro widget*(blk: untyped) =
   result.add procDef
   echo "\n=== Widget === "
   echo result.repr
-
-macro WidgetBody*(blk: untyped) =
-  result = newStmtList()
-  result = quote do:
-    var obj: MyWidget
-    while true:
-      `blk`
-      yield
-
-macro Properties*(blk: untyped) =
-  result = newStmtList()
-  result = quote do:
-    type
-      `blk`
