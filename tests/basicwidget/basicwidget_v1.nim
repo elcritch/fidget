@@ -26,7 +26,7 @@ proc progressBar*(value: var Unit) {.widget.} =
     text "text":
       box 0, 0, bw, bh
       fill "#46607e"
-      characters fmt"progress: "
+      characters fmt"progress: {float(value):4.2f}"
 
     value = value.clamp(0.001, 1.0)
 
@@ -39,6 +39,31 @@ proc progressBar*(value: var Unit) {.widget.} =
         box 0, 0, barW * float(value), bh
         fill "#46D15F"
         cornerRadius 5
+
+proc button*(msg: string, clicker: proc()) {.widget.} =
+
+  # Draw a progress bars 
+  init:
+    box 0, 0, parent.box().w, 1.Em
+
+  let
+    bw = 8.Em
+    bh = 2.Em
+
+  rectangle "button":
+    box 0, 0, bw, bh
+    fill "#AEB5C0"
+    cornerRadius 3
+    onHover:
+      fill "#46DE5F"
+    onClick:
+      clicker()
+
+    text "text":
+      box 0, 0, 20.Em, 2.Em
+      fill "#46607e"
+      characters msg
+
 
 AppWidget(exampleApp):
 
