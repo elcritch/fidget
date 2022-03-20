@@ -163,5 +163,3 @@ macro AppWidget*(pname, blk: untyped) =
 
 template fAttr*(name: untyped) {.pragma.}
 
-macro onFidget*(widget, blk: untyped) =
-  echo "ONS: ", blk.treeRepr
