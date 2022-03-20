@@ -40,10 +40,13 @@ proc progressBar*(value: var Percent) {.widget.} =
         fill "#46D15F"
         cornerRadius 5
 
+proc exampleApp() {.appWidget.} =
 
-proc drawMain() =
+  properties:
+    count: int
+    value: Percent
 
-  var
+  init:
     count = 1
     value = Percent(0.33)
 
@@ -65,7 +68,7 @@ proc drawMain() =
         fill "#DFDFE0"
         strokeWeight 1
 
-        progressBar(value) do:
+        progressBar(self.value) do:
           box 20, 20, barW - 30, 1.Em
 
         group "counter":
@@ -80,12 +83,16 @@ proc drawMain() =
             onHover:
               fill "#46DE5F"
             onClick:
-              count.inc()
+              self.count.inc()
 
             text "text":
               box 0, 0, 20.Em, 2.Em
               fill "#46607e"
-              characters "Clicked: " & $count
+              characters "Clicked: " & $self.count
 
+var state = ExampleApp(count: 1, value: Percent(0.33))
+
+proc drawMain() =
+  exampleApp(state)
 
 startFidget(drawMain, uiScale=2.0)

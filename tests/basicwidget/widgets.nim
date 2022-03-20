@@ -95,5 +95,63 @@ macro widget*(blk: untyped) =
   result = newStmtList()
   result.add preBody 
   result.add procDef
+  # echo "\n=== Widget === "
+  # echo result.repr
+
+macro appWidget*(blk: untyped) =
+  var
+    procDef = blk
+    body = procDef.body()
+    params = procDef.params()
+    preBody = newStmtList()
+
+  let
+    procName = procDef.name().strVal
+    typeName = procName.capitalizeAscii()
+    preName = ident("setup")
+    postName = ident("post")
+
+  echo "typeName: ", typeName
+  # echo "widget: ", treeRepr blk
+
+  var impl: NimNode
+  var hasProperty = false
+
+  for idx, name, code in body.attributes():
+    echo fmt"{idx=} {name=}"
+    body[idx] = newStmtList()
+    echo "widget:property: ", name
+    case name:
+    of "body":
+      impl = code
+    of "properties":
+      hasProperty = true
+      let wType = typeName.makeType(code)
+      preBody.add wType
+
+  procDef.body= quote do:
+    group `procName`:
+      if `preName` != nil:
+        `preName`()
+      `body`
+      if `postName` != nil:
+        `postName`()
+  
+  let
+    nilValue = quote do: nil
+    stateArg = newIdentDefs(ident("self"), ident(typeName))
+    preArg = newIdentDefs(preName, bindSym"WidgetProc", nilValue)
+    postArg = newIdentDefs(ident("post"), bindSym"WidgetProc", nilValue)
+  
+  echo "procTp: ", preArg.treeRepr
+  if hasProperty:
+    params.add stateArg
+  params.add preArg
+  params.add postArg 
+  echo "params: ", treeRepr params
+
+  result = newStmtList()
+  result.add preBody 
+  result.add procDef
   echo "\n=== Widget === "
   echo result.repr
