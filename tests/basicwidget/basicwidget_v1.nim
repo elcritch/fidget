@@ -98,7 +98,7 @@ AppWidget(exampleApp):
         self.count.inc()
         self.value = (self.value + 0.07) mod 1.0
       do:
-        box root.box().w-16.Em, 100, 8.Em, 2.Em
+        box 90.WPerc - 8.Em, 100, 8.Em, 2.Em
 
       # onFidget button(fmt"Clicked: {self.count:4d}"):
       #   setup:
