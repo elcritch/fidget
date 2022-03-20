@@ -11,8 +11,7 @@ loadFont("IBM Plex Sans", "IBMPlexSans-Regular.ttf")
 type
   Unit* = range[0.0'f32..1.0'f32]
 
-# proc progressBar*(value: var Unit) {.widget.} =
-Widget progressBar(value: var Unit, bar: int):
+proc progressBar*(value: var Unit) {.widget.} =
 
   let a = 1
   # Draw a progress bars 
@@ -91,7 +90,7 @@ AppWidget(exampleApp):
       fill "#DFDFE0"
       strokeWeight 1
 
-      progressBar(self.value, 0) do:
+      progressBar(self.value) do:
         box 10.WPerc, 20, 80.WPerc, 1.Em
 
       # Draw the decrement button to make the bar go down.
