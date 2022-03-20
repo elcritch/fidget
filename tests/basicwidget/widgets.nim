@@ -160,3 +160,8 @@ macro AppWidget*(pname, blk: untyped) =
   result.add procDef
   echo "\n=== Widget === "
   echo result.repr
+
+template fAttr*(name: untyped) {.pragma.}
+
+macro onFidget*(widget, blk: untyped) =
+  echo "ONS: ", blk.treeRepr

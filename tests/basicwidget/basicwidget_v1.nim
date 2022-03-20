@@ -40,10 +40,13 @@ proc progressBar*(value: var Unit) {.widget.} =
         fill "#46D15F"
         cornerRadius 5
 
-proc button*(msg: string, clicker: proc()) {.widget.} =
+proc button*(
+    msg: string,
+    clicker {.fAttr(onClick).}: proc()
+) {.widget.} =
 
   # Draw a progress bars 
-  init:
+  Init:
     box 0, 0, parent.box().w, 1.Em
 
   cornerRadius 3
@@ -95,6 +98,13 @@ AppWidget(exampleApp):
         self.value = (self.value + 0.07) mod 1.0
       do:
         box root.box().w-16.Em, 100, 8.Em, 2.Em
+
+      onFidget button(fmt"Clicked: {self.count:4d}"):
+        setup:
+          box root.box().w-16.Em, 100, 8.Em, 2.Em
+        onClick:
+          self.count.inc()
+          self.value = (self.value + 0.07) mod 1.0
 
 
 var state = ExampleApp(count: 1, value: 0.33)
