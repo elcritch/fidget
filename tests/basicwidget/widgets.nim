@@ -72,7 +72,7 @@ macro widget*(blk: untyped) =
       preBody.add wType
 
   procDef.body= quote do:
-    group `procName`:
+    group `typeName`:
       if `preName` != nil:
         `preName`()
       `body`
@@ -98,16 +98,17 @@ macro widget*(blk: untyped) =
   # echo "\n=== Widget === "
   # echo result.repr
 
-macro appWidget*(blk: untyped) =
+macro AppWidget*(pname, blk: untyped) =
   var
-    procDef = blk
-    body = procDef.body()
-    params = procDef.params()
+    # procDef = blk
+    # body = procDef.body()
+    body = blk
     preBody = newStmtList()
 
   let
-    procName = procDef.name().strVal
-    typeName = procName.capitalizeAscii()
+    procName = ident "widget"
+    typeName = pname.strVal().capitalizeAscii()
+    groupName = newNimNode(nnkStrLit, pname)
     preName = ident("setup")
     postName = ident("post")
 
@@ -129,14 +130,18 @@ macro appWidget*(blk: untyped) =
       let wType = typeName.makeType(code)
       preBody.add wType
 
-  procDef.body= quote do:
-    group `procName`:
-      if `preName` != nil:
-        `preName`()
-      `body`
-      if `postName` != nil:
-        `postName`()
-  
+  var procDef = quote do:
+    proc `procName`*() =
+      group `groupName`:
+        if `preName` != nil:
+          `preName`()
+        `body`
+        if `postName` != nil:
+          `postName`()
+    
+  var
+    params = procDef.params()
+
   let
     nilValue = quote do: nil
     stateArg = newIdentDefs(ident("self"), ident(typeName))

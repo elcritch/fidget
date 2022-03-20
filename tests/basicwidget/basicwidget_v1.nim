@@ -9,9 +9,9 @@ import widgets
 loadFont("IBM Plex Sans", "IBMPlexSans-Regular.ttf")
 
 type
-  Percent* = range[0.0'f32..100.0'f32]
+  Unit* = range[0.0'f32..1.0'f32]
 
-proc progressBar*(value: var Percent) {.widget.} =
+proc progressBar*(value: var Unit) {.widget.} =
 
   # Draw a progress bars 
   init:
@@ -40,15 +40,15 @@ proc progressBar*(value: var Percent) {.widget.} =
         fill "#46D15F"
         cornerRadius 5
 
-proc exampleApp() {.appWidget.} =
+AppWidget(exampleApp):
 
   properties:
     count: int
-    value: Percent
+    value: Unit
 
   init:
     count = 1
-    value = Percent(0.33)
+    value = Unit(0.33)
 
   group "widget":
     # Set the window title.
@@ -84,15 +84,16 @@ proc exampleApp() {.appWidget.} =
               fill "#46DE5F"
             onClick:
               self.count.inc()
+              self.value = (self.value + 0.07) mod 1.0
 
             text "text":
               box 0, 0, 20.Em, 2.Em
               fill "#46607e"
               characters "Clicked: " & $self.count
 
-var state = ExampleApp(count: 1, value: Percent(0.33))
+var state = ExampleApp(count: 1, value: 0.33)
 
 proc drawMain() =
-  exampleApp(state)
+  widget(state)
 
 startFidget(drawMain, uiScale=2.0)
