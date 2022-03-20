@@ -87,23 +87,23 @@ AppWidget(exampleApp):
     let barH = root.box().h
     let barW = root.box().w - 100
 
-      font "IBM Plex Sans", 16, 200, 0, hCenter, vCenter
+    font "IBM Plex Sans", 16, 200, 0, hCenter, vCenter
 
-      group "center":
-        box 50, 0, barW, barH
-        orgBox 50, 0, barW, barH
-        fill "#DFDFE0"
-        strokeWeight 1
+    group "center":
+      box 50, 0, barW, barH
+      orgBox 50, 0, barW, barH
+      fill "#DFDFE0"
+      strokeWeight 1
 
-        progressBar(self.value) do:
-          box 20, 20, barW - 30, 1.Em
+      progressBar(self.value) do:
+        box 20, 20, barW - 30, 1.Em
 
-        # Draw the decrement button to make the bar go down.
-        button(fmt"Clicked: {self.count:4d}"):
-          self.count.inc()
-          self.value = (self.value + 0.07) mod 1.0
-        do:
-          box barW-80-20.Em, 0, 20.Em, 2.Em
+      # Draw the decrement button to make the bar go down.
+      button(fmt"Clicked: {self.count:4d}"):
+        self.count.inc()
+        self.value = (self.value + 0.07) mod 1.0
+      do:
+        box root.box().w-16.Em, 100, 8.Em, 2.Em
 
 
 var state = ExampleApp(count: 1, value: 0.33)
