@@ -384,6 +384,10 @@ proc cornerRadius*(radius: float32) =
   ## Sets all radius of all 4 corners.
   cornerRadius(radius, radius, radius, radius)
 
+proc cornerRadius*(radius: (float32, float32, float32, float32)) =
+  ## Sets all radius of all 4 corners.
+  current.cornerRadius = radius
+
 proc editableText*(editableText: bool) =
   ## Sets the code for this node.
   current.editableText = editableText

@@ -46,21 +46,23 @@ proc button*(msg: string, clicker: proc()) {.widget.} =
   init:
     box 0, 0, parent.box().w, 1.Em
 
+  cornerRadius 3
+
   let
     bw = 8.Em
     bh = 2.Em
 
   rectangle "button":
     box 0, 0, bw, bh
+    cornerRadius parent.cornerRadius
     fill "#AEB5C0"
-    cornerRadius 3
     onHover:
       fill "#46DE5F"
     onClick:
       clicker()
 
     text "text":
-      box 0, 0, 20.Em, 2.Em
+      box 0, 0, bw, bh
       fill "#46607e"
       characters msg
 
@@ -101,20 +103,12 @@ AppWidget(exampleApp):
           font "IBM Plex Sans", 16, 200, 0, hCenter, vCenter
 
           # Draw the decrement button to make the bar go down.
-          rectangle "count":
+          button(fmt"Clicked: {self.count:4d}"):
+            self.count.inc()
+            self.value = (self.value + 0.07) mod 1.0
+          do:
             box barW-80-20.Em, 0, 20.Em, 2.Em
-            fill "#AEB5C0"
-            cornerRadius 3
-            onHover:
-              fill "#46DE5F"
-            onClick:
-              self.count.inc()
-              self.value = (self.value + 0.07) mod 1.0
 
-            text "text":
-              box 0, 0, 20.Em, 2.Em
-              fill "#46607e"
-              characters "Clicked: " & $self.count
 
 var state = ExampleApp(count: 1, value: 0.33)
 
