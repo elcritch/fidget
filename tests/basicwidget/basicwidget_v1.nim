@@ -77,7 +77,9 @@ AppWidget(exampleApp):
     count = 1
     value = Unit(0.33)
 
-  group "widget":
+  frame "main":
+    box 0, 0, root.box().w, root.box().h
+
     # Set the window title.
     setTitle("Fidget Animated Progress Example")
     fill "#F7F7F9"
@@ -85,8 +87,6 @@ AppWidget(exampleApp):
     let barH = root.box().h
     let barW = root.box().w - 100
 
-    frame "main":
-      box 0, 0, root.box().w, root.box().h
       font "IBM Plex Sans", 16, 200, 0, hCenter, vCenter
 
       group "center":
@@ -98,16 +98,12 @@ AppWidget(exampleApp):
         progressBar(self.value) do:
           box 20, 20, barW - 30, 1.Em
 
-        group "counter":
-          box 0, 20 + 60 * 2, barW, 60
-          font "IBM Plex Sans", 16, 200, 0, hCenter, vCenter
-
-          # Draw the decrement button to make the bar go down.
-          button(fmt"Clicked: {self.count:4d}"):
-            self.count.inc()
-            self.value = (self.value + 0.07) mod 1.0
-          do:
-            box barW-80-20.Em, 0, 20.Em, 2.Em
+        # Draw the decrement button to make the bar go down.
+        button(fmt"Clicked: {self.count:4d}"):
+          self.count.inc()
+          self.value = (self.value + 0.07) mod 1.0
+        do:
+          box barW-80-20.Em, 0, 20.Em, 2.Em
 
 
 var state = ExampleApp(count: 1, value: 0.33)
