@@ -45,14 +45,14 @@ proc drawMain() =
 
   var
     count = 1
-    value = Percent(0.45)
+    value = Percent(0.33)
 
   group "widget":
     # Set the window title.
     setTitle("Fidget Animated Progress Example")
     fill "#F7F7F9"
     # Use simple math to layout things.
-    let barH = 1.0'f32 * 60 + 20
+    let barH = root.box().h
     let barW = root.box().w - 100
 
     frame "main":
@@ -66,7 +66,7 @@ proc drawMain() =
         strokeWeight 1
 
         progressBar(value) do:
-          box 20, 20, parent.box().w - 30, 1.Em
+          box 20, 20, barW - 30, 1.Em
 
         group "counter":
           box 0, 20 + 60 * 2, barW, 60
