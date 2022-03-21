@@ -58,6 +58,46 @@ proc makeType(name: string, body: NimNode): NimNode =
   tp[0][^1][0][^1] = rec
   result.add tp
 
+var widgetArgsTable* {.compileTime.} = initTable[string, seq[(string, string, NimNode, )]]()
+
+proc makeWidgetPropertyMacro(procName, typeName: string): NimNode =
+  let
+    dbTpName = newStrLitNode typeName
+    labelMacroName = ident typeName
+    wargsTable = ident "widgetArgsTable"
+
+  var labelMacroDef = quote do:
+    macro `labelMacroName`*(body: untyped) =
+      result = newStmtList()
+      var args = newSeq[NimNode]()
+      echo "widgetArgsTable: ", `wargsTable`[`procName`].repr
+
+  result = newStmtList()
+  result.add labelMacroDef
+  echo "\n=== Widget: makeWidgetPropertyMacro === "
+  echo result.repr
+
+#         for idx, name, code in body.attributes():
+#           echo "LABELCHECK: ", name
+#           if `ptable`.hasKey(name):
+#             let (pn, isProc) = `ptable`[name]
+#             if isProc:
+#               echo "LABELPROC:", `dbTpName`, ": ", name, " => ", pn
+#               let procDef = genSym(nskLet, pn)
+#               result.add procDef
+#               var pa = newNimNode(nnkExprEqExpr)
+#               pa.add(ident(pn)).add(newNilLit())
+#               args.add pa
+#             else:
+#               echo "LABEL:", `dbTpName`, ": ", name, " => ", pn
+#               var pa = newNimNode(nnkExprEqExpr)
+#               pa.add(ident(pn)).add(code)
+#               args.add pa
+#         result.add newCall(`procName`, args)
+#         echo "\n=== Widget Call === "
+#         echo result.repr
+
+
 macro widget*(blk: untyped) =
   var
     procDef = blk
@@ -109,52 +149,20 @@ macro widget*(blk: untyped) =
   params.add postArg 
   # echo "params: ", treeRepr params
 
-  let ptable = ident "ptable"
-  var propTableDecl = newStmtList()
-  propTableDecl.add quote do:
-    var `ptable` = initTable[string, (string, bool)]()
-  
+  var widgetArgs = newSeq[(string, string, NimNode)]()
   for idx, argname, propname, argtype in params.propertyNames():
     let pname = if propname == "": argname else: propname
     echo "PROP label: ", pname, " => ", argname
     echo "PROP type: ", argtype.treeRepr
-    let isProc = newLit(argtype.repr == "WidgetProc")
+    widgetArgs.add( (argname, pname, argtype,) )
 
-    propTableDecl.add quote do:
-      `ptable`[`pname`] = (`argname`, `isProc`, )
+  widgetArgsTable[procName] = widgetArgs
 
-  var
-    dbTpName = newStrLitNode typeName
-    labelMacroName = ident typeName
-    labelMacroDef = quote do:
-      macro `labelMacroName`*(body: untyped) =
-        `propTableDecl`
-        result = newStmtList()
-        var args = newSeq[NimNode]()
-        for idx, name, code in body.attributes():
-          echo "LABELCHECK: ", name
-          if `ptable`.hasKey(name):
-            let (pn, isProc) = `ptable`[name]
-            if isProc:
-              echo "LABELPROC:", `dbTpName`, ": ", name, " => ", pn
-              let procDef = genSym(nskLet, pn)
-              result.add procDef
-              var pa = newNimNode(nnkExprEqExpr)
-              pa.add(ident(pn)).add(newNilLit())
-              args.add pa
-            else:
-              echo "LABEL:", `dbTpName`, ": ", name, " => ", pn
-              var pa = newNimNode(nnkExprEqExpr)
-              pa.add(ident(pn)).add(code)
-              args.add pa
-        result.add newCall(`procName`, args)
-        echo "\n=== Widget Call === "
-        echo result.repr
 
   result = newStmtList()
   result.add preBody 
   result.add procDef
-  result.add labelMacroDef 
+  result.add makeWidgetPropertyMacro(procName, typeName) 
   echo "\n=== Widget === "
   echo result.repr
 
