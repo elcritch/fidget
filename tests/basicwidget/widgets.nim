@@ -66,17 +66,57 @@ proc makeWidgetPropertyMacro(procName, typeName: string): NimNode =
     labelMacroName = ident typeName
     wargsTable = ident "widgetArgsTable"
 
+  # echo "LAMBDA: ", treeRepr quote do:
+    # let foo = proc() = 
+      # echo "hi"
   var labelMacroDef = quote do:
+    import macros
     macro `labelMacroName`*(body: untyped) =
       result = newStmtList()
+      var attrs = initTable[string, NimNode]()
+      for idx, name, code in body.attributes():
+        attrs[name] = code
       var args = newSeq[NimNode]()
       let widgetArgs = `wargsTable`[`procName`]
       echo "widgetArgsTable: ", widgetArgs.repr
-      for argname, propname, argtype in widgetArgs:
-        args.add newNimNode(nnkExprEqExpr).
-          add(ident(argname)).
-          add(code)
       result = newStmtList()
+      for (argname, propname, argtype) in widgetArgs:
+        echo "ARGNAME: ", argname
+        echo "PROPNAME: ", propname
+        if argtype.repr == "WidgetProc" and attrs.hasKey(propname):
+          let pargname = genSym(nskLet, argname & "Arg")
+          let code =
+            if attrs.hasKey(propname): attrs[propname]
+            else: nnkDiscardStmt.newTree(newEmptyNode())
+          let pdecl = nnkLetSection.newTree(
+            nnkIdentDefs.newTree(
+              pargname,
+              argtype,
+              nnkLambda.newTree(
+                newEmptyNode(),
+                newEmptyNode(),
+                newEmptyNode(),
+                nnkFormalParams.newTree(newEmptyNode()),
+                newEmptyNode(),
+                newEmptyNode(),
+                code,
+              )
+            )
+          )
+          echo "PROCDECL: ", pdecl.repr
+          result.add pdecl
+          args.add newNimNode(nnkExprEqExpr).
+            add(ident(argname)).add(pargname)
+        elif argtype.repr == "WidgetProc":
+          args.add newNimNode(nnkExprEqExpr).
+            add(ident(argname)).add(newNilLit())
+        else:
+          let code =
+            if attrs.hasKey(propname): attrs[propname]
+            else: newNilLit()
+          echo "CODE: ", code.repr
+          args.add newNimNode(nnkExprEqExpr).
+            add(ident(argname)).add(code)
       result.add newCall(`procName`, args)
 
   result = newStmtList()

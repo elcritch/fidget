@@ -100,17 +100,16 @@ AppWidget(ExampleApp):
       do:
         box 90.WPerc - 8.Em, 100, 8.Em, 2.Em
 
-      static:
-        echo "expandMacros: BUTTON"
-      expandMacros:
-        Button:
-          text: fmt"Clicked2: {self.count:4d}"
-          setup:
-            box root.box().w-16.Em, 120, 8.Em, 2.Em
-          onClick:
-            self.count.inc()
-            self.value = (self.value + 0.07) mod 1.0
-
+      # static:
+        # echo "expandMacros: BUTTON"
+      # expandMacros:
+      Button:
+        text: fmt"Clicked2: {self.count:4d}"
+        setup:
+          box 90.WPerc - 8.Em, 150, 8.Em, 2.Em
+        onClick:
+          self.count.inc()
+          self.value = (self.value + 0.07) mod 1.0
 
 var state = ExampleApp(count: 1, value: 0.33)
 
