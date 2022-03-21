@@ -13,23 +13,17 @@ iterator attributes*(blk: NimNode): (int, string, NimNode) =
       yield (idx, name, code)
 
 iterator propertyNames*(params: NimNode): (int, string, string, NimNode) =
-  for idx, item in params[1..^1]:
+  for idx, item in params:
     echo "PROPERTYNAMES: KIND: ", item.kind
     echo "PROPERTYNAMES: ", item.treeRepr
     if item.kind == nnkEmpty:
       continue
-    elif item.kind == nnkIdentDefs:
-      var name = item[0].repr
-      var code = item[1]
-      yield (idx, name, "", code)
-    elif item.kind == nnkPragmaExpr:
-      var item = item[0]
-      var name = item[0].repr
-      var pname = item[1][0][1].strVal
+    elif item.kind == nnkIdentDefs and item[0].kind == nnkPragmaExpr:
+      var name = item[0][0].repr
+      var pname = item[0][1][0][1].strVal
       var code = item[1]
       yield (idx, name, pname, code)
-    elif item.kind == nnkPragmaExpr:
-      var item = item[0]
+    elif item.kind == nnkIdentDefs and item[0].kind == nnkIdent:
       var name = item[0].repr
       var code = item[1]
       yield (idx, name, "", code)
@@ -108,12 +102,12 @@ macro widget*(blk: untyped) =
     preArg = newIdentDefs(preName, bindSym"WidgetProc", nilValue)
     postArg = newIdentDefs(ident("post"), bindSym"WidgetProc", nilValue)
   
-  echo "procTp: ", preArg.treeRepr
+  # echo "procTp: ", preArg.treeRepr
   if hasProperty:
     params.add stateArg
   params.add preArg
   params.add postArg 
-  echo "params: ", treeRepr params
+  # echo "params: ", treeRepr params
 
   let ptable = ident "ptable"
   var propTableDecl = newStmtList()
@@ -122,8 +116,8 @@ macro widget*(blk: untyped) =
   
   for idx, argname, propname, argtype in params.propertyNames():
     let pname = if propname == "": argname else: propname
-    echo "prop label: ", pname, " => ", argname
-    echo "prop type: ", argtype.treeRepr
+    echo "PROP label: ", pname, " => ", argname
+    echo "PROP type: ", argtype.treeRepr
     let isProc = newLit(argtype.repr == "WidgetProc")
 
     propTableDecl.add quote do:
@@ -135,15 +129,25 @@ macro widget*(blk: untyped) =
     labelMacroDef = quote do:
       macro `labelMacroName`*(body: untyped) =
         `propTableDecl`
+        result = newStmtList()
         var args = newSeq[NimNode]()
         for idx, name, code in body.attributes():
+          echo "LABELCHECK: ", name
           if `ptable`.hasKey(name):
-            let pn = `ptable`[name][0]
-            echo "LABEL:", `dbTpName`, ": ", name, " => ", pn
-            var pa = newNimNode(nnkExprEqExpr)
-            pa.add(ident(pn)).add(code)
-            args.add pa
-        result = newCall(`procName`, args)
+            let (pn, isProc) = `ptable`[name]
+            if isProc:
+              echo "LABELPROC:", `dbTpName`, ": ", name, " => ", pn
+              let procDef = genSym(nskLet, pn)
+              result.add procDef
+              var pa = newNimNode(nnkExprEqExpr)
+              pa.add(ident(pn)).add(newNilLit())
+              args.add pa
+            else:
+              echo "LABEL:", `dbTpName`, ": ", name, " => ", pn
+              var pa = newNimNode(nnkExprEqExpr)
+              pa.add(ident(pn)).add(code)
+              args.add pa
+        result.add newCall(`procName`, args)
         echo "\n=== Widget Call === "
         echo result.repr
 
