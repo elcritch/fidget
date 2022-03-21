@@ -100,9 +100,6 @@ AppWidget(ExampleApp):
       do:
         box 90.WPerc - 8.Em, 100, 8.Em, 2.Em
 
-      # static:
-        # echo "expandMacros: BUTTON"
-      # expandMacros:
       Button:
         text: fmt"Clicked2: {self.count:4d}"
         setup:

@@ -14,8 +14,8 @@ iterator attributes*(blk: NimNode): (int, string, NimNode) =
 
 iterator propertyNames*(params: NimNode): (int, string, string, NimNode) =
   for idx, item in params:
-    echo "PROPERTYNAMES: KIND: ", item.kind
-    echo "PROPERTYNAMES: ", item.treeRepr
+    # echo "PROPERTYNAMES: KIND: ", item.kind
+    # echo "PROPERTYNAMES: ", item.treeRepr
     if item.kind == nnkEmpty:
       continue
     elif item.kind == nnkIdentDefs and item[0].kind == nnkPragmaExpr:
@@ -29,7 +29,7 @@ iterator propertyNames*(params: NimNode): (int, string, string, NimNode) =
       yield (idx, name, "", code)
 
 proc makeType(name: string, body: NimNode): NimNode =
-  echo "\nprops: "
+  # echo "\nprops: "
   var propDefs = newTable[string, NimNode]()
   var propTypes = newTable[string, NimNode]()
 
@@ -45,7 +45,7 @@ proc makeType(name: string, body: NimNode): NimNode =
     else:
       propTypes[pname] = prop[1][0]
   
-  echo "propTypes: "
+  # echo "propTypes: "
   result = newStmtList()
   let tpName = ident(name)
   var tp = quote do:
@@ -53,7 +53,7 @@ proc makeType(name: string, body: NimNode): NimNode =
       a: int
   var rec = newNimNode(nnkRecList)
   for pd, pv in propTypes:
-    echo "pd: ", pd, " => ", pv.treeRepr
+    # echo "pd: ", pd, " => ", pv.treeRepr
     rec.add newIdentDefs(ident pd, pv)
   tp[0][^1][0][^1] = rec
   result.add tp
@@ -103,7 +103,7 @@ proc makeWidgetPropertyMacro(procName, typeName: string): NimNode =
               )
             )
           )
-          echo "PROCDECL: ", pdecl.repr
+          # echo "PROCDECL: ", pdecl.repr
           result.add pdecl
           args.add newNimNode(nnkExprEqExpr).
             add(ident(argname)).add(pargname)
@@ -114,7 +114,7 @@ proc makeWidgetPropertyMacro(procName, typeName: string): NimNode =
           let code =
             if attrs.hasKey(propname): attrs[propname]
             else: newNilLit()
-          echo "CODE: ", code.repr
+          # echo "CODE: ", code.repr
           args.add newNimNode(nnkExprEqExpr).
             add(ident(argname)).add(code)
       result.add newCall(`procName`, args)
@@ -123,27 +123,6 @@ proc makeWidgetPropertyMacro(procName, typeName: string): NimNode =
   result.add labelMacroDef
   echo "\n=== Widget: makeWidgetPropertyMacro === "
   echo result.repr
-
-#         for idx, name, code in body.attributes():
-#           echo "LABELCHECK: ", name
-#           if `ptable`.hasKey(name):
-#             let (pn, isProc) = `ptable`[name]
-#             if isProc:
-#               echo "LABELPROC:", `dbTpName`, ": ", name, " => ", pn
-#               let procDef = genSym(nskLet, pn)
-#               result.add procDef
-#               var pa = newNimNode(nnkExprEqExpr)
-#               pa.add(ident(pn)).add(newNilLit())
-#               args.add pa
-#             else:
-#               echo "LABEL:", `dbTpName`, ": ", name, " => ", pn
-#               var pa = newNimNode(nnkExprEqExpr)
-#               pa.add(ident(pn)).add(code)
-#               args.add pa
-#         result.add newCall(`procName`, args)
-#         echo "\n=== Widget Call === "
-#         echo result.repr
-
 
 macro widget*(blk: untyped) =
   var
@@ -158,7 +137,7 @@ macro widget*(blk: untyped) =
     preName = ident("setup")
     postName = ident("post")
 
-  echo "typeName: ", typeName
+  # echo "typeName: ", typeName
   # echo "widget: ", treeRepr bl
   var impl: NimNode
   var hasProperty = false
@@ -199,8 +178,8 @@ macro widget*(blk: untyped) =
   var widgetArgs = newSeq[(string, string, NimNode)]()
   for idx, argname, propname, argtype in params.propertyNames():
     let pname = if propname == "": argname else: propname
-    echo "PROP label: ", pname, " => ", argname
-    echo "PROP type: ", argtype.treeRepr
+    # echo "PROP label: ", pname, " => ", argname
+    # echo "PROP type: ", argtype.treeRepr
     widgetArgs.add( (argname, pname, argtype,) )
 
   widgetArgsTable[procName] = widgetArgs
@@ -210,8 +189,8 @@ macro widget*(blk: untyped) =
   result.add preBody 
   result.add procDef
   result.add makeWidgetPropertyMacro(procName, typeName) 
-  echo "\n=== Widget === "
-  echo result.repr
+  # echo "\n=== Widget === "
+  # echo result.repr
 
 macro AppWidget*(pname, blk: untyped) =
   var
