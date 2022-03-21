@@ -13,7 +13,6 @@ type
 
 proc progressBar*(value: var Unit) {.widget.} =
 
-  let a = 1
   # Draw a progress bars 
   Init:
     box 0, 0, parent.box().w, 1.Em
@@ -42,8 +41,8 @@ proc progressBar*(value: var Unit) {.widget.} =
         cornerRadius 5
 
 proc button*(
-    msg: string,
-    clicker {.fAttr(onClick).}: proc()
+    message {.property: text.}: string,
+    clicker {.property: onClick.}: WidgetProc
 ) {.widget.} =
 
   # Draw a progress bars 
@@ -68,10 +67,11 @@ proc button*(
     text "text":
       box 0, 0, bw, bh
       fill "#46607e"
-      characters msg
+      characters message
 
+import macros
 
-AppWidget(exampleApp):
+AppWidget(ExampleApp):
   Properties:
     count: int
     value: Unit
@@ -100,12 +100,16 @@ AppWidget(exampleApp):
       do:
         box 90.WPerc - 8.Em, 100, 8.Em, 2.Em
 
-      # onFidget button(fmt"Clicked: {self.count:4d}"):
-      #   setup:
-      #     box root.box().w-16.Em, 100, 8.Em, 2.Em
-      #   onClick:
-      #     self.count.inc()
-      #     self.value = (self.value + 0.07) mod 1.0
+      static:
+        echo "expandMacros: BUTTON"
+      expandMacros:
+        Button:
+          text: fmt"Clicked2: {self.count:4d}"
+          setup:
+            box root.box().w-16.Em, 120, 8.Em, 2.Em
+          onClick:
+            self.count.inc()
+            self.value = (self.value + 0.07) mod 1.0
 
 
 var state = ExampleApp(count: 1, value: 0.33)

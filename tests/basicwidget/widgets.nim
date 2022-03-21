@@ -1,14 +1,38 @@
 import macros, tables, strutils, strformat
 
 type
-  WidgetProc = proc()
+  WidgetProc* = proc()
 
-iterator attributes(blk: NimNode): (int, string, NimNode) =
+template property*(name: untyped) {.pragma.}
+
+iterator attributes*(blk: NimNode): (int, string, NimNode) =
   for idx, item in blk:
     if item.kind == nnkCall:
       var name = item[0].repr
       var code = item[1]
       yield (idx, name, code)
+
+iterator propertyNames*(params: NimNode): (int, string, string, NimNode) =
+  for idx, item in params[1..^1]:
+    echo "PROPERTYNAMES: KIND: ", item.kind
+    echo "PROPERTYNAMES: ", item.treeRepr
+    if item.kind == nnkEmpty:
+      continue
+    elif item.kind == nnkIdentDefs:
+      var name = item[0].repr
+      var code = item[1]
+      yield (idx, name, "", code)
+    elif item.kind == nnkPragmaExpr:
+      var item = item[0]
+      var name = item[0].repr
+      var pname = item[1][0][1].strVal
+      var code = item[1]
+      yield (idx, name, pname, code)
+    elif item.kind == nnkPragmaExpr:
+      var item = item[0]
+      var name = item[0].repr
+      var code = item[1]
+      yield (idx, name, "", code)
 
 proc makeType(name: string, body: NimNode): NimNode =
   echo "\nprops: "
@@ -54,8 +78,7 @@ macro widget*(blk: untyped) =
     postName = ident("post")
 
   echo "typeName: ", typeName
-  # echo "widget: ", treeRepr blk
-
+  # echo "widget: ", treeRepr bl
   var impl: NimNode
   var hasProperty = false
 
@@ -92,11 +115,44 @@ macro widget*(blk: untyped) =
   params.add postArg 
   echo "params: ", treeRepr params
 
+  let ptable = ident "ptable"
+  var propTableDecl = newStmtList()
+  propTableDecl.add quote do:
+    var `ptable` = initTable[string, (string, bool)]()
+  
+  for idx, argname, propname, argtype in params.propertyNames():
+    let pname = if propname == "": argname else: propname
+    echo "prop label: ", pname, " => ", argname
+    echo "prop type: ", argtype.treeRepr
+    let isProc = newLit(argtype.repr == "WidgetProc")
+
+    propTableDecl.add quote do:
+      `ptable`[`pname`] = (`argname`, `isProc`, )
+
+  var
+    dbTpName = newStrLitNode typeName
+    labelMacroName = ident typeName
+    labelMacroDef = quote do:
+      macro `labelMacroName`*(body: untyped) =
+        `propTableDecl`
+        var args = newSeq[NimNode]()
+        for idx, name, code in body.attributes():
+          if `ptable`.hasKey(name):
+            let pn = `ptable`[name][0]
+            echo "LABEL:", `dbTpName`, ": ", name, " => ", pn
+            var pa = newNimNode(nnkExprEqExpr)
+            pa.add(ident(pn)).add(code)
+            args.add pa
+        result = newCall(`procName`, args)
+        echo "\n=== Widget Call === "
+        echo result.repr
+
   result = newStmtList()
   result.add preBody 
   result.add procDef
-  # echo "\n=== Widget === "
-  # echo result.repr
+  result.add labelMacroDef 
+  echo "\n=== Widget === "
+  echo result.repr
 
 macro AppWidget*(pname, blk: untyped) =
   var
@@ -112,7 +168,7 @@ macro AppWidget*(pname, blk: untyped) =
     preName = ident("setup")
     postName = ident("post")
 
-  echo "typeName: ", typeName
+  # echo "typeName: ", typeName
   # echo "widget: ", treeRepr blk
 
   var impl: NimNode
@@ -121,7 +177,7 @@ macro AppWidget*(pname, blk: untyped) =
   for idx, name, code in body.attributes():
     echo fmt"{idx=} {name=}"
     body[idx] = newStmtList()
-    echo "widget:property: ", name
+    # echo "widget:property: ", name
     case name:
     of "Body":
       impl = code
@@ -138,7 +194,6 @@ macro AppWidget*(pname, blk: untyped) =
         `body`
         if `postName` != nil:
           `postName`()
-    
   var
     params = procDef.params()
 
@@ -148,18 +203,16 @@ macro AppWidget*(pname, blk: untyped) =
     preArg = newIdentDefs(preName, bindSym"WidgetProc", nilValue)
     postArg = newIdentDefs(ident("post"), bindSym"WidgetProc", nilValue)
   
-  echo "procTp: ", preArg.treeRepr
+  # echo "procTp: ", preArg.treeRepr
   if hasProperty:
     params.add stateArg
   params.add preArg
   params.add postArg 
-  echo "params: ", treeRepr params
+  # echo "params: ", treeRepr params
 
   result = newStmtList()
   result.add preBody 
   result.add procDef
-  echo "\n=== Widget === "
-  echo result.repr
-
-template fAttr*(name: untyped) {.pragma.}
+  # echo "\n=== Widget === "
+  # echo result.repr
 

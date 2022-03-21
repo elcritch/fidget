@@ -431,8 +431,6 @@ proc timerFunc() {.thread.} =
     os.sleep(1_000)
 
 type
-  WidgetProcEmpty* = proc () 
-  WidgetProc*[T] = proc (args: var T) 
   MainProc* = proc () 
 
 proc startFidget*(
