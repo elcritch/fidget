@@ -44,32 +44,24 @@ proc button*(
     message {.property: text.}: string,
     clicker {.property: onClick.}: WidgetProc
 ) {.widget.} =
-
   # Draw a progress bars 
   Init:
     box 0, 0, parent.box().w, 1.Em
-
-  cornerRadius 3
-
   let
     bw = 8.Em
     bh = 2.Em
-
+  cornerRadius 3
   rectangle "button":
     box 0, 0, bw, bh
     cornerRadius parent.cornerRadius
     fill "#AEB5C0"
-    onHover:
-      fill "#46DE5F"
-    onClick:
-      clicker()
+    onHover: fill "#46DE5F"
+    onClick: clicker()
 
     text "text":
       box 0, 0, bw, bh
       fill "#46607e"
       characters message
-
-import macros
 
 AppWidget(ExampleApp):
   Properties:
@@ -102,8 +94,7 @@ AppWidget(ExampleApp):
 
       Button:
         text: fmt"Clicked2: {self.count:4d}"
-        setup:
-          box 90.WPerc - 8.Em, 150, 8.Em, 2.Em
+        setup: box 90.WPerc - 8.Em, 150, 8.Em, 2.Em
         onClick:
           self.count.inc()
           self.value = (self.value + 0.07) mod 1.0

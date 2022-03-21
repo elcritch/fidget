@@ -5,6 +5,27 @@ type
 
 template property*(name: untyped) {.pragma.}
 
+proc makeLambdaDecl(
+    pargname: NimNode,
+    argtype: NimNode,
+    code: NimNode,
+): NimNode =
+  result = nnkLetSection.newTree(
+    nnkIdentDefs.newTree(
+      pargname,
+      argtype,
+      nnkLambda.newTree(
+        newEmptyNode(),
+        newEmptyNode(),
+        newEmptyNode(),
+        nnkFormalParams.newTree(newEmptyNode()),
+        newEmptyNode(),
+        newEmptyNode(),
+        code,
+      )
+    )
+  )
+
 iterator attributes*(blk: NimNode): (int, string, NimNode) =
   for idx, item in blk:
     if item.kind == nnkCall:
@@ -62,13 +83,9 @@ var widgetArgsTable* {.compileTime.} = initTable[string, seq[(string, string, Ni
 
 proc makeWidgetPropertyMacro(procName, typeName: string): NimNode =
   let
-    dbTpName = newStrLitNode typeName
     labelMacroName = ident typeName
     wargsTable = ident "widgetArgsTable"
 
-  # echo "LAMBDA: ", treeRepr quote do:
-    # let foo = proc() = 
-      # echo "hi"
   var labelMacroDef = quote do:
     import macros
     macro `labelMacroName`*(body: untyped) =
@@ -78,31 +95,17 @@ proc makeWidgetPropertyMacro(procName, typeName: string): NimNode =
         attrs[name] = code
       var args = newSeq[NimNode]()
       let widgetArgs = `wargsTable`[`procName`]
-      echo "widgetArgsTable: ", widgetArgs.repr
+      # echo "widgetArgsTable: ", widgetArgs.repr
       result = newStmtList()
       for (argname, propname, argtype) in widgetArgs:
-        echo "ARGNAME: ", argname
-        echo "PROPNAME: ", propname
+        # echo "ARGNAME: ", argname
+        # echo "PROPNAME: ", propname
         if argtype.repr == "WidgetProc" and attrs.hasKey(propname):
           let pargname = genSym(nskLet, argname & "Arg")
           let code =
             if attrs.hasKey(propname): attrs[propname]
             else: nnkDiscardStmt.newTree(newEmptyNode())
-          let pdecl = nnkLetSection.newTree(
-            nnkIdentDefs.newTree(
-              pargname,
-              argtype,
-              nnkLambda.newTree(
-                newEmptyNode(),
-                newEmptyNode(),
-                newEmptyNode(),
-                nnkFormalParams.newTree(newEmptyNode()),
-                newEmptyNode(),
-                newEmptyNode(),
-                code,
-              )
-            )
-          )
+          let pdecl = makeLambdaDecl(pargname, argtype, code)
           # echo "PROCDECL: ", pdecl.repr
           result.add pdecl
           args.add newNimNode(nnkExprEqExpr).
