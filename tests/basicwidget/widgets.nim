@@ -70,7 +70,14 @@ proc makeWidgetPropertyMacro(procName, typeName: string): NimNode =
     macro `labelMacroName`*(body: untyped) =
       result = newStmtList()
       var args = newSeq[NimNode]()
-      echo "widgetArgsTable: ", `wargsTable`[`procName`].repr
+      let widgetArgs = `wargsTable`[`procName`]
+      echo "widgetArgsTable: ", widgetArgs.repr
+      for argname, propname, argtype in widgetArgs:
+        args.add newNimNode(nnkExprEqExpr).
+          add(ident(argname)).
+          add(code)
+      result = newStmtList()
+      result.add newCall(`procName`, args)
 
   result = newStmtList()
   result.add labelMacroDef
