@@ -81,46 +81,53 @@ proc makeType(name: string, body: NimNode): NimNode =
 
 var widgetArgsTable* {.compileTime.} = initTable[string, seq[(string, string, NimNode, )]]()
 
+macro with*(widget, body: untyped): untyped =
+  echo "WITH: ", widget.repr
+  echo "WITH: ", body.repr
+  let procName = widget.strVal
+
+  result = newStmtList()
+  var attrs = initTable[string, NimNode]()
+  for idx, name, code in body.attributes():
+    attrs[name] = code
+  var args = newSeq[NimNode]()
+  let widgetArgs = widgetArgsTable[procName]
+  echo "WITH: widgetArgs: ", widgetArgs.repr
+  
+  result = newStmtList()
+  for (argname, propname, argtype) in widgetArgs:
+    # echo "ARGNAME: ", argname
+    # echo "PROPNAME: ", propname
+    if argtype.repr == "WidgetProc" and attrs.hasKey(propname):
+      let pargname = genSym(nskLet, argname & "Arg")
+      let code =
+        if attrs.hasKey(propname): attrs[propname]
+        else: nnkDiscardStmt.newTree(newEmptyNode())
+      let pdecl = makeLambdaDecl(pargname, argtype, code)
+      # echo "PROCDECL: ", pdecl.repr
+      result.add pdecl
+      args.add newNimNode(nnkExprEqExpr).
+        add(ident(argname)).add(pargname)
+    elif argtype.repr == "WidgetProc":
+      args.add newNimNode(nnkExprEqExpr).
+        add(ident(argname)).add(newNilLit())
+    else:
+      let code =
+        if attrs.hasKey(propname): attrs[propname]
+        else: newNilLit()
+      # echo "CODE: ", code.repr
+      args.add newNimNode(nnkExprEqExpr).
+        add(ident(argname)).add(code)
+  result.add newCall(`procName`, args)
+
 proc makeWidgetPropertyMacro(procName, typeName: string): NimNode =
   let
     labelMacroName = ident typeName
     wargsTable = ident "widgetArgsTable"
 
   var labelMacroDef = quote do:
-    import macros
-    macro `labelMacroName`*(body: untyped) =
-      result = newStmtList()
-      var attrs = initTable[string, NimNode]()
-      for idx, name, code in body.attributes():
-        attrs[name] = code
-      var args = newSeq[NimNode]()
-      let widgetArgs = `wargsTable`[`procName`]
-      # echo "widgetArgsTable: ", widgetArgs.repr
-      result = newStmtList()
-      for (argname, propname, argtype) in widgetArgs:
-        # echo "ARGNAME: ", argname
-        # echo "PROPNAME: ", propname
-        if argtype.repr == "WidgetProc" and attrs.hasKey(propname):
-          let pargname = genSym(nskLet, argname & "Arg")
-          let code =
-            if attrs.hasKey(propname): attrs[propname]
-            else: nnkDiscardStmt.newTree(newEmptyNode())
-          let pdecl = makeLambdaDecl(pargname, argtype, code)
-          # echo "PROCDECL: ", pdecl.repr
-          result.add pdecl
-          args.add newNimNode(nnkExprEqExpr).
-            add(ident(argname)).add(pargname)
-        elif argtype.repr == "WidgetProc":
-          args.add newNimNode(nnkExprEqExpr).
-            add(ident(argname)).add(newNilLit())
-        else:
-          let code =
-            if attrs.hasKey(propname): attrs[propname]
-            else: newNilLit()
-          # echo "CODE: ", code.repr
-          args.add newNimNode(nnkExprEqExpr).
-            add(ident(argname)).add(code)
-      result.add newCall(`procName`, args)
+    template `labelMacroName`*(body: untyped) =
+      with `procName`, body
 
   result = newStmtList()
   result.add labelMacroDef
@@ -256,4 +263,3 @@ macro AppWidget*(pname, blk: untyped) =
   result.add procDef
   # echo "\n=== Widget === "
   # echo result.repr
-
