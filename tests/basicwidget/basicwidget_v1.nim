@@ -89,6 +89,7 @@ AppWidget(ExampleApp):
       fill "#DFDFE0"
       strokeWeight 1
 
+      self.value = (self.count.toFloat * 0.07) mod 1.0
       progressBar(self.value) do:
         box 10.WPerc, 20, 80.WPerc, 1.Em
 
@@ -104,26 +105,20 @@ AppWidget(ExampleApp):
 
         with button:
           text: fmt"Clicked2: {self.count:4d}"
-          onClick:
-            self.count.inc()
-            self.value = (self.value + 0.07) mod 1.0
+          onClick: self.count.inc()
 
       Horizontal:
         box 10.WPerc, 100, 8.Em, 2.Em
 
-        with button:
-          text: fmt"Clicked3: {self.count:4d}"
-          setup: size 8.Em, 2.Em
-          onClick:
-            self.count.inc()
-            self.value = (self.value + 0.07) mod 1.0
-
         Button:
           text: fmt"Clicked4: {self.count:4d}"
           setup: size 8.Em, 2.Em
-          onClick:
-            self.count.inc()
-            self.value = (self.value + 0.07) mod 1.0
+          onClick: self.count.inc()
+
+        with button:
+          text: fmt"Clicked3: {self.count:4d}"
+          setup: size 8.Em, 2.Em
+          onClick: self.count.inc()
 
 
 var state = ExampleApp(count: 1, value: 0.33)
