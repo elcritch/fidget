@@ -33,7 +33,7 @@ proc progressBar*(value: var Unit) {.widget.} =
     # Draw the bar itself.
     group "bar":
       box 0, 0, barW, bh
-      dropShadow 3, 0, 0, "#000000", 0.03
+      dropShadow 3, 0, 0, "#000000", 0.07
       fill "#F7F7F9"
       cornerRadius 5
       rectangle "barFg":
@@ -54,7 +54,7 @@ proc button*(
   cornerRadius 3
   rectangle "button":
     box 0, 0, bw, bh
-    dropShadow 3, 0, 0, "#000000", 0.03
+    dropShadow 3, 0, 0, "#000000", 0.07
     cornerRadius parent.cornerRadius
     fill "#72bdd0"
     onHover: fill "#46DE5F"

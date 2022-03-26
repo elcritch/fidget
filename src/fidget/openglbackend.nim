@@ -296,7 +296,7 @@ proc draw*(node, parent: Node) =
   if node.shadows.len() > 0:
     let shadow = node.shadows[0]
 
-    let blur = shadow.blur / 4.0
+    let blur = shadow.blur / 5.0
     for i in 0..4:
         ctx.fillRoundedRect(rect(
           shadow.x + uiScale*i.toFloat()*blur, shadow.y + uiScale*i.toFloat()*blur,
