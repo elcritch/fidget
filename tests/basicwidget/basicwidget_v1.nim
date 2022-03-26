@@ -97,7 +97,6 @@ AppWidget(ExampleApp):
 
         with button:
           text: fmt"Clicked2: {self.count:4d}"
-          setup: box 90.WPerc - 8.Em, 140, 8.Em, 2.Em
           onClick:
             self.count.inc()
             self.value = (self.value + 0.07) mod 1.0
@@ -107,14 +106,14 @@ AppWidget(ExampleApp):
 
         with button:
           text: fmt"Clicked3: {self.count:4d}"
-          setup: box 90.WPerc - 8.Em, 140, 8.Em, 2.Em
+          setup: size 8.Em, 2.Em
           onClick:
             self.count.inc()
             self.value = (self.value + 0.07) mod 1.0
 
         Button:
           text: fmt"Clicked4: {self.count:4d}"
-          setup: box 90.WPerc - 8.Em, 190, 8.Em, 2.Em
+          setup: size 8.Em, 2.Em
           onClick:
             self.count.inc()
             self.value = (self.value + 0.07) mod 1.0
