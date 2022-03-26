@@ -345,6 +345,14 @@ proc box*(rect: Rect) =
   ## Sets the box dimensions with integers
   box(rect.x, rect.y, rect.w, rect.h)
 
+proc size*(
+  w: int|float32|float64,
+  h: int|float32|float64
+) =
+  ## Sets the box dimension width and height
+  box(float32 0, float32 0, float32 w, float32 h)
+  orgBox(float32 0, float32 0, float32 w, float32 h)
+
 template boxOf*(node: Node) =
   box(node.box())
 

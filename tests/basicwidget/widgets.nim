@@ -263,3 +263,30 @@ macro AppWidget*(pname, blk: untyped) =
   result.add procDef
   # echo "\n=== Widget === "
   # echo result.repr
+
+macro reverseStmts(body: untyped) =
+  result = newStmtList()
+  var stmts = newSeq[NimNode]()
+  for ln in body:
+    echo "reverseStmts: ", ln.repr
+    stmts.insert(ln, 0)
+  result.add stmts
+
+template Horizontal*(child: untyped) =
+  frame "autoFrame":
+    layout lmHorizontal
+    counterAxisSizingMode csAuto
+    constraints cMin, cStretch
+    itemSpacing 1.Em
+
+    reverseStmts `child`
+
+template Vertical*(child: untyped) =
+  frame "autoFrame":
+    layout lmVertical
+    counterAxisSizingMode csAuto
+    constraints cMin, cStretch
+    itemSpacing 1.Em
+
+    reverseStmts `child`
+
