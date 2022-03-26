@@ -47,6 +47,23 @@ computeTextLayout = proc(node: Node) =
   node.textLayoutWidth = boundsMax.x - boundsMin.x
   node.textLayoutHeight = boundsMax.y - boundsMin.y
 
+# # // This approximates the error function, needed for the gaussian integral
+# proc erf(r: GVec4[float32]): GVec4[float32] =
+#   var s = gvec4(sign(r[0]), sign(r[1]), sign(r[2]), sign(r[3])) 
+#   var a = abs(r)
+#   var x = 1.0'f32 + (0.278393'f32 + (0.230389'f32 + 0.078108'f32 * (a * a)) * a) * a
+#   x *= x
+#   result = s - s / (x * x)
+
+# # // Return the mask for the shadow of a box from lower to upper
+# proc boxShadow(lower, upper, point: GVec2[float32], sigma: float32): float32 =
+#   var a = point - lower
+#   var b = upper - point
+#   var query = gvec4(a[0], a[1], b[0], b[1])
+
+#   var integral = 0.5'f32 + 0.5'f32 * erf(query * (sqrt(0.5) / sigma))
+#   result = (integral[3] - integral[0]) * (integral[2] - integral[1])
+
 proc processHooks(parent, node: Node) =
   ## compute hooks
   # if node.id == "dropdown":
@@ -275,6 +292,17 @@ proc draw*(node, parent: Node) =
         node.screenBox.w, node.screenBox.h
       ), rgba(255, 0, 0, 255).color)
     ctx.endMask()
+
+  if node.shadows.len() > 0:
+    let shadow = node.shadows[0]
+
+    let blur = shadow.blur / 4.0
+    for i in 0..4:
+        ctx.fillRoundedRect(rect(
+          shadow.x + uiScale*i.toFloat()*blur, shadow.y + uiScale*i.toFloat()*blur,
+          node.screenBox.w, node.screenBox.h
+        ), shadow.color, node.cornerRadius[0])
+        
 
   if node.kind == nkText:
     drawText(node)
