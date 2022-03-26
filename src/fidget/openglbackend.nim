@@ -296,13 +296,15 @@ proc draw*(node, parent: Node) =
   if node.shadows.len() > 0:
     let shadow = node.shadows[0]
 
-    let blur = shadow.blur / 5.0
-    for i in 0..4:
-        ctx.fillRoundedRect(rect(
-          shadow.x + uiScale*i.toFloat()*blur, shadow.y + uiScale*i.toFloat()*blur,
-          node.screenBox.w, node.screenBox.h
-        ), shadow.color, node.cornerRadius[0])
-        
+    let blur = shadow.blur / 7.0
+    for i in 0..6:
+      # for j in 0..4:
+      let j = i
+      ctx.fillRoundedRect(rect(
+        shadow.x + uiScale*i.toFloat()*blur, shadow.y + uiScale*j.toFloat()*blur,
+        node.screenBox.w, node.screenBox.h
+      ), shadow.color, node.cornerRadius[0])
+      
 
   if node.kind == nkText:
     drawText(node)

@@ -575,6 +575,7 @@ proc strokeRoundedRect*(
       c = newContext(image)
     c.fillStyle = rgba(255, 255, 255, 255)
     c.lineWidth = weight
+    c.strokeStyle = color
     c.strokeRoundedRect(
       rect(weight / 2, weight / 2, rect.w - weight, rect.h - weight),
       radius
