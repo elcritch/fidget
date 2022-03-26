@@ -85,25 +85,8 @@ AppWidget(ExampleApp):
       progressBar(self.value) do:
         box 10.WPerc, 20, 80.WPerc, 1.Em
 
-      Horizontal:
-        box 90.WPerc - 8.Em, 100, 8.Em, 2.Em
-
-        with button:
-          text: fmt"Clicked3: {self.count:4d}"
-          setup: box 90.WPerc - 8.Em, 140, 8.Em, 2.Em
-          onClick:
-            self.count.inc()
-            self.value = (self.value + 0.07) mod 1.0
-
-        Button:
-          text: fmt"Clicked4: {self.count:4d}"
-          setup: box 90.WPerc - 8.Em, 190, 8.Em, 2.Em
-          onClick:
-            self.count.inc()
-            self.value = (self.value + 0.07) mod 1.0
-
       Vertical:
-        box 90.WPerc - 8.Em, 100, 8.Em, 2.Em
+        box 90.WPerc - 8.Em, 160, 8.Em, 2.Em
 
         # Draw the decrement button to make the bar go down.
         button(fmt"Clicked1: {self.count:4d}"):
@@ -115,6 +98,23 @@ AppWidget(ExampleApp):
         with button:
           text: fmt"Clicked2: {self.count:4d}"
           setup: box 90.WPerc - 8.Em, 140, 8.Em, 2.Em
+          onClick:
+            self.count.inc()
+            self.value = (self.value + 0.07) mod 1.0
+
+      Horizontal:
+        box 10.WPerc, 100, 8.Em, 2.Em
+
+        with button:
+          text: fmt"Clicked3: {self.count:4d}"
+          setup: box 90.WPerc - 8.Em, 140, 8.Em, 2.Em
+          onClick:
+            self.count.inc()
+            self.value = (self.value + 0.07) mod 1.0
+
+        Button:
+          text: fmt"Clicked4: {self.count:4d}"
+          setup: box 90.WPerc - 8.Em, 190, 8.Em, 2.Em
           onClick:
             self.count.inc()
             self.value = (self.value + 0.07) mod 1.0
