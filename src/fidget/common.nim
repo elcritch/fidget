@@ -1,5 +1,6 @@
 import chroma, input, sequtils, tables, vmath, json, bumpy
 import strutils
+import hashes
 
 when defined(js):
   import dom2, html/ajax
@@ -154,7 +155,14 @@ type
     selectable*: bool
     scrollBars*: bool ## Should it have scroll bars if children are clipped.
     postHooks*: seq[proc() {.closure.}]
-    dataPtr*: pointer
+    hookStates*: TableRef[int, HiddenState]
+
+  HiddenStateCont*[T] = ref object
+    id*: int
+    prev*: Hash
+    data*: ref T
+
+  HiddenState* = HiddenStateCont[pointer]
 
   KeyState* = enum
     Empty
@@ -362,6 +370,7 @@ proc resetToDefault*(node: Node)=
   node.diffIndex = 0
   node.selectable = false
   node.scrollBars = false
+  node.hookStates = newTable[int, HiddenState]()
 
 proc setupRoot*() =
   if root == nil:

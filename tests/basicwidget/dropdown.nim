@@ -3,17 +3,20 @@ import bumpy, fidget, math, random
 import std/strformat
 import asyncdispatch # This is what provides us with async and the dispatcher
 import times, strutils # This is to provide the timing output
+import macros
 
 import widgets
 
 loadFont("IBM Plex Sans", "IBMPlexSans-Regular.ttf")
 
+var hooksCount {.compileTime.} = 0
+
 proc dropdown*(
     dropItems {.property: items.}: seq[string],
     dropSelected: var int,
-) {.widget.} =
+) {.statefulwidget.} =
   ## dropdown widget 
-  var
+  properties:
     dropDownOpen: bool
     dropDownToClose: bool
 
@@ -35,11 +38,11 @@ proc dropdown*(
     text "text":
       box 100-1.5.Em, 0, 1.Em, Em 1.8
       fill "#ffffff"
-      if dropDownOpen:
+      if self.dropDownOpen:
         rotation -90
       characters ">"
 
-    if dropDownOpen:
+    if self.dropDownOpen:
       group "dropDownScroller":
         box 0, Em 2.0, 100, 80
         clipContent true
@@ -55,8 +58,8 @@ proc dropdown*(
           scrollBars true
 
           onClickOutside:
-            dropDownOpen = false
-            dropDownToClose = true
+            self.dropDownOpen = false
+            self.dropDownToClose = true
 
           for idx, buttonName in reversePairs(dropItems):
             rectangle "dash":
@@ -68,9 +71,9 @@ proc dropdown*(
               fill "#72bdd0", 0.9
               onHover:
                 fill "#5C8F9C", 0.8
-                dropDownOpen = true
+                self.dropDownOpen = true
               onClick:
-                dropDownOpen = false
+                self.dropDownOpen = false
                 echo "clicked: ", buttonName
                 dropSelected = idx
               text "text":
@@ -78,8 +81,18 @@ proc dropdown*(
                 fill "#ffffff"
                 characters buttonName
     onClickOutside:
-      dropDownToClose = false
+      self.dropDownToClose = false
     onClick:
-      if not dropDownToClose:
-        dropDownOpen = not dropDownOpen
-      dropDownToClose = false
+      if not self.dropDownToClose:
+        self.dropDownOpen = not self.dropDownOpen
+      self.dropDownToClose = false
+
+var state = Dropdown()
+
+proc drawMain() =
+  let dropItems = @["Nim", "UI", "in", "100%", "Nim", "to", 
+                    "OpenGL", "Immediate", "mode"]
+  var dropIdx = 0
+  dropdown(dropItems, dropIdx, nil)
+
+startFidget(drawMain, uiScale=2.0)

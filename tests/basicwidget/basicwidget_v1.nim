@@ -121,6 +121,7 @@ AppWidget(ExampleApp):
 var state = ExampleApp(count: 0, value: 0.33)
 
 proc drawMain() =
-  widget(state)
+  frame "main":
+    render(state)
 
 startFidget(drawMain, uiScale=2.0)
