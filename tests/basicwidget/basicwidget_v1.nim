@@ -93,12 +93,11 @@ AppWidget(ExampleApp):
 
       Vertical:
         box 90.WPerc - 8.Em, 160, 8.Em, 2.Em
+        itemSpacing 2.Em
 
         # Draw the decrement button to make the bar go down.
         button(fmt"Clicked1: {self.count:4d}"):
           self.count.inc()
-        do:
-          box 90.WPerc - 8.Em, 100, 8.Em, 2.Em
 
         with button:
           text: fmt"Clicked2: {self.count:4d}"
@@ -106,6 +105,7 @@ AppWidget(ExampleApp):
 
       Horizontal:
         box 10.WPerc, 100, 8.Em, 2.Em
+        itemSpacing 1.Em
 
         Button:
           text: fmt"Clicked4: {self.count:4d}"
