@@ -520,6 +520,10 @@ proc fillRect*(ctx: Context, rect: Rect, color: Color) =
   )
 
 proc fillRoundedRect*(ctx: Context, rect: Rect, color: Color, radius: float32) =
+  if rect.w <= 0 or rect.h <= -0:
+    when defined(fidgetExtraDebugLogging): echo "fillRoundedRect: too small: ", rect 
+    return
+
   # TODO: Make this a 9 patch
   let radius = min(radius, min(rect.w/2, rect.h/2))
   let hash = hash((
@@ -532,6 +536,7 @@ proc fillRoundedRect*(ctx: Context, rect: Rect, color: Color, radius: float32) =
   let
     w = ceil(rect.w).int
     h = ceil(rect.h).int
+
   if hash notin ctx.entries:
     let
       image = newImage(w, h)
@@ -557,6 +562,10 @@ proc fillRoundedRect*(ctx: Context, rect: Rect, color: Color, radius: float32) =
 proc strokeRoundedRect*(
   ctx: Context, rect: Rect, color: Color, weight: float32, radius: float32
 ) =
+  if rect.w <= 0 or rect.h <= -0:
+    when defined(fidgetExtraDebugLogging): echo "strokeRoundedRect: too small: ", rect 
+    return
+
   let radius = min(radius, min(rect.w/2, rect.h/2))
   # TODO: Make this a 9 patch
   let hash = hash((

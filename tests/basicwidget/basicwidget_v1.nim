@@ -28,8 +28,6 @@ proc progressBar*(value: var Unit) {.widget.} =
       fill "#46607e"
       characters fmt"progress: {float(value):4.2f}"
 
-    value = value.clamp(0.001, 1.0)
-
     # Draw the bar itself.
     group "bar":
       box 0, 0, barW, bh
@@ -39,7 +37,7 @@ proc progressBar*(value: var Unit) {.widget.} =
       strokeWeight 5
       cornerRadius 5
       rectangle "barFg":
-        box 2, 2, barW * float(value) - 4, bh - 4
+        box 2, 2, barW * float(value) - 4 + 0.001, bh - 4
         fill "#46D15F"
         cornerRadius 5
 
@@ -75,7 +73,7 @@ AppWidget(ExampleApp):
     count: int
     value: Unit
   Init:
-    count = 1
+    count = 0
     value = Unit(0.33)
 
   frame "main":
@@ -89,7 +87,7 @@ AppWidget(ExampleApp):
       fill "#DFDFE0"
       strokeWeight 1
 
-      self.value = (self.count.toFloat * 0.07) mod 1.0
+      self.value = (self.count.toFloat * 0.10) mod 1.0
       progressBar(self.value) do:
         box 10.WPerc, 20, 80.WPerc, 1.Em
 
@@ -99,7 +97,6 @@ AppWidget(ExampleApp):
         # Draw the decrement button to make the bar go down.
         button(fmt"Clicked1: {self.count:4d}"):
           self.count.inc()
-          self.value = (self.value + 0.07) mod 1.0
         do:
           box 90.WPerc - 8.Em, 100, 8.Em, 2.Em
 
@@ -121,7 +118,7 @@ AppWidget(ExampleApp):
           onClick: self.count.inc()
 
 
-var state = ExampleApp(count: 1, value: 0.33)
+var state = ExampleApp(count: 0, value: 0.33)
 
 proc drawMain() =
   widget(state)
