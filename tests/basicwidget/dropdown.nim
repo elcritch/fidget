@@ -20,6 +20,11 @@ proc dropdown*(
     dropDownOpen: bool
     dropDownToClose: bool
 
+  if current.hookStates.isEmpty():
+    var self = Dropdown()
+    current.hookStates = newVariant(self)
+  var self = current.hookStates.get(Dropdown)
+
   group "dropdown":
     font "IBM Plex Sans", 12, 200, 0, hCenter, vCenter
     box 260, 115, 100, Em 1.8
@@ -34,7 +39,10 @@ proc dropdown*(
       box 0, 0, 80, Em 1.8
       fill "#ffffff"
       strokeWeight 1
-      characters "Dropdown"
+      if dropSelected < 0:
+        characters "Dropdown"
+      else:
+        characters dropItems[dropSelected]
     text "text":
       box 100-1.5.Em, 0, 1.Em, Em 1.8
       fill "#ffffff"
@@ -83,16 +91,16 @@ proc dropdown*(
     onClickOutside:
       self.dropDownToClose = false
     onClick:
+      echo "dropdown"
       if not self.dropDownToClose:
         self.dropDownOpen = not self.dropDownOpen
       self.dropDownToClose = false
 
-var state = Dropdown()
+let dropItems = @["Nim", "UI", "in", "100%", "Nim", "to", 
+                  "OpenGL", "Immediate", "mode"]
+var dropIdx = 0
 
 proc drawMain() =
-  let dropItems = @["Nim", "UI", "in", "100%", "Nim", "to", 
-                    "OpenGL", "Immediate", "mode"]
-  var dropIdx = 0
-  dropdown(dropItems, dropIdx, nil)
+  dropdown(dropItems, dropIdx)
 
 startFidget(drawMain, uiScale=2.0)

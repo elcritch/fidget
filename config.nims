@@ -1,5 +1,7 @@
 switch("styleCheck", "hint")
 
+--gc:arc
+
 if not defined(emscripten):
   --threads:on
 

@@ -320,7 +320,8 @@ macro statefulwidget*(blk: untyped) =
   
   # echo "procTp: ", preArg.treeRepr
   if hasProperty:
-    params.add stateArg
+    # params.add stateArg
+    discard
   params.add preArg
   params.add postArg 
   # echo "params: ", treeRepr params
