@@ -272,6 +272,16 @@ macro genUniqueHookId*() =
   let idx = hooksCount
   result = newLit(idx)
 
+template useState*[T](tp: typedesc[T]) =
+  if current.hookStates.isEmpty():
+    var self = tp()
+    current.hookStates = newVariant(self)
+  var self {.inject.} =
+    if self.isNil:
+      current.hookStates.get(tp)
+    else:
+      self
+
 macro statefulwidget*(blk: untyped) =
   var
     procDef = blk
@@ -304,8 +314,15 @@ macro statefulwidget*(blk: untyped) =
       let wType = typeName.makeType(code)
       preBody.add wType
 
+  var typeNameSym = ident(typeName)
+  # echo "STATEFULWIDGET: "
+  # echo treeRepr(quote do:
+    # proc test(a: var int)
+    # )
+
   procDef.body= quote do:
     group `typeName`:
+      # useState(`typeNameSym`)
       if `preName` != nil:
         `preName`()
       `body`
@@ -314,14 +331,14 @@ macro statefulwidget*(blk: untyped) =
 
   let
     nilValue = quote do: nil
-    stateArg = newIdentDefs(ident("self"), ident(typeName))
+    # stateArg = newIdentDefs(ident("self"), nnkVarTy.newTree(ident(typeName)), newNilLit())
+    stateArg = newIdentDefs(ident("self"), ident(typeName), newNilLit())
     preArg = newIdentDefs(preName, bindSym"WidgetProc", nilValue)
     postArg = newIdentDefs(ident("post"), bindSym"WidgetProc", nilValue)
   
   # echo "procTp: ", preArg.treeRepr
   if hasProperty:
-    # params.add stateArg
-    discard
+    params.add stateArg
   params.add preArg
   params.add postArg 
   # echo "params: ", treeRepr params
@@ -329,8 +346,8 @@ macro statefulwidget*(blk: untyped) =
   result = newStmtList()
   result.add preBody 
   result.add procDef
-  # echo "\n=== Widget === "
-  # echo result.repr
+  echo "\n=== StatefulWidget === "
+  echo result.repr
 
 macro reverseStmts(body: untyped) =
   result = newStmtList()

@@ -14,18 +14,16 @@ var hooksCount {.compileTime.} = 0
 proc dropdown*(
     dropItems {.property: items.}: seq[string],
     dropSelected: var int,
+    state: Dropdown = nil,
 ) {.statefulwidget.} =
   ## dropdown widget 
   properties:
     dropDownOpen: bool
     dropDownToClose: bool
 
-  if current.hookStates.isEmpty():
-    var self = Dropdown()
-    current.hookStates = newVariant(self)
-  var self = current.hookStates.get(Dropdown)
-
   group "dropdown":
+    useState(Dropdown)
+
     font "IBM Plex Sans", 12, 200, 0, hCenter, vCenter
     box 260, 115, 100, Em 1.8
     orgBox 260, 115, 100, Em 1.8
@@ -69,7 +67,7 @@ proc dropdown*(
             self.dropDownOpen = false
             self.dropDownToClose = true
 
-          for idx, buttonName in reversePairs(dropItems):
+          for idx, buttonName in reverseIndex(dropItems):
             rectangle "dash":
               box 0, 0.Em, 100, 0.1.Em
               fill "#ffffff", 0.6
