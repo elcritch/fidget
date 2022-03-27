@@ -78,6 +78,7 @@ proc makeType(name: string, body: NimNode): NimNode =
     rec.add newIdentDefs(ident pd, pv)
   tp[0][^1][0][^1] = rec
   result.add tp
+  echo "TYPE: \n", result.repr
 
 var widgetArgsTable* {.compileTime.} = initTable[string, seq[(string, string, NimNode, )]]()
 
@@ -227,9 +228,9 @@ macro AppWidget*(pname, blk: untyped) =
     body[idx] = newStmtList()
     # echo "widget:property: ", name
     case name:
-    of "Body":
+    of "body":
       impl = code
-    of "Properties":
+    of "properties":
       hasProperty = true
       let wType = typeName.makeType(code)
       preBody.add wType

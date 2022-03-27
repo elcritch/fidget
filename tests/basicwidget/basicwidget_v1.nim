@@ -9,9 +9,9 @@ import widgets
 loadFont("IBM Plex Sans", "IBMPlexSans-Regular.ttf")
 
 type
-  Unit* = range[0.0'f32..1.0'f32]
+  UnitRange* = range[0.0'f32..1.0'f32]
 
-proc progressBar*(value: var Unit) {.widget.} =
+proc progressBar*(value: var UnitRange) {.widget.} =
 
   # Draw a progress bars 
   Init:
@@ -69,12 +69,12 @@ proc button*(
       characters message
 
 AppWidget(ExampleApp):
-  Properties:
+  properties:
     count: int
-    value: Unit
-  Init:
+    value: UnitRange
+  init:
     count = 0
-    value = Unit(0.33)
+    value = UnitRange(0.33)
 
   frame "main":
     setTitle("Fidget Animated Progress Example")
