@@ -9,8 +9,6 @@ import widgets
 
 loadFont("IBM Plex Sans", "IBMPlexSans-Regular.ttf")
 
-var hooksCount {.compileTime.} = 0
-
 proc dropdown*(
     dropItems {.property: items.}: seq[string],
     dropSelected: var int,
@@ -117,7 +115,7 @@ proc drawMain() =
       dropdown(dropItems, dropIndexes[0], nil) do:
         box 0, 0, 10.Em, 2.Em
       dropdown(dropItems, dropIndexes[1], nil) do:
-        box 0, 0, 10.Em, 2.Em
+        box 0, 0, 6.Em, 2.Em
       dropdown(dropItems, dropIndexes[2], nil) do:
         box 0, 0, 10.Em, 2.Em
 
