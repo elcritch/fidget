@@ -18,17 +18,22 @@ proc dropdown*(
     dropDownOpen: bool
     dropDownToClose: bool
 
+  echo "currrent.box: ", current.box()
   var
-    bw = current.box().w
-    bh = current.box().h
+    cb = current.box()
+    bw = cb.w || 8.Em
+    bh = cb.h || 1.5.Em
     # bh = 1.8.Em
     bth = bh
     bih = bh * 0.8 # 1.4.Em
     # bdh = 100.Vh - 3*bth
     bdh = bih * min(5, dropItems.len()).float32
     tw = bw - 1.Em
+  
+  box cb.x, cb.y, bw, bh
 
-  group "dropdown":
+
+  rectangle "dropdown":
 
     font "IBM Plex Sans", 12, 200, 0, hCenter, vCenter
     box 0, 0, bw, bh
@@ -115,12 +120,10 @@ proc drawMain() =
       box 0, 0.Em, 100.WPerc, 100.HPerc
       itemSpacing 1.Em
 
-      dropdown(dropItems, dropIndexes[0], nil) do:
-        box 0, 0, 10.Em, 1.5.Em
-      dropdown(dropItems, dropIndexes[1], nil) do:
-        box 0, 0, 6.Em, 1.5.Em
-      dropdown(dropItems, dropIndexes[2], nil) do:
-        box 0, 0, 10.Em, 1.5.Em
+      dropdown(dropItems, dropIndexes[0], nil)
+      dropdown(dropItems, dropIndexes[1], nil)
+      dropdown(dropItems, dropIndexes[2], nil):
+        box 0, 0, 12.Em, 2.Em
       
     # dropdown(dropItems, dropIndexes[2], nil) do:
       # box 30, 80, 10.Em, 1.5.Em

@@ -364,7 +364,7 @@ template Horizontal*(child: untyped) =
     constraints cMin, cStretch
     itemSpacing 2.Em
 
-    reverseStmts `child`
+    `child`
 
 template Vertical*(child: untyped) =
   frame "autoFrame":
@@ -375,3 +375,5 @@ template Vertical*(child: untyped) =
 
     `child`
 
+proc `||`*(x, y: int | float32 | float64): auto =
+  if x == 0: y else: x
