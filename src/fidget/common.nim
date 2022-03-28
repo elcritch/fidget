@@ -145,13 +145,13 @@ type
     clipContent*: bool
     nIndex*: int
     diffIndex*: int
+    zIndex*: int
     when not defined(js):
       textLayout*: seq[GlyphPosition]
     else:
       element*: Element
       textElement*: Element
       cache*: Node
-      zIndex*: int
     textLayoutHeight*: float32
     textLayoutWidth*: float32
     ## Can the text be selected.

@@ -394,7 +394,7 @@ proc stroke*(color: string, alpha = 1.0) =
 
 proc strokeWeight*(weight: float32) =
   ## Sets stroke/border weight.
-  current.strokeWeight = weight
+  current.strokeWeight = weight * common.uiScale
 
 proc zLevel*(zLevel: int) =
   ## Sets zLevel.
@@ -402,7 +402,8 @@ proc zLevel*(zLevel: int) =
 
 proc cornerRadius*(a, b, c, d: float32) =
   ## Sets all radius of all 4 corners.
-  current.cornerRadius = (3*a, 3*b, 3*c, 3*d)
+  let s = common.uiScale * 3
+  current.cornerRadius =  (s*a, s*b, s*c, s*d)
 
 proc cornerRadius*(radius: float32) =
   ## Sets all radius of all 4 corners.
@@ -410,7 +411,7 @@ proc cornerRadius*(radius: float32) =
 
 proc cornerRadius*(radius: (float32, float32, float32, float32)) =
   ## Sets all radius of all 4 corners.
-  current.cornerRadius = radius
+  cornerRadius(radius[0], radius[1], radius[2], radius[3] )
 
 proc editableText*(editableText: bool) =
   ## Sets the code for this node.

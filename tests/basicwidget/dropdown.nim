@@ -61,29 +61,30 @@ proc dropdown*(
         clipContent true
 
         group "dropDown":
-          box 0, 0, bw, bdh
+          box 0, 0, bw+1, bdh
           orgBox 0, 0, bw, bdh
           layout lmVertical
           counterAxisSizingMode csAuto
           horizontalPadding 0
           verticalPadding 0
-          itemSpacing 0
+          itemSpacing -1
           scrollBars true
+          # stroke "#5C8F9C", 1.0
+          # strokeWeight 1
 
           onClickOutside:
             self.dropDownOpen = false
             self.dropDownToClose = true
 
           for idx, buttonName in reverseIndex(dropItems):
-            rectangle "dash":
-              box 0, 0, bw, 0.1.Em
-              fill "#ffffff", 0.6
             group "itembtn":
               box 0, 0, bw, bih
               layoutAlign laCenter
-              fill "#72bdd0", 0.9
+              fill "#72bdd0", 0.93
+              stroke "#ffffff", 1.0
+              strokeWeight 1.4
               onHover:
-                fill "#5C8F9C", 0.8
+                fill "#5C8F9C", 1.0
                 self.dropDownOpen = true
               onClick:
                 self.dropDownOpen = false
@@ -120,5 +121,8 @@ proc drawMain() =
         box 0, 0, 6.Em, 1.5.Em
       dropdown(dropItems, dropIndexes[2], nil) do:
         box 0, 0, 10.Em, 1.5.Em
+      
+    dropdown(dropItems, dropIndexes[2], nil) do:
+      box 30, 80, 10.Em, 1.5.Em
 
 startFidget(drawMain, uiScale=2.0)
