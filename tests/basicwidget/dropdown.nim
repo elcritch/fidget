@@ -18,12 +18,14 @@ proc dropdown*(
     dropDownOpen: bool
     dropDownToClose: bool
 
-  let
+  var
     bw = current.box().w
-    bh = 1.8.Em
-    bth = 1.8.Em
-    bih = 1.4.Em
-    bdh = 10.Em
+    bh = current.box().h
+    # bh = 1.8.Em
+    bth = bh
+    bih = bh * 0.8 # 1.4.Em
+    # bdh = 100.Vh - 3*bth
+    bdh = bih * min(5, dropItems.len()).float32
     tw = bw - 1.Em
 
   group "dropdown":
@@ -101,7 +103,7 @@ proc dropdown*(
 
 let dropItems = @["Nim", "UI", "in", "100%", "Nim", "to", 
                   "OpenGL", "Immediate", "mode"]
-var dropIndexes: array[3, int]
+var dropIndexes = [-1, -1, -1]
 
 proc drawMain() =
   frame "main":
@@ -109,14 +111,14 @@ proc drawMain() =
     box 0, 0, 100.WPerc, 100.HPerc
 
     Horizontal:
-      box 0, 0, 100.WPerc, 100.HPerc
+      box 0, 0.Em, 100.WPerc, 100.HPerc
       itemSpacing 1.Em
 
       dropdown(dropItems, dropIndexes[0], nil) do:
-        box 0, 0, 10.Em, 2.Em
+        box 0, 0, 10.Em, 1.5.Em
       dropdown(dropItems, dropIndexes[1], nil) do:
-        box 0, 0, 6.Em, 2.Em
+        box 0, 0, 6.Em, 1.5.Em
       dropdown(dropItems, dropIndexes[2], nil) do:
-        box 0, 0, 10.Em, 2.Em
+        box 0, 0, 10.Em, 1.5.Em
 
 startFidget(drawMain, uiScale=2.0)

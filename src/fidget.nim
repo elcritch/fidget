@@ -316,7 +316,7 @@ proc image*(imageName: string) =
   ## Sets image fill.
   current.imageName = imageName
 
-proc orgBox*(x, y, w, h: int|float32|float32) =
+proc orgBox*(x, y, w, h: int|float32|float64) =
   ## Sets the box dimensions of the original element for constraints.
   let b = Rect(x: float32 x, y: float32 y, w: float32 w, h: float32 h)
   current.setOrgBox(b, raw=false)
