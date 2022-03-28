@@ -14,27 +14,32 @@ var hooksCount {.compileTime.} = 0
 proc dropdown*(
     dropItems {.property: items.}: seq[string],
     dropSelected: var int,
-    state: Dropdown = nil,
 ) {.statefulwidget.} =
   ## dropdown widget 
   properties:
     dropDownOpen: bool
     dropDownToClose: bool
 
+  let
+    bw = current.box().w
+    bh = 1.8.Em
+    bth = 1.8.Em
+    bih = 1.4.Em
+    bdh = 10.Em
+    tw = bw - 1.Em
+
   group "dropdown":
-    useState(Dropdown)
 
     font "IBM Plex Sans", 12, 200, 0, hCenter, vCenter
-    box 260, 115, 100, Em 1.8
-    orgBox 260, 115, 100, Em 1.8
+    box 0, 0, bw, bh
+    orgBox 0, 0, bw, bh
     fill "#72bdd0"
     cornerRadius 5
     strokeWeight 1
     onHover:
       fill "#5C8F9C"
     text "text":
-      # textPadding: 0.375.em.int
-      box 0, 0, 80, Em 1.8
+      box 0, 0, bw, bth
       fill "#ffffff"
       strokeWeight 1
       if dropSelected < 0:
@@ -42,20 +47,22 @@ proc dropdown*(
       else:
         characters dropItems[dropSelected]
     text "text":
-      box 100-1.5.Em, 0, 1.Em, Em 1.8
+      box tw, 0, 1.Em, bth
       fill "#ffffff"
       if self.dropDownOpen:
         rotation -90
+      else:
+        rotation 0
       characters ">"
 
     if self.dropDownOpen:
       group "dropDownScroller":
-        box 0, Em 2.0, 100, 80
+        box 0, bh, bw, bdh
         clipContent true
 
         group "dropDown":
-          box 0, 0, 100, 4.Em
-          orgBox 0, 0, 100, 4.Em
+          box 0, 0, bw, bdh
+          orgBox 0, 0, bw, bdh
           layout lmVertical
           counterAxisSizingMode csAuto
           horizontalPadding 0
@@ -69,10 +76,10 @@ proc dropdown*(
 
           for idx, buttonName in reverseIndex(dropItems):
             rectangle "dash":
-              box 0, 0.Em, 100, 0.1.Em
+              box 0, 0, bw, 0.1.Em
               fill "#ffffff", 0.6
-            group "button":
-              box 0, 0.Em, 100, 1.4.Em
+            group "itembtn":
+              box 0, 0, bw, bih
               layoutAlign laCenter
               fill "#72bdd0", 0.9
               onHover:
@@ -83,7 +90,7 @@ proc dropdown*(
                 echo "clicked: ", buttonName
                 dropSelected = idx
               text "text":
-                box 0, 0, 100, 1.4.Em
+                box 0, 0, bw, bih
                 fill "#ffffff"
                 characters buttonName
     onClickOutside:
@@ -96,9 +103,22 @@ proc dropdown*(
 
 let dropItems = @["Nim", "UI", "in", "100%", "Nim", "to", 
                   "OpenGL", "Immediate", "mode"]
-var dropIdx = 0
+var dropIndexes: array[3, int]
 
 proc drawMain() =
-  dropdown(dropItems, dropIdx)
+  frame "main":
+    font "IBM Plex Sans", 16, 200, 0, hCenter, vCenter
+    box 0, 0, 100.WPerc, 100.HPerc
+
+    Horizontal:
+      box 0, 0, 100.WPerc, 100.HPerc
+      itemSpacing 1.Em
+
+      dropdown(dropItems, dropIndexes[0], nil) do:
+        box 0, 0, 10.Em, 2.Em
+      dropdown(dropItems, dropIndexes[1], nil) do:
+        box 0, 0, 10.Em, 2.Em
+      dropdown(dropItems, dropIndexes[2], nil) do:
+        box 0, 0, 10.Em, 2.Em
 
 startFidget(drawMain, uiScale=2.0)

@@ -322,7 +322,7 @@ macro statefulwidget*(blk: untyped) =
 
   procDef.body= quote do:
     group `typeName`:
-      # useState(`typeNameSym`)
+      useState(`typeNameSym`)
       if `preName` != nil:
         `preName`()
       `body`
