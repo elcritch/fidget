@@ -496,7 +496,7 @@ proc computeLayout*(parent, node: Node) =
 
     var at = 0.0
     at += node.verticalPadding
-    for i, n in node.nodes.reversePairs:
+    for i, n in node.nodes.pairs:
       if n.layoutAlign == laIgnore:
         continue
       if i > 0: at += node.itemSpacing
@@ -530,7 +530,7 @@ proc computeLayout*(parent, node: Node) =
 
     var at = 0.0
     at += node.horizontalPadding
-    for i, n in node.nodes.reversePairs:
+    for i, n in node.nodes.pairs:
       if n.layoutAlign == laIgnore:
         continue
       if i > 0:

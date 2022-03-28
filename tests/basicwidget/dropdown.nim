@@ -76,7 +76,7 @@ proc dropdown*(
             self.dropDownOpen = false
             self.dropDownToClose = true
 
-          for idx, buttonName in reverseIndex(dropItems):
+          for idx, buttonName in pairs(dropItems):
             group "itembtn":
               box 0, 0, bw, bih
               layoutAlign laCenter
@@ -111,7 +111,7 @@ proc drawMain() =
     font "IBM Plex Sans", 16, 200, 0, hCenter, vCenter
     box 0, 0, 100.WPerc, 100.HPerc
 
-    Horizontal:
+    Vertical:
       box 0, 0.Em, 100.WPerc, 100.HPerc
       itemSpacing 1.Em
 
@@ -122,7 +122,9 @@ proc drawMain() =
       dropdown(dropItems, dropIndexes[2], nil) do:
         box 0, 0, 10.Em, 1.5.Em
       
-    dropdown(dropItems, dropIndexes[2], nil) do:
-      box 30, 80, 10.Em, 1.5.Em
+    # dropdown(dropItems, dropIndexes[2], nil) do:
+      # box 30, 80, 10.Em, 1.5.Em
+    # dropdown(dropItems, dropIndexes[2], nil) do:
+      # box 30, 120, 10.Em, 1.5.Em
 
 startFidget(drawMain, uiScale=2.0)

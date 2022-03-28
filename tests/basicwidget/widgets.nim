@@ -373,5 +373,5 @@ template Vertical*(child: untyped) =
     constraints cMin, cStretch
     itemSpacing 2.Em
 
-    reverseStmts `child`
+    `child`
 
