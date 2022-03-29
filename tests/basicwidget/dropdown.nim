@@ -112,24 +112,19 @@ var dropIndexes = [-1, -1, -1]
 
 proc drawMain() =
   frame "main":
-    font "IBM Plex Sans", 16, 200, 0, hLeft, vCenter
+    font "IBM Plex Sans", 16, 200, 0, hLeft, vBottom
     box 1.Em, 1.Em, 100.WPerc - 1.Em, 100.HPerc - 1.Em
     # offset 1.Em, 1.Em
     # size 100.WPerc - 1.Em, 100.HPerc - 1.Em
 
     Vertical:
-      strokeWeight 1
-      stroke "#46D15F", 1.0
+      strokeLine 1.0, "#46D15F", 1.0
       itemSpacing 1.Em
 
-      rectangle "":
+      text "first desc":
         size 100.WPerc, 1.Em
-        strokeWeight 1
-        stroke "#46D15F", 1.0
-        text "first desc":
-          box 0.5.Em, 0, 100.WPerc, 1.Em
-          fill "#000d00"
-          characters "Dropdown example: "
+        fill "#000d00"
+        characters "Dropdown example: "
 
       dropdown(dropItems, dropIndexes[0], nil)
       dropdown(dropItems, dropIndexes[1], nil)

@@ -412,6 +412,11 @@ proc strokeWeight*(weight: float32) =
   ## Sets stroke/border weight.
   current.strokeWeight = weight * common.uiScale
 
+proc strokeLine*(weight: float32, color: string, alpha = 1.0) =
+  ## Sets stroke/border color.
+  current.stroke = parseHtmlColor(color)
+  current.stroke.a = alpha
+
 proc zLevel*(zLevel: int) =
   ## Sets zLevel.
   current.zLevel = zLevel
