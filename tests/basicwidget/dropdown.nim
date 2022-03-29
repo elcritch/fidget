@@ -18,7 +18,6 @@ proc dropdown*(
     dropDownOpen: bool
     dropDownToClose: bool
 
-  echo "currrent.box: ", current.box()
   var
     cb = current.box()
     bw = cb.w || 8.Em
