@@ -120,7 +120,6 @@ proc drawMain() =
     Vertical:
       strokeWeight 1
       stroke "#46D15F", 1.0
-      size 100.WPerc, 100.HPerc
       itemSpacing 1.Em
 
       rectangle "":
