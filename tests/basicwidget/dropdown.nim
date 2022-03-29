@@ -13,7 +13,7 @@ proc dropdown*(
     dropItems {.property: items.}: seq[string],
     dropSelected: var int,
 ) {.statefulwidget.} =
-  ## dropdown widget 
+  ## dropdown widget with internal state using `useState`
   properties:
     dropDownOpen: bool
     dropDownToClose: bool
@@ -30,7 +30,6 @@ proc dropdown*(
     tw = bw - 1.Em
   
   box cb.x, cb.y, bw, bh
-
 
   component "dropdown":
 
@@ -73,8 +72,6 @@ proc dropdown*(
           verticalPadding 0
           itemSpacing -1
           scrollBars true
-          # stroke "#5C8F9C", 1.0
-          # strokeWeight 1
 
           onClickOutside:
             self.dropDownOpen = false
@@ -129,7 +126,7 @@ proc drawMain() =
       dropdown(dropItems, dropIndexes[0], nil)
       dropdown(dropItems, dropIndexes[1], nil)
       text "desc":
-        box 0, 0.Em, 100.WPerc, 1.Em
+        size 100.WPerc, 1.Em
         fill "#000d00"
         characters "linked dropdowns: "
       dropdown(dropItems, dropIndexes[2], nil)
