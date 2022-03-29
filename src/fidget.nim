@@ -26,6 +26,7 @@ proc preNode(kind: NodeKind, id: string) =
     current.id = id
     current.uid = newUId()
     parent.nodes.add(current)
+    refresh()
   else:
     # Reuse Node.
     current = parent.nodes[parent.diffIndex]
@@ -38,6 +39,7 @@ proc preNode(kind: NodeKind, id: string) =
       current.id = id
       current.nIndex = parent.diffIndex
       current.resetToDefault()
+      refresh()
 
   current.kind = kind
   current.textStyle = parent.textStyle
@@ -144,6 +146,10 @@ template rectangle*(color: string|Color) =
     box 0, 0, parent.getBox().w, parent.getBox().h
     fill color
 
+template spacing*(id, inner: untyped): untyped =
+  ## Starts a new rectangle.
+  node(nkComponent, id, inner)
+
 proc mouseOverlapLogic*(): bool =
   ## Returns true if mouse overlaps the current node.
   let mpos = mouse.pos + current.totalOffset 
@@ -216,19 +222,19 @@ template Em*(size: float32): float32 =
 
 template Vw*(size: float32): float32 =
   ## Code in the block will run when this box is hovered.
-  root.box().w * size / 100.0  
+  root.box().w * size / 100.0
 
 template Vh*(size: float32): float32 =
   ## Code in the block will run when this box is hovered.
-  root.box().h * size / 100.0  
-
-template HPerc*(size: float32): float32 =
-  ## Code in the block will run when this box is hovered.
-  parent.box().h * size / 100.0  
+  root.box().h * size / 100.0
 
 template WPerc*(size: float32): float32 =
   ## Code in the block will run when this box is hovered.
-  parent.box().w * size / 100.0  
+  max(0'f32, (parent.box().w - current.box().x) * size / 100.0)
+
+template HPerc*(size: float32): float32 =
+  ## Code in the block will run when this box is hovered.
+  max(0'f32, (parent.box().h - current.box().y) * size / 100.0)
 
 template onScroll*(inner: untyped) =
   ## Code in the block will run when mouse scrolls
@@ -350,8 +356,18 @@ proc size*(
   h: int|float32|float64
 ) =
   ## Sets the box dimension width and height
-  box(float32 0, float32 0, float32 w, float32 h)
-  orgBox(float32 0, float32 0, float32 w, float32 h)
+  let cb = current.box()
+  box(cb.x, cb.y, float32 w, float32 h)
+  orgBox(cb.x, cb.y, float32 w, float32 h)
+
+proc offset*(
+  x: int|float32|float64,
+  y: int|float32|float64
+) =
+  ## Sets the box dimension width and height
+  let cb = current.box()
+  box(float32 x, float32 y, cb.w, cb.h)
+  orgBox(float32 x, float32 y, cb.w, cb.h)
 
 template boxOf*(node: Node) =
   box(node.box())

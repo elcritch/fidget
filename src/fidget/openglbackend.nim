@@ -493,13 +493,15 @@ proc startFidget*(
     # Emscripten can't block so it will call this callback instead.
     proc emscripten_set_main_loop(f: proc() {.cdecl.}, a: cint, b: bool) {.importc.}
     proc mainLoop() {.cdecl.} =
-
       asyncPoll()
       updateLoop()
     emscripten_set_main_loop(main_loop, 0, true)
   else:
-    # var thr: Thread[void]
-    # createThread(thr, timerFunc)
+
+    # updateLoop(false)
+    # refresh()
+    # updateLoop(false)
+
     while base.running:
       updateLoop()
       asyncPoll()

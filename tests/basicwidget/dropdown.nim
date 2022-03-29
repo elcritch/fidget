@@ -32,7 +32,7 @@ proc dropdown*(
   box cb.x, cb.y, bw, bh
 
 
-  rectangle "dropdown":
+  component "dropdown":
 
     font "IBM Plex Sans", 12, 200, 0, hCenter, vCenter
     box 0, 0, bw, bh
@@ -112,15 +112,33 @@ var dropIndexes = [-1, -1, -1]
 
 proc drawMain() =
   frame "main":
-    font "IBM Plex Sans", 16, 200, 0, hCenter, vCenter
-    box 0, 0, 100.WPerc, 100.HPerc
+    font "IBM Plex Sans", 16, 200, 0, hLeft, vCenter
+    box 1.Em, 1.Em, 100.WPerc - 1.Em, 100.HPerc - 1.Em
+    # offset 1.Em, 1.Em
+    # size 100.WPerc - 1.Em, 100.HPerc - 1.Em
 
     Vertical:
-      box 0, 0.Em, 100.WPerc, 100.HPerc
+      strokeWeight 1
+      stroke "#46D15F", 1.0
+      size 100.WPerc, 100.HPerc
       itemSpacing 1.Em
+
+      rectangle "":
+        size 100.WPerc, 1.Em
+        strokeWeight 1
+        stroke "#46D15F", 1.0
+        text "first desc":
+          box 0.5.Em, 0, 100.WPerc, 1.Em
+          fill "#000d00"
+          characters "Dropdown example: "
 
       dropdown(dropItems, dropIndexes[0], nil)
       dropdown(dropItems, dropIndexes[1], nil)
+      text "desc":
+        box 0, 0.Em, 100.WPerc, 1.Em
+        fill "#000d00"
+        characters "linked dropdowns: "
+      dropdown(dropItems, dropIndexes[2], nil)
       dropdown(dropItems, dropIndexes[2], nil):
         box 0, 0, 12.Em, 2.Em
       
