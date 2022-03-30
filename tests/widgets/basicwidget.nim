@@ -12,15 +12,19 @@ type
   UnitRange* = range[0.0'f32..1.0'f32]
 
 proc progressBar*(value: var UnitRange) {.basicWidget.} =
+  ## Draw a progress bars 
 
-  # Draw a progress bars 
   init:
-    box 0, 0, parent.box().w, 1.Em
+    ## called before `setup` and used for setting defaults like
+    ## the default box size
+    box 0, 0, 100.WPerc, 2.Em
 
   let
+    # some basic calcs
     bw = current.box().w
-    bh = 2.Em
+    bh = current.box().h
     barW = bw
+    sw = 2.0'f32
 
   group "progress":
     text "text":
@@ -34,17 +38,17 @@ proc progressBar*(value: var UnitRange) {.basicWidget.} =
     dropShadow 3, 0, 0, "#000000", 0.03
     fill "#F7F7F9"
     stroke "#46D15F", 1.0
-    strokeWeight 2
+    strokeWeight sw
     cornerRadius 5
     rectangle "barFg":
-      box 2, 2, barW * float(value) - 4 + 0.001, bh - 4
+      box 2, 2, barW * float(value) - 2*sw + 0.001, bh - 2*sw
       fill "#46D15F"
       cornerRadius 5
 
 proc button*(
     message {.property: text.}: string,
-    clicker {.property: onClick.}: WidgetProc
-) {.basicWidget.} =
+    clicker {.property: onClick.}: WidgetProc = proc () = discard
+): bool {.basicWidget, discardable.} =
   # Draw a progress bars 
   init:
     box 0, 0, parent.box().w, 1.Em
@@ -62,14 +66,16 @@ proc button*(
     strokeWeight 2
     onHover: 
       fill "#5C8F9C"
-    onClick: clicker()
+    onClick:
+      clicker()
+      result = true
 
     text "text":
       box 0, 0, bw, bh
       fill "#46607e"
       characters message
 
-AppWidget(ExampleApp):
+proc exampleApp*() {.statefulWidget.} =
   properties:
     count: int
     value: UnitRange
@@ -87,16 +93,20 @@ AppWidget(ExampleApp):
 
       self.value = (self.count.toFloat * 0.10) mod 1.0
       progressBar(self.value) do:
-        box 10.WPerc, 20, 80.WPerc, 1.Em
+        box 10.WPerc, 20, 80.WPerc, 2.Em
 
       Vertical:
         box 90.WPerc - 8.Em, 160, 8.Em, 2.Em
         itemSpacing 2.Em
 
-        # Draw the decrement button to make the bar go down.
-        button(fmt"Clicked1: {self.count:4d}"):
+        # Click to make the bar increase
+        # basic syntax just calling a proc
+        if button(fmt"Clicked1: {self.count:4d}"):
           self.count.inc()
 
+        # Alternate format using `Widget` macro that enables
+        # a YAML like syntax using property labels
+        # (see parameters on `button` widget proc)
         Widget button:
           text: fmt"Clicked2: {self.count:4d}"
           onClick: self.count.inc()
@@ -105,13 +115,14 @@ AppWidget(ExampleApp):
         box 10.WPerc, 100, 8.Em, 2.Em
         itemSpacing 1.Em
 
+        # basic syntax just calling a proc
         Button:
-          text: fmt"Clicked4: {self.count:4d}"
+          text: fmt"Clicked3: {self.count:4d}"
           setup: size 8.Em, 2.Em
           onClick: self.count.inc()
 
         Widget button:
-          text: fmt"Clicked3: {self.count:4d}"
+          text: fmt"Clicked4: {self.count:4d}"
           setup: size 8.Em, 2.Em
           onClick: self.count.inc()
 
@@ -119,6 +130,6 @@ var state = ExampleApp(count: 0, value: 0.33)
 
 proc drawMain() =
   frame "main":
-    render(state)
+    exampleApp(state)
 
 startFidget(drawMain, uiScale=2.0)

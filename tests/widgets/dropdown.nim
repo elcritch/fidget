@@ -12,7 +12,7 @@ loadFont("IBM Plex Sans", "IBMPlexSans-Regular.ttf")
 proc dropdown*(
     dropItems {.property: items.}: seq[string],
     dropSelected: var int,
-) {.statefulwidget.} =
+) {.statefulWidget.} =
   ## dropdown widget with internal state using `useState`
   properties:
     dropDownOpen: bool
