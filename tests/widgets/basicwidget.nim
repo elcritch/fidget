@@ -14,7 +14,7 @@ type
 proc progressBar*(value: var UnitRange) {.basicWidget.} =
 
   # Draw a progress bars 
-  Init:
+  init:
     box 0, 0, parent.box().w, 1.Em
 
   let
@@ -73,9 +73,6 @@ AppWidget(ExampleApp):
   properties:
     count: int
     value: UnitRange
-  init:
-    count = 0
-    value = UnitRange(0.33)
 
   frame "main":
     setTitle("Fidget Animated Progress Example")

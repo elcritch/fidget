@@ -150,7 +150,7 @@ macro basicWidget*(blk: untyped) =
 
   # echo "typeName: ", typeName
   # echo "widget: ", treeRepr bl
-  var impl: NimNode
+  var initImpl: NimNode = newStmtList()
   var hasProperty = false
 
   for idx, name, code in body.attributes():
@@ -158,8 +158,8 @@ macro basicWidget*(blk: untyped) =
     body[idx] = newStmtList()
     echo "widget:property: ", name
     case name:
-    of "body":
-      impl = code
+    of "init":
+      initImpl = code
     of "broperties":
       hasProperty = true
       let wType = typeName.makeType(code)
@@ -167,6 +167,7 @@ macro basicWidget*(blk: untyped) =
 
   procDef.body= quote do:
     group `typeName`:
+      `initImpl`
       if `preName` != nil:
         `preName`()
       `body`
@@ -221,6 +222,7 @@ macro AppWidget*(pname, blk: untyped) =
   # echo "widget: ", treeRepr blk
 
   var impl: NimNode
+  var initImpl: NimNode = newStmtList()
   var hasProperty = false
 
   for idx, name, code in body.attributes():
@@ -228,6 +230,8 @@ macro AppWidget*(pname, blk: untyped) =
     body[idx] = newStmtList()
     # echo "widget:property: ", name
     case name:
+    of "init":
+      initImpl = code
     of "body":
       impl = code
     of "properties":
@@ -238,6 +242,7 @@ macro AppWidget*(pname, blk: untyped) =
   var procDef = quote do:
     proc `procName`*() =
       group `groupName`:
+        `initImpl`
         if `preName` != nil:
           `preName`()
         `body`
@@ -299,7 +304,7 @@ macro statefulWidget*(blk: untyped) =
   # echo "typeName: ", typeName
   # echo "widget: ", treeRepr blk
 
-  var impl: NimNode
+  var initImpl: NimNode = newStmtList()
   var hasProperty = false
 
   for idx, name, code in body.attributes():
@@ -307,21 +312,18 @@ macro statefulWidget*(blk: untyped) =
     body[idx] = newStmtList()
     # echo "widget:property: ", name
     case name:
-    of "body":
-      impl = code
+    of "init":
+      initImpl = code
     of "properties":
       hasProperty = true
       let wType = typeName.makeType(code)
       preBody.add wType
 
   var typeNameSym = ident(typeName)
-  # echo "STATEFULWIDGET: "
-  # echo treeRepr(quote do:
-    # proc test(a: var int)
-    # )
 
   procDef.body= quote do:
     group `typeName`:
+      `initImpl`
       useState(`typeNameSym`)
       if `preName` != nil:
         `preName`()
