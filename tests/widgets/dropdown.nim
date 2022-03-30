@@ -107,6 +107,8 @@ let dropItems = @["Nim", "UI", "in", "100%", "Nim", "to",
                   "OpenGL", "Immediate", "mode"]
 var dropIndexes = [-1, -1, -1]
 
+var dstate = Dropdown()
+
 proc drawMain() =
   frame "main":
     font "IBM Plex Sans", 16, 200, 0, hLeft, vBottom
@@ -123,15 +125,17 @@ proc drawMain() =
         fill "#000d00"
         characters "Dropdown example: "
 
-      dropdown(dropItems, dropIndexes[0], nil)
+      dropdown(dropItems, dropIndexes[0], dstate)
       dropdown(dropItems, dropIndexes[1], nil)
       text "desc":
         size 100.WPerc, 1.Em
         fill "#000d00"
         characters "linked dropdowns: "
-      dropdown(dropItems, dropIndexes[2], nil)
-      dropdown(dropItems, dropIndexes[2], nil):
-        box 0, 0, 12.Em, 2.Em
+      dropdown(dropItems, dropIndexes[2])
+      Widget dropdown:
+        items: dropItems
+        dropSelected: dropIndexes[2]
+        setup: box 0, 0, 12.Em, 2.Em
       
     # dropdown(dropItems, dropIndexes[2], nil) do:
       # box 30, 80, 10.Em, 1.5.Em
