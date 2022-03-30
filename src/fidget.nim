@@ -230,11 +230,11 @@ template Vh*(size: float32): float32 =
 
 template WPerc*(size: float32): float32 =
   ## Code in the block will run when this box is hovered.
-  max(0'f32, (parent.box().w - current.box().x) * size / 100.0)
+  max(0'f32, parent.box().w * size / 100.0)
 
 template HPerc*(size: float32): float32 =
   ## Code in the block will run when this box is hovered.
-  max(0'f32, (parent.box().h - current.box().y) * size / 100.0)
+  max(0'f32, parent.box().h * size / 100.0)
 
 template onScroll*(inner: untyped) =
   ## Code in the block will run when mouse scrolls

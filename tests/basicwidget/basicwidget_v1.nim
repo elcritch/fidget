@@ -11,7 +11,7 @@ loadFont("IBM Plex Sans", "IBMPlexSans-Regular.ttf")
 type
   UnitRange* = range[0.0'f32..1.0'f32]
 
-proc progressBar*(value: var UnitRange) {.widget.} =
+proc progressBar*(value: var UnitRange) {.basicWidget.} =
 
   # Draw a progress bars 
   Init:
@@ -44,10 +44,11 @@ proc progressBar*(value: var UnitRange) {.widget.} =
 proc button*(
     message {.property: text.}: string,
     clicker {.property: onClick.}: WidgetProc
-) {.widget.} =
+) {.basicWidget.} =
   # Draw a progress bars 
-  Init:
+  init:
     box 0, 0, parent.box().w, 1.Em
+
   let
     bw = 8.Em
     bh = 2.Em
@@ -99,7 +100,7 @@ AppWidget(ExampleApp):
         button(fmt"Clicked1: {self.count:4d}"):
           self.count.inc()
 
-        with button:
+        Widget button:
           text: fmt"Clicked2: {self.count:4d}"
           onClick: self.count.inc()
 
@@ -112,7 +113,7 @@ AppWidget(ExampleApp):
           setup: size 8.Em, 2.Em
           onClick: self.count.inc()
 
-        with button:
+        Widget button:
           text: fmt"Clicked3: {self.count:4d}"
           setup: size 8.Em, 2.Em
           onClick: self.count.inc()

@@ -82,7 +82,7 @@ proc makeType(name: string, body: NimNode): NimNode =
 
 var widgetArgsTable* {.compileTime.} = initTable[string, seq[(string, string, NimNode, )]]()
 
-macro with*(widget, body: untyped): untyped =
+macro Widget*(widget, body: untyped): untyped =
   echo "WITH: ", widget.repr
   echo "WITH: ", body.repr
   let procName = widget.strVal
@@ -128,14 +128,14 @@ proc makeWidgetPropertyMacro(procName, typeName: string): NimNode =
 
   var labelMacroDef = quote do:
     template `labelMacroName`*(body: untyped) =
-      with `procName`, body
+      Widget `procName`, body
 
   result = newStmtList()
   result.add labelMacroDef
   echo "\n=== Widget: makeWidgetPropertyMacro === "
   echo result.repr
 
-macro widget*(blk: untyped) =
+macro basicWidget*(blk: untyped) =
   var
     procDef = blk
     body = procDef.body()
@@ -282,7 +282,7 @@ template useState*[T](tp: typedesc[T]) =
     else:
       self
 
-macro statefulwidget*(blk: untyped) =
+macro statefulWidget*(blk: untyped) =
   var
     procDef = blk
     body = procDef.body()
