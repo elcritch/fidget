@@ -95,7 +95,7 @@ proc exampleApp*() {.statefulWidget.} =
       progressBar(self.value) do:
         box 10.WPerc, 20, 80.WPerc, 2.Em
 
-      Vertical:
+      Horizontal:
         box 90.WPerc - 8.Em, 160, 8.Em, 2.Em
         itemSpacing 2.Em
 
@@ -111,7 +111,7 @@ proc exampleApp*() {.statefulWidget.} =
           text: fmt"Clicked2: {self.count:4d}"
           onClick: self.count.inc()
 
-      Horizontal:
+      Vertical:
         box 10.WPerc, 100, 8.Em, 2.Em
         itemSpacing 1.Em
 
