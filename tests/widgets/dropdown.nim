@@ -14,20 +14,23 @@ proc dropdown*(
     dropSelected: var int,
 ) {.statefulWidget.} =
   ## dropdown widget with internal state using `useState`
+  init:
+    size 8'em, 1.5'em
+  
   properties:
     dropDownOpen: bool
     dropDownToClose: bool
 
   var
     cb = current.box()
-    bw = cb.w || 8.Em
-    bh = cb.h || 1.5.Em
+    bw = cb.w
+    bh = cb.h
     # bh = 1.8.Em
     bth = bh
     bih = bh * 0.8 # 1.4.Em
     # bdh = 100.Vh - 3*bth
     bdh = bih * min(5, dropItems.len()).float32
-    tw = bw - 1.Em
+    tw = bw - 1'em
   
   box cb.x, cb.y, bw, bh
 
@@ -50,7 +53,7 @@ proc dropdown*(
       else:
         characters dropItems[dropSelected]
     text "text":
-      box tw, 0, 1.Em, bth
+      box tw, 0, 1'em, bth
       fill "#ffffff"
       if self.dropDownOpen:
         rotation -90
@@ -112,30 +115,30 @@ var dstate = Dropdown()
 proc drawMain() =
   frame "main":
     font "IBM Plex Sans", 16, 200, 0, hLeft, vBottom
-    box 1.Em, 1.Em, 100.WPerc - 1.Em, 100.HPerc - 1.Em
-    # offset 1.Em, 1.Em
-    # size 100.WPerc - 1.Em, 100.HPerc - 1.Em
+    box 1'em, 1'em, 100'pw - 1'em, 100'ph - 1'em
+    # offset 1'em, 1'em
+    # size 100.WPerc - 1'em, 100.HPerc - 1'em
 
     Vertical:
       strokeLine 1.0, "#46D15F", 1.0
-      itemSpacing 1.Em
+      itemSpacing 1'em
 
       text "first desc":
-        size 100.WPerc, 1.Em
+        size 100'pw, 1'em
         fill "#000d00"
         characters "Dropdown example: "
 
       dropdown(dropItems, dropIndexes[0], dstate)
       dropdown(dropItems, dropIndexes[1], nil)
       text "desc":
-        size 100.WPerc, 1.Em
+        size 100'pw, 1'em
         fill "#000d00"
         characters "linked dropdowns: "
       dropdown(dropItems, dropIndexes[2])
       Widget dropdown:
         items: dropItems
         dropSelected: dropIndexes[2]
-        setup: box 0, 0, 12.Em, 2.Em
+        setup: box 0, 0, 12'em, 2'em
       
     # dropdown(dropItems, dropIndexes[2], nil) do:
       # box 30, 80, 10.Em, 1.5.Em

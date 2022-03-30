@@ -220,21 +220,41 @@ template Em*(size: float32): float32 =
   ## Code in the block will run when this box is hovered.
   current.textStyle.fontSize * size / common.uiScale
 
+proc `'em`*(n: string): float32 =
+  ## parse numeric literal
+  result = Em(parseFloat(n))
+
 template Vw*(size: float32): float32 =
   ## Code in the block will run when this box is hovered.
   root.box().w * size / 100.0
+
+proc `'vw`*(n: string): float32 =
+  ## parse numeric literal
+  result = Vw(parseFloat(n))
 
 template Vh*(size: float32): float32 =
   ## Code in the block will run when this box is hovered.
   root.box().h * size / 100.0
 
+proc `'vh`*(n: string): float32 =
+  ## parse numeric literal
+  result = Vh(parseFloat(n))
+
 template WPerc*(size: float32): float32 =
   ## Code in the block will run when this box is hovered.
   max(0'f32, parent.box().w * size / 100.0)
 
+proc `'pw`*(n: string): float32 =
+  ## parse numeric literal
+  result = WPerc(parseFloat(n))
+
 template HPerc*(size: float32): float32 =
   ## Code in the block will run when this box is hovered.
   max(0'f32, parent.box().h * size / 100.0)
+
+proc `'ph`*(n: string): float32 =
+  ## parse numeric literal
+  result = HPerc(parseFloat(n))
 
 template onScroll*(inner: untyped) =
   ## Code in the block will run when mouse scrolls
