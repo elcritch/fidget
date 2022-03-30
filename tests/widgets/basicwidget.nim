@@ -79,6 +79,7 @@ proc exampleApp*(
 
         Button:
           # default alias of `Widget button`
+          # only created for non-stateful widgets
           text: fmt"Clicked3: {self.count:4d}"
           setup: size 8.Em, 2.Em
           onClick: self.count.inc()
