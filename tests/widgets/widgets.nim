@@ -55,6 +55,8 @@ proc makeType(name: string, body: NimNode): NimNode =
   var propTypes = newTable[string, NimNode]()
 
   for prop in body:
+    if prop.kind == nnkCommentStmt:
+      continue # skip comment
     prop.expectKind(nnkCall)
     prop[0].expectKind(nnkIdent)
     # echo "prop: ", treeRepr prop
@@ -204,71 +206,6 @@ macro basicWidget*(blk: untyped) =
   # echo "\n=== Widget === "
   # echo result.repr
 
-macro AppWidget*(pname, blk: untyped) =
-  var
-    # procDef = blk
-    # body = procDef.body()
-    body = blk
-    preBody = newStmtList()
-
-  let
-    procName = ident "render"
-    typeName = pname.strVal().capitalizeAscii()
-    groupName = newNimNode(nnkStrLit, pname)
-    preName = ident("setup")
-    postName = ident("post")
-
-  # echo "typeName: ", typeName
-  # echo "widget: ", treeRepr blk
-
-  var impl: NimNode
-  var initImpl: NimNode = newStmtList()
-  var hasProperty = false
-
-  for idx, name, code in body.attributes():
-    echo fmt"{idx=} {name=}"
-    body[idx] = newStmtList()
-    # echo "widget:property: ", name
-    case name:
-    of "init":
-      initImpl = code
-    of "body":
-      impl = code
-    of "properties":
-      hasProperty = true
-      let wType = typeName.makeType(code)
-      preBody.add wType
-
-  var procDef = quote do:
-    proc `procName`*() =
-      group `groupName`:
-        `initImpl`
-        if `preName` != nil:
-          `preName`()
-        `body`
-        if `postName` != nil:
-          `postName`()
-  var
-    params = procDef.params()
-
-  let
-    nilValue = quote do: nil
-    stateArg = newIdentDefs(ident("self"), ident(typeName))
-    preArg = newIdentDefs(preName, bindSym"WidgetProc", nilValue)
-    postArg = newIdentDefs(ident("post"), bindSym"WidgetProc", nilValue)
-  
-  # echo "procTp: ", preArg.treeRepr
-  if hasProperty:
-    params.add stateArg
-  params.add preArg
-  params.add postArg 
-  # echo "params: ", treeRepr params
-
-  result = newStmtList()
-  result.add preBody 
-  result.add procDef
-  # echo "\n=== Widget === "
-  # echo result.repr
 
 var hooksCount {.compileTime.} = 0
 
@@ -287,7 +224,7 @@ template useState*[T](tp: typedesc[T]) =
     else:
       self
 
-macro statefulWidget*(blk: untyped) =
+proc makeStatefulWidget*(blk: NimNode, defaultState: bool): NimNode =
   var
     procDef = blk
     body = procDef.body()
@@ -321,10 +258,19 @@ macro statefulWidget*(blk: untyped) =
 
   var typeNameSym = ident(typeName)
 
+  let stateSetup =
+    if defaultState:
+      quote do:
+        useState(`typeNameSym`)
+    else:
+      quote do:
+        if self == nil:
+          raise newException(ValueError, "app widget state can't be nil")
+
   procDef.body= quote do:
     group `typeName`:
       `initImpl`
-      useState(`typeNameSym`)
+      `stateSetup`
       if `preName` != nil:
         `preName`()
       `body`
@@ -333,8 +279,9 @@ macro statefulWidget*(blk: untyped) =
 
   let
     nilValue = quote do: nil
-    # stateArg = newIdentDefs(ident("self"), nnkVarTy.newTree(ident(typeName)), newNilLit())
-    stateArg = newIdentDefs(ident("self"), ident(typeName), newNilLit())
+    stateArg =
+      if defaultState: newIdentDefs(ident("self"), ident(typeName), newNilLit())
+      else:            newIdentDefs(ident("self"), ident(typeName))
     preArg = newIdentDefs(preName, bindSym"WidgetProc", nilValue)
     postArg = newIdentDefs(ident("post"), bindSym"WidgetProc", nilValue)
   
@@ -345,11 +292,26 @@ macro statefulWidget*(blk: untyped) =
   params.add postArg 
   # echo "params: ", treeRepr params
 
+  var widgetArgs = newSeq[(string, string, NimNode)]()
+  for idx, argname, propname, argtype in params.propertyNames():
+    let pname = if propname == "": argname else: propname
+    # echo "PROP label: ", pname, " => ", argname
+    # echo "PROP type: ", argtype.treeRepr
+    widgetArgs.add( (argname, pname, argtype,) )
+
+  widgetArgsTable[procName] = widgetArgs
+
   result = newStmtList()
   result.add preBody 
   result.add procDef
   echo "\n=== StatefulWidget === "
   echo result.repr
+
+macro statefulWidget*(blk: untyped) =
+  result = makeStatefulWidget(blk, defaultState=true)
+
+macro appWidget*(blk: untyped) =
+  result = makeStatefulWidget(blk, defaultState=false)
 
 macro reverseStmts(body: untyped) =
   result = newStmtList()
