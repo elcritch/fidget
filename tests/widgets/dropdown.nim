@@ -136,6 +136,11 @@ proc drawMain() =
         items: dropItems
         dropSelected: dropIndexes[2]
         setup: box 0, 0, 12.Em, 2.Em
+      Widget dropdown:
+        self: dstate
+        items: dropItems
+        dropSelected: dropIndexes[2]
+        setup: box 0, 0, 12.Em, 2.Em
       
     # dropdown(dropItems, dropIndexes[2], nil) do:
       # box 30, 80, 10.Em, 1.5.Em
