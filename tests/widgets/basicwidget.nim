@@ -28,18 +28,18 @@ proc progressBar*(value: var UnitRange) {.basicWidget.} =
       fill "#46607e"
       characters fmt"progress: {float(value):4.2f}"
 
-    # Draw the bar itself.
-    group "bar":
-      box 0, 0, barW, bh
-      dropShadow 3, 0, 0, "#000000", 0.03
-      fill "#F7F7F9"
-      stroke "#46D15F", 1.0
-      strokeWeight 2
+  # Draw the bar itself.
+  group "bar":
+    box 0, 0, barW, bh
+    dropShadow 3, 0, 0, "#000000", 0.03
+    fill "#F7F7F9"
+    stroke "#46D15F", 1.0
+    strokeWeight 2
+    cornerRadius 5
+    rectangle "barFg":
+      box 2, 2, barW * float(value) - 4 + 0.001, bh - 4
+      fill "#46D15F"
       cornerRadius 5
-      rectangle "barFg":
-        box 2, 2, barW * float(value) - 4 + 0.001, bh - 4
-        fill "#46D15F"
-        cornerRadius 5
 
 proc button*(
     message {.property: text.}: string,
