@@ -137,94 +137,7 @@ proc makeWidgetPropertyMacro(procName, typeName: string): NimNode =
   echo "\n=== Widget: makeWidgetPropertyMacro === "
   echo result.repr
 
-macro basicWidget*(blk: untyped) =
-  var
-    procDef = blk
-    body = procDef.body()
-    params = procDef.params()
-    preBody = newStmtList()
-
-  let
-    procName = procDef.name().strVal
-    typeName = procName.capitalizeAscii()
-    preName = ident("setup")
-    postName = ident("post")
-
-  # echo "typeName: ", typeName
-  # echo "widget: ", treeRepr bl
-  var initImpl: NimNode = newStmtList()
-  var hasProperty = false
-
-  for idx, name, code in body.attributes():
-    echo fmt"{idx=} {name=}"
-    body[idx] = newStmtList()
-    echo "widget:property: ", name
-    case name:
-    of "init":
-      initImpl = code
-    of "broperties":
-      hasProperty = true
-      let wType = typeName.makeType(code)
-      preBody.add wType
-
-  procDef.body= quote do:
-    group `typeName`:
-      `initImpl`
-      if `preName` != nil:
-        `preName`()
-      `body`
-      if `postName` != nil:
-        `postName`()
-  
-  let
-    nilValue = quote do: nil
-    stateArg = newIdentDefs(ident("self"), ident(typeName))
-    preArg = newIdentDefs(preName, bindSym"WidgetProc", nilValue)
-    postArg = newIdentDefs(ident("post"), bindSym"WidgetProc", nilValue)
-  
-  # echo "procTp: ", preArg.treeRepr
-  if hasProperty:
-    params.add stateArg
-  params.add preArg
-  params.add postArg 
-  # echo "params: ", treeRepr params
-
-  var widgetArgs = newSeq[(string, string, NimNode)]()
-  for idx, argname, propname, argtype in params.propertyNames():
-    let pname = if propname == "": argname else: propname
-    # echo "PROP label: ", pname, " => ", argname
-    # echo "PROP type: ", argtype.treeRepr
-    widgetArgs.add( (argname, pname, argtype,) )
-
-  widgetArgsTable[procName] = widgetArgs
-
-
-  result = newStmtList()
-  result.add preBody 
-  result.add procDef
-  result.add makeWidgetPropertyMacro(procName, typeName) 
-  # echo "\n=== Widget === "
-  # echo result.repr
-
-
-var hooksCount {.compileTime.} = 0
-
-macro genUniqueHookId*() =
-  hooksCount.inc()
-  let idx = hooksCount
-  result = newLit(idx)
-
-template useState*[T](tp: typedesc[T]) =
-  if current.hookStates.isEmpty():
-    var self = tp()
-    current.hookStates = newVariant(self)
-  var self {.inject.} =
-    if self.isNil:
-      current.hookStates.get(tp)
-    else:
-      self
-
-proc makeStatefulWidget*(blk: NimNode, defaultState: bool): NimNode =
+proc makeStatefulWidget*(blk: NimNode, hasState: bool, defaultState: bool): NimNode =
   var
     procDef = blk
     body = procDef.body()
@@ -259,13 +172,16 @@ proc makeStatefulWidget*(blk: NimNode, defaultState: bool): NimNode =
   var typeNameSym = ident(typeName)
 
   let stateSetup =
-    if defaultState:
-      quote do:
-        useState(`typeNameSym`)
+    if not hasState:
+      newStmtList()
     else:
-      quote do:
-        if self == nil:
-          raise newException(ValueError, "app widget state can't be nil")
+      if defaultState:
+        quote do:
+          useState(`typeNameSym`)
+      else:
+        quote do:
+          if self == nil:
+            raise newException(ValueError, "app widget state can't be nil")
 
   procDef.body= quote do:
     group `typeName`:
@@ -286,7 +202,7 @@ proc makeStatefulWidget*(blk: NimNode, defaultState: bool): NimNode =
     postArg = newIdentDefs(ident("post"), bindSym"WidgetProc", nilValue)
   
   # echo "procTp: ", preArg.treeRepr
-  if hasProperty:
+  if hasState and hasProperty:
     params.add stateArg
   params.add preArg
   params.add postArg 
@@ -295,8 +211,8 @@ proc makeStatefulWidget*(blk: NimNode, defaultState: bool): NimNode =
   var widgetArgs = newSeq[(string, string, NimNode)]()
   for idx, argname, propname, argtype in params.propertyNames():
     let pname = if propname == "": argname else: propname
-    # echo "PROP label: ", pname, " => ", argname
-    # echo "PROP type: ", argtype.treeRepr
+    echo "PROP label: ", pname, " => ", argname
+    echo "PROP type: ", argtype.treeRepr
     widgetArgs.add( (argname, pname, argtype,) )
 
   widgetArgsTable[procName] = widgetArgs
@@ -304,14 +220,29 @@ proc makeStatefulWidget*(blk: NimNode, defaultState: bool): NimNode =
   result = newStmtList()
   result.add preBody 
   result.add procDef
+  if not hasState:
+    result.add makeWidgetPropertyMacro(procName, typeName) 
   echo "\n=== StatefulWidget === "
   echo result.repr
 
+macro basicWidget*(blk: untyped) =
+  result = makeStatefulWidget(blk, hasState=false, defaultState=false)
+
+template useState*[T](tp: typedesc[T]) =
+  if current.hookStates.isEmpty():
+    var self = tp()
+    current.hookStates = newVariant(self)
+  var self {.inject.} =
+    if self.isNil:
+      current.hookStates.get(tp)
+    else:
+      self
+
 macro statefulWidget*(blk: untyped) =
-  result = makeStatefulWidget(blk, defaultState=true)
+  result = makeStatefulWidget(blk, hasState=true, defaultState=true)
 
 macro appWidget*(blk: untyped) =
-  result = makeStatefulWidget(blk, defaultState=false)
+  result = makeStatefulWidget(blk, hasState=true, defaultState=false)
 
 macro reverseStmts(body: untyped) =
   result = newStmtList()
