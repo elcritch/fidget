@@ -12,7 +12,7 @@ loadFont("IBM Plex Sans", "IBMPlexSans-Regular.ttf")
 proc exampleApp*(
     myName {.property: name.}: string,
 ) {.appWidget.} =
-  ## create a stateful widget
+  ## defines a stateful app widget
   ## 
   ## `exampleApp` will be transformed to also take the basic
   ## widget parameters:
@@ -21,7 +21,9 @@ proc exampleApp*(
   ##  - post: proc()
   ## 
   ## These parameters support using the widget with the properties
-  ## syntax. See the `button` examples below.
+  ## syntax. See the `button` examples below. The property name is
+  ## either the argument name or can be set using the `property` pragma
+  ## like show with `myName` that will provide a property of `name`.
   ## 
   
   properties:
