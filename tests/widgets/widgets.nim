@@ -158,9 +158,9 @@ macro basicWidget*(blk: untyped) =
     body[idx] = newStmtList()
     echo "widget:property: ", name
     case name:
-    of "Body":
+    of "body":
       impl = code
-    of "Properties":
+    of "broperties":
       hasProperty = true
       let wType = typeName.makeType(code)
       preBody.add wType
