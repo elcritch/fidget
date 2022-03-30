@@ -51,11 +51,12 @@ proc button*(
 ): bool {.basicWidget, discardable.} =
   # Draw a progress bars 
   init:
-    box 0, 0, parent.box().w, 1.Em
+    box 0, 0, 8.Em, 2.Em
 
   let
-    bw = 8.Em
-    bh = 2.Em
+    bw = current.box().w
+    bh = current.box().h
+
   cornerRadius 5
   rectangle "button":
     box 0, 0, bw, bh
@@ -96,8 +97,8 @@ proc exampleApp*() {.statefulWidget.} =
         box 10.WPerc, 20, 80.WPerc, 2.Em
 
       Horizontal:
-        box 90.WPerc - 8.Em, 160, 8.Em, 2.Em
-        itemSpacing 2.Em
+        box 90.WPerc - 16.Em, 100, 8.Em, 2.Em
+        itemSpacing 0.Em
 
         # Click to make the bar increase
         # basic syntax just calling a proc
@@ -112,7 +113,7 @@ proc exampleApp*() {.statefulWidget.} =
           onClick: self.count.inc()
 
       Vertical:
-        box 10.WPerc, 100, 8.Em, 2.Em
+        box 10.WPerc, 160, 8.Em, 2.Em
         itemSpacing 1.Em
 
         # basic syntax just calling a proc
