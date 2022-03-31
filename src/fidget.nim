@@ -275,43 +275,43 @@ template onUnFocus*(inner: untyped) =
 ## 
 
 template Em*(size: float32): float32 =
-  ## Code in the block will run when this box is hovered.
+  ## unit size relative to current font size
   current.textStyle.fontSize * size / common.uiScale
 
 proc `'em`*(n: string): float32 =
-  ## parse numeric literal
+  ## numeric literal em unit
   result = Em(parseFloat(n))
 
 template Vw*(size: float32): float32 =
-  ## Code in the block will run when this box is hovered.
+  ## percentage of Viewport width
   root.box().w * size / 100.0
 
 proc `'vw`*(n: string): float32 =
-  ## parse numeric literal
+  ## numeric literal view width unit
   result = Vw(parseFloat(n))
 
 template Vh*(size: float32): float32 =
-  ## Code in the block will run when this box is hovered.
+  ## percentage of Viewport height
   root.box().h * size / 100.0
 
 proc `'vh`*(n: string): float32 =
-  ## parse numeric literal
+  ## numeric literal view height unit
   result = Vh(parseFloat(n))
 
 template WPerc*(size: float32): float32 =
-  ## Code in the block will run when this box is hovered.
+  ## numeric literal percent of parent width
   max(0'f32, parent.box().w * size / 100.0)
 
 proc `'pw`*(n: string): float32 =
-  ## parse numeric literal
+  ## numeric literal percent of parent width
   result = WPerc(parseFloat(n))
 
 template HPerc*(size: float32): float32 =
-  ## Code in the block will run when this box is hovered.
+  ## percentage of parent height
   max(0'f32, parent.box().h * size / 100.0)
 
 proc `'ph`*(n: string): float32 =
-  ## parse numeric literal
+  ## numeric literal percent of parent height
   result = HPerc(parseFloat(n))
 
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -328,6 +328,10 @@ proc `'ph`*(n: string): float32 =
 proc id*(id: string) =
   ## Sets ID.
   current.id = id
+
+proc id*(): string =
+  ## Get current node ID.
+  return current.id
 
 proc orgBox*(x, y, w, h: int|float32|float64) =
   ## Sets the box dimensions of the original element for constraints.
