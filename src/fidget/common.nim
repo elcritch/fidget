@@ -374,7 +374,6 @@ proc resetToDefault*(node: Node)=
   node.diffIndex = 0
   node.selectable = false
   node.scrollBars = false
-  # node.hookStates = newTable[int, HiddenState]()
   node.hookStates = newVariant()
 
 proc setupRoot*() =
