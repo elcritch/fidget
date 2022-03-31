@@ -22,7 +22,7 @@ proc progressBar*(value: var UnitRange) {.basicFidget.} =
     bh = current.box().h
     barW = bw
     sw = 2.0'f32
-    sb = 3.0'f32
+    sb = 4.0'f32
 
   group "progress":
     text "text":
