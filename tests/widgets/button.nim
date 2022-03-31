@@ -1,12 +1,12 @@
 import bumpy, fidget
-import widgets
+import fidgets
 
-export fidget, widgets
+export fidget, fidgets
 
 proc button*(
     message {.property: text.}: string,
     clicker {.property: onClick.}: WidgetProc = proc () = discard
-): bool {.basicWidget, discardable.} =
+): bool {.basicFidget, discardable.} =
   # Draw a progress bars 
   init:
     box 0, 0, 8.Em, 2.Em

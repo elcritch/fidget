@@ -225,7 +225,7 @@ proc makeStatefulWidget*(blk: NimNode, hasState: bool, defaultState: bool): NimN
   echo "\n=== StatefulWidget === "
   echo result.repr
 
-macro basicWidget*(blk: untyped) =
+macro basicFidget*(blk: untyped) =
   result = makeStatefulWidget(blk, hasState=false, defaultState=false)
 
 template useState*[T](tp: typedesc[T]) =
@@ -238,10 +238,10 @@ template useState*[T](tp: typedesc[T]) =
     else:
       self
 
-macro statefulWidget*(blk: untyped) =
+macro statefulFidget*(blk: untyped) =
   result = makeStatefulWidget(blk, hasState=true, defaultState=true)
 
-macro appWidget*(blk: untyped) =
+macro appFidget*(blk: untyped) =
   result = makeStatefulWidget(blk, hasState=true, defaultState=false)
 
 macro reverseStmts(body: untyped) =

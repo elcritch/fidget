@@ -11,7 +11,7 @@ loadFont("IBM Plex Sans", "IBMPlexSans-Regular.ttf")
 
 proc exampleApp*(
     myName {.property: name.}: string,
-) {.appWidget.} =
+) {.appFidget.} =
   ## defines a stateful app widget
   ## 
   ## `exampleApp` will be transformed to also take the basic

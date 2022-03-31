@@ -5,14 +5,14 @@ import asyncdispatch # This is what provides us with async and the dispatcher
 import times, strutils # This is to provide the timing output
 import macros
 
-import widgets
+import fidgets
 
 loadFont("IBM Plex Sans", "IBMPlexSans-Regular.ttf")
 
 proc dropdown*(
     dropItems {.property: items.}: seq[string],
     dropSelected: var int,
-) {.statefulWidget.} =
+) {.statefulFidget.} =
   ## dropdown widget with internal state using `useState`
   init:
     size 8'em, 1.5'em
