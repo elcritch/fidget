@@ -157,8 +157,15 @@ template rectangle*(color: string|Color) =
     fill color
 
 ## ---------------------------------------------
-##             Node User Interactions
+##             Fidget Node APIs
 ## ---------------------------------------------
+## 
+## These APIs provide the APIs for Fidget nodes.
+## 
+
+## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+##             Node User Interactions
+## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ## 
 ## These APIs provide the basic functionality for
 ## interacting with user interactions. 
@@ -258,9 +265,9 @@ template onUnFocus*(inner: untyped) =
     keyboard.onUnFocusNode = nil
     inner
 
-## ---------------------------------------------
+## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ##        Dimension Helpers
-## ---------------------------------------------
+## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ## 
 ## These provide basic dimension units and helpers 
 ## similar to those available in HTML. They help
@@ -307,9 +314,9 @@ proc `'ph`*(n: string): float32 =
   ## parse numeric literal
   result = HPerc(parseFloat(n))
 
-## ---------------------------------------------
+## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ##             Node Content and Settings
-## ---------------------------------------------
+## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ## 
 ## These APIs provide the basic functionality for
 ## using Nodes like setting their colors, positions,
@@ -321,60 +328,6 @@ proc `'ph`*(n: string): float32 =
 proc id*(id: string) =
   ## Sets ID.
   current.id = id
-
-proc font*(
-  fontFamily: string,
-  fontSize, fontWeight, lineHeight: float32,
-  textAlignHorizontal: HAlign,
-  textAlignVertical: VAlign
-) =
-  ## Sets the font.
-  current.textStyle.fontFamily = fontFamily
-  current.textStyle.fontSize = common.uiScale*fontSize
-  current.textStyle.fontWeight = common.uiScale*fontWeight
-  current.textStyle.lineHeight =
-      if lineHeight != 0.0: common.uiScale*lineHeight
-      else: common.uiScale*fontSize
-  current.textStyle.textAlignHorizontal = textAlignHorizontal
-  current.textStyle.textAlignVertical = textAlignVertical
-
-proc fontFamily*(fontFamily: string) =
-  ## Sets the font family.
-  current.textStyle.fontFamily = fontFamily
-
-proc fontSize*(fontSize: float32) =
-  ## Sets the font size in pixels.
-  current.textStyle.fontSize = fontSize * common.uiScale
-
-proc fontWeight*(fontWeight: float32) =
-  ## Sets the font weight.
-  current.textStyle.fontWeight = fontWeight * common.uiScale
-
-proc lineHeight*(lineHeight: float32) =
-  ## Sets the font size.
-  current.textStyle.lineHeight = lineHeight * common.uiScale
-
-proc textAlign*(textAlignHorizontal: HAlign, textAlignVertical: VAlign) =
-  ## Sets the horizontal and vertical alignment.
-  current.textStyle.textAlignHorizontal = textAlignHorizontal
-  current.textStyle.textAlignVertical = textAlignVertical
-
-proc textPadding*(textPadding: int) =
-  ## Sets the text padding on editable multiline text areas.
-  current.textPadding = textPadding
-
-proc textAutoResize*(textAutoResize: TextAutoResize) =
-  ## Set the text auto resize mode.
-  current.textStyle.autoResize = textAutoResize
-
-proc characters*(text: string) =
-  ## Sets text.
-  if current.text != text:
-    current.text = text
-
-proc image*(imageName: string) =
-  ## Sets image fill.
-  current.imageName = imageName
 
 proc orgBox*(x, y, w, h: int|float32|float64) =
   ## Sets the box dimensions of the original element for constraints.
@@ -429,6 +382,90 @@ template boxOf*(node: Node) =
 proc rotation*(rotationInDeg: float32) =
   ## Sets rotation in degrees.
   current.rotation = rotationInDeg
+
+## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+##             Node Text and Fonts 
+## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+## 
+
+proc font*(
+  fontFamily: string,
+  fontSize, fontWeight, lineHeight: float32,
+  textAlignHorizontal: HAlign,
+  textAlignVertical: VAlign
+) =
+  ## Sets the font.
+  current.textStyle.fontFamily = fontFamily
+  current.textStyle.fontSize = common.uiScale*fontSize
+  current.textStyle.fontWeight = common.uiScale*fontWeight
+  current.textStyle.lineHeight =
+      if lineHeight != 0.0: common.uiScale*lineHeight
+      else: common.uiScale*fontSize
+  current.textStyle.textAlignHorizontal = textAlignHorizontal
+  current.textStyle.textAlignVertical = textAlignVertical
+
+proc fontFamily*(fontFamily: string) =
+  ## Sets the font family.
+  current.textStyle.fontFamily = fontFamily
+
+proc fontSize*(fontSize: float32) =
+  ## Sets the font size in pixels.
+  current.textStyle.fontSize = fontSize * common.uiScale
+
+proc fontWeight*(fontWeight: float32) =
+  ## Sets the font weight.
+  current.textStyle.fontWeight = fontWeight * common.uiScale
+
+proc lineHeight*(lineHeight: float32) =
+  ## Sets the font size.
+  current.textStyle.lineHeight = lineHeight * common.uiScale
+
+proc textAlign*(textAlignHorizontal: HAlign, textAlignVertical: VAlign) =
+  ## Sets the horizontal and vertical alignment.
+  current.textStyle.textAlignHorizontal = textAlignHorizontal
+  current.textStyle.textAlignVertical = textAlignVertical
+
+proc textPadding*(textPadding: int) =
+  ## Sets the text padding on editable multiline text areas.
+  current.textPadding = textPadding
+
+proc textAutoResize*(textAutoResize: TextAutoResize) =
+  ## Set the text auto resize mode.
+  current.textStyle.autoResize = textAutoResize
+
+proc characters*(text: string) =
+  ## Sets text.
+  if current.text != text:
+    current.text = text
+
+proc selectable*(v: bool) =
+  ## Set text selectable flag.
+  current.selectable = v
+
+template binding*(stringVariable: untyped) =
+  ## Makes the current object text-editable and binds it to the stringVariable.
+  current.bindingSet = true
+  selectable true
+  editableText true
+  if not current.hasKeyboardFocus():
+    characters stringVariable
+  if not defined(js):
+    onClick:
+      keyboard.focus(current)
+    onClickOutside:
+      keyboard.unFocus(current)
+  onInput:
+    if stringVariable != keyboard.input:
+      stringVariable = keyboard.input
+
+## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+##             Node Styling and Content
+## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+## 
+
+proc image*(imageName: string) =
+  ## Sets image fill.
+  current.imageName = imageName
 
 proc fill*(color: Color) =
   ## Sets background color.
@@ -536,6 +573,14 @@ proc innerShadow*(blur, x, y: float32, color: string, alpha: float32) =
     color: c
   ))
 
+## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+##             Node Layouts and Constraints
+## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+## 
+## These APIs provide the basic functionality for
+## setting up layouts and constraingts. 
+## 
+
 proc constraints*(vCon: Constraint, hCon: Constraint) =
   ## Sets vertical or horizontal constraint.
   current.constraintsVertical = vCon
@@ -565,25 +610,6 @@ proc itemSpacing*(v: float32) =
   ## Set the item spacing for auto layout.
   current.itemSpacing = v * common.uiScale
 
-proc selectable*(v: bool) =
-  ## Set text selectable flag.
-  current.selectable = v
-
-template binding*(stringVariable: untyped) =
-  ## Makes the current object text-editable and binds it to the stringVariable.
-  current.bindingSet = true
-  selectable true
-  editableText true
-  if not current.hasKeyboardFocus():
-    characters stringVariable
-  if not defined(js):
-    onClick:
-      keyboard.focus(current)
-    onClickOutside:
-      keyboard.unFocus(current)
-  onInput:
-    if stringVariable != keyboard.input:
-      stringVariable = keyboard.input
 
 # TODO: fixme?
 var
