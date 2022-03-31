@@ -512,10 +512,6 @@ proc strokeLine*(weight: float32, color: string, alpha = 1.0) =
   current.stroke = parseHtmlColor(color)
   current.stroke.a = alpha
 
-proc zLevel*(zLevel: int) =
-  ## Sets zLevel.
-  current.zLevel = zLevel
-
 proc cornerRadius*(a, b, c, d: float32) =
   ## Sets all radius of all 4 corners.
   let s = common.uiScale * 3
@@ -613,6 +609,10 @@ proc verticalPadding*(v: float32) =
 proc itemSpacing*(v: float32) =
   ## Set the item spacing for auto layout.
   current.itemSpacing = v * common.uiScale
+
+proc zLevel*(zLevel: int) =
+  ## Sets zLevel.
+  current.zLevel = zLevel
 
 
 # TODO: fixme?
