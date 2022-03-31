@@ -20,16 +20,16 @@ proc button*(
     box 0, 0, bw, bh
     dropShadow 3, 0, 0, "#000000", 0.03
     cornerRadius parent.cornerRadius
-    fill "#72bdd0"
-    stroke "#72bdd0", 1.0
-    strokeWeight 2
+    fill "#BDBDBD"
+    strokeLine 2, "#707070", 2.0
     onHover: 
-      fill "#5C8F9C"
+      fill "#BEEBFD"
+      strokeLine 4, "#4CA2D0", 2.0
     onClick:
       clicker()
       result = true
 
     text "text":
       box 0, 0, bw, bh
-      fill "#46607e"
+      fill "#565555"
       characters message

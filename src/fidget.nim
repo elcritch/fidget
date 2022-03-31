@@ -511,6 +511,7 @@ proc strokeLine*(weight: float32, color: string, alpha = 1.0) =
   ## Sets stroke/border color.
   current.stroke = parseHtmlColor(color)
   current.stroke.a = alpha
+  current.strokeWeight = weight * common.uiScale
 
 proc cornerRadius*(a, b, c, d: float32) =
   ## Sets all radius of all 4 corners.
