@@ -100,6 +100,7 @@ type
     nkRectangle
     nkComponent
     nkInstance
+    nkDrawable
 
   Node* = ref object
     id*: string

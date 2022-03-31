@@ -15,7 +15,7 @@ else:
   export openglbackend
 
 proc preNode(kind: NodeKind, id: string) =
-  # Process the start of the node.
+  ## Process the start of the node.
 
   parent = nodeStack[^1]
 
@@ -92,6 +92,18 @@ template node(kind: NodeKind, id: string, inner: untyped): untyped =
   inner
   postNode()
 
+template withDefaultName(name: untyped): untyped =
+  template `name`*(inner: untyped): untyped =
+    `name`("", inner)
+
+## ---------------------------------------------
+##             Basic Node Creation
+## ---------------------------------------------
+## 
+## Core Fidget Node APIs. These are the main ways to create
+## Fidget nodes. 
+## 
+
 template group*(id: string, inner: untyped): untyped =
   ## Starts a new node.
   node(nkGroup, id, inner)
@@ -116,29 +128,27 @@ template instance*(id: string, inner: untyped): untyped =
   ## Starts a new instance of a component.
   node(nkInstance, id, inner)
 
-template group*(inner: untyped): untyped =
-  ## Starts a new node.
-  node(nkGroup, "", inner)
-
-template frame*(inner: untyped): untyped =
-  ## Starts a new frame.
-  node(nkFrame, "", inner)
-
-template rectangle*(inner: untyped): untyped =
-  ## Starts a new rectangle.
-  node(nkRectangle, "", inner)
-
-template text*(inner: untyped): untyped =
-  ## Starts a new text element.
-  node(nkText, "", inner)
-
-template component*(inner: untyped): untyped =
-  ## Starts a new component.
-  node(nkComponent, "", inner)
-
-template instance*(inner: untyped): untyped =
+template drawable*(id: string, inner: untyped): untyped =
   ## Starts a new instance of a component.
-  node(nkInstance, "", inner)
+  node(nkDrawable, id, inner)
+
+template blank*(id, inner: untyped): untyped =
+  ## Starts a new rectangle.
+  node(nkComponent, id, inner)
+
+## Overloaded Nodes 
+## ^^^^^^^^^^^^^^^^
+## 
+## Various overloaded node APIs
+
+withDefaultName(group)
+withDefaultName(frame)
+withDefaultName(rectangle)
+withDefaultName(text)
+withDefaultName(component)
+withDefaultName(instance)
+withDefaultName(drawable)
+withDefaultName(blank)
 
 template rectangle*(color: string|Color) =
   ## Shorthand for rectangle with fill.
@@ -146,9 +156,13 @@ template rectangle*(color: string|Color) =
     box 0, 0, parent.getBox().w, parent.getBox().h
     fill color
 
-template spacing*(id, inner: untyped): untyped =
-  ## Starts a new rectangle.
-  node(nkComponent, id, inner)
+## ---------------------------------------------
+##             Node User Interactions
+## ---------------------------------------------
+## 
+## These APIs provide the basic functionality for
+## interacting with user interactions. 
+## 
 
 proc mouseOverlapLogic*(): bool =
   ## Returns true if mouse overlaps the current node.
@@ -216,6 +230,43 @@ template onHover*(inner: untyped) =
     # echo "HOVER: ", current.idPath
     inner
 
+template onScroll*(inner: untyped) =
+  ## Code in the block will run when mouse scrolls
+  if mouse.wheelDelta != 0.0 and mouseOverlapLogic():
+    mouse.consumed = true
+    inner
+
+template onHoverOut*(inner: untyped) =
+  ## Code in the block will run when hovering outside the box.
+  if not mouseOverlapLogic():
+    inner
+
+template onDown*(inner: untyped) =
+  ## Code in the block will run when this mouse is dragging.
+  if mouse.down and mouseOverlapLogic():
+    inner
+
+template onFocus*(inner: untyped) =
+  ## On focusing an input element.
+  if keyboard.onFocusNode == current:
+    keyboard.onFocusNode = nil
+    inner
+
+template onUnFocus*(inner: untyped) =
+  ## On loosing focus on an input element.
+  if keyboard.onUnFocusNode == current:
+    keyboard.onUnFocusNode = nil
+    inner
+
+## ---------------------------------------------
+##        Dimension Helpers
+## ---------------------------------------------
+## 
+## These provide basic dimension units and helpers 
+## similar to those available in HTML. They help
+## specify details like: "set node width to 100% of it's parents size."
+## 
+
 template Em*(size: float32): float32 =
   ## Code in the block will run when this box is hovered.
   current.textStyle.fontSize * size / common.uiScale
@@ -256,33 +307,16 @@ proc `'ph`*(n: string): float32 =
   ## parse numeric literal
   result = HPerc(parseFloat(n))
 
-template onScroll*(inner: untyped) =
-  ## Code in the block will run when mouse scrolls
-  if mouse.wheelDelta != 0.0 and mouseOverlapLogic():
-    mouse.consumed = true
-    inner
-
-template onHoverOut*(inner: untyped) =
-  ## Code in the block will run when hovering outside the box.
-  if not mouseOverlapLogic():
-    inner
-
-template onDown*(inner: untyped) =
-  ## Code in the block will run when this mouse is dragging.
-  if mouse.down and mouseOverlapLogic():
-    inner
-
-template onFocus*(inner: untyped) =
-  ## On focusing an input element.
-  if keyboard.onFocusNode == current:
-    keyboard.onFocusNode = nil
-    inner
-
-template onUnFocus*(inner: untyped) =
-  ## On loosing focus on an input element.
-  if keyboard.onUnFocusNode == current:
-    keyboard.onUnFocusNode = nil
-    inner
+## ---------------------------------------------
+##             Node Content and Settings
+## ---------------------------------------------
+## 
+## These APIs provide the basic functionality for
+## using Nodes like setting their colors, positions,
+## sizes, and text. 
+## 
+## These are the primary API for drawing UI objects. 
+## 
 
 proc id*(id: string) =
   ## Sets ID.
@@ -466,7 +500,6 @@ proc clipContent*(clipContent: bool) =
   ## Causes the parent to clip the children.
   current.clipContent = clipContent
 
-
 proc cursorColor*(color: Color) =
   ## Sets the color of the text cursor.
   current.cursorColor = color
@@ -486,13 +519,13 @@ proc highlightColor*(color: string, alpha = 1.0) =
   current.highlightColor.a = alpha
 
 proc dropShadow*(blur, x, y: float32, color: string, alpha: float32) =
-  ## Sets drawable, drawable in HTML creates a canvas.
+  ## Sets drop shadow on an element
   var c = parseHtmlColor(color)
   c.a = alpha
   current.shadows.add Shadow(kind: DropShadow, blur: blur, x: x, y: y, color: c)
 
 proc innerShadow*(blur, x, y: float32, color: string, alpha: float32) =
-  ## Sets drawable, drawable in HTML creates a canvas.
+  ## Sets an inner shadow
   var c = parseHtmlColor(color)
   c.a = alpha
   current.shadows.add(Shadow(
@@ -502,10 +535,6 @@ proc innerShadow*(blur, x, y: float32, color: string, alpha: float32) =
     y: y,
     color: c
   ))
-
-proc drawable*(drawable: bool) =
-  ## Sets drawable, drawable in HTML creates a canvas.
-  current.drawable = drawable
 
 proc constraints*(vCon: Constraint, hCon: Constraint) =
   ## Sets vertical or horizontal constraint.
@@ -556,20 +585,7 @@ template binding*(stringVariable: untyped) =
     if stringVariable != keyboard.input:
       stringVariable = keyboard.input
 
-proc parseParams*(): Table[string, string] =
-  ## Parses the params of the main URL.
-  let splitSearch = getUrl().split('?')
-  if len(splitSearch) == 1:
-    return
-
-  let noHash = splitSearch[1].split('#')[0]
-  for pair in noHash[0..^1].split("&"):
-    let
-      arr = pair.split("=")
-      key = arr[0]
-      val = arr[1]
-    result[key] = val
-
+# TODO: fixme?
 var
   pipDrag = false
   pipHPosLast = 0'f32
@@ -594,9 +610,11 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight) =
       pipHPosLast = mouse.descaled(pos).y 
       pipOffLast = -current.descaled(offset).y
 
-  # echo "pipOffLast : ", pipOffLast, " curr: ", current.descaled(offset).y
-  ## add post inner callback to calculate the scrollbar box
   current.postHooks.add proc() =
+    ## add post inner callback to calculate the scrollbar box
+    ## not sure this is the best way to handle this, but it's
+    ## easier to calculate some things after the node has been
+    ## called and computed. 
     let
       halign: HAlign = hAlign
       cr = 4.0'f32
@@ -624,13 +642,6 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight) =
       xx = if halign == hLeft: 0'f32 else: nw - width
       bx = Rect(x: xx, y: hPerc*(ph - sh), w: width, h: sh)
 
-    # echo ""
-    # echo "scroll:ph: ", ph, " curr: ", current.descaled(screenBox).h
-    # echo "scroll:box: ", " curr: ", current.box(),  " parent: ", parent.box()
-    # echo fmt"scroll: sh: {sh:6.4f} perc: {perc:6.4f} ph: {ph:6.4f} ch: {current.descaled(screenBox).h:6.4f} nh: {nh:6.4f}"
-    # echo "scroll:box: ", bx
-    # echo "post offset: ", current.offset
-
     var idx = -1
     for i, child in current.nodes:
       if child.id == "$scrollbar":
@@ -639,13 +650,8 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight) =
     
     if idx >= 0:
       var sb = current.nodes[idx]
-      # echo "sb: ", sb.idPath, " bx: ", bx
       sb.setBox(bx)
       sb.offset = current.offset * -1'f32
-      # if (bx.w + bx.h) > 0.0:
-        # sb.cornerRadius = (3*cr, 3*cr, 3*cr, 3*cr)
-      # current.nodes.delete(idx)
-      # current.nodes.insert(sb, 0)
     else:
       raise newException(Exception, "scrollbar defined but node is missing")
 
