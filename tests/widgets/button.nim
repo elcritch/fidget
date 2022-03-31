@@ -15,11 +15,11 @@ proc button*(
     bw = current.box().w
     bh = current.box().h
 
-  cornerRadius 5
+  cornerRadius 2
   rectangle "button":
     box 0, 0, bw, bh
     dropShadow 3, 0, 0, "#000000", 0.03
-    cornerRadius parent.cornerRadius
+    cornerRadius 2
     fill "#BDBDBD"
     strokeLine 2, "#707070", 2.0
     onHover: 

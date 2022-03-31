@@ -36,8 +36,8 @@ proc progressBar*(value: var UnitRange) {.basicFidget.} =
     dropShadow 3, 0, 0, "#000000", 0.03
     fill "#BDBDBD"
     strokeLine sw, "#707070", 2.0
-    cornerRadius 5
+    cornerRadius 3
     rectangle "barFg":
       box sb, sb, barW * float(value) - sb*sw + 0.001, bh - sb*sw
       fill "#87E3FF"
-      cornerRadius 5
+      cornerRadius 2
