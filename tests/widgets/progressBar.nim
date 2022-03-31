@@ -21,7 +21,8 @@ proc progressBar*(value: var UnitRange) {.basicFidget.} =
     bw = current.box().w
     bh = current.box().h
     barW = bw
-    sw = 2.0'f32
+    sw = 4.0'f32
+    sb = 4.0'f32
 
   group "progress":
     text "text":
@@ -38,6 +39,6 @@ proc progressBar*(value: var UnitRange) {.basicFidget.} =
     strokeWeight sw
     cornerRadius 5
     rectangle "barFg":
-      box 3.5, 3, barW * float(value) - 3*sw + 0.001, bh - 3*sw
+      box sb * 1.25, sb, barW * float(value) - sb*sw + 0.001, bh - sb*sw
       fill "#87E3FF"
       cornerRadius 5
