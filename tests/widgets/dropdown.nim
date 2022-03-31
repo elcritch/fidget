@@ -42,6 +42,9 @@ proc dropdown*(
     fill "#72bdd0"
     cornerRadius 5
     strokeWeight 1
+
+    dropShadow 3, 0, 0, "#000000", 0.03
+
     onHover:
       fill "#5C8F9C"
     text "text":

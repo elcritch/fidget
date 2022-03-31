@@ -9,6 +9,32 @@ import progressBar
 
 loadFont("IBM Plex Sans", "IBMPlexSans-Regular.ttf")
 
+proc animatedDropdown*(
+    delta: float32,
+) {.statefulFidget.} =
+
+  init:
+    ## called before `setup` and used for setting defaults like
+    ## the default box size
+    box 0, 0, 100.WPerc, 2.Em
+
+  proc ticker() {.async.} =
+    ## This simple procedure will "tick" ten times delayed 1,000ms each.
+    ## Every tick will increment the progress bar 10% until its done. 
+    let
+      n = 70
+      duration = 600
+      curr = self.value
+    for i in 1..n:
+      await sleepAsync(duration / n)
+      self.value += tickChange
+      refresh()
+
+  properties:
+    value: UnitRange
+    ticks: Future[void] = emptyFuture() ## Create an completed "empty" future
+
+
 proc exampleApp*(
     myName {.property: name.}: string,
 ) {.appWidget.} =
