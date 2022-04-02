@@ -16,20 +16,35 @@ proc button*(
     bh = current.box().h
 
   cornerRadius 2
+
   rectangle "button":
     box 0, 0, bw, bh
-    dropShadow 3, 0, 0, "#000000", 0.05
-    cornerRadius 2
-    fill "#BDBDBD"
+    cornerRadius 3
     strokeLine 2, "#707070", 2.0
-    onHover: 
-      fill "#BEEBFD"
-      strokeLine 4, "#4CA2D0", 2.0
-    onClick:
-      clicker()
-      result = true
-
     text "text":
       box 0, 0, bw, bh
       fill "#565555"
       characters message
+
+  rectangle "barFg":
+    box 0, 0, 100'pw, 100'ph
+    cornerRadius 2.2
+    clipContent true
+    rectangle "barFg":
+      cornerRadius 2.2
+      box 0, 0, 100'pw, 300'ph
+      image "shadow-button-middle.png"
+      current.imageColor = color(1,1,1,0.9)
+
+  rectangle "button":
+    box 0, 0, bw, bh
+    dropShadow 4, 0, 0, "#000000", 0.05
+    cornerRadius 3
+    fill "#BDBDBD"
+    onHover: 
+      fill "#87E3FF", 0.9
+    onClick:
+      clicker()
+      result = true
+
+    

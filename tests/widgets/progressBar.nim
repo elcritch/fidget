@@ -56,4 +56,4 @@ proc progressBar*(value: var UnitRange) {.basicFidget.} =
     clipContent true
 
   cornerRadius 3
-  dropShadow 3, 0, 0, "#000000", 0.05
+  dropShadow 4, 0, 0, "#000000", 0.05
