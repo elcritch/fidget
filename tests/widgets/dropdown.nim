@@ -123,7 +123,7 @@ proc drawMain() =
     # size 100.WPerc - 1'em, 100.HPerc - 1'em
 
     Vertical:
-      strokeLine 1.0, "#46D15F", 1.0
+      # strokeLine 1.0, "#46D15F", 1.0
       itemSpacing 1'em
 
       text "first desc":

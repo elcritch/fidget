@@ -342,10 +342,10 @@ func `*`*(m: Mat4, v: Vec2): Vec2 =
   (m * vec3(v.x, v.y, 0.0)).xy
 
 proc drawQuad*(
-  ctx: Context,
-  verts: array[4, Vec2],
-  uvs: array[4, Vec2],
-  colors: array[4, ColorRGBA],
+    ctx: Context,
+    verts: array[4, Vec2],
+    uvs: array[4, Vec2],
+    colors: array[4, ColorRGBA],
 ) =
   ctx.checkBatch()
 
@@ -443,11 +443,11 @@ proc getOrLoadImageRect(ctx: Context, imagePath: string | Hash): Rect =
   return ctx.entries[filePath]
 
 proc drawImage*(
-  ctx: Context,
-  imagePath: string | Hash,
-  pos: Vec2 = vec2(0, 0),
-  color = color(1, 1, 1, 1),
-  scale = 1.0
+    ctx: Context,
+    imagePath: string | Hash,
+    pos: Vec2 = vec2(0, 0),
+    color = color(1, 1, 1, 1),
+    scale = 1.0
 ) =
   ## Draws image the UI way - pos at top-left.
   let
@@ -456,22 +456,22 @@ proc drawImage*(
   ctx.drawUvRect(pos, pos + wh, rect.xy, rect.xy + rect.wh, color)
 
 proc drawImage*(
-  ctx: Context,
-  imagePath: string | Hash,
-  pos: Vec2 = vec2(0, 0),
-  color = color(1, 1, 1, 1),
-  size: Vec2
+    ctx: Context,
+    imagePath: string | Hash,
+    pos: Vec2 = vec2(0, 0),
+    color = color(1, 1, 1, 1),
+    size: Vec2
 ) =
   ## Draws image the UI way - pos at top-left.
   let rect = ctx.getOrLoadImageRect(imagePath)
   ctx.drawUvRect(pos, pos + size, rect.xy, rect.xy + rect.wh, color)
 
 proc drawSprite*(
-  ctx: Context,
-  imagePath: string | Hash,
-  pos: Vec2 = vec2(0, 0),
-  color = color(1, 1, 1, 1),
-  scale = 1.0
+    ctx: Context,
+    imagePath: string | Hash,
+    pos: Vec2 = vec2(0, 0),
+    color = color(1, 1, 1, 1),
+    scale = 1.0
 ) =
   ## Draws image the game way - pos at center.
   let

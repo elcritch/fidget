@@ -56,8 +56,10 @@ proc exampleApp*(
       strokeWeight 1
 
       self.value = (self.count.toFloat * 0.10) mod 1.0
-      progressBar(self.value) do:
-        box 10.WPerc, 20, 80.WPerc, 2.Em
+
+      Widget progressBar:
+        value: self.value
+        setup: box 10.WPerc, 20, 80.WPerc, 2.Em
 
       # Alternate format using `Widget` macro that enables
       # a YAML like syntax using property labels

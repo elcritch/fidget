@@ -314,7 +314,7 @@ proc draw*(node, parent: Node) =
 
     if node.imageName != "":
       let path = dataDir / node.imageName
-      ctx.drawImage(path, size = vec2(node.screenBox.w, node.screenBox.h))
+      ctx.drawImage(path, pos = vec2(0, 0), color = node.imageColor, size = vec2(node.screenBox.w, node.screenBox.h))
 
   ctx.restoreTransform()
 
