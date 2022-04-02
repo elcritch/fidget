@@ -44,7 +44,7 @@ proc exampleApp*(
       fill "#DFDFE0"
       strokeWeight 1
 
-      self.value = (self.count.toFloat * 0.10) mod 1.0
+      self.value = (self.count.toFloat * 0.10) mod 1.0001
       progressBar(self.value) do:
         box 10.WPerc, 20, 80.WPerc, 2.Em
 

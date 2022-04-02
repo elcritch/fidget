@@ -20,9 +20,10 @@ proc progressBar*(value: var UnitRange) {.basicFidget.} =
     # some basic calcs
     bw = current.box().w
     bh = current.box().h
-    barW = bw
     sw = 2.0'f32
     sb = 4.0'f32
+    barW = bw * float(value) - sb*sw + 0.001
+    barH = bh - sb*sw
 
   group "progress":
     text "text":
@@ -30,14 +31,29 @@ proc progressBar*(value: var UnitRange) {.basicFidget.} =
       fill "#565555"
       characters fmt"progress: {float(value):4.2f}"
 
+  rectangle "barFg":
+    box sb, sb, barW, barH
+    cornerRadius 2.2
+    clipContent true
+    rectangle "barFg":
+      cornerRadius 2.2
+      box 0, 0, 100'pw, 500'ph
+      image "shadow-button-middle.png"
+      current.imageColor = color(1,1,1,0.9)
+    strokeLine 1.0, "#707070", 0.4
+
+  rectangle "barFg":
+    box sb, sb, barW, barH
+    fill "#87E3FF"
+    cornerRadius 2.2
+
   # Draw the bar itself.
   group "bar":
-    box 0, 0, barW, bh
-    dropShadow 3, 0, 0, "#000000", 0.03
+    box 0, 0, bw, bh
     fill "#BDBDBD"
-    strokeLine sw, "#707070", 2.0
+    strokeLine sw, "#707070", 1.0
     cornerRadius 3
-    rectangle "barFg":
-      box sb, sb, barW * float(value) - sb*sw + 0.001, bh - sb*sw
-      fill "#87E3FF"
-      cornerRadius 2
+    clipContent true
+
+  cornerRadius 3
+  dropShadow 3, 0, 0, "#000000", 0.05

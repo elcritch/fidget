@@ -18,7 +18,7 @@ proc button*(
   cornerRadius 2
   rectangle "button":
     box 0, 0, bw, bh
-    dropShadow 3, 0, 0, "#000000", 0.03
+    dropShadow 3, 0, 0, "#000000", 0.05
     cornerRadius 2
     fill "#BDBDBD"
     strokeLine 2, "#707070", 2.0
