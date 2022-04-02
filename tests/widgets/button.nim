@@ -42,8 +42,9 @@ proc button*(
     cornerRadius 3
     fill "#BDBDBD"
     onHover: 
-      fill "#87E3FF", 0.9
+      fill "#87E3FF", 0.77
     onClick:
+      fill "#87E3FF", 0.99
       clicker()
       result = true
 
