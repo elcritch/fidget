@@ -9,8 +9,8 @@ import progressBar
 
 loadFont("IBM Plex Sans", "IBMPlexSans-Regular.ttf")
 
-proc animatedDropdown*(
-    delta: float32,
+proc animatedProgress*(
+    delta: float32 = 0.1,
 ) {.statefulFidget.} =
 
   init:
@@ -18,7 +18,7 @@ proc animatedDropdown*(
     ## the default box size
     box 0, 0, 100.WPerc, 2.Em
 
-  proc ticker() {.async.} =
+  proc ticker(target: float32) {.async.} =
     ## This simple procedure will "tick" ten times delayed 1,000ms each.
     ## Every tick will increment the progress bar 10% until its done. 
     let
@@ -27,17 +27,23 @@ proc animatedDropdown*(
       curr = self.value
     for i in 1..n:
       await sleepAsync(duration / n)
-      self.value += tickChange
+      self.value += delta
       refresh()
 
   properties:
     value: UnitRange
     ticks: Future[void] = emptyFuture() ## Create an completed "empty" future
 
+  proc gotoValue(target: float32) =
+    if self.ticks.finished():
+      echo "setup new ticker"
+      self.ticks = ticker(target)
+    else:
+      echo "ticker already running!"
 
 proc exampleApp*(
     myName {.property: name.}: string,
-) {.appWidget.} =
+) {.appFidget.} =
   ## defines a stateful app widget
   
   properties:
@@ -57,9 +63,10 @@ proc exampleApp*(
 
       self.value = (self.count.toFloat * 0.10) mod 1.0
 
-      Widget progressBar:
-        value: self.value
+      Widget animatedProgress:
+        delta: 0.1'f32
         setup: box 10.WPerc, 20, 80.WPerc, 2.Em
+        # gotoValue: pb1goto
 
       # Alternate format using `Widget` macro that enables
       # a YAML like syntax using property labels
