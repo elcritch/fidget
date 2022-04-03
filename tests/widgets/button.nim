@@ -32,7 +32,7 @@ proc button*(
     clipContent true
     rectangle "barFg":
       cornerRadius 2.2
-      box 0, 0, 100'pw, 300'ph
+      box 0, 0, 100'pw, 100'ph
       image "shadow-button-middle.png"
       current.imageColor = color(1,1,1,0.77)
 

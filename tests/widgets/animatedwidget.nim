@@ -18,7 +18,11 @@ proc animatedProgress*(
     ## the default box size
     box 0, 0, 100.WPerc, 2.Em
 
-  proc ticker(target: float32) {.async.} =
+  properties:
+    value: UnitRange
+    ticks: Future[void] = emptyFuture() ## Create an completed "empty" future
+
+  proc ticker(self: AnimatedProgress, target: float32) {.async.} =
     ## This simple procedure will "tick" ten times delayed 1,000ms each.
     ## Every tick will increment the progress bar 10% until its done. 
     let
@@ -30,16 +34,17 @@ proc animatedProgress*(
       self.value += delta
       refresh()
 
-  properties:
-    value: UnitRange
-    ticks: Future[void] = emptyFuture() ## Create an completed "empty" future
+  triggers:
+    gotoValue(target: float32):
+      if self.ticks.finished():
+        echo "setup new ticker"
+        self.ticks = ticker(target)
+      else:
+        echo "ticker already running!"
 
-  proc gotoValue(target: float32) =
-    if self.ticks.finished():
-      echo "setup new ticker"
-      self.ticks = ticker(target)
-    else:
-      echo "ticker already running!"
+template gotoTrigger(name: untyped) =
+  echo "injecting goto"
+  var `name` {.inject.} = gotoValue
 
 proc exampleApp*(
     myName {.property: name.}: string,
@@ -63,17 +68,20 @@ proc exampleApp*(
 
       self.value = (self.count.toFloat * 0.10) mod 1.0
 
-      Widget animatedProgress:
-        delta: 0.1'f32
-        setup: box 10.WPerc, 20, 80.WPerc, 2.Em
-        # gotoValue: pb1goto
-
       # Alternate format using `Widget` macro that enables
       # a YAML like syntax using property labels
       # (see parameters on `button` widget proc)
       Widget button:
         text: fmt"Clicked2: {self.count:4d}"
-        onClick: self.count.inc()
+        onClick:
+          self.count.inc()
+          trigger "pb1", animatedProgress.gotoValue(self.count*0.1)
+
+      Widget animatedProgress:
+        delta: 0.1'f32
+        setup: box 10.WPerc, 20, 80.WPerc, 2.Em
+        # gotoValue: pb1goto
+        trigger("pb1"): gotoTrigger
 
 
 var state = ExampleApp(count: 0, value: 0.33)
