@@ -34,7 +34,7 @@ proc button*(
       cornerRadius 2.2
       box 0, 0, 100'pw, 100'ph
       image "shadow-button-middle.png"
-      current.imageColor = color(1,1,1,0.77)
+      current.imageColor = color(1,1,1,0.57)
 
   rectangle "button":
     box 0, 0, bw, bh

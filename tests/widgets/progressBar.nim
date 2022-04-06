@@ -39,8 +39,8 @@ proc progressBar*(value: var UnitRange) {.basicFidget.} =
       cornerRadius 2.2
       box 0, 0, 100'pw, 100'ph
       image "shadow-button-middle.png"
-      current.imageColor = color(1,1,1,0.47)
-    strokeLine 1.0, "#707070", 0.77
+      current.imageColor = color(1,1,1,0.27)
+    strokeLine 1.0, "#707070", 0.57
 
   rectangle "barFg":
     box sb, sb, barW, barH
