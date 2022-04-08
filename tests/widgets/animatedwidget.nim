@@ -46,6 +46,14 @@ template gotoTrigger(name: untyped) =
   echo "injecting goto"
   var `name` {.inject.} = gotoValue
 
+type Trigger = distinct string
+
+template trigger*(x: untyped): Trigger = 
+  Trigger(x)
+
+template `<-`*(x: Trigger, blk: untyped) = 
+  discard
+
 proc exampleApp*(
     myName {.property: name.}: string,
 ) {.appFidget.} =
@@ -75,13 +83,12 @@ proc exampleApp*(
         text: fmt"Clicked2: {self.count:4d}"
         onClick:
           self.count.inc()
-          trigger "pb1", animatedProgress.gotoValue(self.count*0.1)
+          trigger("pb1") <- gotoValue(self.count*0.1)
 
       Widget animatedProgress:
+        id: "pb1"
         delta: 0.1'f32
         setup: box 10.WPerc, 20, 80.WPerc, 2.Em
-        # gotoValue: pb1goto
-        trigger("pb1"): gotoTrigger
 
 
 var state = ExampleApp(count: 0, value: 0.33)
