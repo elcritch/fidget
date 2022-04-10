@@ -86,7 +86,7 @@ type
     InnerShadow
 
   ZLevel* = enum
-    ## Supports drop and inner shadows.
+    ## The z-index for widget interactions
     ZLevelBottom
     ZLevelDefault
     ZLevelRaised
