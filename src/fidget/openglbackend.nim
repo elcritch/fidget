@@ -38,10 +38,6 @@ computeTextLayout = proc(node: Node) =
   node.textLayoutWidth = boundsMax.x - boundsMin.x
   node.textLayoutHeight = boundsMax.y - boundsMin.y
 
-proc refresh*() =
-  ## Request the screen be redrawn
-  requestedFrame = true
-
 proc removeExtraChildren*(node: Node) =
   ## Deal with removed nodes.
   node.nodes.setLen(node.diffIndex)
@@ -49,10 +45,6 @@ proc removeExtraChildren*(node: Node) =
 proc processHooks(parent, node: Node) =
   for child in node.nodes:
     processHooks(node, child)
-
-proc openBrowser*(url: string) =
-  ## Opens a URL in a browser
-  discard
 
 proc setupFidget(
     openglVersion: (int, int),
@@ -181,6 +173,14 @@ proc startFidget*(
       updateLoop()
       asyncPoll()
     exit()
+
+proc openBrowser*(url: string) =
+  ## Opens a URL in a browser
+  discard
+
+proc refresh*() =
+  ## Request the screen be redrawn
+  requestedFrame = true
 
 proc getTitle*(): string =
   ## Gets window title
