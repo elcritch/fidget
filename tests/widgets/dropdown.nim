@@ -34,17 +34,14 @@ proc dropdown*(
   
   box cb.x, cb.y, bw, bh
 
-  component "dropdown":
+  font "IBM Plex Sans", 12, 200, 0, hCenter, vCenter
 
-    font "IBM Plex Sans", 12, 200, 0, hCenter, vCenter
-    box 0, 0, bw, bh
-    orgBox 0, 0, bw, bh
-    fill "#72bdd0"
+  rectangle "button":
     cornerRadius 5
     strokeWeight 1
-
+    size bw, bh
+    fill "#72bdd0"
     dropShadow 3, 0, 0, "#000000", 0.03
-
     onHover:
       fill "#5C8F9C"
     onClick:
@@ -68,45 +65,45 @@ proc dropdown*(
         rotation 0
       characters ">"
 
-    if self.dropDownOpen:
-      group "dropDownScroller":
-        box 0, -bh, bw, bdh
-        clipContent true
-        zlevel ZLevelRaised
+  if self.dropDownOpen:
+    group "dropDownScroller":
+      box 0, bh, bw, bdh
+      clipContent true
+      zlevel ZLevelRaised
 
-        group "dropDown":
-          box 0, 0, bw+1, bdh
-          orgBox 0, 0, bw, bdh
-          layout lmVertical
-          counterAxisSizingMode csAuto
-          horizontalPadding 0
-          verticalPadding 0
-          itemSpacing -1
-          scrollBars true
+      group "dropDown":
+        box 0, 0, bw+1, bdh
+        orgBox 0, 0, bw, bdh
+        layout lmVertical
+        counterAxisSizingMode csAuto
+        horizontalPadding 0
+        verticalPadding 0
+        itemSpacing -1
+        scrollBars true
 
-          onClickOutside:
-            self.dropDownOpen = false
+        onClickOutside:
+          self.dropDownOpen = false
 
-          for idx, buttonName in pairs(dropItems):
-            group "itembtn":
+        for idx, buttonName in pairs(dropItems):
+          group "itembtn":
+            box 0, 0, bw, bih
+            layoutAlign laCenter
+            fill "#72bdd0", 0.93
+            stroke "#ffffff", 1.0
+            strokeWeight 1.4
+            text "text":
               box 0, 0, bw, bih
-              layoutAlign laCenter
-              fill "#72bdd0", 0.93
-              stroke "#ffffff", 1.0
-              strokeWeight 1.4
-              text "text":
-                box 0, 0, bw, bih
-                fill "#ffffff"
-                characters buttonName
+              fill "#ffffff"
+              characters buttonName
 
-              onHover:
-                fill "#5C8F9C", 1.0
-                self.dropDownOpen = true
-              onClick:
-                self.dropDownOpen = false
-                echo "dropdown selected: ", buttonName
-                dropSelected = idx
-    
+            onHover:
+              fill "#5C8F9C", 1.0
+              self.dropDownOpen = true
+            onClick:
+              self.dropDownOpen = false
+              echo "dropdown selected: ", buttonName
+              dropSelected = idx
+  
 let dropItems = @["Nim", "UI", "in", "100%", "Nim", "to", 
                   "OpenGL", "Immediate", "mode"]
 var dropIndexes = [-1, -1, -1]
