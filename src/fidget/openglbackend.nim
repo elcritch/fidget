@@ -257,43 +257,32 @@ template isOnZLayer(): bool =
 
 import macros
 
-macro ifdraw(check, code: untyped) =
-  result =
-    quote do:
-      let val = `check`
-      if val:
+proc ifdrawImpl(checkLayer: bool, check, code: NimNode, post: NimNode = nil): NimNode =
+  result = newStmtList()
+  let checkval = genSym(nskLet, "checkval")
+  result.add quote do:
+      let `checkval` = isOnZLayer() and `check`
+      if `checkval`:
         `code`
+  if post != nil:
+    post.expectKind(nnkFinally)
+    let postBlock = post[0]
+    result.add quote do:
+        defer:
+          if `checkval`:
+            `postBlock`
+
+macro ifdraw(check, code: untyped) =
+  ## check if code should be drawn
+  ifdrawImpl(false, check, code)
+macro ifdraw(check, code, post: untyped) =
+  ifdrawImpl(false, check, code, post)
 
 macro ifdrawOnLayer(check, code: untyped) =
-  result =
-    quote do:
-      let val = isOnZLayer() and `check`
-      if val:
-        `code`
-
-macro ifdraw(check, code, post: untyped) =
-  post.expectKind(nnkFinally)
-  let postBlock = post[0]
-  result =
-    quote do:
-      let val = `check`
-      if val:
-        `code`
-      defer:
-        if val:
-          `postBlock`
-
+  ## check if code should be drawn on current layer
+  ifdrawImpl(true, check, code)
 macro ifdrawOnLayer(check, code, post: untyped) =
-  post.expectKind(nnkFinally)
-  let postBlock = post[0]
-  result =
-    quote do:
-      let val = isOnZLayer() and `check`
-      if val:
-        `code`
-      defer:
-        if val:
-          `postBlock`
+  ifdrawImpl(false, check, code, post)
 
 proc draw*(node, parent: Node) =
   ## Draws the node.
@@ -354,22 +343,22 @@ proc draw*(node, parent: Node) =
       
 
   # draw visiable decorations for node
-  if node.kind == nkText:
-    if isOnZLayer:
+  ifdrawOnLayer true:
+    if node.kind == nkText:
       drawText(node)
-  elif isOnZLayer:
-    if node.fill.a > 0:
-      if node.imageName == "":
-        if node.cornerRadius[0] != 0:
-          ctx.fillRoundedRect(rect(
-            0, 0,
-            node.screenBox.w, node.screenBox.h
-          ), node.fill, node.cornerRadius[0])
-        else:
-          ctx.fillRect(rect(
-            0, 0,
-            node.screenBox.w, node.screenBox.h
-          ), node.fill)
+    else:
+      if node.fill.a > 0:
+        if node.imageName == "":
+          if node.cornerRadius[0] != 0:
+            ctx.fillRoundedRect(rect(
+              0, 0,
+              node.screenBox.w, node.screenBox.h
+            ), node.fill, node.cornerRadius[0])
+          else:
+            ctx.fillRect(rect(
+              0, 0,
+              node.screenBox.w, node.screenBox.h
+            ), node.fill)
 
     if node.stroke.a > 0 and node.strokeWeight > 0 and node.kind != nkText:
       ctx.strokeRoundedRect(rect(
