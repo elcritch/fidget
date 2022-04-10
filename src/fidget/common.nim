@@ -272,8 +272,8 @@ var
 
   # UI Scale
   uiScale*: float32 = 1.0
-  eventConsumed*: set[EventType]
 
+  ## Whether event is overshadowed by a higher precedent ZLevel
   eventsOvershadowed*: bool
 
 proc newUId*(): NodeUID =
@@ -411,7 +411,6 @@ proc clearInputs*() =
 
   mouse.wheelDelta = 0
   mouse.consumed = false
-  common.eventConsumed = {}
   zLevelMousePrecedent = zLevelMouse
   zLevelMouse = ZLevelBottom
 

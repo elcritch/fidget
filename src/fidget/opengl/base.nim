@@ -100,9 +100,6 @@ proc preInput() =
 proc postInput() =
   clearInputs()
 
-  echo "zLevelMousePrecedent: ", zLevelMousePrecedent, " <- ", zLevelMousePrecedent
-  echo "\n"
-
 proc preTick() =
   discard
 

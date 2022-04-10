@@ -14,9 +14,6 @@ else:
   import fidget/openglbackend
   export openglbackend
 
-template eventAvailable(et: EventType): bool =
-  # (not common.eventsOvershadowed) and et notin common.eventConsumed
-  (not common.eventsOvershadowed)
 
 proc preNode(kind: NodeKind, id: string) =
   ## Process the start of the node.
@@ -180,6 +177,9 @@ template rectangle*(color: string|Color) =
 
 proc mouseOverlapLogic*(): bool =
   ## Returns true if mouse overlaps the current node.
+  if common.eventsOvershadowed:
+    return
+
   let mpos = mouse.pos + current.totalOffset 
   let act = 
     (not popupActive or inPopup) and
@@ -192,8 +192,7 @@ proc mouseOverlapLogic*(): bool =
 
 template onClick*(inner: untyped) =
   ## On click event handler.
-  if mouse.click and mouseOverlapLogic() and eventAvailable(evClick):
-    common.eventConsumed.incl evClick
+  if mouse.click and mouseOverlapLogic():
     mouse.consume()
     inner
 
@@ -201,7 +200,6 @@ template onClickOutside*(inner: untyped) =
   ## On click outside event handler. Useful for deselecting things.
   if mouse.click and not mouseOverlapLogic():
     # mark as consumed but don't block other onClickOutside's
-    common.eventConsumed.incl evClickOut
     inner
 
 template onRightClick*(inner: untyped) =
@@ -240,8 +238,7 @@ template onInput*(inner: untyped) =
 
 template onHover*(inner: untyped) =
   ## Code in the block will run when this box is hovered.
-  if mouseOverlapLogic() and eventAvailable(evHovered):
-    common.eventConsumed.incl evHovered
+  if mouseOverlapLogic():
     inner
 
 template onScroll*(inner: untyped) =
