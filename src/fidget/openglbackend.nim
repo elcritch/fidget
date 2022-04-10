@@ -10,7 +10,6 @@ when not defined(emscripten) and not defined(fidgetNoAsync):
 
 export input, draw
 
-
 var
   windowTitle, windowUrl: string
 
@@ -39,26 +38,21 @@ computeTextLayout = proc(node: Node) =
   node.textLayoutWidth = boundsMax.x - boundsMin.x
   node.textLayoutHeight = boundsMax.y - boundsMin.y
 
+proc refresh*() =
+  ## Request the screen be redrawn
+  requestedFrame = true
+
+proc removeExtraChildren*(node: Node) =
+  ## Deal with removed nodes.
+  node.nodes.setLen(node.diffIndex)
 
 proc processHooks(parent, node: Node) =
-  ## compute hooks
-  # if node.id == "dropdown":
-    # echo "draw:scroll:id: ", node.idPath,
-        #  " ph: ", parent.descaled(screenBox),
-        #  " curr: ", node.descaled(screenBox)
-
   for child in node.nodes:
     processHooks(node, child)
-
 
 proc openBrowser*(url: string) =
   ## Opens a URL in a browser
   discard
-
-# proc windowLoop() {.thread.} =
-#   base.start(openglVersion, msaa, mainLoopMode)
-#   while true:
-#     echo "window: "
 
 proc setupFidget(
     openglVersion: (int, int),
@@ -105,7 +99,7 @@ proc setupFidget(
     processHooks(nil, root)
 
     # Only draw the root after everything was done:
-    root.draw()
+    root.drawRoot()
 
     ctx.restoreTransform()
     ctx.endFrame()
@@ -174,6 +168,7 @@ proc startFidget*(
   echo fmt"{atlasStartSz=}"
   setupFidget(openglVersion, msaa, mainLoopMode, pixelate, pixelScale, atlasStartSz)
   mouse.pixelScale = pixelScale
+
   when defined(emscripten):
     # Emscripten can't block so it will call this callback instead.
     proc emscripten_set_main_loop(f: proc() {.cdecl.}, a: cint, b: bool) {.importc.}
@@ -182,11 +177,6 @@ proc startFidget*(
       updateLoop()
     emscripten_set_main_loop(main_loop, 0, true)
   else:
-
-    # updateLoop(false)
-    # refresh()
-    # updateLoop(false)
-
     while base.running:
       updateLoop()
       asyncPoll()

@@ -18,10 +18,6 @@ var
   lastClickTime: float
   currLevel: ZLevel
 
-proc refresh*() =
-  ## Request the screen be redrawn
-  requestedFrame = true
-
 proc focus*(keyboard: Keyboard, node: Node) =
   if keyboard.focusNode != node:
     keyboard.onUnFocusNode = keyboard.focusNode
@@ -47,7 +43,8 @@ proc focus*(keyboard: Keyboard, node: Node) =
     textBox.editable = node.editableText
     textBox.scrollable = true
 
-    refresh()
+    requestedFrame = true
+
 
 proc unFocus*(keyboard: Keyboard, node: Node) =
   if keyboard.focusNode == node:
@@ -118,6 +115,7 @@ proc drawText(node: Node) =
       continue
     if pos.rune == Rune(32):
       # Don't draw space, even if font has a char for it.
+      # FIXME: use unicode 'is whitespace' ?
       continue
 
     let
@@ -191,11 +189,6 @@ proc drawText(node: Node) =
     # ctx.fillRect(textBox.selectorRect, rgba(0, 0, 0, 255).color)
     # ctx.fillRect(rect(textBox.mousePos, vec2(4, 4)), rgba(255, 128, 128, 255).color)
     ctx.restoreTransform()
-
-
-proc removeExtraChildren*(node: Node) =
-  ## Deal with removed nodes.
-  node.nodes.setLen(node.diffIndex)
 
 import macros
 
@@ -322,7 +315,7 @@ proc draw*(node, parent: Node) =
 
   # finally blocks will be run here, in reverse order
 
-proc draw*(root: Node) =
+proc drawRoot*(root: Node) =
   for zidx in ZLevel:
     # draw root for each level
     currLevel = zidx
