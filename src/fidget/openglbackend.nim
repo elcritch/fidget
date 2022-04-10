@@ -232,57 +232,74 @@ proc drawText(node: Node) =
     # ctx.fillRect(rect(textBox.mousePos, vec2(4, 4)), rgba(255, 128, 128, 255).color)
     ctx.restoreTransform()
 
-  #ctx.clearMask()
-
-proc capture*(mouse: Mouse) =
-  captureMouse()
-
-proc release*(mouse: Mouse) =
-  releaseMouse()
-
-proc hide*(mouse: Mouse) =
-  hideMouse()
-
-proc remove*(node: Node) =
-  ## Removes the node.
-  discard
 
 proc removeExtraChildren*(node: Node) =
   ## Deal with removed nodes.
   node.nodes.setLen(node.diffIndex)
 
-template isOnZLayer(): bool =
-  # if currLevel == 1: echo "islevel: ", node.zLevel == currLevel, " ", node.zLevel, " ", currLevel
-  node.zLevel == currLevel
-
 import macros
 
-proc ifdrawImpl(checkLayer: bool, check, code: NimNode, post: NimNode = nil): NimNode =
+macro ifdraw(check, code: untyped, post: untyped = nil) =
+  ## check if code should be drawn
   result = newStmtList()
   let checkval = genSym(nskLet, "checkval")
   result.add quote do:
-      let `checkval` = isOnZLayer() and `check`
-      if `checkval`:
-        `code`
+      let `checkval` = node.zLevel == currLevel and `check`
+      if `checkval`: `code`
   if post != nil:
     post.expectKind(nnkFinally)
     let postBlock = post[0]
     result.add quote do:
-        defer:
-          if `checkval`:
-            `postBlock`
+      defer:
+        if `checkval`: `postBlock`
 
-macro ifdraw(check, code: untyped) =
-  ## check if code should be drawn
-  ifdrawImpl(false, check, code)
-macro ifdraw(check, code, post: untyped) =
-  ifdrawImpl(false, check, code, post)
+proc drawMasks*(node: Node) =
+  if node.cornerRadius[0] != 0:
+    ctx.fillRoundedRect(rect(
+      0, 0,
+      node.screenBox.w, node.screenBox.h
+    ), rgba(255, 0, 0, 255).color, node.cornerRadius[0])
+  else:
+    ctx.fillRect(rect(
+      0, 0,
+      node.screenBox.w, node.screenBox.h
+    ), rgba(255, 0, 0, 255).color)
 
-macro ifdrawOnLayer(check, code: untyped) =
-  ## check if code should be drawn on current layer
-  ifdrawImpl(true, check, code)
-macro ifdrawOnLayer(check, code, post: untyped) =
-  ifdrawImpl(false, check, code, post)
+proc drawShadows*(node: Node) =
+  let shadow = node.shadows[0]
+
+  let blur = shadow.blur / 7.0
+  for i in 0..6:
+    # for j in 0..4:
+    let j = i
+    ctx.fillRoundedRect(rect(
+      shadow.x + uiScale*i.toFloat()*blur, shadow.y + uiScale*j.toFloat()*blur,
+      node.screenBox.w, node.screenBox.h
+    ), shadow.color, node.cornerRadius[0])
+    
+proc drawBoxes*(node: Node) =
+  if node.fill.a > 0:
+    if node.imageName == "":
+      if node.cornerRadius[0] != 0:
+        ctx.fillRoundedRect(rect(
+          0, 0,
+          node.screenBox.w, node.screenBox.h
+        ), node.fill, node.cornerRadius[0])
+      else:
+        ctx.fillRect(rect(
+          0, 0,
+          node.screenBox.w, node.screenBox.h
+        ), node.fill)
+
+  if node.stroke.a > 0 and node.strokeWeight > 0 and node.kind != nkText:
+    ctx.strokeRoundedRect(rect(
+      0, 0,
+      node.screenBox.w, node.screenBox.h
+    ), node.stroke, node.strokeWeight, node.cornerRadius[0])
+
+  if node.imageName != "":
+    let path = dataDir / node.imageName
+    ctx.drawImage(path, pos = vec2(0, 0), color = node.imageColor, size = vec2(node.screenBox.w, node.screenBox.h))
 
 proc draw*(node, parent: Node) =
   ## Draws the node.
@@ -294,16 +311,16 @@ proc draw*(node, parent: Node) =
   ## Note that visiable draw calls need to check they're on the current
   ## active ZLevel (z-index). 
 
+  # setup the opengl context to match the current node size and position
+  ctx.saveTransform()
+  ctx.translate(node.screenBox.xy)
+
   # handles setting up scrollbar region
-  ifdrawOnLayer node.id == "$scrollbar":
+  ifdraw node.id == "$scrollbar":
     ctx.saveTransform()
     ctx.translate(parent.offset)
   finally:
     ctx.restoreTransform()
-
-  # setup the opengl context to match the current node size and position
-  ctx.saveTransform()
-  ctx.translate(node.screenBox.xy)
 
   # handles setting up scrollbar region
   ifdraw node.rotation != 0:
@@ -312,64 +329,24 @@ proc draw*(node, parent: Node) =
     ctx.translate(-node.screenBox.wh/2)
 
   # handle clipping children content based on this node
-  ifdrawOnLayer node.clipContent:
+  ifdraw node.clipContent:
     ctx.beginMask()
-    if node.cornerRadius[0] != 0:
-      ctx.fillRoundedRect(rect(
-        0, 0,
-        node.screenBox.w, node.screenBox.h
-      ), rgba(255, 0, 0, 255).color, node.cornerRadius[0])
-    else:
-      ctx.fillRect(rect(
-        0, 0,
-        node.screenBox.w, node.screenBox.h
-      ), rgba(255, 0, 0, 255).color)
+    node.drawMasks()
     ctx.endMask()
   finally:
     ctx.popMask()
 
   # hacky method to draw drop shadows... should probably be done in opengl sharders
-  ifdrawOnLayer node.shadows.len() > 0:
-    let shadow = node.shadows[0]
+  ifdraw node.shadows.len() > 0:
+    node.drawShadows()
 
-    let blur = shadow.blur / 7.0
-    for i in 0..6:
-      # for j in 0..4:
-      let j = i
-      ctx.fillRoundedRect(rect(
-        shadow.x + uiScale*i.toFloat()*blur, shadow.y + uiScale*j.toFloat()*blur,
-        node.screenBox.w, node.screenBox.h
-      ), shadow.color, node.cornerRadius[0])
-      
-
-  # draw visiable decorations for node
-  ifdrawOnLayer true:
+  ifdraw true:
+    # draw visiable decorations for node
     if node.kind == nkText:
-      drawText(node)
+      node.drawText()
     else:
-      if node.fill.a > 0:
-        if node.imageName == "":
-          if node.cornerRadius[0] != 0:
-            ctx.fillRoundedRect(rect(
-              0, 0,
-              node.screenBox.w, node.screenBox.h
-            ), node.fill, node.cornerRadius[0])
-          else:
-            ctx.fillRect(rect(
-              0, 0,
-              node.screenBox.w, node.screenBox.h
-            ), node.fill)
-
-    if node.stroke.a > 0 and node.strokeWeight > 0 and node.kind != nkText:
-      ctx.strokeRoundedRect(rect(
-        0, 0,
-        node.screenBox.w, node.screenBox.h
-      ), node.stroke, node.strokeWeight, node.cornerRadius[0])
-
-    if node.imageName != "":
-      let path = dataDir / node.imageName
-      ctx.drawImage(path, pos = vec2(0, 0), color = node.imageColor, size = vec2(node.screenBox.w, node.screenBox.h))
-
+      node.drawBoxes()
+    
   # restores the opengl context back to the parent node's (see above)
   ctx.restoreTransform()
 
@@ -383,7 +360,7 @@ proc draw*(node, parent: Node) =
   for j in 1 .. node.nodes.len:
     node.nodes[^j].draw(node)
 
-
+  # finally blocks will be run here, in reverse order
 
 
 proc openBrowser*(url: string) =
