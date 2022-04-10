@@ -102,11 +102,21 @@ proc dropdown*(
       group "dropDownOutside":
         box 0, 0, bw, bdh
         cornerRadius 3
-        strokeLine spad, "#000000", 0.7
+        strokeLine spad, "#000000", 0.6
+
+      group "dropDownOutside":
+        fill "#6C9FaC"
+        fill "#72bdd0", 0.8
+        # strokeLine spad/3, "#000000", 0.7
+        box 0, 0, bw, 6*spad
+      group "dropDownOutside":
+        fill "#72bdd0", 0.8
+        # strokeLine spad/3, "#000000", 0.6
+        box 0, bdh-6*spad, bw, 6*spad
 
       group "dropDown":
-        box 0, 0, bw, bdh
-        cornerRadius 3
+        box spad, 6*spad, bw, bdh-6*spad
+        # cornerRadius 3.3
         layout lmVertical
         counterAxisSizingMode csAuto
         horizontalPadding 0
@@ -121,10 +131,13 @@ proc dropdown*(
 
         for idx, buttonName in pairs(dropItems):
           group "itembtn":
+            fill "#5C8F9C"
+            box 0, 0, bw, 1*spad
+          group "itembtn":
             box 0, 0, bw, bih
             layoutAlign laCenter
-            fill "#72bdd0", 0.93
-            strokeLine 1.4, "#000000", 0.2
+            fill "#72bdd0", 0.96
+            # strokeLine 1.4, "#000000", 0.2
             text "text":
               box 0, 0, bw, bih
               fill "#ffffff"
@@ -137,8 +150,11 @@ proc dropdown*(
               self.dropDownOpen = false
               echo "dropdown selected: ", buttonName
               dropSelected = idx
+        group "itembtn":
+          fill "#5C8F9C"
+          box 0, 0, bw, 1*spad
         group "itempost":
-          box 0, 0, bw, 1.0*spad
+          box 0, 0, bw, 12.5*spad
 
   
 let dropItems = @["Nim", "UI", "in", "100%", "Nim", "to", 
