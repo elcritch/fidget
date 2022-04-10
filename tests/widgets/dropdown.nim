@@ -48,7 +48,7 @@ proc dropdown*(
     bh = cb.h
     # bh = 1.8.Em
     bth = bh
-    bih = bh * 0.8 # 1.4.Em
+    bih = bh * 1.0 # 1.4.Em
     # bdh = 100.Vh - 3*bth
     bdh = min(bih * min(6, dropItems.len()).float32, windowLogicalSize.y/2)
     tw = bw - 1'em
@@ -86,7 +86,7 @@ proc dropdown*(
         rotation 0
       characters ">"
 
-  let spad = 2.0'f32
+  let spad = 1.0'f32
   if self.dropDownOpen:
     group "dropDownScroller":
       if self.dropUp:
@@ -102,16 +102,13 @@ proc dropdown*(
       group "dropDownOutside":
         box 0, 0, bw, bdh
         cornerRadius 3
-        strokeLine spad, "#000000", 0.6
+        strokeLine spad, "#000000", 0.33
 
       group "dropDownOutside":
-        fill "#6C9FaC"
-        fill "#72bdd0", 0.8
-        # strokeLine spad/3, "#000000", 0.7
+        fill "#82cde0"
         box 0, 0, bw, 6*spad
       group "dropDownOutside":
-        fill "#72bdd0", 0.8
-        # strokeLine spad/3, "#000000", 0.6
+        fill "#82cde0"
         box 0, bdh-6*spad, bw, 6*spad
 
       group "dropDown":
@@ -131,12 +128,12 @@ proc dropdown*(
 
         for idx, buttonName in pairs(dropItems):
           group "itembtn":
-            fill "#5C8F9C"
-            box 0, 0, bw, 1*spad
+            fill "#7CAFBC"
+            box 0, 0, bw, 1.4*spad
           group "itembtn":
             box 0, 0, bw, bih
             layoutAlign laCenter
-            fill "#72bdd0", 0.96
+            fill "#72bdd0"
             # strokeLine 1.4, "#000000", 0.2
             text "text":
               box 0, 0, bw, bih
@@ -144,15 +141,15 @@ proc dropdown*(
               characters buttonName
 
             onHover:
-              fill "#5C8F9C", 1.0
+              fill "#5C8F9C"
               self.dropDownOpen = true
             onClick:
               self.dropDownOpen = false
               echo "dropdown selected: ", buttonName
               dropSelected = idx
         group "itembtn":
-          fill "#5C8F9C"
-          box 0, 0, bw, 1*spad
+          fill "#7CAFBC"
+          box 0, 0, bw, 1.4*spad
         group "itempost":
           box 0, 0, bw, 12.5*spad
 
