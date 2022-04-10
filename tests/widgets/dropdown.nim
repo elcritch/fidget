@@ -66,8 +66,9 @@ proc dropdown*(
 
     if self.dropDownOpen:
       group "dropDownScroller":
-        box 0, bh, bw, bdh
+        box 0, -bh, bw, bdh
         clipContent true
+        zindex 1
 
         group "dropDown":
           box 0, 0, bw+1, bdh

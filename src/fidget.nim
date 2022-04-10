@@ -46,6 +46,7 @@ proc preNode(kind: NodeKind, id: string) =
   current.cursorColor = parent.cursorColor
   current.highlightColor = parent.highlightColor
   current.transparency = parent.transparency
+  current.zIndex = parent.zIndex
   nodeStack.add(current)
   inc parent.diffIndex
 
@@ -611,9 +612,9 @@ proc itemSpacing*(v: float32) =
   ## Set the item spacing for auto layout.
   current.itemSpacing = v * common.uiScale
 
-proc zLevel*(zLevel: int) =
+proc zindex*(zLevel: int) =
   ## Sets zLevel.
-  current.zLevel = zLevel
+  current.zindex = zLevel
 
 
 # TODO: fixme?

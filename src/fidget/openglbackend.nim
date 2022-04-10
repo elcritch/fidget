@@ -21,6 +21,7 @@ var
   # Used for double-clicking
   multiClick: int
   lastClickTime: float
+  currZIndex: int
 
 computeTextLayout = proc(node: Node) =
   var font = fonts[node.textStyle.fontFamily]
@@ -250,9 +251,21 @@ proc removeExtraChildren*(node: Node) =
   ## Deal with removed nodes.
   node.nodes.setLen(node.diffIndex)
 
+template islevel(): bool =
+  # if currZIndex == 1: echo "islevel: ", node.zIndex == currZIndex, " ", node.zIndex, " ", currZIndex
+  node.zIndex == currZIndex
+
+template isparentlevel(): bool =
+  not parent.isNil and parent.zIndex == currZIndex
+
+template dolevel(blk: untyped) =
+  if node.zIndex == currZIndex:
+    blk
+
 proc draw*(node, parent: Node) =
   ## Draws the node.
-  if node.id == "$scrollbar":
+
+  if node.id == "$scrollbar" and islevel:
     ctx.saveTransform()
     ctx.translate(parent.offset)
 
@@ -277,7 +290,7 @@ proc draw*(node, parent: Node) =
       ), rgba(255, 0, 0, 255).color)
     ctx.endMask()
 
-  if node.shadows.len() > 0:
+  if node.shadows.len() > 0 and islevel():
     let shadow = node.shadows[0]
 
     let blur = shadow.blur / 7.0
@@ -291,8 +304,9 @@ proc draw*(node, parent: Node) =
       
 
   if node.kind == nkText:
-    drawText(node)
-  else:
+    if islevel():
+      drawText(node)
+  elif islevel():
     if node.fill.a > 0:
       if node.imageName == "":
         if node.cornerRadius[0] != 0:
@@ -332,7 +346,7 @@ proc draw*(node, parent: Node) =
   if node.clipContent:
     ctx.popMask()
 
-  if node.id == "$scrollbar":
+  if node.id == "$scrollbar" and islevel:
     ctx.restoreTransform()
 
 
@@ -390,7 +404,9 @@ proc setupFidget(
     processHooks(nil, root)
 
     # Only draw the root after everything was done:
-    root.draw(root)
+    for i in 0..2:
+      currZIndex = i
+      root.draw(root)
 
     ctx.restoreTransform()
     ctx.endFrame()
