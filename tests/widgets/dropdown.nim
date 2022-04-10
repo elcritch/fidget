@@ -86,25 +86,34 @@ proc dropdown*(
         rotation 0
       characters ">"
 
+  let spad = 2.0'f32
   if self.dropDownOpen:
     group "dropDownScroller":
       if self.dropUp:
-        box 0, bh-bdh, bw, bdh
+        box 0, bh-bdh-bth, bw, bdh
       else:
         box 0, bh, bw, bdh
 
-      # clipContent true
+      clipContent true
       zlevel ZLevelRaised
+      cornerRadius 3
       # dropShadow 5, -3, -3, "#000000", 0.06
 
+      group "dropDownOutside":
+        box 0, 0, bw, bdh
+        cornerRadius 3
+        strokeLine spad, "#000000", 0.7
+
       group "dropDown":
-        box 0, 0, bw+1, bdh
+        box 0, 0, bw, bdh
+        cornerRadius 3
         layout lmVertical
         counterAxisSizingMode csAuto
         horizontalPadding 0
         verticalPadding 0
         itemSpacing -1
         scrollBars true
+        clipContent true
 
         onClickOutside:
           self.dropDownOpen = false
@@ -128,6 +137,9 @@ proc dropdown*(
               self.dropDownOpen = false
               echo "dropdown selected: ", buttonName
               dropSelected = idx
+        group "itempost":
+          box 0, 0, bw, 1.0*spad
+
   
 let dropItems = @["Nim", "UI", "in", "100%", "Nim", "to", 
                   "OpenGL", "Immediate", "mode"]
