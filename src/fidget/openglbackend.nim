@@ -255,6 +255,46 @@ template isOnZLayer(): bool =
   # if currLevel == 1: echo "islevel: ", node.zLevel == currLevel, " ", node.zLevel, " ", currLevel
   node.zLevel == currLevel
 
+import macros
+
+macro ifdraw(check, code: untyped) =
+  result =
+    quote do:
+      let val = `check`
+      if val:
+        `code`
+
+macro ifdrawOnLayer(check, code: untyped) =
+  result =
+    quote do:
+      let val = isOnZLayer() and `check`
+      if val:
+        `code`
+
+macro ifdraw(check, code, post: untyped) =
+  post.expectKind(nnkFinally)
+  let postBlock = post[0]
+  result =
+    quote do:
+      let val = `check`
+      if val:
+        `code`
+      defer:
+        if val:
+          `postBlock`
+
+macro ifdrawOnLayer(check, code, post: untyped) =
+  post.expectKind(nnkFinally)
+  let postBlock = post[0]
+  result =
+    quote do:
+      let val = isOnZLayer() and `check`
+      if val:
+        `code`
+      defer:
+        if val:
+          `postBlock`
+
 proc draw*(node, parent: Node) =
   ## Draws the node.
   ## 
@@ -266,22 +306,24 @@ proc draw*(node, parent: Node) =
   ## active ZLevel (z-index). 
 
   # handles setting up scrollbar region
-  if isOnZLayer and node.id == "$scrollbar":
+  ifdrawOnLayer node.id == "$scrollbar":
     ctx.saveTransform()
     ctx.translate(parent.offset)
+  finally:
+    ctx.restoreTransform()
 
   # setup the opengl context to match the current node size and position
   ctx.saveTransform()
   ctx.translate(node.screenBox.xy)
 
   # handles setting up scrollbar region
-  if node.rotation != 0:
+  ifdraw node.rotation != 0:
     ctx.translate(node.screenBox.wh/2)
     ctx.rotate(node.rotation/180*PI)
     ctx.translate(-node.screenBox.wh/2)
 
   # handle clipping children content based on this node
-  if isOnZLayer and node.clipContent:
+  ifdrawOnLayer node.clipContent:
     ctx.beginMask()
     if node.cornerRadius[0] != 0:
       ctx.fillRoundedRect(rect(
@@ -294,9 +336,11 @@ proc draw*(node, parent: Node) =
         node.screenBox.w, node.screenBox.h
       ), rgba(255, 0, 0, 255).color)
     ctx.endMask()
+  finally:
+    ctx.popMask()
 
   # hacky method to draw drop shadows... should probably be done in opengl sharders
-  if isOnZLayer and node.shadows.len() > 0:
+  ifdrawOnLayer node.shadows.len() > 0:
     let shadow = node.shadows[0]
 
     let blur = shadow.blur / 7.0
@@ -340,22 +384,17 @@ proc draw*(node, parent: Node) =
   # restores the opengl context back to the parent node's (see above)
   ctx.restoreTransform()
 
-  if node.scrollBars:
+  ifdraw node.scrollBars:
     # handles drawing actual scrollbars
     ctx.saveTransform()
     ctx.translate(-node.offset)
+  finally:
+    ctx.restoreTransform()
 
   for j in 1 .. node.nodes.len:
     node.nodes[^j].draw(node)
 
-  if node.scrollBars:
-    ctx.restoreTransform()
 
-  if isOnZLayer and node.clipContent:
-    ctx.popMask()
-
-  if isOnZLayer and node.id == "$scrollbar":
-    ctx.restoreTransform()
 
 
 proc openBrowser*(url: string) =
