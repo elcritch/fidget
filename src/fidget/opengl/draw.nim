@@ -1,11 +1,10 @@
-import chroma, hashes, 
-    os, strformat, strutils, tables, times, typography,
-    typography/textboxes, unicode, vmath, bumpy,
-    typography/svgfont, pixie
+import std/hashes, unicode, os, strformat, tables, times
 
-import base, context, formatflippy
-import ../input, ../internal, base
-import ../common
+import typography, typography/textboxes
+import pixie, chroma, vmath, bumpy
+
+import context, formatflippy
+import ../input, ../common
 
 type
   Context = context.Context

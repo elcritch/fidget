@@ -1,6 +1,6 @@
 import chroma, common, hashes, input, internal, opengl/base,
     opengl/context, os, strformat, strutils, tables, times, typography,
-    typography/textboxes, unicode, vmath, opengl/formatflippy, bumpy,
+    typography/textboxes, unicode, vmath, bumpy,
     typography/svgfont, pixie
 
 import opengl/draw
@@ -10,7 +10,6 @@ when not defined(emscripten) and not defined(fidgetNoAsync):
 
 export input, draw
 
-import sugar
 
 var
   windowTitle, windowUrl: string

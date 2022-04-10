@@ -1,14 +1,16 @@
-import chroma, input, sequtils, tables, vmath, json, bumpy
-import strutils
-import hashes
+import sequtils, tables, json, hashes
+import chroma, input, vmath, bumpy
+import strutils, strformat
 
 import variant
+
+export sequtils, strutils, strformat, tables, hashes
 export variant
 
 when defined(js):
   import dom2, html/ajax
 else:
-  import typography, typography/textboxes, tables, asyncfutures
+  import typography, typography/textboxes, asyncfutures
 
 const
   clearColor* = color(0, 0, 0, 0)
