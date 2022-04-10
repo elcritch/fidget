@@ -156,6 +156,7 @@ type
     nIndex*: int
     diffIndex*: int
     zLevel*: ZLevel
+    zLevelMousePrecedent*: ZLevel
     when not defined(js):
       textLayout*: seq[GlyphPosition]
     else:
@@ -252,6 +253,8 @@ var
   windowFrame*: Vec2   ## Pixel coordinates
   pixelRatio*: float32 ## Multiplier to convert from screen coords to pixels
   pixelScale*: float32 ## Pixel multiplier user wants on the UI
+  zLevelMousePrecedent*: ZLevel
+  zLevelMouse*: ZLevel
 
   # Used to check for duplicate ID paths.
   pathChecker*: Table[string, bool]
@@ -269,7 +272,9 @@ var
 
   # UI Scale
   uiScale*: float32 = 1.0
-  consumed*: set[EventType]
+  eventConsumed*: set[EventType]
+
+  eventsOvershadowed*: bool
 
 proc newUId*(): NodeUID =
   # Returns next numerical unique id.
@@ -406,7 +411,9 @@ proc clearInputs*() =
 
   mouse.wheelDelta = 0
   mouse.consumed = false
-  common.consumed = {}
+  common.eventConsumed = {}
+  zLevelMousePrecedent = zLevelMouse
+  zLevelMouse = ZLevelBottom
 
   # Reset key and mouse press to default state
   for i in 0 ..< buttonPress.len:

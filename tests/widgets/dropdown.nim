@@ -45,6 +45,7 @@ proc dropdown*(
 
     dropShadow 3, 0, 0, "#000000", 0.03
 
+    echo "HOVER: ", current.id, " mouse consumed: ", mouse.consumed
     onHover:
       fill "#5C8F9C"
     text "text":
@@ -69,6 +70,7 @@ proc dropdown*(
         box 0, -bh, bw, bdh
         clipContent true
         zlevel ZLevelRaised
+        echo "HOVER: ", current.id, " mouse consumed: ", mouse.consumed
 
         group "dropDown":
           box 0, 0, bw+1, bdh

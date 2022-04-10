@@ -14,6 +14,9 @@ else:
   import fidget/openglbackend
   export openglbackend
 
+template eventAvailable(et: EventType): bool =
+  (not common.eventsOvershadowed) and et notin common.eventConsumed
+
 proc preNode(kind: NodeKind, id: string) =
   ## Process the start of the node.
 
@@ -51,6 +54,7 @@ proc preNode(kind: NodeKind, id: string) =
   inc parent.diffIndex
 
   current.diffIndex = 0
+  common.eventsOvershadowed = current.zLevel.ord() < zLevelMousePrecedent.ord()
 
 proc postNode() =
   ## Node drawing is done.
@@ -76,6 +80,7 @@ proc postNode() =
         mouse.consumed = true
         # echo "postNode offset:after: ", current.offset
 
+  zLevelMouse = ZLevel(max(zLevelMouse.ord, current.zLevel.ord))
   # Pop the stack.
   discard nodeStack.pop()
   if nodeStack.len > 1:
@@ -186,15 +191,15 @@ proc mouseOverlapLogic*(): bool =
 
 template onClick*(inner: untyped) =
   ## On click event handler.
-  if mouse.click and mouseOverlapLogic() and evClick notin common.consumed:
-    common.consumed.incl evClick
+  if mouse.click and mouseOverlapLogic() and eventAvailable(evClick):
+    common.eventConsumed.incl evClick
     inner
 
 template onClickOutside*(inner: untyped) =
   ## On click outside event handler. Useful for deselecting things.
   if mouse.click and not mouseOverlapLogic():
     # mark as consumed but don't block other onClickOutside's
-    common.consumed.incl evClickOut
+    common.eventConsumed.incl evClickOut
     inner
 
 template onRightClick*(inner: untyped) =
@@ -233,9 +238,8 @@ template onInput*(inner: untyped) =
 
 template onHover*(inner: untyped) =
   ## Code in the block will run when this box is hovered.
-  if mouseOverlapLogic() and evHovered notin common.consumed:
-    common.consumed.incl evHovered
-    # echo "HOVER: ", current.idPath
+  if mouseOverlapLogic() and eventAvailable(evHovered):
+    common.eventConsumed.incl evHovered
     inner
 
 template onScroll*(inner: untyped) =
