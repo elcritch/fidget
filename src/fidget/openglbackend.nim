@@ -257,18 +257,30 @@ template isOnZLayer(): bool =
 
 proc draw*(node, parent: Node) =
   ## Draws the node.
+  ## 
+  ## This is the primary routine that handles setting up the OpenGL
+  ## context that will get rendered. This doesn't trigger the actual
+  ## OpenGL rendering, but configures the various shaders and elements.
+  ## 
+  ## Note that visiable draw calls need to check they're on the current
+  ## active ZLevel (z-index). 
 
+  # handles setting up scrollbar region
   if isOnZLayer and node.id == "$scrollbar":
     ctx.saveTransform()
     ctx.translate(parent.offset)
 
+  # setup the opengl context to match the current node size and position
   ctx.saveTransform()
   ctx.translate(node.screenBox.xy)
+
+  # handles setting up scrollbar region
   if node.rotation != 0:
     ctx.translate(node.screenBox.wh/2)
     ctx.rotate(node.rotation/180*PI)
     ctx.translate(-node.screenBox.wh/2)
 
+  # handle clipping children content based on this node
   if isOnZLayer and node.clipContent:
     ctx.beginMask()
     if node.cornerRadius[0] != 0:
@@ -283,6 +295,7 @@ proc draw*(node, parent: Node) =
       ), rgba(255, 0, 0, 255).color)
     ctx.endMask()
 
+  # hacky method to draw drop shadows... should probably be done in opengl sharders
   if isOnZLayer and node.shadows.len() > 0:
     let shadow = node.shadows[0]
 
@@ -296,6 +309,7 @@ proc draw*(node, parent: Node) =
       ), shadow.color, node.cornerRadius[0])
       
 
+  # draw visiable decorations for node
   if node.kind == nkText:
     if isOnZLayer:
       drawText(node)
@@ -323,11 +337,12 @@ proc draw*(node, parent: Node) =
       let path = dataDir / node.imageName
       ctx.drawImage(path, pos = vec2(0, 0), color = node.imageColor, size = vec2(node.screenBox.w, node.screenBox.h))
 
+  # restores the opengl context back to the parent node's (see above)
   ctx.restoreTransform()
 
   if node.scrollBars:
+    # handles drawing actual scrollbars
     ctx.saveTransform()
-    # echo "draw:node: ", node.idPath, " offset: ", node.offset, " sb: ", node.screenBox
     ctx.translate(-node.offset)
 
   for j in 1 .. node.nodes.len:
@@ -397,8 +412,9 @@ proc setupFidget(
     processHooks(nil, root)
 
     # Only draw the root after everything was done:
-    for i in 0..2:
-      currLevel = ZLevel(i)
+    for zidx in ZLevel:
+      # draw root for each level
+      currLevel = zidx
       root.draw(root)
 
     ctx.restoreTransform()
