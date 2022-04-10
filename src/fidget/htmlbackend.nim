@@ -247,13 +247,13 @@ proc draw*(index: int, node: Node, parent: Node) =
   if node.hasDifferent(uid):
     node.element.setAttribute("id", node.uid)
 
-  node.zIndex =
+  node.zLevel =
     if parent != nil:
       parent.nodes.len - index
     else:
       0
-  if node.hasDifferent(zIndex):
-    node.element.style.zIndex = $node.zIndex
+  if node.hasDifferent(zLevel):
+    node.element.style.zLevel = $node.zLevel
 
   # Check dimensions (always absolute positioned).
   if node.hasDifferent(box):
@@ -426,10 +426,10 @@ proc drawStart() =
 
   canvas.style.display = "block"
   canvas.style.position = "absolute"
-  when type(canvas.style.zIndex) is cstring:
-    canvas.style.zIndex = "-1"
+  when type(canvas.style.zLevel) is cstring:
+    canvas.style.zLevel = "-1"
   else:
-    canvas.style.zIndex = -1
+    canvas.style.zLevel = -1
   canvas.style.left = cstring($scrollBox.x & "px")
   canvas.style.top = cstring($scrollBox.y & "px")
   canvas.style.width = cstring($width & "px")

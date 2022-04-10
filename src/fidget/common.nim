@@ -83,6 +83,13 @@ type
     DropShadow
     InnerShadow
 
+  ZLevel* = enum
+    ## Supports drop and inner shadows.
+    ZLevelBottom
+    ZLevelDefault
+    ZLevelRaised
+    ZLevelOverlay
+
   Shadow* = object
     kind*: ShadowStyle
     blur*: float32
@@ -121,7 +128,6 @@ type
     transparency*: float32
     strokeWeight*: float32
     stroke*: Color
-    zLevel*: int
     resizeDone*: bool
     htmlDone*: bool
     textStyle*: TextStyle
@@ -147,7 +153,7 @@ type
     clipContent*: bool
     nIndex*: int
     diffIndex*: int
-    zIndex*: int
+    zLevel*: ZLevel
     when not defined(js):
       textLayout*: seq[GlyphPosition]
     else:
@@ -373,7 +379,7 @@ proc resetToDefault*(node: Node)=
   node.itemSpacing = 0
   node.clipContent = false
   node.diffIndex = 0
-  node.zIndex = 0
+  node.zLevel = ZLevelDefault
   node.selectable = false
   node.scrollBars = false
   node.hookStates = newVariant()

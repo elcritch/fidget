@@ -21,7 +21,7 @@ var
   # Used for double-clicking
   multiClick: int
   lastClickTime: float
-  currZIndex: int
+  currLevel: ZLevel
 
 computeTextLayout = proc(node: Node) =
   var font = fonts[node.textStyle.fontFamily]
@@ -251,21 +251,14 @@ proc removeExtraChildren*(node: Node) =
   ## Deal with removed nodes.
   node.nodes.setLen(node.diffIndex)
 
-template islevel(): bool =
-  # if currZIndex == 1: echo "islevel: ", node.zIndex == currZIndex, " ", node.zIndex, " ", currZIndex
-  node.zIndex == currZIndex
-
-template isparentlevel(): bool =
-  not parent.isNil and parent.zIndex == currZIndex
-
-template dolevel(blk: untyped) =
-  if node.zIndex == currZIndex:
-    blk
+template isOnZLayer(): bool =
+  # if currLevel == 1: echo "islevel: ", node.zLevel == currLevel, " ", node.zLevel, " ", currLevel
+  node.zLevel == currLevel
 
 proc draw*(node, parent: Node) =
   ## Draws the node.
 
-  if node.id == "$scrollbar" and islevel:
+  if isOnZLayer and node.id == "$scrollbar":
     ctx.saveTransform()
     ctx.translate(parent.offset)
 
@@ -276,7 +269,7 @@ proc draw*(node, parent: Node) =
     ctx.rotate(node.rotation/180*PI)
     ctx.translate(-node.screenBox.wh/2)
 
-  if node.clipContent:
+  if isOnZLayer and node.clipContent:
     ctx.beginMask()
     if node.cornerRadius[0] != 0:
       ctx.fillRoundedRect(rect(
@@ -290,7 +283,7 @@ proc draw*(node, parent: Node) =
       ), rgba(255, 0, 0, 255).color)
     ctx.endMask()
 
-  if node.shadows.len() > 0 and islevel():
+  if isOnZLayer and node.shadows.len() > 0:
     let shadow = node.shadows[0]
 
     let blur = shadow.blur / 7.0
@@ -304,9 +297,9 @@ proc draw*(node, parent: Node) =
       
 
   if node.kind == nkText:
-    if islevel():
+    if isOnZLayer:
       drawText(node)
-  elif islevel():
+  elif isOnZLayer:
     if node.fill.a > 0:
       if node.imageName == "":
         if node.cornerRadius[0] != 0:
@@ -343,10 +336,10 @@ proc draw*(node, parent: Node) =
   if node.scrollBars:
     ctx.restoreTransform()
 
-  if node.clipContent:
+  if isOnZLayer and node.clipContent:
     ctx.popMask()
 
-  if node.id == "$scrollbar" and islevel:
+  if isOnZLayer and node.id == "$scrollbar":
     ctx.restoreTransform()
 
 
@@ -405,7 +398,7 @@ proc setupFidget(
 
     # Only draw the root after everything was done:
     for i in 0..2:
-      currZIndex = i
+      currLevel = ZLevel(i)
       root.draw(root)
 
     ctx.restoreTransform()

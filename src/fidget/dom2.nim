@@ -751,7 +751,7 @@ type
     wordBreak*: cstring
     wordSpacing*: cstring
     writingMode*: cstring
-    zIndex*: cstring
+    zLevel*: cstring
 
   EventPhase* = enum
     None = 0,

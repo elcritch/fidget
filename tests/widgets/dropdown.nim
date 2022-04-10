@@ -68,7 +68,7 @@ proc dropdown*(
       group "dropDownScroller":
         box 0, -bh, bw, bdh
         clipContent true
-        zindex 1
+        zlevel ZLevelRaised
 
         group "dropDown":
           box 0, 0, bw+1, bdh
