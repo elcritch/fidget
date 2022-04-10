@@ -15,7 +15,8 @@ else:
   export openglbackend
 
 template eventAvailable(et: EventType): bool =
-  (not common.eventsOvershadowed) and et notin common.eventConsumed
+  # (not common.eventsOvershadowed) and et notin common.eventConsumed
+  (not common.eventsOvershadowed)
 
 proc preNode(kind: NodeKind, id: string) =
   ## Process the start of the node.
@@ -67,7 +68,7 @@ proc postNode() =
   current.removeExtraChildren()
 
   let mpos = mouse.pos + current.totalOffset 
-  if not mouse.consumed and mpos.overlaps(current.screenBox):
+  if not common.eventsOvershadowed and not mouse.consumed and mpos.overlaps(current.screenBox):
     if mouse.wheelDelta != 0:
       if current.scrollBars:
         let
@@ -193,6 +194,7 @@ template onClick*(inner: untyped) =
   ## On click event handler.
   if mouse.click and mouseOverlapLogic() and eventAvailable(evClick):
     common.eventConsumed.incl evClick
+    mouse.consume()
     inner
 
 template onClickOutside*(inner: untyped) =

@@ -19,7 +19,7 @@ proc dropdown*(
   
   properties:
     dropDownOpen: bool
-    dropDownToClose: bool
+    # dropDownToClose: bool
 
   var
     cb = current.box()
@@ -84,7 +84,7 @@ proc dropdown*(
 
           onClickOutside:
             self.dropDownOpen = false
-            self.dropDownToClose = true
+            # self.dropDownToClose = true
 
           for idx, buttonName in pairs(dropItems):
             group "itembtn":
@@ -98,19 +98,20 @@ proc dropdown*(
                 self.dropDownOpen = true
               onClick:
                 self.dropDownOpen = false
-                echo "clicked: ", buttonName
+                echo "dropdown selected: ", buttonName
                 dropSelected = idx
               text "text":
                 box 0, 0, bw, bih
                 fill "#ffffff"
                 characters buttonName
-    onClickOutside:
-      self.dropDownToClose = false
+    # onClickOutside:
+      # self.dropDownToClose = false
     onClick:
-      echo "dropdown"
-      if not self.dropDownToClose:
-        self.dropDownOpen = not self.dropDownOpen
-      self.dropDownToClose = false
+      echo "dropdown button clicked"
+      # if not self.dropDownToClose:
+        # self.dropDownOpen = not self.dropDownOpen
+      # self.dropDownToClose = false
+      self.dropDownOpen = true
 
 let dropItems = @["Nim", "UI", "in", "100%", "Nim", "to", 
                   "OpenGL", "Immediate", "mode"]
