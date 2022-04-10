@@ -47,6 +47,10 @@ proc dropdown*(
 
     onHover:
       fill "#5C8F9C"
+    onClick:
+      echo "dropdown button clicked"
+      self.dropDownOpen = true
+
     text "text":
       box 0, 0, bw, bth
       fill "#ffffff"
@@ -82,7 +86,6 @@ proc dropdown*(
 
           onClickOutside:
             self.dropDownOpen = false
-            # self.dropDownToClose = true
 
           for idx, buttonName in pairs(dropItems):
             group "itembtn":
@@ -91,6 +94,11 @@ proc dropdown*(
               fill "#72bdd0", 0.93
               stroke "#ffffff", 1.0
               strokeWeight 1.4
+              text "text":
+                box 0, 0, bw, bih
+                fill "#ffffff"
+                characters buttonName
+
               onHover:
                 fill "#5C8F9C", 1.0
                 self.dropDownOpen = true
@@ -98,19 +106,7 @@ proc dropdown*(
                 self.dropDownOpen = false
                 echo "dropdown selected: ", buttonName
                 dropSelected = idx
-              text "text":
-                box 0, 0, bw, bih
-                fill "#ffffff"
-                characters buttonName
-    # onClickOutside:
-      # self.dropDownToClose = false
-    onClick:
-      echo "dropdown button clicked"
-      # if not self.dropDownToClose:
-        # self.dropDownOpen = not self.dropDownOpen
-      # self.dropDownToClose = false
-      self.dropDownOpen = true
-
+    
 let dropItems = @["Nim", "UI", "in", "100%", "Nim", "to", 
                   "OpenGL", "Immediate", "mode"]
 var dropIndexes = [-1, -1, -1]
