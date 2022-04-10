@@ -346,7 +346,7 @@ proc orgBox*(rect: Rect) =
   ## Sets the box dimensions with integers
   orgBox(rect.x, rect.y, rect.w, rect.h)
 
-proc box*(x, y, w, h: float32) =
+proc boxFrom(x, y, w, h: float32) =
   ## Sets the box dimensions.
   let b = Rect(x: x, y: y, w: w, h: h)
   current.setBox(b, raw=false)
@@ -359,7 +359,7 @@ proc box*(
 ) =
   ## Sets the box dimensions with integers
   ## Always set box before orgBox when doing constraints.
-  box(float32 x, float32 y, float32 w, float32 h)
+  boxFrom(float32 x, float32 y, float32 w, float32 h)
   orgBox(float32 x, float32 y, float32 w, float32 h)
 
 proc box*(rect: Rect) =

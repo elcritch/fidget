@@ -9,6 +9,26 @@ import fidgets
 
 loadFont("IBM Plex Sans", "IBMPlexSans-Regular.ttf")
 
+template rootOverlapsX*(n: Node): bool =
+  let a = n.descaled(screenBox)
+  let b = root.descaled(screenBox)
+  a.x >= b.x and # A right edge past b left?
+  a.x + a.w <= b.x + b.w # A left edge past b right?
+
+template rootOverlapsY*(n: Node): bool =
+  let a = n.descaled(screenBox)
+  let b = root.descaled(screenBox)
+  a.y >= b.y and # A top edge past b bottom?
+  a.y + a.h <= b.y + b.h # A bottom edge past b top?
+
+template rootOverlaps*(n: Node): bool =
+  n.rootOverlapsX() and n.rootOverlapsY()
+
+template dropUpY(n: Node, height: float32 = 0): bool =
+  let a = n.descaled(screenBox)
+  let b = root.descaled(screenBox)
+  not (a.y + height <= b.y + b.h)
+
 proc dropdown*(
     dropItems {.property: items.}: seq[string],
     dropSelected: var int,
@@ -19,6 +39,7 @@ proc dropdown*(
   
   properties:
     dropDownOpen: bool
+    dropUp: bool
     # dropDownToClose: bool
 
   var
@@ -29,7 +50,7 @@ proc dropdown*(
     bth = bh
     bih = bh * 0.8 # 1.4.Em
     # bdh = 100.Vh - 3*bth
-    bdh = bih * min(5, dropItems.len()).float32
+    bdh = min(bih * min(6, dropItems.len()).float32, windowLogicalSize.y/2)
     tw = bw - 1'em
   
   box cb.x, cb.y, bw, bh
@@ -45,8 +66,8 @@ proc dropdown*(
     onHover:
       fill "#5C8F9C"
     onClick:
-      echo "dropdown button clicked"
       self.dropDownOpen = true
+      self.dropUp = current.dropUpY(bdh)
 
     text "text":
       box 0, 0, bw, bth
@@ -67,13 +88,17 @@ proc dropdown*(
 
   if self.dropDownOpen:
     group "dropDownScroller":
-      box 0, bh, bw, bdh
-      clipContent true
+      if self.dropUp:
+        box 0, bh-bdh, bw, bdh
+      else:
+        box 0, bh, bw, bdh
+
+      # clipContent true
       zlevel ZLevelRaised
+      # dropShadow 5, -3, -3, "#000000", 0.06
 
       group "dropDown":
         box 0, 0, bw+1, bdh
-        orgBox 0, 0, bw, bdh
         layout lmVertical
         counterAxisSizingMode csAuto
         horizontalPadding 0
@@ -83,14 +108,14 @@ proc dropdown*(
 
         onClickOutside:
           self.dropDownOpen = false
+          self.dropUp = false
 
         for idx, buttonName in pairs(dropItems):
           group "itembtn":
             box 0, 0, bw, bih
             layoutAlign laCenter
             fill "#72bdd0", 0.93
-            stroke "#ffffff", 1.0
-            strokeWeight 1.4
+            strokeLine 1.4, "#000000", 0.2
             text "text":
               box 0, 0, bw, bih
               fill "#ffffff"
@@ -143,4 +168,4 @@ proc drawMain() =
     # dropdown(dropItems, dropIndexes[2], nil) do:
       # box 30, 120, 10.Em, 1.5.Em
 
-startFidget(drawMain, uiScale=2.0)
+startFidget(drawMain, uiScale=2.0, h=600)
