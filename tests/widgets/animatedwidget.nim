@@ -7,7 +7,7 @@ import tables
 import variant
 
 import button
-import progressBar
+import progressbar
 
 loadFont("IBM Plex Sans", "IBMPlexSans-Regular.ttf")
 
@@ -26,6 +26,9 @@ proc animatedProgress*(
   properties:
     value: UnitRange
     ticks: Future[void] = emptyFuture() ## Create an completed "empty" future
+
+  group "progress":
+    progressBar(self.value)
 
   proc ticker(self: AnimatedProgress, target: float32) {.async.} =
     ## This simple procedure will "tick" ten times delayed 1,000ms each.
@@ -70,7 +73,8 @@ proc exampleApp*(
   ## defines a stateful app widget
   
   properties:
-    count: int
+    count1: int
+    count2: int
     value: UnitRange
 
   frame "main":
@@ -84,23 +88,30 @@ proc exampleApp*(
       fill "#DFDFE0"
       strokeWeight 1
 
-      self.value = (self.count.toFloat * 0.10) mod 1.0
+      self.value = (self.count1.toFloat * 0.10) mod 1.0
 
-      # Trigger an animation on animatedProgress below
-      Widget button:
-        text: fmt"Clicked2: {self.count:4d}"
-        onClick:
-          self.count.inc()
-          events["pbc1"] = newVariant(self.count.toFloat*0.1)
-          # trigger("pb1") <- gotoValue(self.count*0.1)
+      Horizontal:
+        # Trigger an animation on animatedProgress below
+        Widget button:
+          text: fmt"Normal {self.count1:4d}"
+          onClick:
+            self.count1.inc()
+
+        Widget button:
+          text: fmt"Animate {self.count2:4d}"
+          onClick:
+            self.count2.inc()
+            events["pbc1"] = newVariant(self.count2.toFloat*0.1)
+            # trigger("pb1") <- gotoValue(self.count*0.1)
 
       Widget animatedProgress:
         id: "pbc1"
         delta: 0.1'f32
-        setup: box 10.WPerc, 20, 80.WPerc, 2.Em
+        setup:
+          box 10.WPerc, 2'em, 80.WPerc, 2.Em
 
 
-var state = ExampleApp(count: 0, value: 0.33)
+var state = ExampleApp(count1: 0, count2: 0, value: 0.33)
 
 proc drawMain() =
   frame "main":

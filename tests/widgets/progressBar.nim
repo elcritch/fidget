@@ -11,6 +11,8 @@ type
 proc progressBar*(value: var UnitRange) {.basicFidget.} =
   ## Draw a progress bars 
 
+  echo "Draw a progress bars "
+
   init:
     ## called before `setup` and used for setting defaults like
     ## the default box size
