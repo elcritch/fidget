@@ -337,6 +337,10 @@ proc id*(): string =
   ## Get current node ID.
   return current.id
 
+proc getId*(): string =
+  ## Get current node ID.
+  return current.id
+
 proc orgBox*(x, y, w, h: int|float32|float64) =
   ## Sets the box dimensions of the original element for constraints.
   let b = Rect(x: float32 x, y: float32 y, w: float32 w, h: float32 h)

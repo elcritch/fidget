@@ -9,20 +9,6 @@ import fidgets
 
 loadFont("IBM Plex Sans", "IBMPlexSans-Regular.ttf")
 
-template rootOverlapsX*(n: Node): bool =
-  let a = n.descaled(screenBox)
-  let b = root.descaled(screenBox)
-  a.x >= b.x and # A right edge past b left?
-  a.x + a.w <= b.x + b.w # A left edge past b right?
-
-template rootOverlapsY*(n: Node): bool =
-  let a = n.descaled(screenBox)
-  let b = root.descaled(screenBox)
-  a.y >= b.y and # A top edge past b bottom?
-  a.y + a.h <= b.y + b.h # A bottom edge past b top?
-
-template rootOverlaps*(n: Node): bool =
-  n.rootOverlapsX() and n.rootOverlapsY()
 
 template dropUpY(n: Node, height: float32 = 0): bool =
   let a = n.descaled(screenBox)

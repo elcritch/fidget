@@ -1,13 +1,18 @@
 
 import bumpy, fidget, math, random
-import std/strformat
+import std/strformat, std/hashes
 import asyncdispatch # This is what provides us with async and the dispatcher
 import times, strutils # This is to provide the timing output
+import tables
+import variant
 
 import button
 import progressBar
 
 loadFont("IBM Plex Sans", "IBMPlexSans-Regular.ttf")
+
+var
+  events*: TableRef[string, Variant] = newTable[string, Variant]()
 
 proc animatedProgress*(
     delta: float32 = 0.1,
@@ -34,17 +39,22 @@ proc animatedProgress*(
       self.value += delta
       refresh()
 
-  triggers:
-    gotoValue(target: float32):
-      if self.ticks.finished():
-        echo "setup new ticker"
-        self.ticks = ticker(target)
-      else:
-        echo "ticker already running!"
+  type
+    TickerGotoValue = tuple[target: float]
 
-template gotoTrigger(name: untyped) =
-  echo "injecting goto"
-  var `name` {.inject.} = gotoValue
+  if events.hasKey(getId()):
+    let v = events[getId()]
+    variantMatch case v as evt
+      of TickerGotoValue:
+        echo "ticker event: ", evt.repr()
+        if self.ticks.finished():
+          echo "setup new ticker: "
+          self.ticks = ticker(self, evt.target)
+        else:
+          echo "ticker already running!"
+      else:
+        echo "dont know what v is"
+
 
 type Trigger = distinct string
 
@@ -76,17 +86,16 @@ proc exampleApp*(
 
       self.value = (self.count.toFloat * 0.10) mod 1.0
 
-      # Alternate format using `Widget` macro that enables
-      # a YAML like syntax using property labels
-      # (see parameters on `button` widget proc)
+      # Trigger an animation on animatedProgress below
       Widget button:
         text: fmt"Clicked2: {self.count:4d}"
         onClick:
           self.count.inc()
-          trigger("pb1") <- gotoValue(self.count*0.1)
+          events["pbc1"] = newVariant(self.count.toFloat*0.1)
+          # trigger("pb1") <- gotoValue(self.count*0.1)
 
       Widget animatedProgress:
-        id: "pb1"
+        id: "pbc1"
         delta: 0.1'f32
         setup: box 10.WPerc, 20, 80.WPerc, 2.Em
 
