@@ -22,7 +22,8 @@ proc progressbar*(value: var float) {.basicFidget.} =
     bh = current.box().h
     sw = 2.0'f32
     sb = 4.0'f32
-    barW = bw * float(value) - sb*sw + 0.001
+    wcalc = bw * float(value) - sb*sw + 0.001
+    barW = wcalc.clamp(0.0, bw-sb*sw)
     barH = bh - sb*sw
 
   echo fmt"progressbar-pb-widget: {current.box()=}"

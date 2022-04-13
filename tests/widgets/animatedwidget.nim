@@ -15,7 +15,8 @@ var
   events*: TableRef[string, Variant] = newTable[string, Variant]()
 
 type
-  TickerGotoValue = tuple[target: float]
+  TickerGotoValue = object
+    target: float
 
 proc animatedProgress*(
     delta: float32 = 0.1,
@@ -33,6 +34,20 @@ proc animatedProgress*(
   # box 0, 0, 100.WPerc, 2.Em
   # boxOf parent
 
+  echo "pbar event: check: ", events.len(), " id: ", id()
+  for k, v in events.pairs():
+    echo "pbar event: check: ", (k, v, ).repr
+  
+  if events.hasKey(getId()):
+    let v = events[getId()]
+    variantMatch case v as evt
+      of TickerGotoValue:
+        echo "pbar event: ", evt.repr()
+        self.value = evt.target
+      else:
+        echo "dont know what v is"
+
+
   group "anim":
     boxOf parent
     font "IBM Plex Sans", 16, 200, 0, hCenter, vCenter
@@ -41,20 +56,6 @@ proc animatedProgress*(
     echo fmt"progressbar-horz: {current.box()=}"
     progressbar(self.value) do:
       boxOf parent
-
-  if events.hasKey(getId()):
-    let v = events[getId()]
-    variantMatch case v as evt
-      of TickerGotoValue:
-        echo "ticker event: ", evt.repr()
-        if self.ticks.finished():
-          echo "setup new ticker: "
-          # self.ticks = ticker(self, evt.target, delta)
-        else:
-          echo "ticker already running!"
-      else:
-        echo "dont know what v is"
-
 # proc ticker(self: AnimatedProgress, target, delta: float32) {.async.} =
 #   ## This simple procedure will "tick" ten times delayed 1,000ms each.
 #   ## Every tick will increment the progress bar 10% until its done. 
@@ -105,14 +106,15 @@ proc exampleApp*(
           text: fmt"Animate {self.count2:4d}"
           onClick:
             self.count2.inc()
-            events["pbc1"] = newVariant(self.count2.toFloat*0.1)
+            let evt = TickerGotoValue(target: self.count2.toFloat*0.1)
+            events["pbc1"] = newVariant(evt)
             # trigger("pb1") <- gotoValue(self.count*0.1)
       
       let ct = self.count1.toFloat * 0.1
       Widget animatedProgress:
-        id: "pbc1"
         delta: 0.1'f32
         setup:
+          id "pbc1"
           box 2'em, 2'em, 80'pw, 2.Em
 
 
