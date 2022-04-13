@@ -31,7 +31,7 @@ proc exampleApp*(
     ## capitalized proc name which is `ExampleApp` in this example. 
     ## This will be customizable in the future. 
     count: int
-    value: UnitRange
+    value: float
 
   frame "main":
     setTitle(fmt"Fidget Animated Progress Example - {myName}")
@@ -45,7 +45,7 @@ proc exampleApp*(
       strokeWeight 1
 
       self.value = (self.count.toFloat * 0.10) mod 1.0001
-      progressBar(self.value) do:
+      progressbar(self.value) do:
         box 10.WPerc, 20, 80.WPerc, 2.Em
 
       Horizontal:

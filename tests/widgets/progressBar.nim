@@ -8,10 +8,8 @@ export fidget, fidgets
 type
   UnitRange* = range[0.0'f32..1.0'f32]
 
-proc progressBar*(value: var UnitRange) {.basicFidget.} =
+proc progressbar*(value: var float) {.basicFidget.} =
   ## Draw a progress bars 
-
-  echo "Draw a progress bars "
 
   init:
     ## called before `setup` and used for setting defaults like
@@ -26,6 +24,8 @@ proc progressBar*(value: var UnitRange) {.basicFidget.} =
     sb = 4.0'f32
     barW = bw * float(value) - sb*sw + 0.001
     barH = bh - sb*sw
+
+  echo fmt"progressbar-pb-widget: {current.box()=}"
 
   group "progress":
     text "text":
