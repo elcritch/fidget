@@ -180,6 +180,7 @@ proc openBrowser*(url: string) =
 
 proc refresh*() =
   ## Request the screen be redrawn
+  echo "refresh! "
   requestedFrame = true
 
 proc getTitle*(): string =

@@ -12,10 +12,11 @@ import progressbar
 loadFont("IBM Plex Sans", "IBMPlexSans-Regular.ttf")
 
 var
-  events*: TableRef[string, Variant] = newTable[string, Variant]()
+  # events*: TableRef[string, Variant] = newTable[string, Variant]()
+  frameCount = 0
 
 type
-  TickerGotoValue = object
+  IncrementBar = object
     target: float
 
 proc animatedProgress*(
@@ -33,17 +34,20 @@ proc animatedProgress*(
 
   # box 0, 0, 100.WPerc, 2.Em
   # boxOf parent
+  self.value = self.value + delta
 
-  echo "pbar event: check: ", events.len(), " id: ", id()
-  for k, v in events.pairs():
-    echo "pbar event: check: ", (k, v, ).repr
+  # echo "pbar event: check: ", events.len(), " id: ", id()
+  # for k, v in events.pairs():
+    # echo "pbar event: check: ", (k, v, ).repr
   
-  if events.hasKey(getId()):
-    let v = events[getId()]
+  var v: Variant
+  if not current.hookEvents.isNil and
+         current.hookEvents.pop(current.code, v):
     variantMatch case v as evt
-      of TickerGotoValue:
+      of IncrementBar:
         echo "pbar event: ", evt.repr()
-        self.value = evt.target
+        self.value = self.value + evt.target
+        refresh()
       else:
         echo "dont know what v is"
 
@@ -56,6 +60,7 @@ proc animatedProgress*(
     echo fmt"progressbar-horz: {current.box()=}"
     progressbar(self.value) do:
       boxOf parent
+
 # proc ticker(self: AnimatedProgress, target, delta: float32) {.async.} =
 #   ## This simple procedure will "tick" ten times delayed 1,000ms each.
 #   ## Every tick will increment the progress bar 10% until its done. 
@@ -79,6 +84,10 @@ proc exampleApp*(
     count2: int
     value: UnitRange
 
+  if current.hookEvents.isNil:
+    current.hookEvents = newTable[string, Variant]()
+  let currEvents = current.hookEvents
+
   frame "main":
     setTitle(fmt"Fidget Animated Progress Example")
     font "IBM Plex Sans", 16, 200, 0, hCenter, vCenter
@@ -95,33 +104,48 @@ proc exampleApp*(
 
       echo fmt"main-inner: {current.box()=}"
 
-      Horizontal:
+      var delta = 0.0
+
+      Vertical:
         # Trigger an animation on animatedProgress below
         Widget button:
-          text: fmt"Normal {self.count1:4d}"
+          text: fmt"Arg Incr {self.count1:4d}"
           onClick:
             self.count1.inc()
+            delta = 0.02
 
         Widget button:
           text: fmt"Animate {self.count2:4d}"
           onClick:
             self.count2.inc()
-            let evt = TickerGotoValue(target: self.count2.toFloat*0.1)
-            events["pbc1"] = newVariant(evt)
+            let evt = IncrementBar(target: 0.02)
+            currEvents["pbc1"] = newVariant(evt)
             # trigger("pb1") <- gotoValue(self.count*0.1)
       
-      let ct = self.count1.toFloat * 0.1
-      Widget animatedProgress:
-        delta: 0.1'f32
-        setup:
-          id "pbc1"
-          box 2'em, 2'em, 80'pw, 2.Em
+        let ct = self.count1.toFloat * 0.02
+        echo "main-ct: ct: ", ct
+        Widget animatedProgress:
+          delta: delta
+          setup:
+            box 0'em, 0'em, 14'em, 2.Em
+            current.code = "pbc1"
+            current.hookEvents = currEvents
+            echo "main-ap-setup: ct: ", ct
+        
+        Widget button:
+          text: fmt"Animate2 {self.count2:4d}"
+          onClick:
+            self.count2.inc()
+            let evt = IncrementBar(target: 0.02)
+            currEvents["pbc1"] = newVariant(evt)
+        
 
 
 var state = ExampleApp(count1: 0, count2: 0, value: 0.33)
 
 proc drawMain() =
-  echo "drawMain\n"
+  frameCount.inc
+  echo "\n" & fmt"drawMain: {frameCount=} "
   frame "main":
     exampleApp("basic widgets", state)
 
