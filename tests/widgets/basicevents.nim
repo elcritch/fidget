@@ -53,19 +53,6 @@ proc animatedProgress*(
     progressbar(self.value) do:
       boxOf parent
 
-# proc ticker(self: AnimatedProgress, target, delta: float32) {.async.} =
-#   ## This simple procedure will "tick" ten times delayed 1,000ms each.
-#   ## Every tick will increment the progress bar 10% until its done. 
-#   let
-#     n = 70
-#     duration = 600
-#     curr = self.value
-#   for i in 1..n:
-#     await sleepAsync(duration / n)
-#     self.value += delta
-#     refresh()
-
-
 proc exampleApp*(
     myName {.property: name.}: string,
 ) {.appFidget.} =
@@ -93,9 +80,6 @@ proc exampleApp*(
       strokeWeight 1
 
       self.value = (self.count1.toFloat * 0.10) mod 1.0
-
-      echo fmt"main-inner: {current.box()=}"
-
       var delta = 0.0
 
       Vertical:
@@ -110,34 +94,28 @@ proc exampleApp*(
           text: fmt"Animate {self.count2:4d}"
           onClick:
             self.count2.inc()
-            let evt = IncrementBar(target: 0.02)
-            currEvents["pbc1"] = newVariant(evt)
-            # trigger("pb1") <- gotoValue(self.count*0.1)
+            currEvents["pbc1"] = newVariant(IncrementBar(target: 0.02))
       
-        let ct = self.count1.toFloat * 0.02
-        echo "main-ct: ct: ", ct
         Widget animatedProgress:
           delta: delta
           setup:
             box 0'em, 0'em, 14'em, 2.Em
             current.code = "pbc1"
             current.hookEvents = currEvents
-            echo "main-ap-setup: ct: ", ct
         
         Widget button:
           text: fmt"Animate2 {self.count2:4d}"
           onClick:
             self.count2.inc()
-            let evt = IncrementBar(target: 0.02)
-            currEvents["pbc1"] = newVariant(evt)
+            currEvents["pbc1"] = newVariant(IncrementBar(target: 0.02))
         
 
 
 var state = ExampleApp(count1: 0, count2: 0, value: 0.33)
 
 proc drawMain() =
-  frameCount.inc
-  echo "\n" & fmt"drawMain: {frameCount=} "
+  # frameCount.inc
+  # echo "\n" & fmt"drawMain: {frameCount=} "
   frame "main":
     exampleApp("basic widgets", state)
 
