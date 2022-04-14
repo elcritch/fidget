@@ -32,7 +32,7 @@ proc animatedProgress*(
   self.value = self.value + delta
 
   ## handle events
-  var v: Variant
+  var v {.inject.}: Variant
   if not current.hookEvents.isNil and
          current.hookEvents.pop(current.code, v):
     variantMatch case v as evt
@@ -43,13 +43,9 @@ proc animatedProgress*(
       else:
         echo "dont know what v is"
 
-
   group "anim":
     boxOf parent
     font "IBM Plex Sans", 16, 200, 0, hCenter, vCenter
-    echo fmt"anim-wid: {current.box()=}"
-
-    echo fmt"progressbar-horz: {current.box()=}"
     progressbar(self.value) do:
       boxOf parent
 
@@ -71,7 +67,7 @@ proc exampleApp*(
     setTitle(fmt"Fidget Animated Progress Example")
     font "IBM Plex Sans", 16, 200, 0, hCenter, vCenter
     fill "#F7F7F9"
-    echo fmt"main-main: {current.box()=}"
+    # echo fmt"main-main: {current.box()=}"
 
     group "center":
       box 50, 0, 100.Vw - 100, 100.Vh
