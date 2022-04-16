@@ -172,6 +172,11 @@ proc makeStatefulWidget*(blk: NimNode, hasState: bool, defaultState: bool): NimN
       hasProperty = true
       let wType = typeName.makeType(code)
       preBody.add wType
+    of "events":
+      hasProperty = true
+      echo "FIDGETS:EVENTS: ", code.treeRepr
+      let wType = typeName.makeType(code)
+      preBody.add wType
 
   if renderImpl.isNil:
     raise newException(ValueError, "fidgets must provide a render body!")
