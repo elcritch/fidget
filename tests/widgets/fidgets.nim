@@ -173,10 +173,20 @@ proc makeStatefulWidget*(blk: NimNode, hasState: bool, defaultState: bool): NimN
       let wType = typeName.makeType(code)
       preBody.add wType
     of "events":
-      hasProperty = true
       echo "FIDGETS:EVENTS: ", code.treeRepr
-      let wType = typeName.makeType(code)
-      preBody.add wType
+      code.expectKind(nnkStmtList)
+      for eblock in code:
+        echo "FIDGETS:EVENTS: ", "kind: ", eblock.kind
+        case eblock.kind:
+        of nnkCall:
+          let n = eblock[0].strVal
+          let c = eblock[1]
+          let eType = n.makeType(c)
+          preBody.add eType
+        of nnkIdent:
+          discard "TODO: implement enum style checking?"
+        else:
+          discard
 
   if renderImpl.isNil:
     raise newException(ValueError, "fidgets must provide a render body!")

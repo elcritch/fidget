@@ -15,7 +15,7 @@ var
   frameCount = 0
 
 type
-  IncrementBar = object
+  JumpToValue = object
     target: float
 
 template onEvents*(blk: untyped) =
@@ -38,6 +38,7 @@ proc animatedProgress*(
   events:
     IncrementBar:
       target: float
+    JumpToValue 
 
   render:
     self.value = self.value + delta
