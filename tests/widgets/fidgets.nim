@@ -154,8 +154,10 @@ proc makeStatefulWidget*(blk: NimNode, hasState: bool, defaultState: bool): NimN
   # echo "typeName: ", typeName
   # echo "widget: ", treeRepr blk
 
-  var initImpl: NimNode = newStmtList()
-  var hasProperty = false
+  var
+    initImpl: NimNode = newStmtList()
+    renderImpl: NimNode
+    hasProperty = false
 
   for idx, name, code in body.attributes():
     echo fmt"{idx=} {name=}"
@@ -164,10 +166,15 @@ proc makeStatefulWidget*(blk: NimNode, hasState: bool, defaultState: bool): NimN
     case name:
     of "init":
       initImpl = code
+    of "render":
+      renderImpl = code
     of "properties":
       hasProperty = true
       let wType = typeName.makeType(code)
       preBody.add wType
+
+  if renderImpl.isNil:
+    raise newException(ValueError, "fidgets must provide a render body!")
 
   var typeNameSym = ident(typeName)
 
@@ -189,7 +196,7 @@ proc makeStatefulWidget*(blk: NimNode, hasState: bool, defaultState: bool): NimN
       `stateSetup`
       if `preName` != nil:
         `preName`()
-      `body`
+      `renderImpl`
       if `postName` != nil:
         `postName`()
 
