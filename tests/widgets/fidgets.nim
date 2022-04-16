@@ -173,10 +173,10 @@ proc makeStatefulWidget*(blk: NimNode, hasState: bool, defaultState: bool): NimN
       let wType = typeName.makeType(code)
       preBody.add wType
     of "events":
-      echo "FIDGETS:EVENTS: ", code.treeRepr
+      # echo "FIDGETS:EVENTS: ", code.treeRepr
       code.expectKind(nnkStmtList)
       for eblock in code:
-        echo "FIDGETS:EVENTS: ", "kind: ", eblock.kind
+        # echo "FIDGETS:EVENTS: ", "kind: ", eblock.kind
         case eblock.kind:
         of nnkCall:
           let n = eblock[0].strVal
