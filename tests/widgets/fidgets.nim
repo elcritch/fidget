@@ -72,7 +72,7 @@ proc makeType(name: string, body: NimNode): NimNode =
   result = newStmtList()
   let tpName = ident(name)
   var tp = quote do:
-    type `tpName` = ref object
+    type `tpName`* = ref object
       a: int
   var rec = newNimNode(nnkRecList)
   for pd, pv in propTypes:

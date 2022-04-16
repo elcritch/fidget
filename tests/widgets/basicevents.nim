@@ -35,6 +35,10 @@ proc animatedProgress*(
     value: float
     ticks: Future[void] = emptyFuture() ## Create an completed "empty" future
     
+  events:
+    IncrementBar:
+      target: float
+
   render:
     self.value = self.value + delta
 
