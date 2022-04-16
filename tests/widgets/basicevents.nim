@@ -14,9 +14,9 @@ loadFont("IBM Plex Sans", "IBMPlexSans-Regular.ttf")
 var
   frameCount = 0
 
-type
-  JumpToValue = object
-    target: float
+# type
+  # JumpToValue = object
+    # target: float
 
 proc animatedProgress*(
     delta: float32 = 0.1,
@@ -31,8 +31,9 @@ proc animatedProgress*(
     
   events:
     IncrementBar:
+      increment: float
+    JumpToValue:
       target: float
-    JumpToValue 
 
   render:
     self.value = self.value + delta
@@ -42,7 +43,7 @@ proc animatedProgress*(
       variantMatch case v as evt
         of IncrementBar:
           echo "pbar event: ", evt.repr()
-          self.value = self.value + evt.target
+          self.value = self.value + evt.increment
           refresh()
         else:
           echo "dont know what v is"
@@ -95,7 +96,7 @@ proc exampleApp*(
             text: fmt"Animate {self.count2:4d}"
             onClick:
               self.count2.inc()
-              currEvents["pbc1"] = newVariant(IncrementBar(target: 0.02))
+              currEvents["pbc1"] = newVariant(IncrementBar(increment: 0.02))
         
           Widget animatedProgress:
             delta: delta
@@ -108,7 +109,7 @@ proc exampleApp*(
             text: fmt"Animate2 {self.count2:4d}"
             onClick:
               self.count2.inc()
-              currEvents["pbc1"] = newVariant(IncrementBar(target: 0.02))
+              currEvents["pbc1"] = newVariant(IncrementBar(increment: 0.02))
         
 
 
