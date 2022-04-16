@@ -269,6 +269,7 @@ macro appFidget*(blk: untyped) =
 macro onEvents*(name, blk: untyped) =
   result = newStmtList()
 
+  var code = blk
   result.add quote do:
     var `name` {.inject.}: Variant
     if not current.hookEvents.isNil and

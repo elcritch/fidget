@@ -38,7 +38,7 @@ proc animatedProgress*(
     self.value = self.value + delta
 
     ## handle events
-    onEvents:
+    onEvents(v):
       variantMatch case v as evt
         of IncrementBar:
           echo "pbar event: ", evt.repr()
