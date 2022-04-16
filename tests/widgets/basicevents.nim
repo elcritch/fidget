@@ -18,6 +18,12 @@ type
   IncrementBar = object
     target: float
 
+template onEvents*(blk: untyped) =
+  var v {.inject.}: Variant
+  if not current.hookEvents.isNil and
+        current.hookEvents.pop(current.code, v):
+    `blk`
+
 proc animatedProgress*(
     delta: float32 = 0.1,
   ) {.statefulFidget.} =
@@ -33,9 +39,7 @@ proc animatedProgress*(
     self.value = self.value + delta
 
     ## handle events
-    var v {.inject.}: Variant
-    if not current.hookEvents.isNil and
-          current.hookEvents.pop(current.code, v):
+    onEvents:
       variantMatch case v as evt
         of IncrementBar:
           echo "pbar event: ", evt.repr()
