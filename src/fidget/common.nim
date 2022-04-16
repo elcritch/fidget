@@ -391,6 +391,7 @@ proc resetToDefault*(node: Node)=
   node.selectable = false
   node.scrollBars = false
   node.hookStates = newVariant()
+  node.hookEvents = nil
 
 proc setupRoot*() =
   if root == nil:
