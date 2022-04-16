@@ -59,7 +59,7 @@ proc makeType(name: string, body: NimNode): NimNode =
       continue # skip comment
     prop.expectKind(nnkCall)
     prop[0].expectKind(nnkIdent)
-    # echo "prop: ", treeRepr prop
+    echo "prop: ", treeRepr prop
     let pname = prop[0].strVal
     let pHasDefault = prop[1][0].kind == nnkAsgn
     if pHasDefault:
