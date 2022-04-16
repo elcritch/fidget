@@ -59,7 +59,7 @@ proc makeType(name: string, body: NimNode): NimNode =
       continue # skip comment
     prop.expectKind(nnkCall)
     prop[0].expectKind(nnkIdent)
-    echo "prop: ", treeRepr prop
+    # echo "prop: ", treeRepr prop
     let pname = prop[0].strVal
     let pHasDefault = prop[1][0].kind == nnkAsgn
     if pHasDefault:
@@ -77,7 +77,8 @@ proc makeType(name: string, body: NimNode): NimNode =
   var rec = newNimNode(nnkRecList)
   for pd, pv in propTypes:
     # echo "pd: ", pd, " => ", pv.treeRepr
-    rec.add newIdentDefs(ident pd, pv)
+    let pdfield = nnkPostfix.newTree(ident("*"), ident(pd)) 
+    rec.add newIdentDefs(pdfield, pv)
   tp[0][^1][0][^1] = rec
   result.add tp
   echo "TYPE: \n", result.repr
@@ -173,7 +174,7 @@ proc makeStatefulWidget*(blk: NimNode, hasState: bool, defaultState: bool): NimN
       let wType = typeName.makeType(code)
       preBody.add wType
     of "events":
-      # echo "FIDGETS:EVENTS: ", code.treeRepr
+      echo "FIDGETS:EVENTS: ", code.treeRepr
       code.expectKind(nnkStmtList)
       for eblock in code:
         # echo "FIDGETS:EVENTS: ", "kind: ", eblock.kind

@@ -34,6 +34,9 @@ proc animatedProgress*(
       increment: float
     JumpToValue:
       target: float
+    type Evt2 = object
+      field*: int
+
 
   render:
     self.value = self.value + delta
