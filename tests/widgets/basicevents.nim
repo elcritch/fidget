@@ -18,12 +18,6 @@ type
   JumpToValue = object
     target: float
 
-template onEvents*(blk: untyped) =
-  var v {.inject.}: Variant
-  if not current.hookEvents.isNil and
-        current.hookEvents.pop(current.code, v):
-    `blk`
-
 proc animatedProgress*(
     delta: float32 = 0.1,
   ) {.statefulFidget.} =

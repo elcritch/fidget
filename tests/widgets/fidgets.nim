@@ -266,6 +266,15 @@ macro statefulFidget*(blk: untyped) =
 macro appFidget*(blk: untyped) =
   result = makeStatefulWidget(blk, hasState=true, defaultState=false)
 
+macro onEvents*(name, blk: untyped) =
+  result = newStmtList()
+
+  result.add quote do:
+    var `name` {.inject.}: Variant
+    if not current.hookEvents.isNil and
+          current.hookEvents.pop(current.code, v):
+      `blk`
+
 macro reverseStmts(body: untyped) =
   result = newStmtList()
   var stmts = newSeq[NimNode]()
