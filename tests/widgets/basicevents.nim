@@ -35,19 +35,18 @@ proc animatedProgress*(
     value: float
     ticks: Future[void] = emptyFuture() ## Create an completed "empty" future
     
-  events:
-    variantMatch case v as evt
-      of IncrementBar:
-        echo "pbar event: ", evt.repr()
-        self.value = self.value + evt.target
-        refresh()
-      else:
-        echo "dont know what v is"
-
   render:
     self.value = self.value + delta
 
     ## handle events
+    onEvents:
+      variantMatch case v as evt
+        of IncrementBar:
+          echo "pbar event: ", evt.repr()
+          self.value = self.value + evt.target
+          refresh()
+        else:
+          echo "dont know what v is"
 
     group "anim":
       boxOf parent
