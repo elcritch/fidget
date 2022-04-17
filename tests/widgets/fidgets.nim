@@ -255,8 +255,6 @@ proc makeStatefulWidget*(blk: NimNode, hasState: bool, defaultState: bool): NimN
   var widgetArgs = newSeq[(string, string, NimNode)]()
   for idx, argname, propname, argtype in params.propertyNames():
     let pname = if propname == "": argname else: propname
-    # echo "PROP label: ", pname, " => ", argname
-    # echo "PROP type: ", argtype.treeRepr
     widgetArgs.add( (argname, pname, argtype,) )
 
   widgetArgsTable[procName] = widgetArgs
