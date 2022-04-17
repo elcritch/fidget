@@ -20,7 +20,7 @@ var
 
 proc animatedProgress*(
     delta: float32 = 0.1,
-  ): AnimatedProgress {.statefulFidget, discardable.} =
+  ): AnimatedProgress {.statefulFidget.} =
 
   init:
     box 0, 0, 100.WPerc, 2.Em

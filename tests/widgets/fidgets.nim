@@ -143,18 +143,23 @@ proc makeStatefulWidget*(blk: NimNode, hasState: bool, defaultState: bool): NimN
     procDef = blk
     body = procDef.body()
     params = procDef.params()
+    pragmas = procDef.pragma()
     preBody = newStmtList()
 
   let
+    hasEmptyReturnType = params[0].kind == nnkEmpty
     procName = procDef.name().strVal
-    typeName = procName.capitalizeAscii()
+    typeName =
+      if hasEmptyReturnType: procName.capitalizeAscii()
+      else: params[0].strVal
     groupName = newLit(procName)
     preName = ident("setup")
     postName = ident("post")
 
+  if hasState and hasEmptyReturnType:
+    warning("Fidgets with state should generally name their state typename using the return type. ", procDef)
   # echo "typeName: ", typeName
   # echo "widget: ", treeRepr blk
-
   var
     initImpl: NimNode = newStmtList()
     renderImpl: NimNode
@@ -170,6 +175,8 @@ proc makeStatefulWidget*(blk: NimNode, hasState: bool, defaultState: bool): NimN
     of "render":
       renderImpl = code
     of "properties":
+      if not hasState:
+        error("'properties' requires a Stateful Fidget type. ", code)
       hasProperty = true
       let wType = typeName.makeType(code)
       preBody.add wType
@@ -190,7 +197,7 @@ proc makeStatefulWidget*(blk: NimNode, hasState: bool, defaultState: bool): NimN
           discard
 
   if renderImpl.isNil:
-    raise newException(ValueError, "fidgets must provide a render body!")
+    error("fidgets must provide a render body!", procDef)
 
   var typeNameSym = ident(typeName)
 
@@ -218,8 +225,13 @@ proc makeStatefulWidget*(blk: NimNode, hasState: bool, defaultState: bool): NimN
         `postName`()
 
   # handle return the Fidgets self state variables
-  let hasStateReturnType = params[0].kind != nnkEmpty and params[0].strVal == typeName
-  if hasState and hasStateReturnType:
+  # echo "procTp:def: ", procDef.pragma.treeRepr
+  if hasState:
+    params[0] = ident typeName
+    if pragmas.kind == nnkEmpty:
+      procDef.pragma = nnkPragma.newTree(ident("discardable"))
+    else:
+      procDef.pragma.add ident("discardable")
     procDef.body.add quote do:
       result = self
 
