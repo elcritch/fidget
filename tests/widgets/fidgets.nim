@@ -217,11 +217,13 @@ proc makeStatefulWidget*(blk: NimNode, hasState: bool, defaultState: bool): NimN
       if `postName` != nil:
         `postName`()
 
+  # handle return the Fidgets self state variables
   let hasStateReturnType = params[0].kind != nnkEmpty and params[0].strVal == typeName
   if hasState and hasStateReturnType:
     procDef.body.add quote do:
       result = self
 
+  # adjust Fidgets parameters, particularly add self, pre, post args. 
   let
     nilValue = quote do: nil
     stateArg =
@@ -234,15 +236,15 @@ proc makeStatefulWidget*(blk: NimNode, hasState: bool, defaultState: bool): NimN
     params.add stateArg
   params.add preArg
   params.add postArg 
-  echo "procTp:return type match: ", hasStateReturnType
-  echo "procTp:params: ", params.treeRepr
+  # echo "procTp:return type match: ", hasStateReturnType
+  # echo "procTp:params: ", params.treeRepr
   # echo "params: ", treeRepr params
 
   var widgetArgs = newSeq[(string, string, NimNode)]()
   for idx, argname, propname, argtype in params.propertyNames():
     let pname = if propname == "": argname else: propname
-    echo "PROP label: ", pname, " => ", argname
-    echo "PROP type: ", argtype.treeRepr
+    # echo "PROP label: ", pname, " => ", argname
+    # echo "PROP type: ", argtype.treeRepr
     widgetArgs.add( (argname, pname, argtype,) )
 
   widgetArgsTable[procName] = widgetArgs
