@@ -5,6 +5,7 @@ import asyncdispatch # This is what provides us with async and the dispatcher
 import times, strutils # This is to provide the timing output
 import tables
 import variant
+import patty
 
 import button
 import progressbar
@@ -18,6 +19,10 @@ var
   # JumpToValue = object
     # target: float
 
+# variant AnimatedProgressEvents:
+  # IncrementBar(increment: float)
+  # JumpToValue(target: float)
+
 proc animatedProgress*(
     delta: float32 = 0.1,
   ): AnimatedProgress {.statefulFidget.} =
@@ -28,28 +33,33 @@ proc animatedProgress*(
   properties:
     value: float
     ticks: Future[void] = emptyFuture() ## Create an completed "empty" future
-    
-  events:
-    IncrementBar:
-      increment: float
-    JumpToValue:
-      target: float
-    type Evt2 = object
-      field*: int
+  
+  events(AnimatedEvents):
+    IncrementBar(increment: float)
+    JumpToValue(target: float)
+    # IncrementBar:
+      # increment: float
+    # JumpToValue:
+      # target: float
+    # type Evt2 = object
+      # field*: int
 
 
   render:
     self.value = self.value + delta
 
-    ## handle events
-    onEvents(v):
-      variantMatch case v as evt
-        of IncrementBar:
+    var v {.inject.}: Variant
+    if not current.hookEvents.isNil and
+          current.hookEvents.pop(current.code, v):
+      let evt = v.get(AnimatedEvents)
+
+      match evt:
+        IncrementBar(increment):
           echo "pbar event: ", evt.repr()
-          self.value = self.value + evt.increment
+          self.value = self.value + increment
           refresh()
-        else:
-          echo "dont know what v is"
+        JumpToValue(target):
+          echo "jump where? ", $target
 
     group "anim":
       boxOf parent
@@ -99,7 +109,7 @@ proc exampleApp*(
             text: fmt"Animate {self.count2:4d}"
             onClick:
               self.count2.inc()
-              currEvents["pbc1"] = newVariant(IncrementBar(increment: 0.02))
+              currEvents["pbc1"] = newVariant(IncrementBar(increment = 0.02))
         
           let ap1 = Widget animatedProgress:
             delta: delta
@@ -113,7 +123,7 @@ proc exampleApp*(
             text: fmt"Animate2 {self.count2:4d}"
             onClick:
               self.count2.inc()
-              currEvents["pbc1"] = newVariant(IncrementBar(increment: 0.02))
+              currEvents["pbc1"] = newVariant(IncrementBar(increment = 0.02))
         
 
 

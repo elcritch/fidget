@@ -28,10 +28,15 @@ proc makeLambdaDecl(
 
 iterator attributes*(blk: NimNode): (int, string, NimNode) =
   for idx, item in blk:
+    echo "ATTRNAMES: KIND: ", item.kind
+    echo "ATTRNAMES: ", item.treeRepr
     if item.kind == nnkCall:
       var name = item[0].repr
-      var code = item[1]
-      yield (idx, name, code)
+      if item.len() > 2:
+        let code = newStmtList(item[1..^1])
+        yield (idx, name, code)
+      else:
+        yield (idx, name, item[1])
 
 iterator propertyNames*(params: NimNode): (int, string, string, NimNode) =
   for idx, item in params:
@@ -181,20 +186,15 @@ proc makeStatefulWidget*(blk: NimNode, hasState: bool, defaultState: bool): NimN
       let wType = typeName.makeType(code)
       preBody.add wType
     of "events":
-      echo "FIDGETS:EVENTS: ", code.treeRepr
       code.expectKind(nnkStmtList)
-      for eblock in code:
-        # echo "FIDGETS:EVENTS: ", "kind: ", eblock.kind
-        case eblock.kind:
-        of nnkCall:
-          let n = eblock[0].strVal
-          let c = eblock[1]
-          let eType = n.makeType(c)
-          preBody.add eType
-        of nnkIdent:
-          discard "TODO: implement enum style checking?"
-        else:
-          discard
+      let evtName = code[0]
+      let code = code[1]
+      echo "FIDGETS:EVENTS: ", evtName.strVal, " code: ", code.treeRepr
+      preBody.add nnkCommand.newTree(ident "variant", evtName, code)
+      # let d = quote do:
+        # variant `evtName`:
+          # A(a: int)
+      # echo "FIDGETS:EVENTS: var: ", d.treeRepr
 
   if renderImpl.isNil:
     error("fidgets must provide a render body!", procDef)
