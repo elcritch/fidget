@@ -206,7 +206,8 @@ proc makeStatefulWidget*(blk: NimNode, hasState: bool, defaultState: bool): NimN
           if self == nil:
             raise newException(ValueError, "app widget state can't be nil")
 
-  procDef.body= quote do:
+  procDef.body = newStmtList()
+  procDef.body.add quote do:
     group `typeName`:
       `initImpl`
       `stateSetup`
@@ -216,6 +217,11 @@ proc makeStatefulWidget*(blk: NimNode, hasState: bool, defaultState: bool): NimN
       if `postName` != nil:
         `postName`()
 
+  let hasStateReturnType = params[0].kind != nnkEmpty and params[0].strVal == typeName
+  if hasState and hasStateReturnType:
+    procDef.body.add quote do:
+      result = self
+
   let
     nilValue = quote do: nil
     stateArg =
@@ -224,11 +230,12 @@ proc makeStatefulWidget*(blk: NimNode, hasState: bool, defaultState: bool): NimN
     preArg = newIdentDefs(preName, bindSym"WidgetProc", nilValue)
     postArg = newIdentDefs(ident("post"), bindSym"WidgetProc", nilValue)
   
-  # echo "procTp: ", preArg.treeRepr
   if hasState and hasProperty:
     params.add stateArg
   params.add preArg
   params.add postArg 
+  echo "procTp:return type match: ", hasStateReturnType
+  echo "procTp:params: ", params.treeRepr
   # echo "params: ", treeRepr params
 
   var widgetArgs = newSeq[(string, string, NimNode)]()

@@ -20,7 +20,7 @@ var
 
 proc animatedProgress*(
     delta: float32 = 0.1,
-  ) {.statefulFidget.} =
+  ): AnimatedProgress {.statefulFidget, discardable.} =
 
   init:
     box 0, 0, 100.WPerc, 2.Em
@@ -101,12 +101,13 @@ proc exampleApp*(
               self.count2.inc()
               currEvents["pbc1"] = newVariant(IncrementBar(increment: 0.02))
         
-          Widget animatedProgress:
+          let ap1 = Widget animatedProgress:
             delta: delta
             setup:
               box 0'em, 0'em, 14'em, 2.Em
               current.code = "pbc1"
               current.hookEvents = currEvents
+          echo "AP1: ", repr(ap1)
           
           Widget button:
             text: fmt"Animate2 {self.count2:4d}"
