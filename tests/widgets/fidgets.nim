@@ -28,8 +28,8 @@ proc makeLambdaDecl(
 
 iterator attributes*(blk: NimNode): (int, string, NimNode) =
   for idx, item in blk:
-    echo "ATTRNAMES: KIND: ", item.kind
-    echo "ATTRNAMES: ", item.treeRepr
+    # echo "ATTRNAMES: KIND: ", item.kind
+    # echo "ATTRNAMES: ", item.treeRepr
     if item.kind == nnkCall:
       var name = item[0].repr
       if item.len() > 2:

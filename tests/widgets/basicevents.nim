@@ -106,7 +106,7 @@ proc exampleApp*(
               box 0'em, 0'em, 14'em, 2.Em
               current.code = "pbc1"
               current.hookEvents = currEvents
-          echo "AP1: ", repr(ap1)
+          echo "state: ap1: ", repr(ap1)
           
           Widget button:
             text: fmt"Animate2 {self.count2:4d}"
