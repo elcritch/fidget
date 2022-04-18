@@ -38,14 +38,14 @@ proc animatedProgress*(
     IncrementBar(increment: float)
     JumpToValue(target: float)
 
-  onEvents(evt: AnimatedEvents):
+  onEvents:
     IncrementBar(increment):
       echo "pbar event: ", evt.repr()
       self.value = self.value + increment
       refresh()
     JumpToValue(target):
       echo "jump where? ", $target
-
+  
   render:
     self.value = self.value + delta
 
@@ -54,6 +54,7 @@ proc animatedProgress*(
       font "IBM Plex Sans", 16, 200, 0, hCenter, vCenter
       progressbar(self.value) do:
         boxOf parent
+
 
 proc exampleApp*(
     myName {.property: name.}: string,

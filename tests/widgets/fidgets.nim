@@ -143,6 +143,20 @@ proc makeWidgetPropertyMacro(procName, typeName: string): NimNode =
   echo "\n=== Widget: makeWidgetPropertyMacro === "
   echo result.repr
 
+proc eventsMacro*(tp: string, blk: NimNode): NimNode =
+  result = newStmtList()
+  var tn = ident tp
+  var code = blk
+  var name = ident "evt"
+  var matchBody = nnkCommand.newTree(ident "match", name, blk)
+  echo "ON EVENTS: ", blk.treeRepr
+  result.add quote do:
+    var v {.inject.}: Variant
+    if not current.hookEvents.isNil and
+          current.hookEvents.pop(current.code, v):
+      let `name` = v.get(`tn`)
+      `matchBody`
+
 proc makeStatefulWidget*(blk: NimNode, hasState: bool, defaultState: bool): NimNode =
   var
     procDef = blk
@@ -168,6 +182,8 @@ proc makeStatefulWidget*(blk: NimNode, hasState: bool, defaultState: bool): NimN
   var
     initImpl: NimNode = newStmtList()
     renderImpl: NimNode
+    onEventsImpl: NimNode
+    evtName: string
     hasProperty = false
 
   for idx, name, code in body.attributes():
@@ -187,12 +203,21 @@ proc makeStatefulWidget*(blk: NimNode, hasState: bool, defaultState: bool): NimN
       preBody.add wType
     of "events":
       code.expectKind(nnkStmtList)
-      let evtName = code[0]
+      let evtIdent = code[0]
+      evtName = evtIdent.strVal
+      echo "FIDGETS:EVENTS:NAME: ", evtName 
       let code = code[1]
-      echo "FIDGETS:EVENTS: ", evtName.strVal, " code: ", code.treeRepr
-      preBody.add nnkCommand.newTree(ident "variant", evtName, code)
+      echo "FIDGETS:EVENTS: ", evtName, " code: ", code.treeRepr
+      preBody.add nnkCommand.newTree(ident "variant", evtIdent, code)
     of "onEvents":
-      echo "FIDGETS:ONEVENTS: ", typeName, " code: ", code.treeRepr
+      echo "FIDGETS:ONEVENTS: ", " code: ", code.treeRepr
+      onEventsImpl = code
+
+  echo "FIDGETS:eventsMacroName: ", evtName
+  if not onEventsImpl.isNil:
+    onEventsImpl = eventsMacro(evtName, onEventsImpl)
+  else:
+    onEventsImpl = newStmtList()
 
   if renderImpl.isNil:
     error("fidgets must provide a render body!", procDef)
@@ -218,6 +243,7 @@ proc makeStatefulWidget*(blk: NimNode, hasState: bool, defaultState: bool): NimN
       `stateSetup`
       if `preName` != nil:
         `preName`()
+      `onEventsImpl`
       `renderImpl`
       if `postName` != nil:
         `postName`()
@@ -283,7 +309,6 @@ macro statefulFidget*(blk: untyped) =
 
 macro appFidget*(blk: untyped) =
   result = makeStatefulWidget(blk, hasState=true, defaultState=false)
-
 
 macro reverseStmts(body: untyped) =
   result = newStmtList()
