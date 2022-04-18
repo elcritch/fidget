@@ -37,29 +37,17 @@ proc animatedProgress*(
   events(AnimatedEvents):
     IncrementBar(increment: float)
     JumpToValue(target: float)
-    # IncrementBar:
-      # increment: float
-    # JumpToValue:
-      # target: float
-    # type Evt2 = object
-      # field*: int
 
+  onEvents(evt: AnimatedEvents):
+    IncrementBar(increment):
+      echo "pbar event: ", evt.repr()
+      self.value = self.value + increment
+      refresh()
+    JumpToValue(target):
+      echo "jump where? ", $target
 
   render:
     self.value = self.value + delta
-
-    var v {.inject.}: Variant
-    if not current.hookEvents.isNil and
-          current.hookEvents.pop(current.code, v):
-      let evt = v.get(AnimatedEvents)
-
-      match evt:
-        IncrementBar(increment):
-          echo "pbar event: ", evt.repr()
-          self.value = self.value + increment
-          refresh()
-        JumpToValue(target):
-          echo "jump where? ", $target
 
     group "anim":
       boxOf parent

@@ -191,10 +191,6 @@ proc makeStatefulWidget*(blk: NimNode, hasState: bool, defaultState: bool): NimN
       let code = code[1]
       echo "FIDGETS:EVENTS: ", evtName.strVal, " code: ", code.treeRepr
       preBody.add nnkCommand.newTree(ident "variant", evtName, code)
-      # let d = quote do:
-        # variant `evtName`:
-          # A(a: int)
-      # echo "FIDGETS:EVENTS: var: ", d.treeRepr
 
   if renderImpl.isNil:
     error("fidgets must provide a render body!", procDef)
@@ -286,26 +282,6 @@ macro statefulFidget*(blk: untyped) =
 macro appFidget*(blk: untyped) =
   result = makeStatefulWidget(blk, hasState=true, defaultState=false)
 
-# type
-#   ShapeKind = enum
-#     Circle, Rectangle
-#   Shape = object
-#     case kind: ShapeKind
-#     of Circle:
-#       r: float
-#     of Rectangle:
-#       w, h: float
-
-macro onEvents*(name, blk: untyped) =
-  result = newStmtList()
-
-  var code = blk
-  echo "ON EVENTS: ", blk.treeRepr
-  result.add quote do:
-    var `name` {.inject.}: Variant
-    if not current.hookEvents.isNil and
-          current.hookEvents.pop(current.code, v):
-      `blk`
 
 macro reverseStmts(body: untyped) =
   result = newStmtList()
