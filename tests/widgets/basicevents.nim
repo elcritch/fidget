@@ -51,7 +51,6 @@ proc animatedProgress*(
 
     group "anim":
       boxOf parent
-      font "IBM Plex Sans", 16, 200, 0, hCenter, vCenter
       progressbar(self.value) do:
         boxOf parent
 
@@ -106,13 +105,18 @@ proc exampleApp*(
               box 0'em, 0'em, 14'em, 2.Em
               current.code = "pbc1"
               current.hookEvents = currEvents
-          echo "state: ap1: ", repr(ap1)
+          # echo "state: ap1: ", repr(ap1)
           
           Widget button:
             text: fmt"Animate2 {self.count2:4d}"
             onClick:
               self.count2.inc()
               currEvents["pbc1"] = newVariant(IncrementBar(increment = 0.02))
+
+          text "data":
+            size 90'vw, 2'em
+            fill "#000000"
+            characters: repr(ap1)
         
 
 
