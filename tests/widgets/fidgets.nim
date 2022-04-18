@@ -191,6 +191,8 @@ proc makeStatefulWidget*(blk: NimNode, hasState: bool, defaultState: bool): NimN
       let code = code[1]
       echo "FIDGETS:EVENTS: ", evtName.strVal, " code: ", code.treeRepr
       preBody.add nnkCommand.newTree(ident "variant", evtName, code)
+    of "onEvents":
+      echo "FIDGETS:ONEVENTS: ", typeName, " code: ", code.treeRepr
 
   if renderImpl.isNil:
     error("fidgets must provide a render body!", procDef)
