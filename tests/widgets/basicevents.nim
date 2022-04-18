@@ -66,9 +66,8 @@ proc exampleApp*(
     value: UnitRange
 
   render:
-    if current.hookEvents.isNil:
-      current.hookEvents = newTable[string, Variant]()
-    let currEvents = current.hookEvents
+    echo "events"
+    let currEvents = useEvents()
 
     frame "main":
       setTitle(fmt"Fidget Animated Progress Example")

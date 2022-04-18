@@ -1,5 +1,7 @@
 import macros, tables, strutils, strformat
 
+import fidget/common
+
 type
   WidgetProc* = proc()
 
@@ -303,6 +305,11 @@ template useState*[T](tp: typedesc[T]) =
       current.hookStates.get(tp)
     else:
       self
+
+template useEvents*(): GeneralEvents =
+  if current.hookEvents.isNil:
+    current.hookEvents = newTable[string, Variant]()
+  current.hookEvents
 
 macro statefulFidget*(blk: untyped) =
   result = makeStatefulWidget(blk, hasState=true, defaultState=true)

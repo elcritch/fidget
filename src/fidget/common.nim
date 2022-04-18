@@ -170,8 +170,9 @@ type
     scrollBars*: bool ## Should it have scroll bars if children are clipped.
     postHooks*: seq[proc() {.closure.}]
     hookStates*: Variant
-    hookEvents*: TableRef[string, Variant]
+    hookEvents*: GeneralEvents
 
+  GeneralEvents* = TableRef[string, Variant]
 
   KeyState* = enum
     Empty
