@@ -24,18 +24,23 @@ proc animatedProgress*(
 
   properties:
     value: float
+    cancelTicks: bool
     ticks: Future[void] = emptyFuture() ##\
       ## Create an completed "empty" future
   
   events(AnimatedEvents):
     IncrementBar(increment: float)
     JumpToValue(target: float)
+    CancelJump
 
   onEvents:
     IncrementBar(increment):
       # echo "pbar event: ", evt.repr()
       self.value = self.value + increment
       refresh()
+    CancelJump():
+      echo "cancel jump "
+      self.cancelTicks = true
     JumpToValue(target):
       echo "jump where? ", $target
 
@@ -44,10 +49,14 @@ proc animatedProgress*(
         ## Every tick will increment the progress bar 10% until its done. 
         let
           n = 70
-          duration = 600
+          duration = 2*600
           curr = self.value
         for i in 1..n:
           await sleepAsync(duration / n)
+          if self.cancelTicks:
+            self.cancelTicks = false
+            self.ticks = nil
+            return
           self.value += 0.01
           refresh()
       
@@ -117,11 +126,18 @@ proc exampleApp*(
               box 0'em, 0'em, 14'em, 2.Em
           # echo "state: ap1: ", repr(ap1)
           
-          Widget button:
-            text: fmt"Animate2 {self.count2:4d}"
-            onClick:
-              self.count2.inc()
-              currEvents["pbc1"] = JumpToValue(target = 0.02)
+          Horizontal:
+            Widget button:
+              text: fmt"Animate"
+              onClick:
+                self.count2.inc()
+                currEvents["pbc1"] = JumpToValue(target = 0.02)
+
+            Widget button:
+              text: fmt"Cancel"
+              onClick:
+                self.count1.inc()
+                currEvents["pbc1"] = CancelJump()
 
           text "data":
             size 90'vw, 2'em
