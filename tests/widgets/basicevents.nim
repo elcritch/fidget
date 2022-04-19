@@ -55,7 +55,6 @@ proc animatedProgress*(
           await sleepAsync(duration / n)
           if self.cancelTicks:
             self.cancelTicks = false
-            self.ticks = nil
             return
           self.value += 0.01
           refresh()
