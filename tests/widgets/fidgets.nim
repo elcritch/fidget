@@ -154,8 +154,8 @@ proc eventsMacro*(tp: string, blk: NimNode): NimNode =
   echo "ON EVENTS: ", blk.treeRepr
   result.add quote do:
     var v {.inject.}: Variant
-    if not current.hookEvents.isNil and
-          current.hookEvents.pop(current.code, v):
+    if not current.hookEvents.data.isNil and
+          current.hookEvents.data.pop(current.code, v):
       let `name` = v.get(`tn`)
       `matchBody`
 
@@ -307,8 +307,8 @@ template useState*[T](tp: typedesc[T]) =
       self
 
 template useEvents*(): GeneralEvents =
-  if current.hookEvents.isNil:
-    current.hookEvents = newTable[string, Variant]()
+  if current.hookEvents.data.isNil:
+    current.hookEvents.data = newTable[string, Variant]()
   current.hookEvents
 
 macro statefulFidget*(blk: untyped) =

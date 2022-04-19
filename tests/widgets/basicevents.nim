@@ -40,7 +40,7 @@ proc animatedProgress*(
 
   onEvents:
     IncrementBar(increment):
-      echo "pbar event: ", evt.repr()
+      # echo "pbar event: ", evt.repr()
       self.value = self.value + increment
       refresh()
     JumpToValue(target):
@@ -96,7 +96,7 @@ proc exampleApp*(
             text: fmt"Animate {self.count2:4d}"
             onClick:
               self.count2.inc()
-              currEvents["pbc1"] = newVariant(IncrementBar(increment = 0.02))
+              currEvents["pbc1"] = IncrementBar(increment = 0.02)
         
           let ap1 = Widget animatedProgress:
             delta: delta
@@ -109,7 +109,7 @@ proc exampleApp*(
             text: fmt"Animate2 {self.count2:4d}"
             onClick:
               self.count2.inc()
-              currEvents["pbc1"] = newVariant(IncrementBar(increment = 0.02))
+              currEvents["pbc1"] = IncrementBar(increment = 0.02)
 
           text "data":
             size 90'vw, 2'em

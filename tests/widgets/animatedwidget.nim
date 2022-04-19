@@ -37,7 +37,7 @@ proc animatedProgress*(
          current.hookEvents.pop(current.code, v):
     variantMatch case v as evt
       of IncrementBar:
-        echo "pbar event: ", evt.repr()
+        # echo "pbar event: ", evt.repr()
         self.value = self.value + evt.target
         refresh()
       else:
