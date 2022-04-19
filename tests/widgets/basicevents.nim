@@ -32,7 +32,8 @@ proc animatedProgress*(
 
   properties:
     value: float
-    ticks: Future[void] = emptyFuture() ## Create an completed "empty" future
+    ticks: Future[void] = emptyFuture() ##\
+      ## Create an completed "empty" future
   
   events(AnimatedEvents):
     IncrementBar(increment: float)
