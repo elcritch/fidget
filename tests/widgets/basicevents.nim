@@ -101,9 +101,8 @@ proc exampleApp*(
           let ap1 = Widget animatedProgress:
             delta: delta
             setup:
+              bindEvents "pbc1", currEvents
               box 0'em, 0'em, 14'em, 2.Em
-              current.code = "pbc1"
-              current.hookEvents = currEvents
           # echo "state: ap1: ", repr(ap1)
           
           Widget button:

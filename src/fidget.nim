@@ -190,6 +190,11 @@ proc mouseOverlapLogic*(): bool =
     # echo "mouseOverlap: : ", res, " mpos: ", $mpos, " sb: ", $current.screenBox
   act and mpos.overlaps(current.screenBox)
 
+template bindEvents*(name: string, events: typed) =
+  ## On click event handler.
+  current.code = name
+  current.hookEvents = events
+
 template onClick*(inner: untyped) =
   ## On click event handler.
   if mouse.click and mouseOverlapLogic():
