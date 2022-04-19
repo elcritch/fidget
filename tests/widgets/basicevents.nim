@@ -15,14 +15,6 @@ loadFont("IBM Plex Sans", "IBMPlexSans-Regular.ttf")
 var
   frameCount = 0
 
-# type
-  # JumpToValue = object
-    # target: float
-
-# variant AnimatedProgressEvents:
-  # IncrementBar(increment: float)
-  # JumpToValue(target: float)
-
 proc animatedProgress*(
     delta: float32 = 0.1,
   ): AnimatedProgress {.statefulFidget.} =
@@ -46,6 +38,23 @@ proc animatedProgress*(
       refresh()
     JumpToValue(target):
       echo "jump where? ", $target
+
+      proc ticker(self: AnimatedProgress) {.async.} =
+        ## This simple procedure will "tick" ten times delayed 1,000ms each.
+        ## Every tick will increment the progress bar 10% until its done. 
+        let
+          n = 70
+          duration = 600
+          curr = self.value
+        for i in 1..n:
+          await sleepAsync(duration / n)
+          self.value += 0.01
+          refresh()
+      
+      if self.ticks.isNil or self.ticks.finished:
+        echo "ticker..."
+        self.ticks = ticker(self)
+
   
   render:
     self.value = self.value + delta
@@ -54,6 +63,8 @@ proc animatedProgress*(
       boxOf parent
       progressbar(self.value) do:
         boxOf parent
+
+    self.value = self.value mod 1.0
 
 
 proc exampleApp*(
@@ -110,12 +121,12 @@ proc exampleApp*(
             text: fmt"Animate2 {self.count2:4d}"
             onClick:
               self.count2.inc()
-              currEvents["pbc1"] = IncrementBar(increment = 0.02)
+              currEvents["pbc1"] = JumpToValue(target = 0.02)
 
           text "data":
             size 90'vw, 2'em
             fill "#000000"
-            characters: repr(ap1)
+            characters: repr(ap1.value)
         
 
 
