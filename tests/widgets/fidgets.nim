@@ -93,8 +93,8 @@ proc makeType(name: string, body: NimNode): NimNode =
 var widgetArgsTable* {.compileTime.} = initTable[string, seq[(string, string, NimNode, )]]()
 
 macro Widget*(widget, body: untyped): untyped =
-  echo "WITH: ", widget.repr
-  echo "WITH: ", body.repr
+  # echo "WITH: ", widget.repr
+  # echo "WITH: ", body.repr
   let procName = widget.strVal
 
   result = newStmtList()
@@ -103,7 +103,7 @@ macro Widget*(widget, body: untyped): untyped =
     attrs[name] = code
   var args = newSeq[NimNode]()
   let widgetArgs = widgetArgsTable[procName]
-  echo "WITH: widgetArgs: ", widgetArgs.repr
+  # echo "WITH: widgetArgs: ", widgetArgs.repr
   
   result = newStmtList()
   for (argname, propname, argtype) in widgetArgs:

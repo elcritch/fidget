@@ -66,7 +66,7 @@ proc exampleApp*(
     value: UnitRange
 
   render:
-    echo "events"
+    # echo "events"
     let currEvents = useEvents()
 
     frame "main":
