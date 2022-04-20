@@ -118,19 +118,19 @@ proc exampleApp*(
               self.count2.inc()
               currEvents["pbc1"] = IncrementBar(increment = 0.02)
         
-          let ap1 = Widget animatedProgress:
-            delta: delta
-            setup:
-              bindEvents "pbc1", currEvents
-              box 0'em, 0'em, 14'em, 2.Em
-          # echo "state: ap1: ", repr(ap1)
-          
-          Horizontal:
-            Widget button:
-              text: fmt"Animate"
-              onClick:
-                self.count2.inc()
-                currEvents["pbc1"] = JumpToValue(target = 0.02)
+    let ap1 = Widget animatedProgress:
+      delta: delta
+      setup:
+        bindEvents "pbc1", currEvents
+        box 0'em, 0'em, 14'em, 2.Em
+    # echo "state: ap1: ", repr(ap1)
+    
+    Horizontal:
+Widget button:
+text: fmt"Animate"
+onClick:
+  self.count2.inc()
+  currEvents["pbc1"] = JumpToValue(target = 0.02)
 
             Widget button:
               text: fmt"Cancel"
@@ -138,11 +138,11 @@ proc exampleApp*(
                 self.count1.inc()
                 currEvents["pbc1"] = CancelJump()
 
-          text "data":
-            size 90'vw, 2'em
-            fill "#000000"
-            characters: "AnimatedProgress value: " & repr(ap1.value)
-        
+    text "data":
+      size 90'vw, 2'em
+      fill "#000000"
+      characters: "AnimatedProgress value: " & repr(ap1.value)
+  
 
 
 var state = ExampleApp(count1: 0, count2: 0, value: 0.33)
