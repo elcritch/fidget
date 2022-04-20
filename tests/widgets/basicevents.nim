@@ -113,7 +113,7 @@ proc exampleApp*(
               delta = 0.02
 
           Widget button:
-            text: fmt"Animate {self.count2:4d}"
+            text: fmt"Incr {self.count2:4d}"
             onClick:
               self.count2.inc()
               currEvents["pbc1"] = IncrementBar(increment = 0.02)
@@ -141,7 +141,7 @@ proc exampleApp*(
           text "data":
             size 90'vw, 2'em
             fill "#000000"
-            characters: repr(ap1.value)
+            characters: "AnimatedProgress value: " & repr(ap1.value)
         
 
 
