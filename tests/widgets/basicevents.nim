@@ -141,7 +141,7 @@ proc exampleApp*(
           text "data":
             size 90'vw, 2'em
             fill "#000000"
-            characters: "AnimatedProgress value: ", repr(ap1.value)
+            characters: "AnimatedProgress value: " & repr(ap1.value)
         
 
 

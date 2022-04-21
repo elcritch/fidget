@@ -309,7 +309,7 @@ template useState*[T](tp: typedesc[T]) =
 
 template useEvents*(): GeneralEvents =
   if current.hookEvents.data.isNil:
-    current.hookEvents.data = newTable[string, Variant]()
+    current.hookEvents.data = newTable[string, seq[Variant]]()
   current.hookEvents
 
 macro statefulFidget*(blk: untyped) =
