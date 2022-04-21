@@ -125,6 +125,11 @@ template group*(id: string, inner: untyped): untyped =
   node(nkGroup, id, inner):
     boxOf parent
 
+template component*(id: string, inner: untyped): untyped =
+  ## Starts a new component.
+  node(nkComponent, id, inner):
+    boxOf parent
+
 template rectangle*(id: string, inner: untyped): untyped =
   ## Starts a new rectangle.
   node(nkRectangle, id, inner)
@@ -132,10 +137,6 @@ template rectangle*(id: string, inner: untyped): untyped =
 template text*(id: string, inner: untyped): untyped =
   ## Starts a new text element.
   node(nkText, id, inner)
-
-template component*(id: string, inner: untyped): untyped =
-  ## Starts a new component.
-  node(nkComponent, id, inner)
 
 template instance*(id: string, inner: untyped): untyped =
   ## Starts a new instance of a component.
