@@ -115,15 +115,15 @@ template withDefaultName(name: untyped): untyped =
 ## Fidget nodes. 
 ## 
 
-template group*(id: string, inner: untyped): untyped =
-  ## Starts a new node.
-  node(nkGroup, id, inner):
-    boxOf parent
-
 template frame*(id: string, inner: untyped): untyped =
   ## Starts a new frame.
   node(nkFrame, id, inner):
     boxOf root
+
+template group*(id: string, inner: untyped): untyped =
+  ## Starts a new node.
+  node(nkGroup, id, inner):
+    boxOf parent
 
 template rectangle*(id: string, inner: untyped): untyped =
   ## Starts a new rectangle.
