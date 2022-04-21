@@ -174,7 +174,7 @@ type
     hookEvents*: GeneralEvents
 
   GeneralEvents* = object
-    data*: TableRef[string, Variant]
+    data*: TableRef[string, seq[Variant]]
 
   KeyState* = enum
     Empty
@@ -621,5 +621,5 @@ proc `~=`*(rect: Vec2, val: float32): bool =
   result = rect.x ~= val and rect.y ~= val
 
 proc `[]=`*[T](events: GeneralEvents, key: string, evt: T) =
-  events.data[key] = newVariant(evt)
+  events.data.mgetOrPut(key, newSeq[Variant]()).add newVariant(evt)
 
