@@ -153,11 +153,12 @@ proc eventsMacro*(tp: string, blk: NimNode): NimNode =
   var matchBody = nnkCommand.newTree(ident "match", name, blk)
   echo "ON EVENTS: ", blk.treeRepr
   result.add quote do:
-    var v {.inject.}: Variant
+    var evts {.inject.}: seq[Variant]
     if not current.hookEvents.data.isNil and
-          current.hookEvents.data.pop(current.code, v):
-      let `name` = v.get(`tn`)
-      `matchBody`
+           current.hookEvents.data.pop(current.code, evts):
+      for evt in evts:
+        let `name` = evt.get(`tn`)
+        `matchBody`
 
 proc makeStatefulWidget*(blk: NimNode, hasState: bool, defaultState: bool): NimNode =
   var
