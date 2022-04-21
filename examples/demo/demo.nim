@@ -485,4 +485,4 @@ proc drawMain() =
       of "Constraints":
         basicConstraints()
 
-startFidget(drawMain, w = 3*530, h = 3*300, uiScale=3.0)
+startFidget(drawMain, w = 530, h = 300, uiScale=3.0)

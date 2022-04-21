@@ -18,8 +18,6 @@ template autoOrg*() =
 
 proc drawMain() =
   frame "autoLayout":
-    # orgBox 0, 0, 400, 400
-    boxOf parent
     fill "#ffffff"
 
     frame "autoFrame":

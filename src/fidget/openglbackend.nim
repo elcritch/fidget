@@ -152,7 +152,7 @@ proc startFidget*(
   common.fullscreen = fullscreen
   common.uiScale = uiScale
   if not fullscreen:
-    windowSize = vec2(w.float32, h.float32)
+    windowSize = vec2(uiScale * w.float32, uiScale * h.float32)
   drawMain = draw
   tickMain = tick
   loadMain = load

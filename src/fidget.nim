@@ -2,7 +2,7 @@ import algorithm, chroma, fidget/common, fidget/input, json, macros, strutils,
     tables, vmath, bumpy
 import math, strformat
 
-export chroma, common, input, vmath
+export chroma, common, input, vmath, bumpy
 
 when defined(js):
   import fidget/htmlbackend
@@ -90,6 +90,13 @@ proc postNode() =
   else:
     parent = nil
 
+template node(kind: NodeKind, id: string, inner, setup: untyped): untyped =
+  ## Base template for node, frame, rectangle...
+  preNode(kind, id)
+  setup
+  inner
+  postNode()
+
 template node(kind: NodeKind, id: string, inner: untyped): untyped =
   ## Base template for node, frame, rectangle...
   preNode(kind, id)
@@ -110,11 +117,13 @@ template withDefaultName(name: untyped): untyped =
 
 template group*(id: string, inner: untyped): untyped =
   ## Starts a new node.
-  node(nkGroup, id, inner)
+  node(nkGroup, id, inner):
+    boxOf parent
 
 template frame*(id: string, inner: untyped): untyped =
   ## Starts a new frame.
-  node(nkFrame, id, inner)
+  node(nkFrame, id, inner):
+    boxOf root
 
 template rectangle*(id: string, inner: untyped): untyped =
   ## Starts a new rectangle.
@@ -394,7 +403,8 @@ proc offset*(
   orgBox(float32 x, float32 y, cb.w, cb.h)
 
 template boxOf*(node: Node) =
-  box(node.box())
+  if not node.isNil:
+    box(node.box())
 
 proc rotation*(rotationInDeg: float32) =
   ## Sets rotation in degrees.
