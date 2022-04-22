@@ -170,6 +170,10 @@ template rectangle*(color: string|Color) =
     box 0, 0, parent.getBox().w, parent.getBox().h
     fill color
 
+template blank*(): untyped =
+  ## Starts a new rectangle.
+  node(nkComponent, "", discard)
+
 ## ---------------------------------------------
 ##             Fidget Node APIs
 ## ---------------------------------------------
