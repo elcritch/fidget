@@ -172,7 +172,8 @@ template rectangle*(color: string|Color) =
 
 template blank*(): untyped =
   ## Starts a new rectangle.
-  node(nkComponent, "", discard)
+  node(nkComponent, ""):
+    discard
 
 ## ---------------------------------------------
 ##             Fidget Node APIs
