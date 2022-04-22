@@ -397,7 +397,17 @@ proc size*(
   ## Sets the box dimension width and height
   let cb = current.box()
   box(cb.x, cb.y, float32 w, float32 h)
-  orgBox(cb.x, cb.y, float32 w, float32 h)
+  # orgBox(cb.x, cb.y, float32 w, float32 h)
+
+proc width*(w: int|float32|float64) =
+  ## Sets the width of current node
+  let cb = current.box()
+  box(cb.x, cb.y, float32 w, float32 cb.h)
+
+proc height*(h: int|float32|float64) =
+  ## Sets the height of current node
+  let cb = current.box()
+  box(cb.x, cb.y, float32 cb.w, float32 h)
 
 proc offset*(
   x: int|float32|float64,
