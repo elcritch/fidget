@@ -55,6 +55,7 @@ type
     textAlignHorizontal*: HAlign
     textAlignVertical*: VAlign
     autoResize*: TextAutoResize
+    textPadding*: int
 
   BorderStyle* = object
     ## What kind of border.
@@ -133,7 +134,6 @@ type
     resizeDone*: bool
     htmlDone*: bool
     textStyle*: TextStyle
-    textPadding*: int
     imageName*: string
     imageColor*: Color
     cornerRadius*: (float32, float32, float32, float32)
@@ -369,7 +369,7 @@ proc resetToDefault*(node: Node)=
   node.textStyle.textAlignHorizontal = hLeft
   node.textStyle.textAlignVertical = vTop
   node.textStyle.autoResize = tsNone
-  node.textPadding = 0
+  node.textStyle.textPadding = 0
   node.imageName = ""
   node.imageColor = color(1.0, 1.0, 1.0, 1.0)
   node.cornerRadius = (0'f32, 0'f32, 0'f32, 0'f32)

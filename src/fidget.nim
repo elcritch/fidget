@@ -470,7 +470,7 @@ proc textAlign*(textAlignHorizontal: HAlign, textAlignVertical: VAlign) =
 
 proc textPadding*(textPadding: int) =
   ## Sets the text padding on editable multiline text areas.
-  current.textPadding = textPadding
+  current.textStyle.textPadding = textPadding
 
 proc textAutoResize*(textAutoResize: TextAutoResize) =
   ## Set the text auto resize mode.
