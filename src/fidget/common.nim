@@ -46,7 +46,7 @@ type
     tsWidthAndHeight
     tsHeight
 
-  TextStyle* = object
+  TextStyle* = ref object
     ## Holder for text styles.
     fontFamily*: string
     fontSize*: float32
@@ -362,14 +362,6 @@ proc resetToDefault*(node: Node)=
   node.stroke = color(0, 0, 0, 0)
   node.resizeDone = false
   node.htmlDone = false
-  node.textStyle.fontFamily = ""
-  node.textStyle.fontSize = 0
-  node.textStyle.fontWeight = 0
-  node.textStyle.lineHeight = 0
-  node.textStyle.textAlignHorizontal = hLeft
-  node.textStyle.textAlignVertical = vTop
-  node.textStyle.autoResize = tsNone
-  node.textStyle.textPadding = 0
   node.imageName = ""
   node.imageColor = color(1.0, 1.0, 1.0, 1.0)
   node.cornerRadius = (0'f32, 0'f32, 0'f32, 0'f32)
