@@ -42,12 +42,8 @@ proc preNode(kind: NodeKind, id: string) =
       current.resetToDefault()
       refresh()
 
-  if not parent.textStyle.isNil:
-    current.textStyle = parent.textStyle
-  elif kind == nkText:
-    current.textStyle = TextStyle()
-
   current.kind = kind
+  current.textStyle = parent.textStyle
   current.cursorColor = parent.cursorColor
   current.highlightColor = parent.highlightColor
   current.transparency = parent.transparency
@@ -442,8 +438,7 @@ proc font*(
   textAlignVertical: VAlign
 ) =
   ## Sets the font.
-  if current.textStyle.isNil:
-    current.textStyle = TextStyle()
+  current.textStyle = TextStyle()
   current.textStyle.fontFamily = fontFamily
   current.textStyle.fontSize = common.uiScale*fontSize
   current.textStyle.fontWeight = common.uiScale*fontWeight
@@ -468,6 +463,10 @@ proc fontWeight*(fontWeight: float32) =
 proc lineHeight*(lineHeight: float32) =
   ## Sets the font size.
   current.textStyle.lineHeight = lineHeight * common.uiScale
+
+proc textStyle*(style: TextStyle) =
+  ## Sets the font size.
+  current.textStyle = style
 
 proc textAlign*(textAlignHorizontal: HAlign, textAlignVertical: VAlign) =
   ## Sets the horizontal and vertical alignment.
