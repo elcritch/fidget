@@ -521,6 +521,14 @@ proc image*(imageName: string) =
   ## Sets image fill.
   current.imageName = imageName
 
+proc imageColor*(color: Color) =
+  ## Sets image color.
+  current.imageColor = color
+
+proc imageColor*(node: Node) =
+  ## Sets image color.
+  current.imageColor = node.imageColor
+
 proc fill*(color: Color) =
   ## Sets background color.
   current.fill = color
@@ -563,6 +571,11 @@ proc strokeLine*(weight: float32, color: string, alpha = 1.0) =
   current.stroke.a = alpha
   current.strokeWeight = weight * common.uiScale
 
+proc strokeLine*(node: Node) =
+  ## Sets stroke/border color.
+  current.stroke = node.stroke
+  current.strokeWeight = node.strokeWeight
+
 proc cornerRadius*(a, b, c, d: float32) =
   ## Sets all radius of all 4 corners.
   let s = common.uiScale * 3
@@ -575,6 +588,10 @@ proc cornerRadius*(radius: float32) =
 proc cornerRadius*(radius: (float32, float32, float32, float32)) =
   ## Sets all radius of all 4 corners.
   cornerRadius(radius[0], radius[1], radius[2], radius[3] )
+
+proc cornerRadius*(node: Node) =
+  ## Sets all radius of all 4 corners.
+  current.cornerRadius =  node.cornerRadius
 
 proc editableText*(editableText: bool) =
   ## Sets the code for this node.
@@ -606,6 +623,13 @@ proc highlightColor*(color: string, alpha = 1.0) =
   current.highlightColor = parseHtmlColor(color)
   current.highlightColor.a = alpha
 
+proc clearShadow*() =
+  ## Clear shadow
+  current.shadows.setLen(0)
+
+proc shadows*(node: Node) =
+  current.shadows = node.shadows
+
 proc dropShadow*(blur, x, y: float32, color: string, alpha: float32) =
   ## Sets drop shadow on an element
   var c = parseHtmlColor(color)
@@ -616,13 +640,13 @@ proc innerShadow*(blur, x, y: float32, color: string, alpha: float32) =
   ## Sets an inner shadow
   var c = parseHtmlColor(color)
   c.a = alpha
-  current.shadows.add(Shadow(
+  current.shadows.add Shadow(
     kind: InnerShadow,
     blur: blur,
     x: x,
     y: y,
     color: c
-  ))
+  )
 
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ##             Node Layouts and Constraints
