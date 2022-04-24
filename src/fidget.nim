@@ -566,7 +566,7 @@ proc strokeLine*(weight: float32, color: string, alpha = 1.0) =
 proc cornerRadius*(a, b, c, d: float32) =
   ## Sets all radius of all 4 corners.
   let s = common.uiScale * 3
-  current.cornerRadius =  (s*a, s*b, s*c, s*d)
+  current.cornerRadius = (s*a, s*b, s*c, s*d)
 
 proc cornerRadius*(radius: float32) =
   ## Sets all radius of all 4 corners.
