@@ -132,6 +132,10 @@ template component*(id: string, inner: untyped): untyped =
   node(nkComponent, id, inner):
     boxOf parent
 
+template rectangle*(id: string, inner: untyped): untyped =
+  ## Starts a new text element.
+  node(nkRectangle, id, inner)
+
 template element*(id: string, inner: untyped): untyped =
   ## Starts a new rectangle.
   node(nkRectangle, id, inner):
