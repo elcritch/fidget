@@ -65,7 +65,9 @@ proc postNode() =
   current.removeExtraChildren()
 
   let mpos = mouse.pos + current.totalOffset 
-  if not common.eventsOvershadowed and not mouse.consumed and mpos.overlaps(current.screenBox):
+  if not common.eventsOvershadowed and
+      not mouse.consumed and
+      mpos.overlaps(current.screenBox):
     if mouse.wheelDelta != 0:
       if current.scrollBars:
         let
@@ -200,9 +202,8 @@ proc mouseOverlapLogic*(): bool =
     (not popupActive or inPopup) and
     current.screenBox.w > 0 and
     current.screenBox.h > 0 
-  # if current.id == "$scrollbar":
-    # let res = act and mpos.overlaps(current.screenBox)
-    # echo "mouseOverlap: : ", res, " mpos: ", $mpos, " sb: ", $current.screenBox
+  # if mpos.overlaps(current.screenBox):
+    # echo fmt"mouseOverlap: {mpos=} {current.screenBox=}"
   act and mpos.overlaps(current.screenBox)
 
 template bindEvents*(name: string, events: GeneralEvents) =
