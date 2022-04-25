@@ -18,7 +18,7 @@ var
   lastClickTime: float
   currLevel: ZLevel
 
-proc withXY*(rect: Rect, x, y: float64|float32|int): Rect =
+proc atXY*(rect: Rect, x, y: float64|float32|int): Rect =
   result = rect
   result.x = x.float32
   result.y = y.float32
@@ -239,18 +239,14 @@ proc drawBoxes*(node: Node) =
   if node.fill.a > 0:
     if node.imageName == "":
       if node.cornerRadius[0] != 0:
-        ctx.fillRoundedRect(rect(
-          0, 0,
-          node.screenBox.w, node.screenBox.h
-        ), node.fill, node.cornerRadius[0])
+        ctx.fillRoundedRect(rect = node.screenBox.atXY(0, 0),
+                            color = node.fill,
+                            radius = node.cornerRadius[0])
       else:
-        ctx.fillRect(rect(
-          0, 0,
-          node.screenBox.w, node.screenBox.h
-        ), node.fill)
+        ctx.fillRect(node.screenBox.atXY(0, 0), node.fill)
 
   if node.stroke.a > 0 and node.strokeWeight > 0 and node.kind != nkText:
-    ctx.strokeRoundedRect(rect = node.screenBox.withXY(0, 0),
+    ctx.strokeRoundedRect(rect = node.screenBox.atXY(0, 0),
                           color = node.stroke,
                           weight = node.strokeWeight,
                           radius = node.cornerRadius[0])
