@@ -18,6 +18,11 @@ var
   lastClickTime: float
   currLevel: ZLevel
 
+proc withXY*(rect: Rect, x, y: float64|float32|int): Rect =
+  result = rect
+  result.x = x.float32
+  result.y = y.float32
+
 proc focus*(keyboard: Keyboard, node: Node) =
   if keyboard.focusNode != node:
     keyboard.onUnFocusNode = keyboard.focusNode
@@ -245,8 +250,7 @@ proc drawBoxes*(node: Node) =
         ), node.fill)
 
   if node.stroke.a > 0 and node.strokeWeight > 0 and node.kind != nkText:
-    let box = rect(0, 0, node.screenBox.w, node.screenBox.h)
-    ctx.strokeRoundedRect(rect = box,
+    ctx.strokeRoundedRect(rect = node.screenBox.withXY(0, 0),
                           color = node.stroke,
                           weight = node.strokeWeight,
                           radius = node.cornerRadius[0])
