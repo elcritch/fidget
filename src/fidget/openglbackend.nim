@@ -164,6 +164,8 @@ proc startFidget*(
 
   if theme != nil:
     theme()
+  else:
+    emptyTheme()
 
   when defined(emscripten):
     # Emscripten can't block so it will call this callback instead.

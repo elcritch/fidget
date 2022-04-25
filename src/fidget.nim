@@ -143,7 +143,8 @@ template element*(id: string, inner: untyped): untyped =
 
 template text*(id: string, inner: untyped): untyped =
   ## Starts a new text element.
-  node(nkText, id, inner)
+  node(nkText, id, inner):
+    boxOf parent
 
 template instance*(id: string, inner: untyped): untyped =
   ## Starts a new instance of a component.
@@ -768,3 +769,10 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight) =
     else:
       raise newException(Exception, "scrollbar defined but node is missing")
 
+
+proc defaultTheme*() =
+  setupWidgetTheme:
+    fill "#9D9D9D"
+  setupTextTheme:
+    cursorColor  "#77D3FF", 0.33
+    highlightColor "#77D3FF", 0.77

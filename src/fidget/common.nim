@@ -633,3 +633,11 @@ template setupTextTheme*(blk) =
     common.current = common.textTheme
     `blk`
   common.current = nil
+
+proc emptyTheme*() =
+  setupWidgetTheme:
+    current.fill = Color(r: 157/255, g: 157/255, b: 157/255, a: 1)
+  setupTextTheme:
+    # rgba(114, 189, 208, 1)
+    current.cursorColor = Color(r: 114/255, g: 189/255, b: 208/255, a: 0.33)
+    current.highlightColor = Color(r: 114/255, g: 189/255, b: 208/255, a: 0.77)
