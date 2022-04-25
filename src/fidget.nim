@@ -623,14 +623,18 @@ proc cursorColor*(color: string, alpha = 1.0) =
   current.cursorColor = parseHtmlColor(color)
   current.cursorColor.a = alpha
 
-proc highlightColor*(color: Color) =
+proc highlight*(color: Color) =
   ## Sets the color of text selection.
   current.highlightColor = color
 
-proc highlightColor*(color: string, alpha = 1.0) =
+proc highlight*(color: string, alpha = 1.0) =
   ## Sets the color of text selection.
   current.highlightColor = parseHtmlColor(color)
   current.highlightColor.a = alpha
+
+proc highlight*(node: Node) =
+  ## Sets the color of text selection.
+  current.highlightColor = node.highlightColor
 
 proc clearShadow*() =
   ## Clear shadow
@@ -775,4 +779,4 @@ proc defaultTheme*() =
     fill "#9D9D9D"
   setupTextTheme:
     cursorColor  "#77D3FF", 0.33
-    highlightColor "#77D3FF", 0.77
+    highlight "#77D3FF", 0.77

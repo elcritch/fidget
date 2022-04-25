@@ -81,7 +81,7 @@ proc basicControls() =
     cornerRadius 5
     strokeWeight 1
     onHover:
-      fill "#5C8F9C"
+      highlight "#5C8F9C"
     text "text":
       # textPadding: 0.375.em.int
       box 0, 0, 80, Em 1.8
@@ -123,7 +123,7 @@ proc basicControls() =
               layoutAlign laCenter
               fill "#72bdd0", 0.9
               onHover:
-                fill "#5C8F9C", 0.8
+                highlight "#5C8F9C", 0.8
                 dropDownOpen = true
               onClick:
                 dropDownOpen = false
@@ -261,12 +261,13 @@ proc basicControls() =
     box 260, 55, 250, 20
     fill "#72bdd0"
     cornerRadius 5
+    clipContent true
     layout lmHorizontal
     counterAxisSizingMode csAuto
     horizontalPadding 0
     verticalPadding 0
     itemSpacing 0
-    for buttonName in reverse(@["This", "is", "a", "segmented", "button"]):
+    for buttonName in @["This", "is", "a", "segmented", "button"]:
       group "Button":
         box 0, 0, buttonName.len * 9 + 10, 20
         layoutAlign laCenter
@@ -274,7 +275,7 @@ proc basicControls() =
         if buttonName in selectedButton:
           fill "#ffffff", 0.5
         onHover:
-          fill "#5C8F9C"
+          highlight "#5C8F9C"
         onClick:
           if buttonName in selectedButton:
             selectedButton.del(selectedButton.find(buttonName))
@@ -294,7 +295,7 @@ proc basicControls() =
     cornerRadius 5
     fill "#72bdd0"
     onHover:
-      fill "#5C8F9C"
+      highlight "#5C8F9C"
     onDown:
       fill "#3E656F"
     text "text":
@@ -411,7 +412,7 @@ proc drawMain() =
     cornerRadius 5
     fill "#72bdd0", 0.2
     onHover:
-      fill "#5C8F9C"
+      highlight "#5C8F9C"
     onDown:
       fill "#3E656F"
     onClick:
@@ -458,7 +459,7 @@ proc drawMain() =
           fill clearColor
           layoutAlign laCenter
           onHover:
-            fill "#70bdcf", 0.5
+            highlight "#70bdcf", 0.5
           if selectedTab == tabName:
             fill "#70bdcf"
           onClick:

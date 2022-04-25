@@ -18,6 +18,11 @@ var
   lastClickTime: float
   currLevel: ZLevel
 
+proc sum*(rect: Rect): float32 =
+  result = rect.x + rect.y + rect.w + rect.h
+proc sum*(rect: (float32, float32, float32, float32)): float32 =
+  result = rect[0] + rect[1] + rect[2] + rect[3]
+
 proc atXY*(rect: Rect, x, y: float64|float32|int): Rect =
   result = rect
   result.x = x.float32
@@ -224,28 +229,36 @@ proc drawMasks*(node: Node) =
     ), rgba(255, 0, 0, 255).color)
 
 proc drawShadows*(node: Node) =
+  ## drawing shadows
   let shadow = node.shadows[0]
-
-  let blur = shadow.blur / 7.0
+  let blurAmt = shadow.blur / 7.0
   for i in 0..6:
-    # for j in 0..4:
-    let j = i
-    ctx.fillRoundedRect(rect(
-      shadow.x + uiScale*i.toFloat()*blur, shadow.y + uiScale*j.toFloat()*blur,
-      node.screenBox.w, node.screenBox.h
-    ), shadow.color, node.cornerRadius[0])
+    let blurs = uiScale * i.toFloat() * blurAmt
+    let box = node.screenBox.atXY(x = shadow.x + blurs,
+                                  y = shadow.y + blurs)
+    ctx.fillRoundedRect(rect = box,
+                        color = shadow.color,
+                        radius = node.cornerRadius[0])
 
 proc drawBoxes*(node: Node) =
-  if node.fill.a > 0:
-    if node.imageName == "":
-      if node.cornerRadius[0] != 0:
-        ctx.fillRoundedRect(rect = node.screenBox.atXY(0, 0),
-                            color = node.fill,
-                            radius = node.cornerRadius[0])
-      else:
-        ctx.fillRect(node.screenBox.atXY(0, 0), node.fill)
+  ## drawing boxes for rectangles
+  if node.fill.a > 0'f32:
+    if node.cornerRadius.sum() > 0:
+      ctx.fillRoundedRect(rect = node.screenBox.atXY(0, 0),
+                          color = node.fill,
+                          radius = node.cornerRadius[0])
+    else:
+      ctx.fillRect(node.screenBox.atXY(0, 0), node.fill)
 
-  if node.stroke.a > 0 and node.strokeWeight > 0 and node.kind != nkText:
+  if node.highlightColor.a > 0'f32:
+    if node.cornerRadius.sum() > 0:
+      ctx.fillRoundedRect(rect = node.screenBox.atXY(0, 0),
+                          color = node.highlightColor,
+                          radius = node.cornerRadius[0])
+    else:
+      ctx.fillRect(node.screenBox.atXY(0, 0), node.highlightColor)
+
+  if node.stroke.a > 0 and node.strokeWeight > 0:
     ctx.strokeRoundedRect(rect = node.screenBox.atXY(0, 0),
                           color = node.stroke,
                           weight = node.strokeWeight,
