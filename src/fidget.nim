@@ -640,7 +640,7 @@ proc highlight*(node: Node) =
   ## Sets the color of text selection.
   current.highlightColor = node.highlightColor
 
-proc clearShadow*() =
+proc clearShadows*() =
   ## Clear shadow
   current.shadows.setLen(0)
 
