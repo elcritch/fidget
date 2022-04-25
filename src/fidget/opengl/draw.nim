@@ -245,14 +245,19 @@ proc drawBoxes*(node: Node) =
         ), node.fill)
 
   if node.stroke.a > 0 and node.strokeWeight > 0 and node.kind != nkText:
-    ctx.strokeRoundedRect(rect(
-      0, 0,
-      node.screenBox.w, node.screenBox.h
-    ), node.stroke, node.strokeWeight, node.cornerRadius[0])
+    let box = rect(0, 0, node.screenBox.w, node.screenBox.h)
+    ctx.strokeRoundedRect(rect = box,
+                          color = node.stroke,
+                          weight = node.strokeWeight,
+                          radius = node.cornerRadius[0])
 
   if node.imageName != "":
     let path = dataDir / node.imageName
-    ctx.drawImage(path, pos = vec2(0, 0), color = node.imageColor, size = vec2(node.screenBox.w, node.screenBox.h))
+    let size = vec2(node.screenBox.w, node.screenBox.h)
+    ctx.drawImage(path,
+                  pos = vec2(0, 0),
+                  color = node.imageColor,
+                  size = size)
 
 proc draw*(node, parent: Node) =
   ## Draws the node.

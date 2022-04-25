@@ -270,6 +270,7 @@ proc basicControls() =
       group "Button":
         box 0, 0, buttonName.len * 9 + 10, 20
         layoutAlign laCenter
+        fill clearColor
         if buttonName in selectedButton:
           fill "#ffffff", 0.5
         onHover:
@@ -454,6 +455,7 @@ proc drawMain() =
       for tabName in ["Constraints", "Image", "Text", "Controls"]:
         group "tab":
           box 0, 0, 130, 30
+          fill clearColor
           layoutAlign laCenter
           onHover:
             fill "#70bdcf", 0.5
