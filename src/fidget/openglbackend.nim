@@ -137,6 +137,7 @@ proc startFidget*(
     draw: proc() = nil,
     tick: proc() = nil,
     load: proc() = nil,
+    theme: proc() = nil,
     fullscreen = false,
     w: Positive = 1280,
     h: Positive = 800,
@@ -160,6 +161,11 @@ proc startFidget*(
   echo fmt"{atlasStartSz=}"
   setupFidget(openglVersion, msaa, mainLoopMode, pixelate, pixelScale, atlasStartSz)
   mouse.pixelScale = pixelScale
+
+  if theme != nil:
+    common.theme = Node()
+    common.current = common.theme
+    theme()
 
   when defined(emscripten):
     # Emscripten can't block so it will call this callback instead.
