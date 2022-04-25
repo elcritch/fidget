@@ -275,7 +275,7 @@ proc draw*(node, parent: Node) =
   finally:
     ctx.restoreTransform()
 
-  # handles setting up scrollbar region
+  # handle node rotation
   ifdraw node.rotation != 0:
     ctx.translate(node.screenBox.wh/2)
     ctx.rotate(node.rotation/180*PI)

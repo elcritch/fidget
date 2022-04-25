@@ -547,6 +547,10 @@ proc fill*(color: string, alpha: float32 = 1.0) =
   current.fill = parseHtmlColor(color)
   current.fill.a = alpha
 
+proc fill*(node: Node) =
+  ## Sets background color.
+  current.fill = node.fill
+
 proc transparency*(transparency: float32) =
   ## Sets transparency.
   current.transparency = transparency
@@ -711,9 +715,9 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight) =
   rectangle "$scrollbar":
     box 0, 0, 0, 0
     layoutAlign laIgnore
-    fill "#5C8F9C", 0.4
+    fill textTheme.cursorColor
     onHover:
-      fill "#5C8F9C", 0.9
+      fill textTheme.highlightColor
     onClick:
       pipDrag = true
       pipHPosLast = mouse.descaled(pos).y 
