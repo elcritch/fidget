@@ -474,6 +474,10 @@ proc textStyle*(style: TextStyle) =
   ## Sets the font size.
   current.textStyle = style
 
+proc textStyle*(node: Node) =
+  ## Sets the font size.
+  current.textStyle = node.textStyle
+
 proc textAlign*(textAlignHorizontal: HAlign, textAlignVertical: VAlign) =
   ## Sets the horizontal and vertical alignment.
   current.textStyle.textAlignHorizontal = textAlignHorizontal
@@ -528,6 +532,10 @@ proc imageColor*(color: Color) =
 proc imageColor*(node: Node) =
   ## Sets image color.
   current.imageColor = node.imageColor
+
+proc textColor*(color: Color) =
+  ## Sets background color.
+  current.textStyle.fill = color
 
 proc fill*(color: Color) =
   ## Sets background color.
