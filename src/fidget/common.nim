@@ -48,7 +48,6 @@ type
 
   TextStyle* = object
     ## Holder for text styles.
-    color*: Color
     fontFamily*: string
     fontSize*: float32
     fontWeight*: float32
@@ -244,6 +243,7 @@ var
   nodeStack*: seq[Node]
   current*: Node
   theme*: Node
+  textTheme*: Node
   scrollBox*: Rect
   scrollBoxMega*: Rect ## Scroll box is 500px bigger in y direction
   scrollBoxMini*: Rect ## Scroll box is smaller by 100px useful for debugging
@@ -618,3 +618,18 @@ proc `~=`*(rect: Vec2, val: float32): bool =
 proc `[]=`*[T](events: GeneralEvents, key: string, evt: T) =
   events.data.mgetOrPut(key, newSeq[Variant]()).add newVariant(evt)
 
+template setupWidgetTheme*(blk) =
+  block:
+    common.theme = Node()
+    common.theme.resetToDefault()
+    common.current = common.theme
+    `blk`
+  common.current = nil
+
+template setupTextTheme*(blk) =
+  block:
+    common.textTheme = Node()
+    common.textTheme.resetToDefault()
+    common.current = common.textTheme
+    `blk`
+  common.current = nil

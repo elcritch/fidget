@@ -163,8 +163,6 @@ proc startFidget*(
   mouse.pixelScale = pixelScale
 
   if theme != nil:
-    common.theme = Node()
-    common.current = common.theme
     theme()
 
   when defined(emscripten):
