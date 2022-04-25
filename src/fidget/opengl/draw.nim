@@ -202,8 +202,8 @@ macro ifdraw(check, code: untyped, post: untyped = nil) =
   result = newStmtList()
   let checkval = genSym(nskLet, "checkval")
   result.add quote do:
-      let `checkval` = node.zLevel == currLevel and `check`
-      if `checkval`: `code`
+    let `checkval` = node.zLevel == currLevel and `check`
+    if `checkval`: `code`
   if post != nil:
     post.expectKind(nnkFinally)
     let postBlock = post[0]
@@ -234,7 +234,7 @@ proc drawShadows*(node: Node) =
       shadow.x + uiScale*i.toFloat()*blur, shadow.y + uiScale*j.toFloat()*blur,
       node.screenBox.w, node.screenBox.h
     ), shadow.color, node.cornerRadius[0])
-    
+
 proc drawBoxes*(node: Node) =
   if node.fill.a > 0:
     if node.imageName == "":
@@ -265,13 +265,13 @@ proc drawBoxes*(node: Node) =
 
 proc draw*(node, parent: Node) =
   ## Draws the node.
-  ## 
+  ##
   ## This is the primary routine that handles setting up the OpenGL
   ## context that will get rendered. This doesn't trigger the actual
   ## OpenGL rendering, but configures the various shaders and elements.
-  ## 
+  ##
   ## Note that visiable draw calls need to check they're on the current
-  ## active ZLevel (z-index). 
+  ## active ZLevel (z-index).
 
   # setup the opengl context to match the current node size and position
   ctx.saveTransform()
@@ -308,7 +308,7 @@ proc draw*(node, parent: Node) =
       node.drawText()
     else:
       node.drawBoxes()
-    
+
   # restores the opengl context back to the parent node's (see above)
   ctx.restoreTransform()
 
