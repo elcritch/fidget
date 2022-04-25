@@ -48,6 +48,7 @@ type
 
   TextStyle* = object
     ## Holder for text styles.
+    color*: Color
     fontFamily*: string
     fontSize*: float32
     fontWeight*: float32
