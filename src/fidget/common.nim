@@ -242,6 +242,7 @@ var
   prevRoot*: Node
   nodeStack*: seq[Node]
   current*: Node
+  theme*: Node
   scrollBox*: Rect
   scrollBoxMega*: Rect ## Scroll box is 500px bigger in y direction
   scrollBoxMini*: Rect ## Scroll box is smaller by 100px useful for debugging
