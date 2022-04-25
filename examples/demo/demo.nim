@@ -99,6 +99,7 @@ proc basicControls() =
       group "dropDownScroller":
         box 0, Em 2.0, 100, 80
         clipContent true
+        highlight clearColor
 
         group "dropDown":
           box 0, 0, 100, 4.Em
@@ -276,7 +277,6 @@ proc basicControls() =
           fill "#ffffff", 0.5
         onHover:
           highlight "#5C8F9C", 0.33
-          image "img1.png"
         onClick:
           if buttonName in selectedButton:
             selectedButton.del(selectedButton.find(buttonName))

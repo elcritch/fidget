@@ -534,6 +534,10 @@ proc imageColor*(node: Node) =
   ## Sets image color.
   current.imageColor = node.imageColor
 
+proc imageColor*(color: string, alpha: float32 = 1.0) =
+  current.imageColor = parseHtmlColor(color)
+  current.imageColor.a = alpha
+
 proc fill*(color: Color) =
   ## Sets background color.
   current.fill = color
