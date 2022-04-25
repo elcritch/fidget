@@ -275,7 +275,8 @@ proc basicControls() =
         if buttonName in selectedButton:
           fill "#ffffff", 0.5
         onHover:
-          highlight "#5C8F9C", 0.1
+          highlight "#5C8F9C", 0.33
+          image "img1.png"
         onClick:
           if buttonName in selectedButton:
             selectedButton.del(selectedButton.find(buttonName))

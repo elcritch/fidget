@@ -258,12 +258,6 @@ proc drawBoxes*(node: Node) =
     else:
       ctx.fillRect(node.screenBox.atXY(0, 0), node.highlightColor)
 
-  if node.stroke.a > 0 and node.strokeWeight > 0:
-    ctx.strokeRoundedRect(rect = node.screenBox.atXY(0, 0),
-                          color = node.stroke,
-                          weight = node.strokeWeight,
-                          radius = node.cornerRadius[0])
-
   if node.imageName != "":
     let path = dataDir / node.imageName
     let size = vec2(node.screenBox.w, node.screenBox.h)
@@ -271,6 +265,14 @@ proc drawBoxes*(node: Node) =
                   pos = vec2(0, 0),
                   color = node.imageColor,
                   size = size)
+  
+  if node.stroke.a > 0 and node.strokeWeight > 0:
+    ctx.strokeRoundedRect(rect = node.screenBox.atXY(0, 0),
+                          color = node.stroke,
+                          weight = node.strokeWeight,
+                          radius = node.cornerRadius[0])
+  
+
 
 proc draw*(node, parent: Node) =
   ## Draws the node.
