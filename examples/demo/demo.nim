@@ -275,7 +275,7 @@ proc basicControls() =
         if buttonName in selectedButton:
           fill "#ffffff", 0.5
         onHover:
-          highlight "#5C8F9C"
+          highlight "#5C8F9C", 0.1
         onClick:
           if buttonName in selectedButton:
             selectedButton.del(selectedButton.find(buttonName))
