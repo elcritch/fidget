@@ -521,7 +521,7 @@ proc fillRect*(ctx: Context, rect: Rect, color: Color) =
 
 proc fillRoundedRect*(ctx: Context, rect: Rect, color: Color, radius: float32) =
   if rect.w <= 0 or rect.h <= -0:
-    when defined(fidgetExtraDebugLogging): echo "fillRoundedRect: too small: ", rect 
+    when defined(fidgetExtraDebugLogging): echo "fillRoundedRect: too small: ", rect
     return
 
   # TODO: Make this a 9 patch
@@ -563,7 +563,7 @@ proc strokeRoundedRect*(
   ctx: Context, rect: Rect, color: Color, weight: float32, radius: float32
 ) =
   if rect.w <= 0 or rect.h <= -0:
-    when defined(fidgetExtraDebugLogging): echo "strokeRoundedRect: too small: ", rect 
+    when defined(fidgetExtraDebugLogging): echo "strokeRoundedRect: too small: ", rect
     return
 
   let radius = min(radius, min(rect.w/2, rect.h/2))
