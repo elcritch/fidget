@@ -469,7 +469,7 @@ proc fontSize*(fontSize: float32) =
 
 proc fontSize*(): float32 =
   ## Sets the font size in pixels.
-  result = current.textStyle.fontSize
+  result = current.textStyle.fontSize / common.uiScale
 
 proc fontWeight*(fontWeight: float32) =
   ## Sets the font weight.
@@ -613,6 +613,9 @@ proc cornerRadius*(radius: (float32, float32, float32, float32)) =
 proc cornerRadius*(node: Node) =
   ## Sets all radius of all 4 corners.
   current.cornerRadius =  node.cornerRadius
+
+proc cornerRadius*(): float32 =
+  result = current.cornerRadius[0] / common.uiScale
 
 proc editableText*(editableText: bool) =
   ## Sets the code for this node.
