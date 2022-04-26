@@ -640,6 +640,19 @@ proc highlight*(node: Node) =
   ## Sets the color of text selection.
   current.highlightColor = node.highlightColor
 
+proc disabledColor*(color: Color) =
+  ## Sets the color of text selection.
+  current.disabledColor = color
+
+proc disabledColor*(color: string, alpha = 1.0) =
+  ## Sets the color of text selection.
+  current.disabledColor = parseHtmlColor(color)
+  current.disabledColor.a = alpha
+
+proc disabledColor*(node: Node) =
+  ## Sets the color of text selection.
+  current.disabledColor = node.highlightColor
+
 proc clearShadows*() =
   ## Clear shadow
   current.shadows.setLen(0)

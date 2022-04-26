@@ -143,6 +143,7 @@ type
     drawable*: bool
     cursorColor*: Color
     highlightColor*: Color
+    disabledColor*: Color
     shadows*: seq[Shadow]
     constraintsHorizontal*: Constraint
     constraintsVertical*: Constraint
