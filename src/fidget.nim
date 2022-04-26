@@ -455,6 +455,10 @@ proc font*(
   current.textStyle.textAlignHorizontal = textAlignHorizontal
   current.textStyle.textAlignVertical = textAlignVertical
 
+proc fontOf*(node: Node) =
+  ## Sets the font family.
+  current.textStyle = node.textStyle
+
 proc fontFamily*(fontFamily: string) =
   ## Sets the font family.
   current.textStyle.fontFamily = fontFamily
@@ -462,6 +466,10 @@ proc fontFamily*(fontFamily: string) =
 proc fontSize*(fontSize: float32) =
   ## Sets the font size in pixels.
   current.textStyle.fontSize = fontSize * common.uiScale
+
+proc fontSize*(): float32 =
+  ## Sets the font size in pixels.
+  result = current.textStyle.fontSize
 
 proc fontWeight*(fontWeight: float32) =
   ## Sets the font weight.
