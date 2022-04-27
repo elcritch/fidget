@@ -582,9 +582,13 @@ proc fill*(color: string, alpha: float32 = 1.0) =
   current.fill = parseHtmlColor(color)
   current.fill.a = alpha
 
-proc fill*(node: Node | Theme) =
+proc fill*(node: Node) =
   ## Sets background color.
   current.fill = node.fill
+
+proc fill*(item: var Theme) =
+  ## Sets background color.
+  current.fill = item.fill
 
 proc transparency*(transparency: float32) =
   ## Sets transparency.
