@@ -1,5 +1,5 @@
 import algorithm, chroma, fidget/common, fidget/input, json, macros, strutils,
-    tables, vmath, bumpy
+    sequtils, tables, vmath, bumpy
 import math, strformat
 
 export chroma, common, input, vmath, bumpy
@@ -455,6 +455,24 @@ proc font*(
   current.textStyle.textAlignHorizontal = textAlignHorizontal
   current.textStyle.textAlignVertical = textAlignVertical
 
+proc font*(
+  theme: var Theme,
+  fontFamily: string,
+  fontSize, fontWeight, lineHeight: float32,
+  textAlignHorizontal: HAlign,
+  textAlignVertical: VAlign
+) =
+  ## Sets the font.
+  theme.textStyle = TextStyle()
+  theme.textStyle.fontFamily = fontFamily
+  theme.textStyle.fontSize = common.uiScale*fontSize
+  theme.textStyle.fontWeight = common.uiScale*fontWeight
+  theme.textStyle.lineHeight =
+      if lineHeight != 0.0: common.uiScale*lineHeight
+      else: common.uiScale*fontSize
+  theme.textStyle.textAlignHorizontal = textAlignHorizontal
+  theme.textStyle.textAlignVertical = textAlignVertical
+
 proc fontOf*(node: Node) =
   ## Sets the font family.
   current.textStyle = node.textStyle
@@ -483,7 +501,7 @@ proc textStyle*(style: TextStyle) =
   ## Sets the font size.
   current.textStyle = style
 
-proc textStyle*(node: Node) =
+proc textStyle*(node: Node | Theme) =
   ## Sets the font size.
   current.textStyle = node.textStyle
 
@@ -542,6 +560,10 @@ proc imageColor*(node: Node) =
   ## Sets image color.
   current.imageColor = node.imageColor
 
+proc imageColor*(theme: Theme) =
+  ## Sets image color.
+  current.imageColor = theme.glossColor
+
 proc imageColor*(color: string, alpha: float32 = 1.0) =
   current.imageColor = parseHtmlColor(color)
   current.imageColor.a = alpha
@@ -560,7 +582,7 @@ proc fill*(color: string, alpha: float32 = 1.0) =
   current.fill = parseHtmlColor(color)
   current.fill.a = alpha
 
-proc fill*(node: Node) =
+proc fill*(node: Node | Theme) =
   ## Sets background color.
   current.fill = node.fill
 
@@ -570,37 +592,61 @@ proc transparency*(transparency: float32) =
 
 proc stroke*(color: Color) =
   ## Sets stroke/border color.
-  current.stroke = color
+  current.stroke.color = color
 
 proc stroke*(color: Color, alpha: float32) =
   ## Sets stroke/border color.
-  current.stroke = color
-  current.stroke.a = alpha
+  current.stroke.color = color
+  current.stroke.color.a = alpha
 
 proc stroke*(color: string, alpha = 1.0) =
   ## Sets stroke/border color.
-  current.stroke = parseHtmlColor(color)
-  current.stroke.a = alpha
+  current.stroke.color = parseHtmlColor(color)
+  current.stroke.color.a = alpha
+
+proc stroke*(stroke: Stroke) =
+  ## Sets stroke/border color.
+  current.stroke = stroke
 
 proc strokeWeight*(weight: float32) =
   ## Sets stroke/border weight.
-  current.strokeWeight = weight * common.uiScale
+  current.stroke.weight = weight * common.uiScale
+
+proc stroke*(weight: float32, color: string, alpha = 1.0): Stroke =
+  ## Sets stroke/border color.
+  result.color = parseHtmlColor(color)
+  result.color.a = alpha
+  result.weight = weight * common.uiScale
+
+
+proc strokeLine*(item: var Theme | Node, weight: float32, color: string, alpha = 1.0) =
+  ## Sets stroke/border color.
+  current.stroke.color = parseHtmlColor(color)
+  current.stroke.color.a = alpha
+  current.stroke.weight = weight * common.uiScale
 
 proc strokeLine*(weight: float32, color: string, alpha = 1.0) =
   ## Sets stroke/border color.
-  current.stroke = parseHtmlColor(color)
-  current.stroke.a = alpha
-  current.strokeWeight = weight * common.uiScale
+  current.strokeLine(weight, color, alpha)
 
-proc strokeLine*(node: Node) =
+proc strokeLine*(node: var Node | Theme) =
   ## Sets stroke/border color.
-  current.stroke = node.stroke
-  current.strokeWeight = node.strokeWeight
+  current.stroke.color = node.stroke.color
+  current.stroke.weight = node.stroke.weight
 
 proc cornerRadius*(a, b, c, d: float32) =
   ## Sets all radius of all 4 corners.
   let s = common.uiScale * 3
   current.cornerRadius = (s*a, s*b, s*c, s*d)
+
+proc corners*(item: var Theme, a, b, c, d: float32) =
+  ## Sets all radius of all 4 corners.
+  let s = common.uiScale * 3
+  item.cornerRadius = (s*a, s*b, s*c, s*d)
+
+proc corners*(item: var Theme, radius: float32) =
+  ## Sets all radius of all 4 corners.
+  item.corners(radius, radius, radius, radius)
 
 proc cornerRadius*(radius: float32) =
   ## Sets all radius of all 4 corners.
@@ -610,7 +656,7 @@ proc cornerRadius*(radius: (float32, float32, float32, float32)) =
   ## Sets all radius of all 4 corners.
   cornerRadius(radius[0], radius[1], radius[2], radius[3] )
 
-proc cornerRadius*(node: Node) =
+proc cornerRadius*(node: Node | Theme) =
   ## Sets all radius of all 4 corners.
   current.cornerRadius =  node.cornerRadius
 
@@ -651,6 +697,14 @@ proc highlight*(node: Node) =
   ## Sets the color of text selection.
   current.highlightColor = node.highlightColor
 
+proc highlight*(node: var Theme) =
+  ## Sets the color of text selection.
+  current.highlightColor = node.highlight
+
+proc parseHtml*(color: string, alpha = 1.0): Color =
+  ## Sets the color of text selection.
+  result = parseHtmlColor(color)
+
 proc disabledColor*(color: Color) =
   ## Sets the color of text selection.
   current.disabledColor = color
@@ -668,14 +722,26 @@ proc clearShadows*() =
   ## Clear shadow
   current.shadows.setLen(0)
 
-proc shadows*(node: Node) =
+proc shadows*(node: Node | Theme) =
   current.shadows = node.shadows
 
-proc dropShadow*(blur, x, y: float32, color: string, alpha: float32) =
+proc dropShadow*(item: Node; blur, x, y: float32, color: string, alpha: float32) =
   ## Sets drop shadow on an element
   var c = parseHtmlColor(color)
   c.a = alpha
-  current.shadows.add Shadow(kind: DropShadow, blur: blur, x: x, y: y, color: c)
+  let sh: Shadow =  Shadow(kind: DropShadow, blur: blur, x: x, y: y, color: c)
+  item.shadows.add(sh)
+
+proc dropShadow*(item: var Theme; blur, x, y: float32, color: string, alpha: float32) =
+  ## Sets drop shadow on an element
+  var c = parseHtmlColor(color)
+  c.a = alpha
+  let sh: Shadow =  Shadow(kind: DropShadow, blur: blur, x: x, y: y, color: c)
+  item.shadows.add(sh)
+
+proc dropShadow*(blur, x, y: float32, color: string, alpha: float32) =
+  ## Sets drop shadow on an element
+  current.dropShadow(blur, x, y, color, alpha)
 
 proc innerShadow*(blur, x, y: float32, color: string, alpha: float32) =
   ## Sets an inner shadow
@@ -748,9 +814,9 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight) =
   rectangle "$scrollbar":
     box 0, 0, 0, 0
     layoutAlign laIgnore
-    fill textTheme.cursorColor
+    fill theme.cursor
     onHover:
-      fill textTheme.highlightColor
+      fill theme.highlight
     onClick:
       pipDrag = true
       pipHPosLast = mouse.descaled(pos).y 

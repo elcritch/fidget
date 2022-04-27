@@ -144,14 +144,14 @@ proc drawText(node: Node) =
       ))
       hashStroke: Hash
 
-    if node.strokeWeight > 0:
+    if node.stroke.weight > 0:
       hashStroke = hash((
         9812,
         fontFamily,
         pos.character,
         (font.size*100).int,
         (subPixelShift*100).int,
-        node.strokeWeight
+        node.stroke.weight
       ))
 
     if hashFill notin ctx.entries:
@@ -166,7 +166,7 @@ proc drawText(node: Node) =
       ctx.putImage(hashFill, glyphFill)
       glyphOffsets[hashFill] = glyphOffset
 
-    if node.strokeWeight > 0 and hashStroke notin ctx.entries:
+    if node.stroke.weight > 0 and hashStroke notin ctx.entries:
       var
         glyph = font.typeface.glyphs[pos.character]
         glyphOffset: Vec2
@@ -175,18 +175,18 @@ proc drawText(node: Node) =
         glyphOffset,
         subPixelShift = subPixelShift
       )
-      let glyphStroke = glyphFill.outlineBorder(node.strokeWeight.int)
+      let glyphStroke = glyphFill.outlineBorder(node.stroke.weight.int)
       ctx.putImage(hashStroke, glyphStroke)
 
     let
       glyphOffset = glyphOffsets[hashFill]
       charPos = vec2(pos.rect.x + glyphOffset.x, pos.rect.y + glyphOffset.y)
 
-    if node.strokeWeight > 0 and node.stroke.a > 0:
+    if node.stroke.weight > 0 and node.stroke.color.a > 0:
       ctx.drawImage(
         hashStroke,
-        charPos - vec2(node.strokeWeight, node.strokeWeight),
-        node.stroke
+        charPos - vec2(node.stroke.weight, node.stroke.weight),
+        node.stroke.color
       )
 
     ctx.drawImage(hashFill, charPos, node.fill)
@@ -266,10 +266,10 @@ proc drawBoxes*(node: Node) =
                   color = node.imageColor,
                   size = size)
   
-  if node.stroke.a > 0 and node.strokeWeight > 0:
+  if node.stroke.color.a > 0 and node.stroke.weight > 0:
     ctx.strokeRoundedRect(rect = node.screenBox.atXY(0, 0),
-                          color = node.stroke,
-                          weight = node.strokeWeight,
+                          color = node.stroke.color,
+                          weight = node.stroke.weight,
                           radius = node.cornerRadius[0])
   
 

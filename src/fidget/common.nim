@@ -100,6 +100,10 @@ type
     y*: float32
     color*: Color
 
+  Stroke* = object
+    weight*: float32
+    color*: Color
+
   NodeKind* = enum
     ## Different types of nodes.
     nkRoot
@@ -129,8 +133,7 @@ type
     mouseBase*: Vec2
     fill*: Color
     transparency*: float32
-    strokeWeight*: float32
-    stroke*: Color
+    stroke*: Stroke
     resizeDone*: bool
     htmlDone*: bool
     textStyle*: TextStyle
@@ -234,6 +237,23 @@ type
     else:
       future*: Future[string]
 
+  Theme* = object
+    fill*: Color
+    cursor*: Color
+    highlight*: Color
+    disabled*: Color
+    textFill*: Color
+    textStyle*: TextStyle
+    innerStroke*: Stroke
+    outerStroke*: Stroke
+    glossImage*: string
+    glossColor*: Color
+    cornerRadius*: (float32, float32, float32, float32)
+    shadows*: seq[Shadow]
+    horizontalPadding*: float32
+    verticalPadding*: float32
+    itemSpacing*: float32
+
 const
   DataDirPath* {.strdefine.} = "data"
 
@@ -243,8 +263,7 @@ var
   prevRoot*: Node
   nodeStack*: seq[Node]
   current*: Node
-  theme*: Node
-  textTheme*: Node
+  theme*: Theme
   scrollBox*: Rect
   scrollBoxMega*: Rect ## Scroll box is 500px bigger in y direction
   scrollBoxMini*: Rect ## Scroll box is smaller by 100px useful for debugging
@@ -361,8 +380,7 @@ proc resetToDefault*(node: Node)=
   # node.offset = vec2(0, 0)
   node.fill = clearColor
   node.transparency = 0
-  node.strokeWeight = 0
-  node.stroke = clearColor
+  node.stroke = Stroke(weight: 0, color: clearColor)
   node.resizeDone = false
   node.htmlDone = false
   node.textStyle = TextStyle()
@@ -621,17 +639,11 @@ proc `[]=`*[T](events: GeneralEvents, key: string, evt: T) =
 
 template setupWidgetTheme*(blk) =
   block:
-    common.theme = Node()
-    common.theme.resetToDefault()
-    common.current = common.theme
     `blk`
   common.current = nil
 
 template setupTextTheme*(blk) =
   block:
-    common.textTheme = Node()
-    common.textTheme.resetToDefault()
-    common.current = common.textTheme
     `blk`
   common.current = nil
 
