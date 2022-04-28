@@ -550,23 +550,37 @@ template binding*(stringVariable: untyped) =
 
 proc image*(imageName: string) =
   ## Sets image fill.
-  current.imageName = imageName
+  current.image.name = imageName
 
 proc imageColor*(color: Color) =
   ## Sets image color.
-  current.imageColor = color
-
-proc imageColor*(node: Node) =
-  ## Sets image color.
-  current.imageColor = node.imageColor
-
-proc imageColor*(theme: Theme) =
-  ## Sets image color.
-  current.imageColor = theme.glossColor
+  current.image.color = color
 
 proc imageColor*(color: string, alpha: float32 = 1.0) =
-  current.imageColor = parseHtmlColor(color)
-  current.imageColor.a = alpha
+  current.image.color = parseHtmlColor(color)
+  current.image.color.a = alpha
+
+proc image*(name: string, color: Color) =
+  ## Sets image fill.
+  current.image.name = name
+  current.image.color = color
+
+proc imageOf*(item: Node) =
+  ## Sets image fill.
+  current.image = item.image
+
+proc imageTransparency*(alpha: float32) =
+  ## Sets image fill.
+  current.image.color.a *= alpha
+
+proc imageOf*(item: ImageStyle, alpha: float32) =
+  ## Sets image fill.
+  current.image = item
+  current.image.color.a = alpha
+
+proc imageOf*(item: ImageStyle) =
+  ## Sets image fill.
+  current.image = item
 
 proc fill*(color: Color) =
   ## Sets background color.

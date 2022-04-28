@@ -116,6 +116,10 @@ type
     nkInstance
     nkDrawable
 
+  ImageStyle* = object
+    name*: string
+    color*: Color
+
   Node* = ref object
     id*: string
     uid*: NodeUID
@@ -137,8 +141,7 @@ type
     resizeDone*: bool
     htmlDone*: bool
     textStyle*: TextStyle
-    imageName*: string
-    imageColor*: Color
+    image*: ImageStyle
     cornerRadius*: (float32, float32, float32, float32)
     editableText*: bool
     multiline*: bool
@@ -241,13 +244,13 @@ type
     fill*: Color
     cursor*: Color
     highlight*: Color
+    foreground*: Color
     disabled*: Color
     textFill*: Color
     textStyle*: TextStyle
     innerStroke*: Stroke
     outerStroke*: Stroke
-    glossImage*: string
-    glossColor*: Color
+    gloss*: ImageStyle
     cornerRadius*: (float32, float32, float32, float32)
     shadows*: seq[Shadow]
     horizontalPadding*: float32
@@ -309,6 +312,10 @@ proc newUId*(): NodeUID =
     $lastUId
   else:
     NodeUID(lastUId)
+
+proc imageStyle*(name: string, color: Color): ImageStyle =
+  # Image style
+  result = ImageStyle(name: name, color: color)
 
 when not defined(js):
   var
@@ -384,8 +391,7 @@ proc resetToDefault*(node: Node)=
   node.resizeDone = false
   node.htmlDone = false
   node.textStyle = TextStyle()
-  node.imageName = ""
-  node.imageColor = whiteColor
+  node.image = ImageStyle(name: "", color: whiteColor)
   node.cornerRadius = (0'f32, 0'f32, 0'f32, 0'f32)
   node.editableText = false
   node.multiline = false

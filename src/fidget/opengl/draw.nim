@@ -258,12 +258,12 @@ proc drawBoxes*(node: Node) =
     else:
       ctx.fillRect(node.screenBox.atXY(0, 0), node.highlightColor)
 
-  if node.imageName != "":
-    let path = dataDir / node.imageName
+  if node.image.name != "":
+    let path = dataDir / node.image.name
     let size = vec2(node.screenBox.w, node.screenBox.h)
     ctx.drawImage(path,
                   pos = vec2(0, 0),
-                  color = node.imageColor,
+                  color = node.image.color,
                   size = size)
   
   if node.stroke.color.a > 0 and node.stroke.weight > 0:
