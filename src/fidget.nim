@@ -573,10 +573,10 @@ proc imageTransparency*(alpha: float32) =
   ## Sets image fill.
   current.image.color.a *= alpha
 
-proc imageOf*(item: ImageStyle, alpha: float32) =
+proc imageOf*(item: ImageStyle, transparency: float32) =
   ## Sets image fill.
   current.image = item
-  current.image.color.a = alpha
+  current.image.color.a *= transparency
 
 proc imageOf*(item: ImageStyle) =
   ## Sets image fill.
