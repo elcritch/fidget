@@ -157,7 +157,7 @@ proc startFidget*(
   drawMain = draw
   tickMain = tick
   loadMain = load
-  let atlasStartSz = 1024 shl uiScale.round().toInt()
+  let atlasStartSz = 1024 shl (uiScale.round().toInt() + 1)
   echo fmt"{atlasStartSz=}"
   setupFidget(openglVersion, msaa, mainLoopMode, pixelate, pixelScale, atlasStartSz)
   mouse.pixelScale = pixelScale
