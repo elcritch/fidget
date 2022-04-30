@@ -462,16 +462,12 @@ proc font*(
   textAlignHorizontal: HAlign,
   textAlignVertical: VAlign
 ) =
-  ## Sets the font.
-  theme.textStyle = TextStyle()
-  theme.textStyle.fontFamily = fontFamily
-  theme.textStyle.fontSize = common.uiScale*fontSize
-  theme.textStyle.fontWeight = common.uiScale*fontWeight
-  theme.textStyle.lineHeight =
-      if lineHeight != 0.0: common.uiScale*lineHeight
-      else: common.uiScale*fontSize
-  theme.textStyle.textAlignHorizontal = textAlignHorizontal
-  theme.textStyle.textAlignVertical = textAlignVertical
+  theme.setFontStyle(fontFamily,
+    fontSize,
+    fontWeight,
+    lineHeight,
+    textAlignHorizontal,
+    textAlignVertical)
 
 proc fontOf*(node: Node) =
   ## Sets the font family.

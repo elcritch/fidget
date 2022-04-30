@@ -653,10 +653,31 @@ template setupTextTheme*(blk) =
     `blk`
   common.current = nil
 
+proc setFontStyle*(
+  theme: var Theme,
+  fontFamily: string,
+  fontSize, fontWeight, lineHeight: float32,
+  textAlignHorizontal: HAlign,
+  textAlignVertical: VAlign
+) =
+  ## Sets the font.
+  theme.textStyle = TextStyle()
+  theme.textStyle.fontFamily = fontFamily
+  theme.textStyle.fontSize = common.uiScale*fontSize
+  theme.textStyle.fontWeight = common.uiScale*fontWeight
+  theme.textStyle.lineHeight =
+      if lineHeight != 0.0: common.uiScale*lineHeight
+      else: common.uiScale*fontSize
+  theme.textStyle.textAlignHorizontal = textAlignHorizontal
+  theme.textStyle.textAlignVertical = textAlignVertical
+
 proc emptyTheme*() =
   setupWidgetTheme:
-    current.fill = Color(r: 157/255, g: 157/255, b: 157/255, a: 1)
-  setupTextTheme:
-    # rgba(114, 189, 208, 1)
-    current.cursorColor = Color(r: 114/255, g: 189/255, b: 208/255, a: 0.33)
-    current.highlightColor = Color(r: 114/255, g: 189/255, b: 208/255, a: 0.77)
+    echo "GREY THEME"
+    let fs = 16'f32
+    theme.setFontStyle("IBM Plex Sans", fs, 200, 0, hCenter, vCenter)
+    theme.cornerRadius = (3'f32, 3'f32, 3'f32, 3'f32)
+    theme.fill = Color(r: 157/255, g: 157/255, b: 157/255, a: 1)
+    theme.cursor = Color(r: 114/255, g: 189/255, b: 208/255, a: 0.33)
+    theme.highlight = Color(r: 114/255, g: 189/255, b: 208/255, a: 0.77)
+    theme.itemSpacing = 0.001 * fs

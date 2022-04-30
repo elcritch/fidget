@@ -318,8 +318,9 @@ proc basicControls() =
       fill "#46607e", 0.5
       strokeWeight 1
       font "IBM Plex Sans", 12, 200, 0, hLeft, vCenter
-      if textInputVar == "":
-        characters "Start typing here"
+      if textInputVar.len() > 0:
+        fill clearColor
+      characters "Start typing here"
     rectangle "bg":
       box 0, 0, 250, 30
       stroke "#72bdd0"
