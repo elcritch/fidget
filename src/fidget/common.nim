@@ -337,6 +337,9 @@ when not defined(js):
 mouse = Mouse()
 mouse.pos = vec2(0)
 
+proc `$`*(a: Rect): string =
+  fmt"({a.x:6.2f}, {a.y:6.2f}; {a.w:6.2f}x{a.h:6.2f})"
+
 proc dumpTree*(node: Node, indent = "") =
   # node.idPath = ""
   # when defined(StringUID):
@@ -349,7 +352,8 @@ proc dumpTree*(node: Node, indent = "") =
   #     else:
   #       node.idPath.add $g.diffIndex
 
-  echo indent, "`", node.id, "`", " sb: ", node.screenBox, " org: ", node.orgBox
+  # echo indent, "`", node.id, "`", " sb: ", node.screenBox, " org: ", node.orgBox
+  echo indent & fmt" `{node.id}` sb:{node.screenBox} org:{node.orgBox} off: {node.offset} toff: {node.totalOffset} "
   for n in node.nodes:
     dumpTree(n, "  " & indent)
 
@@ -673,7 +677,6 @@ proc setFontStyle*(
 
 proc emptyTheme*() =
   setupWidgetTheme:
-    echo "GREY THEME"
     let fs = 16'f32
     theme.setFontStyle("IBM Plex Sans", fs, 200, 0, hCenter, vCenter)
     theme.cornerRadius = (3'f32, 3'f32, 3'f32, 3'f32)
