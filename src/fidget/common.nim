@@ -642,6 +642,10 @@ template pos*(item: var Mouse, raw: static[bool] = false): Vec2 =
   when raw: item.pos
   else: item.pos / common.uiScale
 
+template pos*(item: var Mouse, off: Vec2, raw: static[bool] = false): Vec2 =
+  when raw: item.pos + node.totalOffset
+  else: item.pos / common.uiScale + node.totalOffset
+
 proc setMousePos*(item: var Mouse, x, y: float64) =
   item.pos = vec2(x, y)
   item.pos *= pixelRatio / item.pixelScale

@@ -73,6 +73,7 @@ proc drawText(node: Node) =
   if font.lineHeight == 0:
     font.lineHeight = font.size
 
+  # TODO: Fixme
   let mousePos = mouse.pos(raw=true) - node.screenBox.xy
 
   if mouse.pos(raw=true).overlaps(node.screenBox):
