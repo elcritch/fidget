@@ -197,7 +197,7 @@ type
     NSResize
 
   Mouse* = ref object
-    pos*, delta*, prevPos*: Vec2
+    pos, delta, prevPos: Vec2
     pixelScale*: float32
     wheelDelta*: float32
     cursorStyle*: MouseCursorStyle ## Sets the mouse cursor icon
@@ -637,6 +637,16 @@ proc setOrgBox*(node: Node, x, y, w, h: float32, raw: static[bool]) =
 proc getOrgBox*(node: Node, raw: static[bool] = false): Rect =
   when raw: result = node.orgBox
   else: result = node.orgBox / common.uiScale
+
+proc pos*(item: var Mouse, raw: static[bool] = false): Vec2 =
+  when raw: result = item.pos
+  else: result = item.pos / common.uiScale
+
+proc setMousePos*(item: var Mouse, x, y: float64) =
+  item.pos = vec2(x, y)
+  item.pos *= pixelRatio / item.pixelScale
+  item.delta = item.pos - item.prevPos
+  item.prevPos = item.pos
 
 template descaled*(node, box: untyped): untyped =
   node.`box`/uiScale

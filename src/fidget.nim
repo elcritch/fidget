@@ -64,7 +64,7 @@ proc postNode() =
 
   current.removeExtraChildren()
 
-  let mpos = mouse.pos + current.totalOffset 
+  let mpos = mouse.pos(raw=true) + current.totalOffset
   if not common.eventsOvershadowed and
       not mouse.consumed and
       mpos.overlaps(current.screenBox):
@@ -203,7 +203,7 @@ proc mouseOverlapLogic*(): bool =
   if common.eventsOvershadowed:
     return
 
-  let mpos = mouse.pos + current.totalOffset 
+  let mpos = mouse.pos(raw=true) + current.totalOffset 
   let act = 
     (not popupActive or inPopup) and
     current.screenBox.w > 0 and

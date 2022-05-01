@@ -73,9 +73,9 @@ proc drawText(node: Node) =
   if font.lineHeight == 0:
     font.lineHeight = font.size
 
-  let mousePos = mouse.pos - node.screenBox.xy
+  let mousePos = mouse.pos(raw=true) - node.screenBox.xy
 
-  if mouse.pos.overlaps(node.screenBox):
+  if mouse.pos(raw=true).overlaps(node.screenBox):
     if node.selectable and mouse.wheelDelta != 0:
       keyboard.focus(node)
     elif node.selectable and mouse.down:
