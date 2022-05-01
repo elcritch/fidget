@@ -638,9 +638,9 @@ proc getOrgBox*(node: Node, raw: static[bool] = false): Rect =
   when raw: result = node.orgBox
   else: result = node.orgBox / common.uiScale
 
-proc pos*(item: var Mouse, raw: static[bool] = false): Vec2 =
-  when raw: result = item.pos
-  else: result = item.pos / common.uiScale
+template pos*(item: var Mouse, raw: static[bool] = false): Vec2 =
+  when raw: item.pos
+  else: item.pos / common.uiScale
 
 proc setMousePos*(item: var Mouse, x, y: float64) =
   item.pos = vec2(x, y)
