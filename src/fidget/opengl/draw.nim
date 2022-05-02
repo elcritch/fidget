@@ -23,11 +23,6 @@ proc sum*(rect: Rect): float32 =
 proc sum*(rect: (float32, float32, float32, float32)): float32 =
   result = rect[0] + rect[1] + rect[2] + rect[3]
 
-proc atXY*(rect: Rect, x, y: float64|float32|int): Rect =
-  result = rect
-  result.x = x.float32
-  result.y = y.float32
-
 proc focus*(keyboard: Keyboard, node: Node) =
   if keyboard.focusNode != node:
     keyboard.onUnFocusNode = keyboard.focusNode

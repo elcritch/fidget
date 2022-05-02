@@ -276,6 +276,7 @@ var
   numNodes*: int
   popupActive*: bool
   inPopup*: bool
+  popupBox*: Rect
   fullscreen* = false
   windowLogicalSize*: Vec2 ## Screen size in logical coordinates.
   windowSize*: Vec2    ## Screen coordinates
@@ -353,7 +354,7 @@ proc dumpTree*(node: Node, indent = "") =
   #       node.idPath.add $g.diffIndex
 
   # echo indent, "`", node.id, "`", " sb: ", node.screenBox, " org: ", node.orgBox
-  echo indent & fmt" `{node.id}` sb:{node.screenBox} org:{node.orgBox} off: {node.offset} toff: {node.totalOffset} "
+  echo indent & fmt" `{node.id}` sb:{node.screenBox} org:{node.orgBox} off: {node.offset} toff: {node.totalOffset} clip:{node.clipContent} "
   for n in node.nodes:
     dumpTree(n, "  " & indent)
 
@@ -654,6 +655,16 @@ proc setMousePos*(item: var Mouse, x, y: float64) =
 
 template descaled*(node, box: untyped): untyped =
   node.`box`/uiScale
+
+proc atXY*(rect: Rect, x, y: float64|float32|int): Rect =
+  result = rect
+  result.x = x.float32
+  result.y = y.float32
+
+proc `+`*(rect: Rect, xy: Vec2): Rect =
+  result = rect
+  result.x += xy.x
+  result.y += xy.y
 
 proc `~=`*(rect: Vec2, val: float32): bool =
   result = rect.x ~= val and rect.y ~= val

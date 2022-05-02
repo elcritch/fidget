@@ -210,7 +210,20 @@ proc mouseOverlapLogic*(): bool =
     current.screenBox.h > 0 
   # if mpos.overlaps(current.screenBox):
     # echo fmt"mouseOverlap: {mpos=} {current.screenBox=}"
-  act and mpos.overlaps(current.screenBox)
+  # if inPopup:
+    # echo fmt"mouseOverlap: popup: {mouse.pos(raw=true).overlaps(popupBox)} {mpos=} {popupBox=}"
+
+  result =
+    act and
+    mpos.overlaps(current.screenBox) and
+    (if inPopup: mouse.pos(raw=true).overlaps(popupBox) else: true)
+
+proc isCovered*(screenBox: Rect): bool =
+  ## Returns true if mouse overlaps the current node.
+  let off = current.totalOffset * -1
+  let sb = screenBox
+  let cb = current.screenBox
+  result = sb.overlaps(cb + off)
 
 template bindEvents*(name: string, events: GeneralEvents) =
   ## On click event handler.
