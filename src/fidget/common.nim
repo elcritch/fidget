@@ -660,7 +660,13 @@ proc atXY*(rect: Rect, x, y: float64|float32|int): Rect =
   result.x = x.float32
   result.y = y.float32
 
+proc `*`*(color: Color, alpha: float32): Color =
+  ## update alpha on color
+  result = color
+  result.a *= alpha
+
 proc `+`*(rect: Rect, xy: Vec2): Rect =
+  ## offset rect with xy vec2 
   result = rect
   result.x += xy.x
   result.y += xy.y
