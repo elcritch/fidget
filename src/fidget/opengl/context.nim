@@ -572,6 +572,8 @@ proc strokeRoundedRect*(
     8349,
     rect.w.int,
     rect.h.int,
+    (weight*100).int,
+    hash(color),
     (radius*100).int
   ))
 

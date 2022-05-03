@@ -656,7 +656,7 @@ proc strokeLine*(weight: float32, color: string, alpha = 1.0) =
   ## Sets stroke/border color.
   current.strokeLine(weight, color, alpha)
 
-proc strokeLine*(node: var Node | Theme) =
+proc strokeLine*(node: Node) =
   ## Sets stroke/border color.
   current.stroke.color = node.stroke.color
   current.stroke.weight = node.stroke.weight

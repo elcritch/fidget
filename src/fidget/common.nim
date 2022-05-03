@@ -353,8 +353,7 @@ proc dumpTree*(node: Node, indent = "") =
   #     else:
   #       node.idPath.add $g.diffIndex
 
-  # echo indent, "`", node.id, "`", " sb: ", node.screenBox, " org: ", node.orgBox
-  echo indent & fmt" `{node.id}` sb:{node.screenBox} org:{node.orgBox} off: {node.offset} toff: {node.totalOffset} clip:{node.clipContent} "
+  echo indent, "`", node.id, "`", " sb: ", node.screenBox, " org: ", node.orgBox
   for n in node.nodes:
     dumpTree(n, "  " & indent)
 
