@@ -247,7 +247,9 @@ type
     foreground*: Color
     disabled*: Color
     textFill*: Color
+    textBg*: Color
     textStyle*: TextStyle
+    textCorner*: float32
     innerStroke*: Stroke
     outerStroke*: Stroke
     gloss*: ImageStyle
@@ -710,6 +712,7 @@ proc emptyTheme*() =
     let fs = 16'f32
     theme.setFontStyle("IBM Plex Sans", fs, 200, 0, hCenter, vCenter)
     theme.cornerRadius = (3'f32, 3'f32, 3'f32, 3'f32)
+    theme.textCorner = common.uiScale * 2'f32
     theme.fill = Color(r: 157/255, g: 157/255, b: 157/255, a: 1)
     theme.cursor = Color(r: 114/255, g: 189/255, b: 208/255, a: 0.33)
     theme.highlight = Color(r: 114/255, g: 189/255, b: 208/255, a: 0.77)
