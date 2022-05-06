@@ -169,8 +169,12 @@ type
     selectable*: bool
     scrollBars*: bool ## Should it have scroll bars if children are clipped.
     postHooks*: seq[proc() {.closure.}]
+    hookName*: string
     hookStates*: Variant
+    hookEvents*: GeneralEvents
 
+  GeneralEvents* = object
+    data*: TableRef[string, Variant]
 
   KeyState* = enum
     Empty
@@ -390,6 +394,7 @@ proc resetToDefault*(node: Node)=
   node.selectable = false
   node.scrollBars = false
   node.hookStates = newVariant()
+  node.hookEvents = GeneralEvents(data: nil)
 
 proc setupRoot*() =
   if root == nil:
@@ -614,4 +619,7 @@ template descaled*(node, box: untyped): untyped =
 
 proc `~=`*(rect: Vec2, val: float32): bool =
   result = rect.x ~= val and rect.y ~= val
+
+proc `[]=`*[T](events: GeneralEvents, key: string, evt: T) =
+  events.data[key] = newVariant(evt)
 

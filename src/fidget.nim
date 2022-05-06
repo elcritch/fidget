@@ -190,6 +190,11 @@ proc mouseOverlapLogic*(): bool =
     # echo "mouseOverlap: : ", res, " mpos: ", $mpos, " sb: ", $current.screenBox
   act and mpos.overlaps(current.screenBox)
 
+template bindEvents*(name: string, events: GeneralEvents) =
+  ## On click event handler.
+  current.code = name
+  current.hookEvents = events
+
 template onClick*(inner: untyped) =
   ## On click event handler.
   if mouse.click and mouseOverlapLogic():
@@ -334,6 +339,10 @@ proc id*(id: string) =
   current.id = id
 
 proc id*(): string =
+  ## Get current node ID.
+  return current.id
+
+proc getId*(): string =
   ## Get current node ID.
   return current.id
 

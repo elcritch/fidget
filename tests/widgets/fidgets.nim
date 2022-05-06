@@ -1,5 +1,7 @@
 import macros, tables, strutils, strformat
 
+import fidget/common
+
 type
   WidgetProc* = proc()
 
@@ -28,10 +30,15 @@ proc makeLambdaDecl(
 
 iterator attributes*(blk: NimNode): (int, string, NimNode) =
   for idx, item in blk:
+    # echo "ATTRNAMES: KIND: ", item.kind
+    # echo "ATTRNAMES: ", item.treeRepr
     if item.kind == nnkCall:
       var name = item[0].repr
-      var code = item[1]
-      yield (idx, name, code)
+      if item.len() > 2:
+        let code = newStmtList(item[1..^1])
+        yield (idx, name, code)
+      else:
+        yield (idx, name, item[1])
 
 iterator propertyNames*(params: NimNode): (int, string, string, NimNode) =
   for idx, item in params:
@@ -72,12 +79,13 @@ proc makeType(name: string, body: NimNode): NimNode =
   result = newStmtList()
   let tpName = ident(name)
   var tp = quote do:
-    type `tpName` = ref object
+    type `tpName`* = ref object
       a: int
   var rec = newNimNode(nnkRecList)
   for pd, pv in propTypes:
     # echo "pd: ", pd, " => ", pv.treeRepr
-    rec.add newIdentDefs(ident pd, pv)
+    let pdfield = nnkPostfix.newTree(ident("*"), ident(pd)) 
+    rec.add newIdentDefs(pdfield, pv)
   tp[0][^1][0][^1] = rec
   result.add tp
   echo "TYPE: \n", result.repr
@@ -85,8 +93,8 @@ proc makeType(name: string, body: NimNode): NimNode =
 var widgetArgsTable* {.compileTime.} = initTable[string, seq[(string, string, NimNode, )]]()
 
 macro Widget*(widget, body: untyped): untyped =
-  echo "WITH: ", widget.repr
-  echo "WITH: ", body.repr
+  # echo "WITH: ", widget.repr
+  # echo "WITH: ", body.repr
   let procName = widget.strVal
 
   result = newStmtList()
@@ -95,7 +103,7 @@ macro Widget*(widget, body: untyped): untyped =
     attrs[name] = code
   var args = newSeq[NimNode]()
   let widgetArgs = widgetArgsTable[procName]
-  echo "WITH: widgetArgs: ", widgetArgs.repr
+  # echo "WITH: widgetArgs: ", widgetArgs.repr
   
   result = newStmtList()
   for (argname, propname, argtype) in widgetArgs:
@@ -137,25 +145,48 @@ proc makeWidgetPropertyMacro(procName, typeName: string): NimNode =
   echo "\n=== Widget: makeWidgetPropertyMacro === "
   echo result.repr
 
+proc eventsMacro*(tp: string, blk: NimNode): NimNode =
+  result = newStmtList()
+  var tn = ident tp
+  var code = blk
+  var name = ident "evt"
+  var matchBody = nnkCommand.newTree(ident "match", name, blk)
+  echo "ON EVENTS: ", blk.treeRepr
+  result.add quote do:
+    var v {.inject.}: Variant
+    if not current.hookEvents.data.isNil and
+          current.hookEvents.data.pop(current.code, v):
+      let `name` = v.get(`tn`)
+      `matchBody`
+
 proc makeStatefulWidget*(blk: NimNode, hasState: bool, defaultState: bool): NimNode =
   var
     procDef = blk
     body = procDef.body()
     params = procDef.params()
+    pragmas = procDef.pragma()
     preBody = newStmtList()
 
   let
+    hasEmptyReturnType = params[0].kind == nnkEmpty
     procName = procDef.name().strVal
-    typeName = procName.capitalizeAscii()
+    typeName =
+      if hasEmptyReturnType: procName.capitalizeAscii()
+      else: params[0].strVal
     groupName = newLit(procName)
     preName = ident("setup")
     postName = ident("post")
 
+  if hasState and hasEmptyReturnType:
+    warning("Fidgets with state should generally name their state typename using the return type. ", procDef)
   # echo "typeName: ", typeName
   # echo "widget: ", treeRepr blk
-
-  var initImpl: NimNode = newStmtList()
-  var hasProperty = false
+  var
+    initImpl: NimNode = newStmtList()
+    renderImpl: NimNode
+    onEventsImpl: NimNode
+    evtName: string
+    hasProperty = false
 
   for idx, name, code in body.attributes():
     echo fmt"{idx=} {name=}"
@@ -164,10 +195,34 @@ proc makeStatefulWidget*(blk: NimNode, hasState: bool, defaultState: bool): NimN
     case name:
     of "init":
       initImpl = code
+    of "render":
+      renderImpl = code
     of "properties":
+      if not hasState:
+        error("'properties' requires a Stateful Fidget type. ", code)
       hasProperty = true
       let wType = typeName.makeType(code)
       preBody.add wType
+    of "events":
+      code.expectKind(nnkStmtList)
+      let evtIdent = code[0]
+      evtName = evtIdent.strVal
+      echo "FIDGETS:EVENTS:NAME: ", evtName 
+      let code = code[1]
+      echo "FIDGETS:EVENTS: ", evtName, " code: ", code.treeRepr
+      preBody.add nnkCommand.newTree(ident "variant", evtIdent, code)
+    of "onEvents":
+      echo "FIDGETS:ONEVENTS: ", " code: ", code.treeRepr
+      onEventsImpl = code
+
+  echo "FIDGETS:eventsMacroName: ", evtName
+  if not onEventsImpl.isNil:
+    onEventsImpl = eventsMacro(evtName, onEventsImpl)
+  else:
+    onEventsImpl = newStmtList()
+
+  if renderImpl.isNil:
+    error("fidgets must provide a render body!", procDef)
 
   var typeNameSym = ident(typeName)
 
@@ -183,16 +238,30 @@ proc makeStatefulWidget*(blk: NimNode, hasState: bool, defaultState: bool): NimN
           if self == nil:
             raise newException(ValueError, "app widget state can't be nil")
 
-  procDef.body= quote do:
+  procDef.body = newStmtList()
+  procDef.body.add quote do:
     group `typeName`:
       `initImpl`
       `stateSetup`
       if `preName` != nil:
         `preName`()
-      `body`
+      `onEventsImpl`
+      `renderImpl`
       if `postName` != nil:
         `postName`()
 
+  # handle return the Fidgets self state variables
+  # echo "procTp:def: ", procDef.pragma.treeRepr
+  if hasState:
+    params[0] = ident typeName
+    if pragmas.kind == nnkEmpty:
+      procDef.pragma = nnkPragma.newTree(ident("discardable"))
+    else:
+      procDef.pragma.add ident("discardable")
+    procDef.body.add quote do:
+      result = self
+
+  # adjust Fidgets parameters, particularly add self, pre, post args. 
   let
     nilValue = quote do: nil
     stateArg =
@@ -201,18 +270,17 @@ proc makeStatefulWidget*(blk: NimNode, hasState: bool, defaultState: bool): NimN
     preArg = newIdentDefs(preName, bindSym"WidgetProc", nilValue)
     postArg = newIdentDefs(ident("post"), bindSym"WidgetProc", nilValue)
   
-  # echo "procTp: ", preArg.treeRepr
   if hasState and hasProperty:
     params.add stateArg
   params.add preArg
   params.add postArg 
+  # echo "procTp:return type match: ", hasStateReturnType
+  # echo "procTp:params: ", params.treeRepr
   # echo "params: ", treeRepr params
 
   var widgetArgs = newSeq[(string, string, NimNode)]()
   for idx, argname, propname, argtype in params.propertyNames():
     let pname = if propname == "": argname else: propname
-    echo "PROP label: ", pname, " => ", argname
-    echo "PROP type: ", argtype.treeRepr
     widgetArgs.add( (argname, pname, argtype,) )
 
   widgetArgsTable[procName] = widgetArgs
@@ -237,6 +305,11 @@ template useState*[T](tp: typedesc[T]) =
       current.hookStates.get(tp)
     else:
       self
+
+template useEvents*(): GeneralEvents =
+  if current.hookEvents.data.isNil:
+    current.hookEvents.data = newTable[string, Variant]()
+  current.hookEvents
 
 macro statefulFidget*(blk: untyped) =
   result = makeStatefulWidget(blk, hasState=true, defaultState=true)
