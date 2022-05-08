@@ -536,7 +536,7 @@ proc selectable*(v: bool) =
   ## Set text selectable flag.
   current.selectable = v
 
-template binding*(stringVariable: untyped) =
+template binding*(stringVariable, handler: untyped) =
   ## Makes the current object text-editable and binds it to the stringVariable.
   current.bindingSet = true
   selectable true
@@ -549,6 +549,10 @@ template binding*(stringVariable: untyped) =
     onClickOutside:
       keyboard.unFocus(current)
   onInput:
+    handler
+
+template binding*(stringVariable: untyped) =
+  binding(stringVariable) do:
     if stringVariable != keyboard.input:
       stringVariable = keyboard.input
 
