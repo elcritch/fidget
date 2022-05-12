@@ -723,3 +723,4 @@ proc emptyTheme*() =
 template copyTheme*(base: Theme, blk) =
   var theme: Theme = base
   `blk`
+  theme
