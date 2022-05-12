@@ -719,3 +719,7 @@ proc emptyTheme*() =
     theme.cursor = Color(r: 114/255, g: 189/255, b: 208/255, a: 0.33)
     theme.highlight = Color(r: 114/255, g: 189/255, b: 208/255, a: 0.77)
     theme.itemSpacing = 0.001 * fs
+
+template copyTheme*(base: Theme, blk) =
+  var theme: Theme = base
+  `blk`
