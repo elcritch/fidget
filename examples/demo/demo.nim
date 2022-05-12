@@ -372,9 +372,9 @@ proc basicImage() =
 proc basicConstraints() =
   frame "constraints":
     # Got to specify orgBox for constraints to work.
-    orgBox 0, 0, 400, 400
     # Then grow the normal box.
     box 130, 0, root.getBox().w - 130, root.getBox().h
+    orgBox 0, 0, 400, 400
     # Constraints will work on the difference between orgBox and box.
     fill "#ffffff"
 

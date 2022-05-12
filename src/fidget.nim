@@ -388,6 +388,11 @@ proc orgBox*(rect: Rect) =
   ## Sets the box dimensions with integers
   orgBox(rect.x, rect.y, rect.w, rect.h)
 
+proc autoOrg*(x, y, w, h: int|float32|float64) =
+  if current.hasRendered == false:
+    let b = Rect(x: float32 x, y: float32 y, w: float32 w, h: float32 h)
+    orgBox b
+
 proc autoOrg*() =
   if current.hasRendered == false:
     orgBox current.box
