@@ -130,6 +130,7 @@ type
     nodes*: seq[Node]
     box: Rect
     orgBox: Rect
+    hasRendered*: bool
     rotation*: float32
     screenBox*: Rect
     offset*: Vec2
@@ -419,6 +420,7 @@ proc resetToDefault*(node: Node)=
   node.zLevel = ZLevelDefault
   node.selectable = false
   node.scrollBars = false
+  node.hasRendered = false
   node.hookStates = newVariant()
   node.hookEvents = GeneralEvents(data: nil)
 

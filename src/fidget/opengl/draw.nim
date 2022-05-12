@@ -281,6 +281,8 @@ proc draw*(node, parent: Node) =
   ## active ZLevel (z-index).
 
   # setup the opengl context to match the current node size and position
+  node.hasRendered = true
+
   ctx.saveTransform()
   ctx.translate(node.screenBox.xy)
 

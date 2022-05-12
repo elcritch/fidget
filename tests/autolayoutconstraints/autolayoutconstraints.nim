@@ -10,18 +10,12 @@ var
   first = true
   obox: Rect
 
-template autoOrg*() =
-  if first:
-    obox = current.box
-    first = false
-  orgBox obox
-
 proc drawMain() =
   frame "autoLayout":
     fill "#ffffff"
 
     frame "autoFrame":
-      box 100, 75, parent.box.w - 300, parent.box.h - 200
+      box 100, 75, parent.box.w - 100, parent.box.h - 100
       autoOrg
       layout lmVertical
       counterAxisSizingMode csAuto
@@ -56,4 +50,4 @@ proc drawMain() =
   # for i in 0 ..< 7:
     # heights[i] = max(heights[i] + rand(-1 .. 2), 10)
 
-startFidget(drawMain, w = 800, h = 640, uiScale=1.5)
+startFidget(drawMain, w = 400, h = 400, uiScale=1.5)

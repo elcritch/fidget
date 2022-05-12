@@ -55,8 +55,6 @@ proc preNode(kind: NodeKind, id: string) =
   common.eventsOvershadowed = current.zLevel.ord() < zLevelMousePrecedent.ord()
 
 proc postNode() =
-  ## Node drawing is done.
-  
   # run after inner hooks
   for hook in current.postHooks:
     hook()
@@ -404,7 +402,7 @@ proc box*(
   ## Sets the box dimensions with integers
   ## Always set box before orgBox when doing constraints.
   boxFrom(float32 x, float32 y, float32 w, float32 h)
-  orgBox(float32 x, float32 y, float32 w, float32 h)
+  # orgBox(float32 x, float32 y, float32 w, float32 h)
 
 proc box*(rect: Rect) =
   ## Sets the box dimensions with integers
@@ -436,7 +434,7 @@ proc offset*(
   ## Sets the box dimension width and height
   let cb = current.box()
   box(float32 x, float32 y, cb.w, cb.h)
-  orgBox(float32 x, float32 y, cb.w, cb.h)
+  # orgBox(float32 x, float32 y, cb.w, cb.h)
 
 template boxOf*(node: Node) =
   if not node.isNil:
@@ -827,6 +825,9 @@ proc zlevel*(zidx: ZLevel) =
   ## Sets zLevel.
   current.zLevel = zidx
 
+template autoOrg*() =
+  if current.hasRendered == false:
+    orgBox current.box
 
 # TODO: fixme?
 var
