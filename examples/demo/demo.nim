@@ -377,6 +377,7 @@ proc basicConstraints() =
     box 130, 0, root.getBox().w - 130, root.getBox().h
     # Constraints will work on the difference between orgBox and box.
     fill "#ffffff"
+
     rectangle "Center":
       box 150, 150, 100, 100
       constraints cCenter, cCenter
@@ -389,6 +390,7 @@ proc basicConstraints() =
       box 40, 40, 320, 320
       constraints cStretch, cStretch
       fill "#70BDCF"
+
     rectangle "TR":
       box 360, 20, 20, 20
       constraints cMax, cMin

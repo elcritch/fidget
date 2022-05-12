@@ -388,6 +388,10 @@ proc orgBox*(rect: Rect) =
   ## Sets the box dimensions with integers
   orgBox(rect.x, rect.y, rect.w, rect.h)
 
+proc autoOrg*() =
+  if current.hasRendered == false:
+    orgBox current.box
+
 proc boxFrom(x, y, w, h: float32) =
   ## Sets the box dimensions.
   let b = Rect(x: x, y: y, w: w, h: h)
@@ -402,6 +406,7 @@ proc box*(
   ## Sets the box dimensions with integers
   ## Always set box before orgBox when doing constraints.
   boxFrom(float32 x, float32 y, float32 w, float32 h)
+  autoOrg()
   # orgBox(float32 x, float32 y, float32 w, float32 h)
 
 proc box*(rect: Rect) =
@@ -824,10 +829,6 @@ proc itemSpacing*(v: float32) =
 proc zlevel*(zidx: ZLevel) =
   ## Sets zLevel.
   current.zLevel = zidx
-
-template autoOrg*() =
-  if current.hasRendered == false:
-    orgBox current.box
 
 # TODO: fixme?
 var
