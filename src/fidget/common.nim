@@ -241,6 +241,7 @@ type
     else:
       future*: Future[string]
 
+  Themer = proc(): Theme
   Theme* = object
     fill*: Color
     cursor*: Color
@@ -269,7 +270,7 @@ var
   prevRoot*: Node
   nodeStack*: seq[Node]
   current*: Node
-  theme*: Theme
+  themes*: seq[Theme] = @[]
   scrollBox*: Rect
   scrollBoxMega*: Rect ## Scroll box is 500px bigger in y direction
   scrollBoxMini*: Rect ## Scroll box is smaller by 100px useful for debugging
@@ -344,17 +345,17 @@ mouse.pos = vec2(0)
 proc `$`*(a: Rect): string =
   fmt"({a.x:6.2f}, {a.y:6.2f}; {a.w:6.2f}x{a.h:6.2f})"
 
+proc setNodePath*(node: Node) =
+  node.idPath = ""
+  for i, g in nodeStack:
+    if i != 0:
+      node.idPath.add "."
+    if g.id != "":
+      node.idPath.add g.id
+    else:
+      node.idPath.add $g.diffIndex
+
 proc dumpTree*(node: Node, indent = "") =
-  # node.idPath = ""
-  # when defined(StringUID):
-  #   node.idPath = ""
-  #   for i, g in nodeStack:
-  #     if i != 0:
-  #       node.idPath.add "."
-  #     if g.id != "":
-  #       node.idPath.add g.id
-  #     else:
-  #       node.idPath.add $g.diffIndex
 
   echo indent, "`", node.id, "`", " sb: ", node.screenBox, " org: ", node.orgBox
   for n in node.nodes:
@@ -686,10 +687,13 @@ template setupWidgetTheme*(blk) =
     `blk`
   common.current = nil
 
-template setupTextTheme*(blk) =
-  block:
-    `blk`
-  common.current = nil
+template theme*(): var Theme =
+  common.themes[^1]
+
+proc setTheme*(th: Theme) =
+  common.themes.add th
+proc popTheme*(): Theme {.discardable.} =
+  common.themes.pop()
 
 proc setFontStyle*(
   theme: var Theme,
@@ -709,13 +713,14 @@ proc setFontStyle*(
   theme.textStyle.textAlignHorizontal = textAlignHorizontal
   theme.textStyle.textAlignVertical = textAlignVertical
 
-proc emptyTheme*() =
-  setupWidgetTheme:
-    let fs = 16'f32
-    theme.setFontStyle("IBM Plex Sans", fs, 200, 0, hCenter, vCenter)
-    theme.cornerRadius = (3'f32, 3'f32, 3'f32, 3'f32)
-    theme.textCorner = common.uiScale * 2'f32
-    theme.fill = Color(r: 157/255, g: 157/255, b: 157/255, a: 1)
-    theme.cursor = Color(r: 114/255, g: 189/255, b: 208/255, a: 0.33)
-    theme.highlight = Color(r: 114/255, g: 189/255, b: 208/255, a: 0.77)
-    theme.itemSpacing = 0.001 * fs
+proc defaultEmptyTheme(): Theme =
+  let fs = 16'f32
+  result.setFontStyle("IBM Plex Sans", fs, 200, 0, hCenter, vCenter)
+  result.cornerRadius = (3'f32, 3'f32, 3'f32, 3'f32)
+  result.textCorner = common.uiScale * 2'f32
+  result.fill = Color(r: 157/255, g: 157/255, b: 157/255, a: 1)
+  result.cursor = Color(r: 114/255, g: 189/255, b: 208/255, a: 0.33)
+  result.highlight = Color(r: 114/255, g: 189/255, b: 208/255, a: 0.77)
+  result.itemSpacing = 0.001 * fs
+
+let emptyTheme*: Themer = defaultEmptyTheme

@@ -53,6 +53,8 @@ proc preNode(kind: NodeKind, id: string) =
 
   current.diffIndex = 0
   common.eventsOvershadowed = current.zLevel.ord() < zLevelMousePrecedent.ord()
+  when defined(fidgetNodePath):
+    current.setNodePath()
 
 proc postNode() =
   # run after inner hooks
@@ -907,8 +909,6 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight) =
 
 
 proc defaultTheme*() =
-  setupWidgetTheme:
-    fill "#9D9D9D"
-  setupTextTheme:
-    cursorColor  "#77D3FF", 0.33
-    highlight "#77D3FF", 0.77
+  fill "#9D9D9D"
+  cursorColor  "#77D3FF", 0.33
+  highlight "#77D3FF", 0.77
