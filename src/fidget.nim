@@ -230,6 +230,11 @@ template bindEvents*(name: string, events: GeneralEvents) =
   current.code = name
   current.hookEvents = events
 
+template useEvents*(): GeneralEvents =
+  if current.hookEvents.data.isNil:
+    current.hookEvents.data = newTable[string, seq[Variant]]()
+  current.hookEvents
+
 template onClick*(inner: untyped) =
   ## On click event handler.
   if mouse.click and mouseOverlapLogic():
@@ -828,11 +833,13 @@ proc zlevel*(zidx: ZLevel) =
   current.zLevel = zidx
 
 # TODO: fixme?
-var
-  pipDrag = false
-  pipHPosLast = 0'f32
-  pipHPos = 0'f32
-  pipOffLast = 0'f32
+type
+  ScrollPip = ref object
+    drag: bool
+    hPosLast: float32
+    hPos: float32
+    offLast: float32
+
 
 proc scrollBars*(scrollBars: bool, hAlign = hRight, setup: proc() = nil) =
   ## Causes the parent to clip the children and draw scroll bars.
@@ -840,8 +847,13 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight, setup: proc() = nil) =
   if scrollBars == true:
     current.clipContent = scrollBars
 
+  let evts = useEvents()
+  # let pip = evts.data.mgetOrPut("$scrollbar", defaultPip)[0].get(ScrollPip)
+  let pip = evts.mgetOrPut("$scrollbar", ScrollPip)
+
   # define basics of scrollbar
   rectangle "$scrollbar":
+
     box 0, 0, 0, 0
     layoutAlign laIgnore
     fill "#5C8F9C", 0.4
@@ -850,15 +862,17 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight, setup: proc() = nil) =
     if not setup.isNil:
       setup()
     onClick:
-      pipDrag = true
-      pipHPosLast = mouse.descaled(pos).y 
-      pipOffLast = -current.descaled(offset).y
+      pip.drag = true
+      pip.hPosLast = mouse.descaled(pos).y 
+      pip.offLast = -current.descaled(offset).y
 
   current.postHooks.add proc() =
     ## add post inner callback to calculate the scrollbar box
     ## not sure this is the best way to handle this, but it's
     ## easier to calculate some things after the node has been
     ## called and computed. 
+    # evts.data["$scrollbar"] = @[newVariant(pip)]
+
     let
       halign: HAlign = hAlign
       cr = 4.0'f32
@@ -871,12 +885,12 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight, setup: proc() = nil) =
       perc = (ph/rh).clamp(0.0, 1.0)
       sh = perc*ph
 
-    if pipDrag:
-      pipHPos = mouse.descaled(pos).y 
-      pipDrag = buttonDown[MOUSE_LEFT]
-      let pipDelta =  (pipHPos - pipHPosLast)
+    if pip.drag:
+      pip.hPos = mouse.descaled(pos).y 
+      pip.drag = buttonDown[MOUSE_LEFT]
+      let delta = (pip.hPos - pip.hPosLast)
       # echo fmt"pipPerc: pd: {pipDelta:6.4f} pl: {pipOffLast:6.4f} ch: {ch:6.4f}"
-      current.offset.y = uiScale*(pipOffLast + pipDelta * 1/perc)
+      current.offset.y = uiScale*(pip.offLast + delta * 1/perc)
       current.offset.y = current.offset.y.clamp(0, uiScale*ch)
 
     let
