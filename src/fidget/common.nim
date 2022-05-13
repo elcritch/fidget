@@ -241,25 +241,6 @@ type
     else:
       future*: Future[string]
 
-  Themer = proc(): Theme
-  Theme* = object
-    fill*: Color
-    cursor*: Color
-    highlight*: Color
-    foreground*: Color
-    disabled*: Color
-    textFill*: Color
-    textBg*: Color
-    textStyle*: TextStyle
-    textCorner*: float32
-    innerStroke*: Stroke
-    outerStroke*: Stroke
-    gloss*: ImageStyle
-    cornerRadius*: (float32, float32, float32, float32)
-    shadows*: seq[Shadow]
-    horizontalPadding*: float32
-    verticalPadding*: float32
-    itemSpacing*: float32
 
 const
   DataDirPath* {.strdefine.} = "data"
@@ -270,7 +251,6 @@ var
   prevRoot*: Node
   nodeStack*: seq[Node]
   current*: Node
-  themes*: seq[Theme] = @[]
   scrollBox*: Rect
   scrollBoxMega*: Rect ## Scroll box is 500px bigger in y direction
   scrollBoxMini*: Rect ## Scroll box is smaller by 100px useful for debugging
@@ -681,46 +661,3 @@ proc `~=`*(rect: Vec2, val: float32): bool =
 
 proc `[]=`*[T](events: GeneralEvents, key: string, evt: T) =
   events.data.mgetOrPut(key, newSeq[Variant]()).add newVariant(evt)
-
-template setupWidgetTheme*(blk) =
-  block:
-    `blk`
-  common.current = nil
-
-template theme*(): var Theme =
-  common.themes[^1]
-
-proc setTheme*(th: Theme) =
-  common.themes.add th
-proc popTheme*(): Theme {.discardable.} =
-  common.themes.pop()
-
-proc setFontStyle*(
-  theme: var Theme,
-  fontFamily: string,
-  fontSize, fontWeight, lineHeight: float32,
-  textAlignHorizontal: HAlign,
-  textAlignVertical: VAlign
-) =
-  ## Sets the font.
-  theme.textStyle = TextStyle()
-  theme.textStyle.fontFamily = fontFamily
-  theme.textStyle.fontSize = common.uiScale*fontSize
-  theme.textStyle.fontWeight = common.uiScale*fontWeight
-  theme.textStyle.lineHeight =
-      if lineHeight != 0.0: common.uiScale*lineHeight
-      else: common.uiScale*fontSize
-  theme.textStyle.textAlignHorizontal = textAlignHorizontal
-  theme.textStyle.textAlignVertical = textAlignVertical
-
-proc defaultEmptyTheme(): Theme =
-  let fs = 16'f32
-  result.setFontStyle("IBM Plex Sans", fs, 200, 0, hCenter, vCenter)
-  result.cornerRadius = (3'f32, 3'f32, 3'f32, 3'f32)
-  result.textCorner = common.uiScale * 2'f32
-  result.fill = Color(r: 157/255, g: 157/255, b: 157/255, a: 1)
-  result.cursor = Color(r: 114/255, g: 189/255, b: 208/255, a: 0.33)
-  result.highlight = Color(r: 114/255, g: 189/255, b: 208/255, a: 0.77)
-  result.itemSpacing = 0.001 * fs
-
-let emptyTheme*: Themer = defaultEmptyTheme

@@ -478,14 +478,33 @@ proc font*(
   current.textStyle.textAlignHorizontal = textAlignHorizontal
   current.textStyle.textAlignVertical = textAlignVertical
 
-proc font*(
-  theme: var Theme,
+proc setFontStyle*(
+  node: Node,
   fontFamily: string,
   fontSize, fontWeight, lineHeight: float32,
   textAlignHorizontal: HAlign,
   textAlignVertical: VAlign
 ) =
-  theme.setFontStyle(fontFamily,
+  ## Sets the font.
+  node.textStyle = TextStyle()
+  node.textStyle.fontFamily = fontFamily
+  node.textStyle.fontSize = common.uiScale*fontSize
+  node.textStyle.fontWeight = common.uiScale*fontWeight
+  node.textStyle.lineHeight =
+      if lineHeight != 0.0: common.uiScale*lineHeight
+      else: common.uiScale*fontSize
+  node.textStyle.textAlignHorizontal = textAlignHorizontal
+  node.textStyle.textAlignVertical = textAlignVertical
+
+proc font*(
+  node: Node,
+  fontFamily: string,
+  fontSize, fontWeight, lineHeight: float32,
+  textAlignHorizontal: HAlign,
+  textAlignVertical: VAlign
+) =
+  node.setFontStyle(
+    fontFamily,
     fontSize,
     fontWeight,
     lineHeight,
@@ -520,7 +539,7 @@ proc textStyle*(style: TextStyle) =
   ## Sets the font size.
   current.textStyle = style
 
-proc textStyle*(node: Node | Theme) =
+proc textStyle*(node: Node) =
   ## Sets the font size.
   current.textStyle = node.textStyle
 
@@ -623,10 +642,6 @@ proc fill*(node: Node) =
   ## Sets background color.
   current.fill = node.fill
 
-proc fill*(item: var Theme) =
-  ## Sets background color.
-  current.fill = item.fill
-
 proc transparency*(transparency: float32) =
   ## Sets transparency.
   current.transparency = transparency
@@ -659,14 +674,13 @@ proc stroke*(weight: float32, color: string, alpha = 1.0): Stroke =
   result.color.a = alpha
   result.weight = weight * common.uiScale
 
-
-proc strokeLine*(item: var Theme | Node, weight: float32, color: string, alpha = 1.0) =
+proc strokeLine*(item: Node, weight: float32, color: string, alpha = 1.0) =
   ## Sets stroke/border color.
   current.stroke.color = parseHtmlColor(color)
   current.stroke.color.a = alpha
   current.stroke.weight = weight * common.uiScale
 
-proc strokeLine*(weight: float32, color: string, alpha = 1.0) =
+proc strokeLine*(weight: float32, color: string, alpha = 1.0'f32) =
   ## Sets stroke/border color.
   current.strokeLine(weight, color, alpha)
 
@@ -680,15 +694,6 @@ proc cornerRadius*(a, b, c, d: float32) =
   let s = common.uiScale * 3
   current.cornerRadius = (s*a, s*b, s*c, s*d)
 
-proc corners*(item: var Theme, a, b, c, d: float32) =
-  ## Sets all radius of all 4 corners.
-  let s = common.uiScale * 3
-  item.cornerRadius = (s*a, s*b, s*c, s*d)
-
-proc corners*(item: var Theme, radius: float32) =
-  ## Sets all radius of all 4 corners.
-  item.corners(radius, radius, radius, radius)
-
 proc cornerRadius*(radius: float32) =
   ## Sets all radius of all 4 corners.
   cornerRadius(radius, radius, radius, radius)
@@ -696,10 +701,6 @@ proc cornerRadius*(radius: float32) =
 proc cornerRadius*(radius: (float32, float32, float32, float32)) =
   ## Sets all radius of all 4 corners.
   cornerRadius(radius[0], radius[1], radius[2], radius[3] )
-
-proc cornerRadius*(node: Node | Theme) =
-  ## Sets all radius of all 4 corners.
-  current.cornerRadius =  node.cornerRadius
 
 proc cornerRadius*(): float32 =
   result = current.cornerRadius[0] / common.uiScale
@@ -738,10 +739,6 @@ proc highlight*(node: Node) =
   ## Sets the color of text selection.
   current.highlightColor = node.highlightColor
 
-proc highlight*(node: var Theme) =
-  ## Sets the color of text selection.
-  current.highlightColor = node.highlight
-
 proc parseHtml*(color: string, alpha = 1.0): Color =
   ## Sets the color of text selection.
   result = parseHtmlColor(color)
@@ -763,17 +760,10 @@ proc clearShadows*() =
   ## Clear shadow
   current.shadows.setLen(0)
 
-proc shadows*(node: Node | Theme) =
+proc shadows*(node: Node) =
   current.shadows = node.shadows
 
 proc dropShadow*(item: Node; blur, x, y: float32, color: string, alpha: float32) =
-  ## Sets drop shadow on an element
-  var c = parseHtmlColor(color)
-  c.a = alpha
-  let sh: Shadow =  Shadow(kind: DropShadow, blur: blur, x: x, y: y, color: c)
-  item.shadows.add(sh)
-
-proc dropShadow*(item: var Theme; blur, x, y: float32, color: string, alpha: float32) =
   ## Sets drop shadow on an element
   var c = parseHtmlColor(color)
   c.a = alpha
@@ -844,7 +834,7 @@ var
   pipHPos = 0'f32
   pipOffLast = 0'f32
 
-proc scrollBars*(scrollBars: bool, hAlign = hRight) =
+proc scrollBars*(scrollBars: bool, hAlign = hRight, setup: proc() = nil) =
   ## Causes the parent to clip the children and draw scroll bars.
   current.scrollBars = scrollBars
   if scrollBars == true:
@@ -854,9 +844,11 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight) =
   rectangle "$scrollbar":
     box 0, 0, 0, 0
     layoutAlign laIgnore
-    fill theme.cursor
+    fill "#5C8F9C", 0.4
     onHover:
-      fill theme.highlight
+      fill "#5C8F9C", 0.9
+    if not setup.isNil:
+      setup()
     onClick:
       pipDrag = true
       pipHPosLast = mouse.descaled(pos).y 

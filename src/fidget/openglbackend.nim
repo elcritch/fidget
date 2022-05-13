@@ -137,7 +137,7 @@ proc startFidget*(
     draw: proc() = nil,
     tick: proc() = nil,
     load: proc() = nil,
-    theme: proc(): Theme = nil,
+    setup: proc() = nil,
     fullscreen = false,
     w: Positive = 1280,
     h: Positive = 800,
@@ -162,8 +162,8 @@ proc startFidget*(
   setupFidget(openglVersion, msaa, mainLoopMode, pixelate, pixelScale, atlasStartSz)
   mouse.pixelScale = pixelScale
 
-  if common.themes.len() == 0:
-    common.themes.add(if theme.isNil: emptyTheme() else: theme())
+  if not setup.isNil:
+    setup()
 
   when defined(emscripten):
     # Emscripten can't block so it will call this callback instead.
