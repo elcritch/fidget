@@ -840,6 +840,9 @@ type
     hPos: float32
     offLast: float32
 
+var
+  scrollBarFill* = parseHtml("#5C8F9C") * 0.4
+  scrollBarHighlight* = parseHtml("#5C8F9C") * 0.9
 
 proc scrollBars*(scrollBars: bool, hAlign = hRight, setup: proc() = nil) =
   ## Causes the parent to clip the children and draw scroll bars.
@@ -856,9 +859,9 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight, setup: proc() = nil) =
 
     box 0, 0, 0, 0
     layoutAlign laIgnore
-    fill "#5C8F9C", 0.4
+    fill scrollBarFill
     onHover:
-      fill "#5C8F9C", 0.9
+      fill scrollBarHighlight
     if not setup.isNil:
       setup()
     onClick:
