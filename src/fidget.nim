@@ -847,8 +847,8 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight, setup: proc() = nil) =
   if scrollBars == true:
     current.clipContent = scrollBars
 
+  # todo? make useData?
   let evts = useEvents()
-  # let pip = evts.data.mgetOrPut("$scrollbar", defaultPip)[0].get(ScrollPip)
   let pip = evts.mgetOrPut("$scrollbar", ScrollPip)
 
   # define basics of scrollbar
