@@ -111,8 +111,11 @@ proc drawText(node: Node) =
     node.textLayout = textBox.layout
     ctx.saveTransform()
     ctx.translate(-textBox.scroll)
+    let selectColor =
+      if node.highlightColor == clearColor: node.fill
+      else: node.highlightColor
     for rect in textBox.selectionRegions():
-      ctx.fillRect(rect, node.highlightColor)
+      ctx.fillRect(rect, selectColor)
   else:
     discard
 
