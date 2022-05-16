@@ -679,6 +679,12 @@ proc stroke*(weight: float32, color: string, alpha = 1.0): Stroke =
   result.color.a = alpha
   result.weight = weight * common.uiScale
 
+proc stroke*(weight: float32, color: Color, alpha = 1.0): Stroke =
+  ## Sets stroke/border color.
+  result.color = color
+  result.color.a = alpha
+  result.weight = weight * common.uiScale
+
 proc strokeLine*(item: Node, weight: float32, color: string, alpha = 1.0) =
   ## Sets stroke/border color.
   current.stroke.color = parseHtmlColor(color)

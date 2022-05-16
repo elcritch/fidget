@@ -310,6 +310,7 @@ proc basicControls() =
     text "text":
       box 9, 8, 232, 15
       fill "#46607e"
+      highlight "#46607e", 0.4
       strokeWeight 1
       font "IBM Plex Sans", 12, 200, 0, hLeft, vCenter
       binding textInputVar

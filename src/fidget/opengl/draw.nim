@@ -69,7 +69,8 @@ proc drawText(node: Node) =
     font.lineHeight = font.size
 
   # TODO: Fixme
-  let mousePos = mouse.pos(raw=true) - node.screenBox.xy
+  let mousePos = mouse.pos(raw=true) - node.screenBox.xy + node.totalOffset
+  # let mousePos = mouse.pos(raw=true) + node.totalOffset
 
   if mouse.pos(raw=true).overlaps(node.screenBox):
     if node.selectable and mouse.wheelDelta != 0:
