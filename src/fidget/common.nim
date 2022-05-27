@@ -662,6 +662,12 @@ proc `~=`*(rect: Vec2, val: float32): bool =
 proc `[]=`*[T](events: GeneralEvents, key: string, evt: T) =
   events.data.mgetOrPut(key, newSeq[Variant]()).add newVariant(evt)
 
+proc pop*(events: GeneralEvents, key: string, vals: var seq[Variant]): bool =
+  result = events.data.pop(key, vals)
+
+proc hasKey*(events: GeneralEvents, key: string): bool =
+  result = events.data.hasKey(key) and events.data[key].len() > 0
+
 proc mgetOrPut*[T](events: GeneralEvents, key: string, default: typedesc[T]): T =
   if not events.data.hasKey(key):
     let x = T()

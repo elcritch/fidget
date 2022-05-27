@@ -1,6 +1,7 @@
 import algorithm, chroma, fidget/common, fidget/input, json, macros, strutils,
     sequtils, tables, vmath, bumpy
 import math, strformat
+import patty
 
 export chroma, common, input, vmath, bumpy
 
@@ -840,15 +841,25 @@ proc zlevel*(zidx: ZLevel) =
 
 # TODO: fixme?
 type
-  ScrollPip = ref object
-    drag: bool
+  ScrollPip* = ref object
+    perc*: float32
+    drag*: bool
     hPosLast: float32
     hPos: float32
     offLast: float32
 
+{.push hint[Name]: off.}
+variantp ScrollEvent:
+  ScrollTo(perc: float32)
+  ScrollPage(amount: float32)
+{.pop.}
+
 var
   scrollBarFill* = parseHtml("#5C8F9C") * 0.4
   scrollBarHighlight* = parseHtml("#5C8F9C") * 0.9
+
+proc scrollEvent*(events: GeneralEvents, evt: ScrollEvent) =
+  events.data.mgetOrPut("$scrollbar.event", newSeq[Variant]()).add newVariant(evt)
 
 proc scrollBars*(scrollBars: bool, hAlign = hRight, setup: proc() = nil) =
   ## Causes the parent to clip the children and draw scroll bars.
@@ -882,6 +893,7 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight, setup: proc() = nil) =
     ## called and computed. 
     # evts.data["$scrollbar"] = @[newVariant(pip)]
 
+    let evts = useEvents()
     let
       halign: HAlign = hAlign
       cr = 4.0'f32
@@ -891,23 +903,43 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight, setup: proc() = nil) =
       nw = current.descaled(screenBox).w
       ch = max(current.descaled(screenBox).h - ph, 0)
       rh = current.descaled(screenBox).h
-      perc = (ph/rh).clamp(0.0, 1.0)
-      sh = perc*ph
+      boxRatio = (ph/rh).clamp(0.0, 1.0)
+      sh = boxRatio*ph
+
+      nh = current.descaled(screenBox).h - ph
+      yo = current.descaled(offset).y()
+      # pip.perc = (yo/nh).clamp(0.0, 1.0)
 
     if pip.drag:
       pip.hPos = mouse.descaled(pos).y 
       pip.drag = buttonDown[MOUSE_LEFT]
+
       let delta = (pip.hPos - pip.hPosLast)
-      # echo fmt"pipPerc: pd: {pipDelta:6.4f} pl: {pipOffLast:6.4f} ch: {ch:6.4f}"
-      current.offset.y = uiScale*(pip.offLast + delta * 1/perc)
+      current.offset.y = uiScale*(pip.offLast + delta / boxRatio)
       current.offset.y = current.offset.y.clamp(0, uiScale*ch)
 
+    var scEvts: seq[Variant]
+    if evts.data.pop("$scrollbar.event", scEvts):
+      for evt in scEvts:
+        if evt.ofType(ScrollEvent):
+          let scrollEvt = evt.get(ScrollEvent)
+          echo fmt"got scroll event: {scrollEvt=}"
+          match scrollEvt:
+            ScrollTo(perc: nperc):
+              let delPerc = nperc - pip.perc
+              echo fmt"scrolling to: {pip.perc=} {nperc=} {delPerc=} adjust: {(ph-sh)*delPerc=}"
+              current.offset.y = uiScale*( nh * nperc)
+              pip.perc = nperc
+            ScrollPage(amount: amount):
+              echo fmt"scrolling page: {amount=}"
+              # pip.perc = pip.perc + 0.10 * amount 
+              # adjustOffset((ph - sh) * pip.perc)
+    else:
+      pip.perc = (yo/nh).clamp(0.0, 1.0)
+    
     let
-      nh = current.descaled(screenBox).h - ph
-      yo = current.descaled(offset).y()
-      hPerc = (yo/nh).clamp(0.0, 1.0)
       xx = if halign == hLeft: 0'f32 else: nw - width
-      bx = Rect(x: xx, y: hPerc*(ph - sh), w: width, h: sh)
+      bx = Rect(x: xx, y: pip.perc*(ph - sh), w: width, h: sh)
 
     var idx = -1
     for i, child in current.nodes:
