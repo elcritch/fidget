@@ -81,6 +81,10 @@ proc postNode() =
         mouse.consumed = true
         # echo "postNode offset:after: ", current.offset
 
+        let scrollPerc = current.offset.y /
+                          (current.screenBox.h - parent.screenBox.h)
+        current.scrollPercent = scrollPerc 
+
   zLevelMouse = ZLevel(max(zLevelMouse.ord, current.zLevel.ord))
   # Pop the stack.
   discard nodeStack.pop()
@@ -918,20 +922,20 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight, setup: proc() = nil) =
       let scrollPercent = currOffset/(currBox.h - parentBox.h)
       current.scrollPercent = scrollPercent.clamp(0.0, 1.0)
 
-    var scEvts: seq[Variant]
-    if evts.data.pop("$scrollbar.event", scEvts):
-      for evt in scEvts:
-        if evt.ofType(ScrollEvent):
-          let scrollEvt = evt.get(ScrollEvent)
-          match scrollEvt:
-            ScrollTo(perc: nperc):
-              current.offset.y = uiScale*((currBox.h - parentBox.h) * nperc)
-              current.scrollPercent = nperc
-            ScrollPage(amount: amount):
-              current.scrollPercent += amount
-    else:
-      let scrollPercent = currOffset/(currBox.h - parentBox.h)
-      current.scrollPercent = scrollPercent.clamp(0.0, 1.0)
+    # var scEvts: seq[Variant]
+    # if evts.data.pop("$scrollbar.event", scEvts):
+    #   for evt in scEvts:
+    #     if evt.ofType(ScrollEvent):
+    #       let scrollEvt = evt.get(ScrollEvent)
+    #       match scrollEvt:
+    #         ScrollTo(perc: nperc):
+    #           current.offset.y = uiScale*((currBox.h - parentBox.h) * nperc)
+    #           current.scrollPercent = nperc
+    #         ScrollPage(amount: amount):
+    #           current.scrollPercent += amount
+    # else:
+    #   let scrollPercent = currOffset/(currBox.h - parentBox.h)
+    #   current.scrollPercent = scrollPercent.clamp(0.0, 1.0)
     
     let
       xx = if halign == hLeft: 0'f32 else: currBox.w - width
