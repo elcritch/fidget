@@ -842,7 +842,6 @@ proc zlevel*(zidx: ZLevel) =
 # TODO: fixme?
 type
   ScrollPip* = ref object
-    perc*: float32
     drag*: bool
     hPosLast: float32
     hPos: float32
@@ -922,20 +921,20 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight, setup: proc() = nil) =
           echo fmt"got scroll event: {scrollEvt=}"
           match scrollEvt:
             ScrollTo(perc: nperc):
-              let delPerc = nperc - pip.perc
-              echo fmt"scrolling to: {pip.perc=} {nperc=} {delPerc=} adjust: {(ph-sh)*delPerc=}"
+              let delPerc = nperc - current.scrollPercent
+              echo fmt"scrolling to: {current.scrollPercent=} {nperc=} {delPerc=} adjust: {(ph-sh)*delPerc=}"
               current.offset.y = uiScale*( nh * nperc)
-              pip.perc = nperc
+              current.scrollPercent = nperc
             ScrollPage(amount: amount):
               echo fmt"scrolling page: {amount=}"
               # pip.perc = pip.perc + 0.10 * amount 
               # adjustOffset((ph - sh) * pip.perc)
     else:
-      pip.perc = (yo/nh).clamp(0.0, 1.0)
+      current.scrollPercent = (yo/nh).clamp(0.0, 1.0)
     
     let
       xx = if halign == hLeft: 0'f32 else: nw - width
-      bx = Rect(x: xx, y: pip.perc*(ph - sh), w: width, h: sh)
+      bx = Rect(x: xx, y: current.scrollPercent*(ph - sh), w: width, h: sh)
 
     var idx = -1
     for i, child in current.nodes:

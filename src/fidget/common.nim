@@ -175,7 +175,8 @@ type
     textLayoutWidth*: float32
     ## Can the text be selected.
     selectable*: bool
-    scrollBars*: bool ## Should it have scroll bars if children are clipped.
+    scrollBars*: bool 
+    scrollPercent*: float32  
     postHooks*: seq[proc() {.closure.}]
     hookName*: string
     hookStates*: Variant
