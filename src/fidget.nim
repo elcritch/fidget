@@ -889,52 +889,56 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight, setup: proc() = nil) =
     ## called and computed. 
     # evts.data["$scrollbar"] = @[newVariant(pip)]
 
-    let evts = useEvents()
     let
+      evts = useEvents()
       halign: HAlign = hAlign
       width = 14'f32
 
-      ph = parent.descaled(screenBox).h
-      nw = current.descaled(screenBox).w
-      ch = max(current.descaled(screenBox).h - ph, 0)
-      rh = current.descaled(screenBox).h
-      boxRatio = (ph/rh).clamp(0.0, 1.0)
-      sh = boxRatio*ph
-
-      nh = current.descaled(screenBox).h - ph
-      yo = current.descaled(offset).y()
-      # pip.perc = (yo/nh).clamp(0.0, 1.0)
+    let
+      ## Compute various scroll bar items
+      parentBox = parent.descaled(screenBox)
+      currBox = current.descaled(screenBox)
+      boxRatio = (parentBox.h/currBox.h).clamp(0.0, 1.0)
+      scrollBoxH = boxRatio * parentBox.h
+      currOffset = current.descaled(offset).y()
 
     if pip.drag:
+      ## Calculate drag of scroll bar
       pip.hPos = mouse.descaled(pos).y 
       pip.drag = buttonDown[MOUSE_LEFT]
 
-      let delta = (pip.hPos - pip.hPosLast)
+      let
+        delta = (pip.hPos - pip.hPosLast)
+        topOffsetY = uiScale*max(currBox.h - parentBox.h, 0)
+      
       current.offset.y = uiScale*(pip.offLast + delta / boxRatio)
-      current.offset.y = current.offset.y.clamp(0, uiScale*ch)
+      current.offset.y = current.offset.y.clamp(0, topOffsetY)
+
+      # Update scroll percent
+      let scrollPercent = currOffset/(currBox.h - parentBox.h)
+      current.scrollPercent = scrollPercent.clamp(0.0, 1.0)
 
     var scEvts: seq[Variant]
     if evts.data.pop("$scrollbar.event", scEvts):
       for evt in scEvts:
         if evt.ofType(ScrollEvent):
           let scrollEvt = evt.get(ScrollEvent)
-          echo fmt"got scroll event: {scrollEvt=}"
           match scrollEvt:
             ScrollTo(perc: nperc):
-              let delPerc = nperc - current.scrollPercent
-              echo fmt"scrolling to: {current.scrollPercent=} {nperc=} {delPerc=} adjust: {(ph-sh)*delPerc=}"
-              current.offset.y = uiScale*( nh * nperc)
+              current.offset.y = uiScale*((currBox.h - parentBox.h) * nperc)
               current.scrollPercent = nperc
             ScrollPage(amount: amount):
-              echo fmt"scrolling page: {amount=}"
-              # pip.perc = pip.perc + 0.10 * amount 
-              # adjustOffset((ph - sh) * pip.perc)
+              current.scrollPercent += amount
     else:
-      current.scrollPercent = (yo/nh).clamp(0.0, 1.0)
+      let scrollPercent = currOffset/(currBox.h - parentBox.h)
+      current.scrollPercent = scrollPercent.clamp(0.0, 1.0)
     
     let
-      xx = if halign == hLeft: 0'f32 else: nw - width
-      bx = Rect(x: xx, y: current.scrollPercent*(ph - sh), w: width, h: sh)
+      xx = if halign == hLeft: 0'f32 else: currBox.w - width
+      bx = Rect(x: xx,
+                y: current.scrollPercent*(parentBox.h - scrollBoxH),
+                w: width,
+                h: scrollBoxH)
 
     var idx = -1
     for i, child in current.nodes:
