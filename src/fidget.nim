@@ -854,9 +854,6 @@ variantp ScrollEvent:
   ScrollPage(amount: float32)
 {.pop.}
 
-var
-  scrollBarFill* = parseHtml("#5C8F9C") * 0.4
-  scrollBarHighlight* = parseHtml("#5C8F9C") * 0.9
 
 proc scrollEvent*(events: GeneralEvents, evt: ScrollEvent) =
   events.data.mgetOrPut("$scrollbar.event", newSeq[Variant]()).add newVariant(evt)
@@ -896,7 +893,6 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight, setup: proc() = nil) =
     let evts = useEvents()
     let
       halign: HAlign = hAlign
-      cr = 4.0'f32
       width = 14'f32
 
       ph = parent.descaled(screenBox).h

@@ -290,6 +290,11 @@ var
   ## Whether event is overshadowed by a higher precedent ZLevel
   eventsOvershadowed*: bool
 
+  # global scroll bar settings
+  scrollBarWidth* = 14'f32
+  scrollBarFill* = rgba(92, 143, 156, 102).color
+  scrollBarHighlight* = rgba(92, 143, 156, 230).color 
+
 proc newUId*(): NodeUID =
   # Returns next numerical unique id.
   inc lastUId
