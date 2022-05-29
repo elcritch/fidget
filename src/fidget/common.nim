@@ -673,6 +673,9 @@ proc pop*(events: GeneralEvents, key: string, vals: var seq[Variant]): bool =
 proc hasKey*(events: GeneralEvents, key: string): bool =
   result = events.data.hasKey(key) and events.data[key].len() > 0
 
+proc getAs*[T](events: GeneralEvents, key: string, default: typedesc[T]): T =
+  events.data[key][0].get(T)
+
 proc mgetOrPut*[T](events: GeneralEvents, key: string, default: typedesc[T]): T =
   if not events.data.hasKey(key):
     let x = T()
