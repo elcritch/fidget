@@ -176,7 +176,6 @@ type
     ## Can the text be selected.
     selectable*: bool
     scrollBars*: bool 
-    scrollPercent*: float32  
     postHooks*: seq[proc() {.closure.}]
     hookName*: string
     hookStates*: Variant

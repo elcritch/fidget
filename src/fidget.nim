@@ -75,15 +75,9 @@ proc postNode() =
           yoffset = mouse.wheelDelta * 2*common.uiScale
           ph = parent.screenBox.h
           ch = (current.screenBox.h - ph).clamp(0, current.screenBox.h)
-        # echo "postNode offset:pre: ", current.offset
         current.offset.y -= yoffset
         current.offset.y = current.offset.y.clamp(0, ch)
         mouse.consumed = true
-        # echo "postNode offset:after: ", current.offset
-
-        let scrollPerc = current.offset.y /
-                          (current.screenBox.h - parent.screenBox.h)
-        current.scrollPercent = scrollPerc 
 
   zLevelMouse = ZLevel(max(zLevelMouse.ord, current.zLevel.ord))
   # Pop the stack.
@@ -904,7 +898,6 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight, setup: proc() = nil) =
       currBox = current.descaled(screenBox)
       boxRatio = (parentBox.h/currBox.h).clamp(0.0, 1.0)
       scrollBoxH = boxRatio * parentBox.h
-      currOffset = current.descaled(offset).y()
 
     if pip.drag:
       ## Calculate drag of scroll bar
@@ -919,13 +912,15 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight, setup: proc() = nil) =
       current.offset.y = current.offset.y.clamp(0, topOffsetY)
 
       # Update scroll percent
-      let scrollPercent = currOffset/(currBox.h - parentBox.h)
-      current.scrollPercent = scrollPercent.clamp(0.0, 1.0)
+      # let scrollPercent = currOffset/(currBox.h - parentBox.h)
+      # current.scrollPercent = scrollPercent.clamp(0.0, 1.0)
 
     let
       xx = if halign == hLeft: 0'f32 else: currBox.w - width
+      currOffset = current.descaled(offset).y()
+      hPerc = clamp(currOffset/(currBox.h - parentBox.h), 0.0, 1.0)
       bx = Rect(x: xx,
-                y: current.scrollPercent*(parentBox.h - scrollBoxH),
+                y: hPerc*(parentBox.h - scrollBoxH),
                 w: width,
                 h: scrollBoxH)
 
