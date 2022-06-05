@@ -69,9 +69,9 @@ proc newTextBox*[T](
   worldWrap = true,
   scrollable = true,
   editable = true,
-): TextBox =
+): TextBox[T] =
   ## Creates new empty text box.
-  result = TextBox()
+  result = TextBox[T]()
   result.item = item
   result.font = font
   result.fontSize = font.size
@@ -88,7 +88,7 @@ proc newTextBox*[T](
 proc cursorWidth*(font: Font): float =
   min(font.size / 12, 1)
 
-template runes*[T](textBox: TextBox[T]) =
+template runes*[T](textBox: TextBox[T]): seq[Rune] =
   ## Converts internal runes to string.
   textBox.item.toRunes()
 
@@ -404,11 +404,15 @@ proc rightWord*[T](textBox: TextBox[T], shift = false) =
     textBox.selector = textBox.cursor
   textBox.savedX = textBox.cursorPos.x
 
+proc currRune[T](textBox: TextBox[T], offset: int): Rune =
+  result = textBox.runes()[textBox.cursor - offset]
+
+proc currRuneAt[T](textBox: TextBox[T], index: int): Rune =
+  result = textBox.runes()[index]
+
 proc startOfLine*[T](textBox: TextBox[T], shift = false) =
   ## Move cursor left by a word.
-  let txt: seq[Rune] = textBox.runes()
-  while textBox.cursor > 0 and
-      txt[textBox.cursor - 1] != Rune(10):
+  while textBox.cursor > 0 and textBox.currRune(-1) != Rune(10):
     dec textBox.cursor
   textBox.adjustScroll()
   if not shift:
@@ -417,9 +421,8 @@ proc startOfLine*[T](textBox: TextBox[T], shift = false) =
 
 proc endOfLine*[T](textBox: TextBox[T], shift = false) =
   ## Move cursor right by a word.
-  let txt: seq[Rune] = textBox.runes()
   while textBox.cursor < textBox.runes.len and
-          txt[textBox.cursor] != Rune(10):
+          textBox.currRune(0) != Rune(10):
     inc textBox.cursor
   textBox.adjustScroll()
   if not shift:
@@ -516,10 +519,10 @@ proc selectParagraph*[T](textBox: TextBox[T], mousePos: Vec2) =
   ## Select paragraph under the cursor (triple click).
   textBox.mouseAction(mousePos, click = true)
   while textBox.cursor > 0 and
-    textBox.runes[textBox.cursor - 1] != Rune(10):
+    textBox.currRune(-1)  != Rune(10):
     dec textBox.cursor
   while textBox.selector < textBox.runes.len and
-    textBox.runes[textBox.selector] != Rune(10):
+    textBox.currRuneAt(textBox.selector) != Rune(10):
     inc textBox.selector
 
 proc selectAll*[T](textBox: TextBox[T]) =

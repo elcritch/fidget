@@ -35,11 +35,11 @@ proc focus*(keyboard: Keyboard, node: Node) =
     font.lineHeight = node.textStyle.lineHeight
     keyboard.input = node.text
     var tb = node.currentEvents().mgetOrPut("$textbox",
-      newTextBox(
+      newTextBox[Node](
         font,
         int node.screenBox.w,
         int node.screenBox.h,
-        node.text,
+        node,
         hAlignMode(node.textStyle.textAlignHorizontal),
         vAlignMode(node.textStyle.textAlignVertical),
         node.multiline,
@@ -108,7 +108,7 @@ proc drawText(node: Node) =
   let editing = keyboard.focusNode == node
 
   if editing:
-    var textBox = node.currentEvents().mgetOrPut("$textbox", TextBox)
+    var textBox = node.currentEvents().mgetOrPut("$textbox", TextBox[Node])
     if textBox.size != node.screenBox.wh:
       textBox.resize(node.screenBox.wh)
     node.textLayout = textBox.layout
@@ -195,7 +195,7 @@ proc drawText(node: Node) =
     ctx.drawImage(hashFill, charPos, node.fill)
 
   if editing:
-    var textBox = node.currentEvents().mgetOrPut("$textbox", TextBox)
+    var textBox = node.currentEvents().mgetOrPut("$textbox", TextBox[Node])
     if textBox.cursor == textBox.selector and node.editableText:
       # draw cursor
       ctx.fillRect(textBox.cursorRect, node.cursorColor)

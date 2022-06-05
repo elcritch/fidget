@@ -1,6 +1,7 @@
-import ../common, ../input, ../internal, chroma, pixie, opengl, os, perf,
-    staticglfw, times, unicode, vmath, strformat, bumpy
+import ../common, ../input, ../internal
 import ../patches/textboxes 
+import chroma, pixie, opengl, os, perf,
+    staticglfw, times, unicode, vmath, strformat, bumpy
 import std/asyncdispatch
 
 when defined(glDebugMessageCallback):
@@ -214,9 +215,6 @@ proc onResize(handle: staticglfw.Window, w, h: int32) {.cdecl.} =
 proc onFocus(window: staticglfw.Window, state: cint) {.cdecl.} =
   focused = state == 1
   uiEvent.trigger()
-
-template toRunes*[T](item: T): seq[Rune] =
-  item.text
 
 proc onSetKey(
   window: staticglfw.Window, key, scancode, action, modifiers: cint

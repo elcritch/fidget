@@ -695,3 +695,6 @@ template mgetOrPut*(events: GeneralEvents, key: string, default: untyped): auto 
     let x = default
     events.data[key] = @[newVariant(x)]
   events.data[key][0].get(typeof default)
+
+template toRunes*(item: Node): seq[Rune] =
+  item.text

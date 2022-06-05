@@ -588,8 +588,9 @@ template binding*(stringVariable, handler: untyped) =
 
 template binding*(stringVariable: untyped) =
   binding(stringVariable) do:
-    if stringVariable != keyboard.input:
-      stringVariable = keyboard.input
+    let input = $keyboard.input
+    if stringVariable != input:
+      stringVariable = input
 
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ##             Node Styling and Content
