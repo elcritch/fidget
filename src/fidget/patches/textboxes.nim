@@ -28,10 +28,10 @@ because it is so natural. Here is a small list of the most important ones:
 * Backspace and delete with selected text remove selected text and don't perform their normal action
 ]#
 
-type TextBox* = ref object
+type TextBox*[T] = ref object
   cursor*: int      # The typing cursor.
   selector*: int    # The selection cursor.
-  runes*: seq[Rune] # The runes we are typing.
+  item*: T # Item holding the runes we are typing.
   width*: int       # Width of text box in px.
   height*: int      # Height of text box in px.
   vAlign*: VAlignMode
@@ -55,14 +55,14 @@ type TextBox* = ref object
   boundsMin: Vec2
   boundsMax: Vec2
 
-proc clamp(v, a, b: int): int =
+proc clamp[T](v, a, b: int): int =
   max(a, min(b, v))
 
-proc newTextBox*(
+proc newTextBox*[T](
   font: Font,
   width: int,
   height: int,
-  text: seq[Rune],
+  item: T,
   hAlign = Left,
   vAlign = Top,
   multiline = true,
@@ -72,7 +72,7 @@ proc newTextBox*(
 ): TextBox =
   ## Creates new empty text box.
   result = TextBox()
-  result.runes = text
+  result.item = item
   result.font = font
   result.fontSize = font.size
   result.lineHeight = font.lineHeight
@@ -88,30 +88,34 @@ proc newTextBox*(
 proc cursorWidth*(font: Font): float =
   min(font.size / 12, 1)
 
-proc text*(textBox: TextBox): seq[Rune] =
+template runes*[T](textBox: TextBox[T]) =
+  ## Converts internal runes to string.
+  textBox.item.toRunes()
+
+proc text*[T](textBox: TextBox[T]): seq[Rune] =
   ## Converts internal runes to string.
   textBox.runes
 
-proc `text=`*(textBox: TextBox, text: string) =
+proc `text=`*[T](textBox: TextBox[T], text: string) =
   ## Converts string to internal runes.
   textBox.runes = toRunes(text)
   textBox.hasChange = true
 
-proc multilineCheck(textBox: TextBox) =
+proc multilineCheck[T](textBox: TextBox[T]) =
   ## Makes sure there are not new lines in a single line text box.
   if not textBox.multiline:
     textBox.runes.keepIf(proc (r: Rune): bool = r != Rune(10))
 
-proc size*(textBox: TextBox): Vec2 =
+proc size*[T](textBox: TextBox[T]): Vec2 =
   ## Returns with and height as a Vec2.
   vec2(float textBox.width, float textBox.height)
 
-proc selection*(textBox: TextBox): HSlice[int, int] =
+proc selection*[T](textBox: TextBox[T]): HSlice[int, int] =
   ## Returns current selection from.
   result.a = min(textBox.cursor, textBox.selector)
   result.b = max(textBox.cursor, textBox.selector)
 
-proc layout*(textBox: TextBox): seq[GlyphPosition] =
+proc layout*[T](textBox: TextBox[T]): seq[GlyphPosition] =
   if textBox.glyphs.len == 0:
     textBox.font.size = textBox.fontSize
     textBox.font.lineHeight = textBox.lineHeight
@@ -128,7 +132,7 @@ proc layout*(textBox: TextBox): seq[GlyphPosition] =
     )
   return textBox.glyphs
 
-proc innerHeight*(textBox: TextBox): int =
+proc innerHeight*[T](textBox: TextBox[T]): int =
   ## Rectangle where selection cursor should be drawn.
   let layout = textBox.layout()
   if layout.len > 0:
@@ -137,7 +141,7 @@ proc innerHeight*(textBox: TextBox): int =
   else:
     return int(textBox.font.lineHeight)
 
-proc locationRect*(textBox: TextBox, loc: int): Rect =
+proc locationRect*[T](textBox: TextBox[T], loc: int): Rect =
   ## Rectangle where cursor should be drawn.
   let layout = textBox.layout()
   if layout.len > 0:
@@ -156,28 +160,28 @@ proc locationRect*(textBox: TextBox, loc: int): Rect =
   result.w = textBox.font.cursorWidth
   result.h = max(textBox.font.size, textBox.font.lineHeight)
 
-proc cursorRect*(textBox: TextBox): Rect =
+proc cursorRect*[T](textBox: TextBox[T]): Rect =
   ## Rectangle where cursor should be drawn.
   textBox.locationRect(textBox.cursor)
 
-proc cursorPos*(textBox: TextBox): Vec2 =
+proc cursorPos*[T](textBox: TextBox[T]): Vec2 =
   ## Position where cursor should be drawn.
   textBox.cursorRect.xy
 
-proc selectorRect*(textBox: TextBox): Rect =
+proc selectorRect*[T](textBox: TextBox[T]): Rect =
   ## Rectangle where selection cursor should be drawn.
   textBox.locationRect(textBox.selector)
 
-proc selectorPos*(textBox: TextBox): Vec2 =
+proc selectorPos*[T](textBox: TextBox[T]): Vec2 =
   ## Position where selection cursor should be drawn.
   textBox.cursorRect.xy
 
-proc selectionRegions*(textBox: TextBox): seq[Rect] =
+proc selectionRegions*[T](textBox: TextBox[T]): seq[Rect] =
   ## Selection regions to draw selection of text.
   let sel = textBox.selection
   textBox.layout.getSelection(sel.a, sel.b)
 
-proc removedSelection*(textBox: TextBox): bool =
+proc removedSelection*[T](textBox: TextBox[T]): bool =
   ## Removes selected runes if they are selected.
   ## Returns true if anything was removed.
   let sel = textBox.selection
@@ -190,11 +194,11 @@ proc removedSelection*(textBox: TextBox): bool =
     return true
   return false
 
-proc removeSelection(textBox: TextBox) =
+proc removeSelection[T](textBox: TextBox[T]) =
   ## Removes selected runes if they are selected.
   discard textBox.removedSelection()
 
-proc adjustScroll*(textBox: TextBox) =
+proc adjustScroll*[T](textBox: TextBox[T]) =
   ## Adjust scroll to make sure cursor is in the window.
   if textBox.scrollable and not textBox.wasScrolled:
     let
@@ -210,7 +214,7 @@ proc adjustScroll*(textBox: TextBox) =
     if r.x + r.w > textBox.scroll.x + float textBox.width:
       textBox.scroll.x = r.x + r.w - float textBox.width
 
-proc typeCharacter*(textBox: TextBox, rune: Rune) =
+proc typeCharacter*[T](textBox: TextBox[T], rune: Rune) =
   ## Add a character to the text box.
   if not textBox.editable:
     return
@@ -228,11 +232,11 @@ proc typeCharacter*(textBox: TextBox, rune: Rune) =
   textBox.adjustScroll()
   textBox.hasChange = true
 
-proc typeCharacter*(textBox: TextBox, letter: char) =
+proc typeCharacter*[T](textBox: TextBox[T], letter: char) =
   ## Add a character to the text box.
   textBox.typeCharacter(Rune(letter))
 
-proc typeCharacters*(textBox: TextBox, s: string) =
+proc typeCharacters*[T](textBox: TextBox[T], s: string) =
   ## Add a character to the text box.
   if not textBox.editable:
     return
@@ -245,20 +249,20 @@ proc typeCharacters*(textBox: TextBox, s: string) =
   textBox.adjustScroll()
   textBox.hasChange = true
 
-proc copy*(textBox: TextBox): string =
+proc copy*[T](textBox: TextBox[T]): string =
   ## Returns the text that was copied.
   let sel = textBox.selection
   if sel.a != sel.b:
     return $textBox.runes[sel.a ..< sel.b]
 
-proc paste*(textBox: TextBox, s: string) =
+proc paste*[T](textBox: TextBox[T], s: string) =
   ## Pastes a string.
   if not textBox.editable:
     return
   textBox.typeCharacters(s)
   textBox.savedX = textBox.cursorPos.x
 
-proc cut*(textBox: TextBox): string =
+proc cut*[T](textBox: TextBox[T]): string =
   ## Returns the text that was cut.
   result = textBox.copy()
   if not textBox.editable:
@@ -266,11 +270,11 @@ proc cut*(textBox: TextBox): string =
   textBox.removeSelection()
   textBox.savedX = textBox.cursorPos.x
 
-proc setCursor*(textBox: TextBox, loc: int) =
+proc setCursor*[T](textBox: TextBox[T], loc: int) =
   textBox.cursor = clamp(loc, 0, textBox.runes.len + 1)
   textBox.selector = textBox.cursor
 
-proc backspace*(textBox: TextBox, shift = false) =
+proc backspace*[T](textBox: TextBox[T], shift = false) =
   ## Backspace command.
   if not textBox.editable:
     return
@@ -283,7 +287,7 @@ proc backspace*(textBox: TextBox, shift = false) =
     textBox.selector = textBox.cursor
     textBox.hasChange = true
 
-proc delete*(textBox: TextBox, shift = false) =
+proc delete*[T](textBox: TextBox[T], shift = false) =
   ## Delete command.
   if not textBox.editable:
     return
@@ -294,7 +298,7 @@ proc delete*(textBox: TextBox, shift = false) =
     textBox.adjustScroll()
     textBox.hasChange = true
 
-proc backspaceWord*(textBox: TextBox, shift = false) =
+proc backspaceWord*[T](textBox: TextBox[T], shift = false) =
   ## Backspace word command. (Usually ctr + backspace).
   if not textBox.editable:
     return
@@ -309,7 +313,7 @@ proc backspaceWord*(textBox: TextBox, shift = false) =
     textBox.selector = textBox.cursor
     textBox.hasChange = true
 
-proc deleteWord*(textBox: TextBox, shift = false) =
+proc deleteWord*[T](textBox: TextBox[T], shift = false) =
   ## Delete word command. (Usually ctr + delete).
   if not textBox.editable:
     return
@@ -322,7 +326,7 @@ proc deleteWord*(textBox: TextBox, shift = false) =
     textBox.adjustScroll()
     textBox.hasChange = true
 
-proc left*(textBox: TextBox, shift = false) =
+proc left*[T](textBox: TextBox[T], shift = false) =
   ## Move cursor left.
   if textBox.cursor > 0:
     dec textBox.cursor
@@ -331,7 +335,7 @@ proc left*(textBox: TextBox, shift = false) =
       textBox.selector = textBox.cursor
     textBox.savedX = textBox.cursorPos.x
 
-proc right*(textBox: TextBox, shift = false) =
+proc right*[T](textBox: TextBox[T], shift = false) =
   ## Move cursor right.
   if textBox.cursor < textBox.runes.len:
     inc textBox.cursor
@@ -340,7 +344,7 @@ proc right*(textBox: TextBox, shift = false) =
       textBox.selector = textBox.cursor
     textBox.savedX = textBox.cursorPos.x
 
-proc down*(textBox: TextBox, shift = false) =
+proc down*[T](textBox: TextBox[T], shift = false) =
   ## Move cursor down.
   if textBox.layout.len == 0:
     return
@@ -358,7 +362,7 @@ proc down*(textBox: TextBox, shift = false) =
     if not shift:
       textBox.selector = textBox.cursor
 
-proc up*(textBox: TextBox, shift = false) =
+proc up*[T](textBox: TextBox[T], shift = false) =
   ## Move cursor up.
   if textBox.layout.len == 0:
     return
@@ -376,7 +380,7 @@ proc up*(textBox: TextBox, shift = false) =
     if not shift:
       textBox.selector = textBox.cursor
 
-proc leftWord*(textBox: TextBox, shift = false) =
+proc leftWord*[T](textBox: TextBox[T], shift = false) =
   ## Move cursor left by a word (Usually ctr + left).
   if textBox.cursor > 0:
     dec textBox.cursor
@@ -388,7 +392,7 @@ proc leftWord*(textBox: TextBox, shift = false) =
     textBox.selector = textBox.cursor
   textBox.savedX = textBox.cursorPos.x
 
-proc rightWord*(textBox: TextBox, shift = false) =
+proc rightWord*[T](textBox: TextBox[T], shift = false) =
   ## Move cursor right by a word (Usually ctr + right).
   if textBox.cursor < textBox.runes.len:
     inc textBox.cursor
@@ -400,27 +404,29 @@ proc rightWord*(textBox: TextBox, shift = false) =
     textBox.selector = textBox.cursor
   textBox.savedX = textBox.cursorPos.x
 
-proc startOfLine*(textBox: TextBox, shift = false) =
+proc startOfLine*[T](textBox: TextBox[T], shift = false) =
   ## Move cursor left by a word.
+  let txt: seq[Rune] = textBox.runes()
   while textBox.cursor > 0 and
-    textBox.runes[textBox.cursor - 1] != Rune(10):
+      txt[textBox.cursor - 1] != Rune(10):
     dec textBox.cursor
   textBox.adjustScroll()
   if not shift:
     textBox.selector = textBox.cursor
   textBox.savedX = textBox.cursorPos.x
 
-proc endOfLine*(textBox: TextBox, shift = false) =
+proc endOfLine*[T](textBox: TextBox[T], shift = false) =
   ## Move cursor right by a word.
+  let txt: seq[Rune] = textBox.runes()
   while textBox.cursor < textBox.runes.len and
-    textBox.runes[textBox.cursor] != Rune(10):
+          txt[textBox.cursor] != Rune(10):
     inc textBox.cursor
   textBox.adjustScroll()
   if not shift:
     textBox.selector = textBox.cursor
   textBox.savedX = textBox.cursorPos.x
 
-proc pageUp*(textBox: TextBox, shift = false) =
+proc pageUp*[T](textBox: TextBox[T], shift = false) =
   ## Move cursor up by half a text box height.
   if textBox.layout.len == 0:
     return
@@ -439,7 +445,7 @@ proc pageUp*(textBox: TextBox, shift = false) =
     if not shift:
       textBox.selector = textBox.cursor
 
-proc pageDown*(textBox: TextBox, shift = false) =
+proc pageDown*[T](textBox: TextBox[T], shift = false) =
   ## Move cursor down up by half a text box height.
   if textBox.layout.len == 0:
     return
@@ -458,8 +464,8 @@ proc pageDown*(textBox: TextBox, shift = false) =
     if not shift:
       textBox.selector = textBox.cursor
 
-proc mouseAction*(
-  textBox: TextBox,
+proc mouseAction*[T](
+  textBox: TextBox[T],
   mousePos: Vec2,
   click = true,
   shift = false
@@ -491,7 +497,7 @@ proc mouseAction*(
   if not shift and click:
     textBox.selector = textBox.cursor
 
-proc selectWord*(textBox: TextBox, mousePos: Vec2, extraSpace = true) =
+proc selectWord*[T](textBox: TextBox[T], mousePos: Vec2, extraSpace = true) =
   ## Select word under the cursor (double click).
   textBox.mouseAction(mousePos, click = true)
   while textBox.cursor > 0 and
@@ -506,7 +512,7 @@ proc selectWord*(textBox: TextBox, mousePos: Vec2, extraSpace = true) =
       textBox.runes[textBox.selector] == Rune(32):
       inc textBox.selector
 
-proc selectParagraph*(textBox: TextBox, mousePos: Vec2) =
+proc selectParagraph*[T](textBox: TextBox[T], mousePos: Vec2) =
   ## Select paragraph under the cursor (triple click).
   textBox.mouseAction(mousePos, click = true)
   while textBox.cursor > 0 and
@@ -516,19 +522,19 @@ proc selectParagraph*(textBox: TextBox, mousePos: Vec2) =
     textBox.runes[textBox.selector] != Rune(10):
     inc textBox.selector
 
-proc selectAll*(textBox: TextBox) =
+proc selectAll*[T](textBox: TextBox[T]) =
   ## Select all text (quad click).
   textBox.cursor = 0
   textBox.selector = textBox.runes.len
 
-proc resize*(textBox: TextBox, size: Vec2) =
+proc resize*[T](textBox: TextBox[T], size: Vec2) =
   ## Resize text box.
   textBox.width = int size.x
   textBox.height = int size.y
   textBox.glyphs.setLen(0)
   textBox.adjustScroll()
 
-proc scrollBy*(textBox: TextBox, amount: float) =
+proc scrollBy*[T](textBox: TextBox[T], amount: float) =
   ## Scroll text box with a scroll wheel.
   textBox.wasScrolled = true
   textBox.scroll.y += amount

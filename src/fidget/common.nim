@@ -312,7 +312,7 @@ proc imageStyle*(name: string, color: Color): ImageStyle =
 
 when not defined(js):
   var
-    textBox*: TextBox
+    textBox*: TextBox[Node]
     fonts*: Table[string, Font]
 
   func hAlignMode*(align: HAlign): HAlignMode =

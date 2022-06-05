@@ -215,6 +215,9 @@ proc onFocus(window: staticglfw.Window, state: cint) {.cdecl.} =
   focused = state == 1
   uiEvent.trigger()
 
+template toRunes*[T](item: T): seq[Rune] =
+  item.text
+
 proc onSetKey(
   window: staticglfw.Window, key, scancode, action, modifiers: cint
 ) {.cdecl.} =
