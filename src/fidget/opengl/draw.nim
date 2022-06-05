@@ -1,6 +1,7 @@
 import std/hashes, unicode, os, strformat, tables, times
 
-import typography, typography/textboxes
+import typography
+import ../patches/textboxes
 import pixie, chroma, vmath, bumpy
 
 import context, formatflippy

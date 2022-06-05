@@ -1,5 +1,6 @@
 import ../common, ../input, ../internal, chroma, pixie, opengl, os, perf,
-    staticglfw, times, typography/textboxes, unicode, vmath, strformat, bumpy
+    staticglfw, times, unicode, vmath, strformat, bumpy
+import ../patches/textboxes 
 import std/asyncdispatch
 
 when defined(glDebugMessageCallback):

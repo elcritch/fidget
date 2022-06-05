@@ -2,6 +2,7 @@ import algorithm, chroma, fidget/common, fidget/input, json, macros, strutils,
     sequtils, tables, vmath, bumpy
 import math, strformat
 import patty
+import unicode
 
 export chroma, common, input, vmath, bumpy
 
@@ -562,8 +563,9 @@ proc textAutoResize*(textAutoResize: TextAutoResize) =
 
 proc characters*(text: string) =
   ## Sets text.
-  if current.text != text:
-    current.text = text
+  let rtext = text.toRunes()
+  if current.text != rtext:
+    current.text = rtext
 
 proc selectable*(v: bool) =
   ## Set text selectable flag.

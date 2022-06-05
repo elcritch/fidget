@@ -62,7 +62,7 @@ proc newTextBox*(
   font: Font,
   width: int,
   height: int,
-  text: string = "",
+  text: seq[Rune],
   hAlign = Left,
   vAlign = Top,
   multiline = true,
@@ -72,7 +72,7 @@ proc newTextBox*(
 ): TextBox =
   ## Creates new empty text box.
   result = TextBox()
-  result.runes = toRunes(text)
+  result.runes = text
   result.font = font
   result.fontSize = font.size
   result.lineHeight = font.lineHeight
@@ -88,9 +88,9 @@ proc newTextBox*(
 proc cursorWidth*(font: Font): float =
   min(font.size / 12, 1)
 
-proc text*(textBox: TextBox): string =
+proc text*(textBox: TextBox): seq[Rune] =
   ## Converts internal runes to string.
-  $textBox.runes
+  textBox.runes
 
 proc `text=`*(textBox: TextBox, text: string) =
   ## Converts string to internal runes.

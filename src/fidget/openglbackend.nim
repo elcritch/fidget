@@ -1,8 +1,9 @@
 import chroma, common, hashes, input, internal, opengl/base,
     opengl/context, os, strformat, strutils, tables, times, typography,
-    typography/textboxes, unicode, vmath, bumpy,
+    unicode, vmath, bumpy,
     typography/svgfont, pixie
 
+import patches/textboxes 
 import opengl/draw
 
 when not defined(emscripten) and not defined(fidgetNoAsync):
@@ -26,7 +27,7 @@ computeTextLayout = proc(node: Node) =
   if node.textStyle.autoResize == tsWidthAndHeight:
     size.x = 0
   node.textLayout = font.typeset(
-    node.text.toRunes(),
+    node.text,
     pos = vec2(0, 0),
     size = size,
     hAlignMode(node.textStyle.textAlignHorizontal),

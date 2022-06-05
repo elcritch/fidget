@@ -1,16 +1,19 @@
 import sequtils, tables, json, hashes
 import chroma, input, vmath, bumpy
 import strutils, strformat
+import unicode
 
 import variant
 
 export sequtils, strutils, strformat, tables, hashes
 export variant
+export unicode
 
 when defined(js):
   import dom2, html/ajax
 else:
-  import typography, typography/textboxes, asyncfutures
+  import typography, asyncfutures
+  import patches/textboxes 
 
 const
   clearColor* = color(0, 0, 0, 0)
@@ -125,7 +128,7 @@ type
     uid*: NodeUID
     idPath*: string
     kind*: NodeKind
-    text*: string
+    text*: seq[Rune]
     code*: string
     nodes*: seq[Node]
     box: Rect
@@ -216,7 +219,7 @@ type
     focusNode*: Node
     onFocusNode*: Node
     onUnFocusNode*: Node
-    input*: string
+    input*: seq[Rune]
     textCursor*: int ## At which character in the input string are we
     selectionCursor*: int ## To which character are we selecting to
 
@@ -370,7 +373,7 @@ proc resetToDefault*(node: Node)=
   # node.uid = ""
   # node.idPath = ""
   # node.kind = nkRoot
-  node.text = ""
+  node.text = "".toRunes()
   node.code = ""
   # node.nodes = @[]
   node.box = rect(0,0,0,0)
