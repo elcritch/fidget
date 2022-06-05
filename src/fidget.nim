@@ -853,7 +853,7 @@ variantp ScrollEvent:
 
 
 proc scrollEvent*(events: GeneralEvents, evt: ScrollEvent) =
-  events.data.mgetOrPut("$scrollbar.event", newSeq[Variant]()).add newVariant(evt)
+  events["$scrollbar.event"] = evt
 
 proc scrollBars*(scrollBars: bool, hAlign = hRight, setup: proc() = nil) =
   ## Causes the parent to clip the children and draw scroll bars.

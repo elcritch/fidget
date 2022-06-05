@@ -676,8 +676,19 @@ proc hasKey*(events: GeneralEvents, key: string): bool =
 proc getAs*[T](events: GeneralEvents, key: string, default: typedesc[T]): T =
   events.data[key][0].get(T)
 
+proc currentEvents*(node: Node): GeneralEvents =
+  if node.hookEvents.data.isNil:
+    node.hookEvents.data = newTable[string, seq[Variant]]()
+  result = node.hookEvents
+
 proc mgetOrPut*[T](events: GeneralEvents, key: string, default: typedesc[T]): T =
   if not events.data.hasKey(key):
     let x = T()
     events.data[key] = @[newVariant(x)]
   events.data[key][0].get(T)
+
+template mgetOrPut*(events: GeneralEvents, key: string, default: untyped): auto =
+  if not events.data.hasKey(key):
+    let x = default
+    events.data[key] = @[newVariant(x)]
+  events.data[key][0].get(typeof default)

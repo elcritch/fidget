@@ -35,3 +35,5 @@ elif defined(macosx):
   --d:pixieNoSimd
   --d:kqueueUserEvent
   --threads:on
+
+patchFile("typography", "textboxes", "patches/textboxes")
