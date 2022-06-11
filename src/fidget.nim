@@ -1,7 +1,6 @@
 import algorithm, chroma, fidget/common, fidget/input, json, macros, strutils,
     sequtils, tables, vmath, bumpy
 import math, strformat
-import patty
 import unicode
 
 export chroma, common, input, vmath, bumpy
@@ -489,6 +488,15 @@ proc paddingY*(
     hpad = (th - height)/2.0
   box(cb.x, cb.y + hpad, cb.w, th - 2.0*hpad)
 
+proc paddingXY*(
+  width: int|float32|float64,
+  height: int|float32|float64,
+  absolute = false,
+) =
+  ## Combination of `paddingX` and `paddingY`. 
+  paddingX(width, absolute)
+  paddingY(height, absolute)
+
 template boxOf*(node: Node) =
   if not node.isNil:
     box(node.box())
@@ -884,11 +892,9 @@ type
     hPos: float32
     offLast: float32
 
-{.push hint[Name]: off.}
-variantp ScrollEvent:
+variants ScrollEvent:
   ScrollTo(perc: float32)
   ScrollPage(amount: float32)
-{.pop.}
 
 
 proc scrollEvent*(events: GeneralEvents, evt: ScrollEvent) =

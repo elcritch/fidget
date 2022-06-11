@@ -4,10 +4,12 @@ import strutils, strformat
 import unicode
 
 import variant
+import commonutils
 
 export sequtils, strutils, strformat, tables, hashes
 export variant
 export unicode
+export commonutils
 
 when defined(js):
   import dom2, html/ajax
