@@ -246,7 +246,6 @@ type
     else:
       future*: Future[string]
 
-
 const
   DataDirPath* {.strdefine.} = "data"
 

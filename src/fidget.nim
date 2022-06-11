@@ -470,8 +470,7 @@ proc paddingX*(
   let
     cb = current.box()
     tw = if absolute: 100'vw else: 100'pw
-    wpad = (tw - width)/2.0
-  box(cb.x + wpad, cb.y, tw - 2.0*wpad, cb.h)
+  box(cb.x + width, cb.y, tw - 2.0*width, cb.h)
 
 proc paddingY*(
   height: int|float32|float64,
@@ -485,8 +484,7 @@ proc paddingY*(
   let
     cb = current.box()
     th = if absolute: 100'vh else: 100'ph
-    hpad = (th - height)/2.0
-  box(cb.x, cb.y + hpad, cb.w, th - 2.0*hpad)
+  box(cb.x, cb.y + height, cb.w, th - 2.0*height)
 
 proc paddingXY*(
   width: int|float32|float64,
@@ -496,6 +494,46 @@ proc paddingXY*(
   ## Combination of `paddingX` and `paddingY`. 
   paddingX(width, absolute)
   paddingY(height, absolute)
+
+
+proc centerX*(
+  width: int|float32|float64,
+  absolute = false,
+) =
+  ## Center box based on `width`. By default
+  ## it uses the parent's width. You can use
+  ## the `absolute` argument to use the view's
+  ## width instead. 
+  ## 
+  let
+    cb = current.box()
+    tw = if absolute: 100'vw else: 100'pw
+    wpad = (tw - width)/2.0
+  box(cb.x + wpad, cb.y, tw - 2.0*wpad, cb.h)
+
+proc centerY*(
+  height: int|float32|float64,
+  absolute = false,
+) =
+  ## Center box based on `height`. By default
+  ## it uses the parent's height. You can use
+  ## the `absolute` argument to use the view's
+  ## height instead. 
+  ## 
+  let
+    cb = current.box()
+    th = if absolute: 100'vh else: 100'ph
+    hpad = (th - height)/2.0
+  box(cb.x, cb.y + hpad, cb.w, th - 2.0*hpad)
+
+proc centerXY*(
+  width: int|float32|float64,
+  height: int|float32|float64,
+  absolute = false,
+) =
+  ## Combination of `paddingX` and `paddingY`. 
+  centerX(width, absolute)
+  centerY(height, absolute)
 
 template boxOf*(node: Node) =
   if not node.isNil:
@@ -884,6 +922,11 @@ proc zlevel*(zidx: ZLevel) =
   ## Sets zLevel.
   current.zLevel = zidx
 
+## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+##             Scrolling support
+## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+## 
+
 # TODO: fixme?
 type
   ScrollPip* = ref object
@@ -891,11 +934,6 @@ type
     hPosLast: float32
     hPos: float32
     offLast: float32
-
-## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-##             Scrolling support
-## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-## 
 
 variants ScrollEvent:
   ## variant case types for scroll events
