@@ -531,7 +531,7 @@ proc centerXY*(
   height: int|float32|float64,
   absolute = false,
 ) =
-  ## Combination of `paddingX` and `paddingY`. 
+  ## Combination of `centerX` and `centerY`. 
   centerX(width, absolute)
   centerY(height, absolute)
 
