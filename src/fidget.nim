@@ -892,10 +892,15 @@ type
     hPos: float32
     offLast: float32
 
+## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+##             Scrolling support
+## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+## 
+
 variants ScrollEvent:
+  ## variant case types for scroll events
   ScrollTo(perc: float32)
   ScrollPage(amount: float32)
-
 
 proc scrollEvent*(events: GeneralEvents, evt: ScrollEvent) =
   events["$scrollbar.event"] = evt
