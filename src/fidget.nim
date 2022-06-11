@@ -536,6 +536,8 @@ proc centerXY*(
   centerY(height, absolute)
 
 template boxOf*(node: Node) =
+  ## Sets current node's box from another node
+  ## e.g. `boxOf(parent)`
   if not node.isNil:
     box(node.box())
 
