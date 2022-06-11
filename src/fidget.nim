@@ -495,6 +495,14 @@ proc paddingXY*(
   paddingX(width, absolute)
   paddingY(height, absolute)
 
+proc paddingXY*(
+  padding: int|float32|float64,
+  absolute = false,
+) =
+  ## Combination of `paddingX` and `paddingY`. 
+  paddingX(padding, absolute)
+  paddingY(padding, absolute)
+
 
 proc centerX*(
   width: int|float32|float64,
@@ -534,6 +542,14 @@ proc centerXY*(
   ## Combination of `centerX` and `centerY`. 
   centerX(width, absolute)
   centerY(height, absolute)
+
+proc centerXY*(
+  padding: int|float32|float64,
+  absolute = false,
+) =
+  ## Combination of `centerX` and `centerY`. 
+  centerX(padding, absolute)
+  centerY(padding, absolute)
 
 template boxOf*(node: Node) =
   ## Sets current node's box from another node
