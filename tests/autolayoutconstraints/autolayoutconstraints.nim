@@ -16,7 +16,7 @@ proc drawMain() =
 
     frame "autoFrame":
       box 100, 75, parent.box.w - 100, parent.box.h - 100
-      autoOrg
+      autoOrg()
       layout lmVertical
       counterAxisSizingMode csAuto
       constraints cMin, cStretch

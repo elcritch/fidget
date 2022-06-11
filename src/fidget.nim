@@ -16,7 +16,6 @@ else:
   import fidget/openglbackend
   export openglbackend
 
-
 proc preNode(kind: NodeKind, id: string) =
   ## Process the start of the node.
 
@@ -448,10 +447,17 @@ proc offset*(
   x: int|float32|float64,
   y: int|float32|float64
 ) =
-  ## Sets the box dimension width and height
+  ## Sets the box dimension offset
   let cb = current.box()
   box(float32 x, float32 y, cb.w, cb.h)
   # orgBox(float32 x, float32 y, cb.w, cb.h)
+
+proc position*(
+  x: int|float32|float64,
+  y: int|float32|float64
+) =
+  ## Sets the box dimension XY position
+  offset(x, y)
 
 template boxOf*(node: Node) =
   if not node.isNil:
