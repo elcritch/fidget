@@ -459,20 +459,35 @@ proc position*(
   ## Sets the box dimension XY position
   offset(x, y)
 
-proc centerX*(
+proc paddingX*(
   width: int|float32|float64,
   absolute = false,
 ) =
-  ## Sets the box dimension offset
+  ## Sets X padding based on `width`. By default
+  ## it uses the parent's width. You can use
+  ## the `absolute` argument to use the view's
+  ## width instead. 
+  ## 
   let
     cb = current.box()
     tw = if absolute: 100'vw else: 100'pw
-    th = if absolute: 100'vh else: 100'ph
-    xx = cb.x
-    yy = cb.y
-    hh = cb.h
     wpad = (tw - width)/2.0
-  box(xx + wpad, yy, tw - 2.0*wpad, hh)
+  box(cb.x + wpad, cb.y, tw - 2.0*wpad, cb.h)
+
+proc paddingY*(
+  height: int|float32|float64,
+  absolute = false,
+) =
+  ## Sets Y padding based on `height`. By default
+  ## it uses the parent's height. You can use
+  ## the `absolute` argument to use the view's
+  ## height instead. 
+  ## 
+  let
+    cb = current.box()
+    th = if absolute: 100'vh else: 100'ph
+    hpad = (th - height)/2.0
+  box(cb.x, cb.y + hpad, cb.w, th - 2.0*hpad)
 
 template boxOf*(node: Node) =
   if not node.isNil:
