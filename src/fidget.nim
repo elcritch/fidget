@@ -459,6 +459,21 @@ proc position*(
   ## Sets the box dimension XY position
   offset(x, y)
 
+proc centerX*(
+  width: int|float32|float64,
+  absolute = false,
+) =
+  ## Sets the box dimension offset
+  let
+    cb = current.box()
+    tw = if absolute: 100'vw else: 100'pw
+    th = if absolute: 100'vh else: 100'ph
+    xx = cb.x
+    yy = cb.y
+    hh = cb.h
+    wpad = (tw - width)/2.0
+  box(xx + wpad, yy, tw - 2.0*wpad, hh)
+
 template boxOf*(node: Node) =
   if not node.isNil:
     box(node.box())
