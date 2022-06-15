@@ -1,16 +1,18 @@
 import patty
+export patty
 
 import macros, macroutils
 import typetraits
 
 macro variants*(name, code: untyped) =
   ## convenience wrapper for Patty variant macros
-  let blk = code[1]
   result = quote do:
     {.push hint[Name]: off.}
-    variantp `name`:
-      `blk`
+    variantp ScrollEvent:
+      ## test
     {.pop.}
+  result[1][2] = code
+
 
 
 template borrowMaths*(typ: typedesc) =

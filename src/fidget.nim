@@ -958,6 +958,12 @@ variants ScrollEvent:
   ScrollTo(perc: float32)
   ScrollPage(amount: float32)
 
+# {.push hint[Name]: off.}
+# variantp ScrollEvent:
+#   ScrollTo(perc: float32)
+#   ScrollPage(amount: float32)
+# {.pop.}
+
 proc scrollEvent*(events: GeneralEvents, evt: ScrollEvent) =
   events["$scrollbar.event"] = evt
 

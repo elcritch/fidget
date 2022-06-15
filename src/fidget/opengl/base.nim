@@ -207,9 +207,9 @@ proc onResize(handle: staticglfw.Window, w, h: int32) {.cdecl.} =
   updateWindowSize()
   let prevloopMode = loopMode
   updateLoop(poll = false)
-  loopMode = RepaintOnFrame
-  updateLoop(poll = false)
-  loopMode = prevloopMode
+  # loopMode = RepaintOnFrame
+  # updateLoop(poll = false)
+  # loopMode = prevloopMode
   uiEvent.trigger()
 
 proc onFocus(window: staticglfw.Window, state: cint) {.cdecl.} =
