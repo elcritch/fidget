@@ -504,7 +504,7 @@ proc paddingXY*(
   paddingY(padding, absolute)
 
 
-proc centerX*(
+proc centeredW*(
   width: int|float32|float64,
   absolute = false,
 ) =
@@ -517,9 +517,10 @@ proc centerX*(
     cb = current.box()
     tw = if absolute: 100'vw else: 100'pw
     wpad = (tw - width)/2.0
-  box(cb.x + wpad, cb.y, tw - 2.0*wpad, cb.h)
+  echo "WIDTH: ", $width
+  box(wpad, cb.y, width, cb.h)
 
-proc centerY*(
+proc centeredH*(
   height: int|float32|float64,
   absolute = false,
 ) =
@@ -532,24 +533,24 @@ proc centerY*(
     cb = current.box()
     th = if absolute: 100'vh else: 100'ph
     hpad = (th - height)/2.0
-  box(cb.x, cb.y + hpad, cb.w, th - 2.0*hpad)
+  box(cb.x, hpad, cb.w, height)
 
-proc centerXY*(
+proc centeredWH*(
   width: int|float32|float64,
   height: int|float32|float64,
   absolute = false,
 ) =
   ## Combination of `centerX` and `centerY`. 
-  centerX(width, absolute)
-  centerY(height, absolute)
+  centeredW(width, absolute)
+  centeredH(height, absolute)
 
-proc centerXY*(
+proc centerWH*(
   padding: int|float32|float64,
   absolute = false,
 ) =
   ## Combination of `centerX` and `centerY`. 
-  centerX(padding, absolute)
-  centerY(padding, absolute)
+  centeredW(padding, absolute)
+  centeredH(padding, absolute)
 
 template boxOf*(node: Node) =
   ## Sets current node's box from another node
