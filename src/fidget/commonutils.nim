@@ -142,4 +142,4 @@ proc testRect() =
 
 when true:
   testRawVec2()
-  # testRect()
+  testRect()
