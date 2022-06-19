@@ -428,13 +428,13 @@ proc size*(
   h: int|float32|float64
 ) =
   ## Sets the box dimension width and height
-  let cb = current.box()
+  let cb = current.box
   box(cb.x, cb.y, float32 w, float32 h)
   # orgBox(cb.x, cb.y, float32 w, float32 h)
 
 proc width*(w: int|float32|float64) =
   ## Sets the width of current node
-  let cb = current.box()
+  let cb = current.box
   box(cb.x, cb.y, float32 w, float32 cb.h)
 
 proc height*(h: int|float32|float64) =
@@ -514,7 +514,7 @@ proc centeredW*(
   ## width instead. 
   ## 
   let
-    cb = current.box()
+    cb = current.box
     tw = if absolute: 100'vw else: 100'pw
     wpad = (tw - width)/2.0
   echo "WIDTH: ", $width
@@ -530,7 +530,7 @@ proc centeredH*(
   ## height instead. 
   ## 
   let
-    cb = current.box()
+    cb = current.box
     th = if absolute: 100'vh else: 100'ph
     hpad = (th - height)/2.0
   box(cb.x, hpad, cb.w, height)

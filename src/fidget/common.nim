@@ -347,7 +347,7 @@ proc setNodePath*(node: Node) =
 
 proc dumpTree*(node: Node, indent = "") =
 
-  echo indent, "`", node.id, "`", " sb: ", node.screenBox, " org: ", $node.orgBox
+  echo indent, "`", node.id, "`", " sb: ", $node.screenBox, " org: ", $node.orgBox
   for n in node.nodes:
     dumpTree(n, "  " & indent)
 
