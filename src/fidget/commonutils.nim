@@ -95,9 +95,10 @@ when true:
   z *= 3.1'f32
   echo "z: ", repr(z)
   z = vec2(1.0, 1.0).RawVec2
-  z *= y
-  z *= 3.1'f32
+  z /= y
+  z /= 3.1'f32
   echo "z: ", repr(z)
   z = vec2(1.0, 1.0).RawVec2
+  echo "z: ", repr(-z)
   echo "z: ", repr(-z)
 
