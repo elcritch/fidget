@@ -335,6 +335,9 @@ mouse.pos = vec2(0, 0)
 # proc `$`*(a: Rect): string =
   # fmt"({a.x:6.2f}, {a.y:6.2f}; {a.w:6.2f}x{a.h:6.2f})"
 
+proc x*(mouse: Mouse): float32 = mouse.pos.descaled.x
+proc y*(mouse: Mouse): float32 = mouse.pos.descaled.x
+
 proc setNodePath*(node: Node) =
   node.idPath = ""
   for i, g in nodeStack:

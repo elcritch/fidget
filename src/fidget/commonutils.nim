@@ -128,6 +128,9 @@ proc `$`*(a: Box): string =
 template scaled*(a: Box): Rect = Rect(a * common.uiScale)
 template descaled*(a: Rect): Box = Box(a / common.uiScale)
 
+template scaled*(a: Position): Vec2 = Vec2(a * common.uiScale)
+template descaled*(a: Vec2): Position = Position(a / common.uiScale)
+
 # when isMainModule:
 proc testPosition() =
   let x = position(12.1, 13.4)

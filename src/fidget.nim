@@ -1018,7 +1018,7 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight, setup: proc() = nil) =
 
     if pip.drag:
       ## Calculate drag of scroll bar
-      pip.hPos = mouse.pos.y 
+      pip.hPos = mouse.pos.descaled.y 
       pip.drag = buttonDown[MOUSE_LEFT]
 
       let
