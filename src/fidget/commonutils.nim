@@ -52,11 +52,14 @@ macro genOp(T, B: untyped, ops: varargs[untyped]) =
     result.add quote do:
       proc `op`*[`T`](a, b: `T`): `T` = `op`(a.`B`, b.`B`).`T`
 
-template genEqOp(T, B: untyped, op: untyped) =
-    template `op`*(a: var RawVec2, b: float32) =
-      `op`(a.`B`, b)
-    proc `op`*(a: var `T`, b: `T`) =
-      `op`(a.`B`, b.`B`)
+macro genEqOp(T, B: untyped, op: varargs[untyped]) =
+  result = newStmtList()
+  for op in ops:
+    result.add quote do:
+      template `op`*(a: var RawVec2, b: float32) =
+        `op`(a.`B`, b)
+      proc `op`*(a: var `T`, b: `T`) =
+        `op`(a.`B`, b.`B`)
 
 genOp(RawVec2, Vec2, `+`, `-`, `/`, `*`, `mod`, `div`, `zmod`)
 genEqOp(RawVec2, Vec2, `+=`)
