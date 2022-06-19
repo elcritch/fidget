@@ -52,6 +52,12 @@ macro genOp(T, B: untyped, ops: varargs[untyped]) =
     result.add quote do:
       proc `op`*[`T`](a, b: `T`): `T` = `op`(a.`B`, b.`B`).`T`
 
+macro genBoolOp(T, B: untyped, ops: varargs[untyped]) =
+  result = newStmtList()
+  for op in ops:
+    result.add quote do:
+      proc `op`*(a, b: `T`): bool = `op`(a.`B`, b.`B`)
+
 macro genEqOp(T, B: untyped, ops: varargs[untyped]) =
   result = newStmtList()
   for op in ops:
@@ -69,7 +75,8 @@ macro genMathFn(T, B: untyped, ops: varargs[untyped]) =
 
 genOp(RawVec2, Vec2, `+`, `-`, `/`, `*`, `mod`, `div`, `zmod`)
 genEqOp(RawVec2, Vec2, `+=`, `-=`, `*=`, `/=`)
-genMathFn(RawVec2, Vec2, `-`)
+genBoolOp(RawVec2, Vec2, `==`, `!=`, `~=`)
+genMathFn(RawVec2, Vec2, `-`, sin, cos, tan, arcsin, arccos, arctan, sinh, cosh, tanh, exp2, inversesqrt, exp, ln, log2, sqrt, floor, ceil, abs) 
 
 # when isMainModule:
 when true:
@@ -81,24 +88,14 @@ when true:
   echo "x - y: ", repr(x - y)
   echo "x / y: ", repr(x / y)
   echo "x * y: ", repr(x * y)
+  echo "x == y: ", repr(x == y)
+  echo "x ~= y: ", repr(x ~= y)
 
   z = vec2(1.0, 1.0).RawVec2
   z += y
   z += 3.1'f32
   echo "z: ", repr(z)
   z = vec2(1.0, 1.0).RawVec2
-  z -= y
-  z -= 3.1'f32
-  echo "z: ", repr(z)
-  z = vec2(1.0, 1.0).RawVec2
-  z *= y
-  z *= 3.1'f32
-  echo "z: ", repr(z)
-  z = vec2(1.0, 1.0).RawVec2
-  z /= y
-  z /= 3.1'f32
-  echo "z: ", repr(z)
-  z = vec2(1.0, 1.0).RawVec2
   echo "z: ", repr(-z)
-  echo "z: ", repr(-z)
+  echo "z: ", repr(sin(z))
 
