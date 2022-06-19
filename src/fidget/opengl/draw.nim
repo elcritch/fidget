@@ -117,8 +117,8 @@ proc drawText(node: Node) =
   if editing:
     var textBox = node.currentEvents().mgetOrPut("$textbox", TextBox[Node])
     echo fmt"draw:editing: {textBox.size=} {node.screenBox.descaled.wh=}"
-    if textBox.size != node.screenBox.descaled.wh:
-      textBox.resize(node.screenBox.descaled.wh)
+    if textBox.size != node.screenBox.wh:
+      textBox.resize(node.screenBox.wh)
     node.textLayout = textBox.layout
     ctx.saveTransform()
     ctx.translate(-textBox.scroll)

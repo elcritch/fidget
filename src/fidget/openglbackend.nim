@@ -23,7 +23,7 @@ computeTextLayout = proc(node: Node) =
   var
     boundsMin: Vec2
     boundsMax: Vec2
-    size = node.getBox(raw=true).wh
+    size = node.box.scaled.wh
   if node.textStyle.autoResize == tsWidthAndHeight:
     size.x = 0
   node.textLayout = font.typeset(
@@ -78,7 +78,7 @@ proc setupFidget(
     scrollBox.y = float 0
     scrollBox.w = windowLogicalSize.x
     scrollBox.h = windowLogicalSize.y
-    root.setBox(scrollBox, raw=true)
+    root.box = scrollBox.descaled
 
     if textBox != nil:
       keyboard.input = textBox.text

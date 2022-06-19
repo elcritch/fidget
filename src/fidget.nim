@@ -66,7 +66,7 @@ proc postNode() =
 
   current.removeExtraChildren()
 
-  let mpos = mouse.pos(raw=true) + current.totalOffset
+  let mpos = mouse.pos + current.totalOffset
   if not common.eventsOvershadowed and
       not mouse.consumed and
       mpos.overlaps(current.screenBox):
@@ -203,7 +203,7 @@ proc mouseOverlapLogic*(): bool =
   if common.eventsOvershadowed:
     return
 
-  let mpos = mouse.pos(raw=true) + current.totalOffset 
+  let mpos = mouse.pos + current.totalOffset 
   let act = 
     (not popupActive or inPopup) and
     current.screenBox.w > 0 and
@@ -216,7 +216,7 @@ proc mouseOverlapLogic*(): bool =
   result =
     act and
     mpos.overlaps(current.screenBox) and
-    (if inPopup: mouse.pos(raw=true).overlaps(popupBox) else: true)
+    (if inPopup: mouse.pos.overlaps(popupBox) else: true)
 
 proc isCovered*(screenBox: Rect): bool =
   ## Returns true if mouse overlaps the current node.
@@ -333,7 +333,7 @@ proc `'em`*(n: string): float32 =
 
 template Vw*(size: float32): float32 =
   ## percentage of Viewport width
-  root.box().w * size / 100.0
+  root.box.w * size / 100.0
 
 proc `'vw`*(n: string): float32 =
   ## numeric literal view width unit
@@ -341,7 +341,7 @@ proc `'vw`*(n: string): float32 =
 
 template Vh*(size: float32): float32 =
   ## percentage of Viewport height
-  root.box().h * size / 100.0
+  root.box.h * size / 100.0
 
 proc `'vh`*(n: string): float32 =
   ## numeric literal view height unit
@@ -349,7 +349,7 @@ proc `'vh`*(n: string): float32 =
 
 template WPerc*(size: float32): float32 =
   ## numeric literal percent of parent width
-  max(0'f32, parent.box().w * size / 100.0)
+  max(0'f32, parent.box.w * size / 100.0)
 
 proc `'pw`*(n: string): float32 =
   ## numeric literal percent of parent width
@@ -357,7 +357,7 @@ proc `'pw`*(n: string): float32 =
 
 template HPerc*(size: float32): float32 =
   ## percentage of parent height
-  max(0'f32, parent.box().h * size / 100.0)
+  max(0'f32, parent.box.h * size / 100.0)
 
 proc `'ph`*(n: string): float32 =
   ## numeric literal percent of parent height
@@ -388,10 +388,9 @@ proc getId*(): string =
 
 proc orgBox*(x, y, w, h: int|float32|float64) =
   ## Sets the box dimensions of the original element for constraints.
-  let b = Rect(x: float32 x, y: float32 y, w: float32 w, h: float32 h)
-  current.setOrgBox(b, raw=false)
+  current.box = initBox(float32 x, float32 y, float32 w, float32 h)
 
-proc orgBox*(rect: Rect) =
+proc orgBox*(rect: Box) =
   ## Sets the box dimensions with integers
   orgBox(rect.x, rect.y, rect.w, rect.h)
 
@@ -406,8 +405,7 @@ proc autoOrg*() =
 
 proc boxFrom(x, y, w, h: float32) =
   ## Sets the box dimensions.
-  let b = Rect(x: x, y: y, w: w, h: h)
-  current.setBox(b, raw=false)
+  current.box = initBox(x, y, w, h)
 
 proc box*(
   x: int|float32|float64,
@@ -557,8 +555,7 @@ proc centerWH*(
 template boxOf*(node: Node) =
   ## Sets current node's box from another node
   ## e.g. `boxOf(parent)`
-  if not node.isNil:
-    box(node.box())
+  current.box = node.box
 
 proc rotation*(rotationInDeg: float32) =
   ## Sets rotation in degrees.
@@ -997,8 +994,8 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight, setup: proc() = nil) =
       setup()
     onClick:
       pip.drag = true
-      pip.hPosLast = mouse.descaled(pos).y 
-      pip.offLast = -current.descaled(offset).y
+      pip.hPosLast = mouse.pos.y 
+      pip.offLast = -current.offset.y
 
   current.postHooks.add proc() =
     ## add post inner callback to calculate the scrollbar box
@@ -1014,14 +1011,14 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight, setup: proc() = nil) =
 
     let
       ## Compute various scroll bar items
-      parentBox = parent.descaled(screenBox)
-      currBox = current.descaled(screenBox)
+      parentBox = parent.screenBox
+      currBox = current.screenBox
       boxRatio = (parentBox.h/currBox.h).clamp(0.0, 1.0)
       scrollBoxH = boxRatio * parentBox.h
 
     if pip.drag:
       ## Calculate drag of scroll bar
-      pip.hPos = mouse.descaled(pos).y 
+      pip.hPos = mouse.pos.y 
       pip.drag = buttonDown[MOUSE_LEFT]
 
       let
@@ -1037,7 +1034,7 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight, setup: proc() = nil) =
 
     let
       xx = if halign == hLeft: 0'f32 else: currBox.w - width
-      currOffset = current.descaled(offset).y()
+      currOffset = current.offset.y
       hPerc = clamp(currOffset/(currBox.h - parentBox.h), 0.0, 1.0)
       bx = Rect(x: xx,
                 y: hPerc*(parentBox.h - scrollBoxH),
@@ -1052,7 +1049,7 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight, setup: proc() = nil) =
     
     if idx >= 0:
       var sb = current.nodes[idx]
-      sb.setBox(bx)
+      sb.box = bx.descaled
       sb.offset = current.offset * -1'f32
     else:
       raise newException(Exception, "scrollbar defined but node is missing")

@@ -82,59 +82,61 @@ borrowMaths(Percent)
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
 
 type
-  RawVec2* = distinct Vec2
+  Position* = distinct Vec2
 
-proc rvec2*(x, y: float32): RawVec2 = RawVec2(vec2(x, y))
-genBoolOp[RawVec2, Vec2](`==`)
-genBoolOp[RawVec2, Vec2](`!=`)
-genBoolOp[RawVec2, Vec2](`~=`)
+proc position*(x, y: float32): Position = Position(vec2(x, y))
+genBoolOp[Position, Vec2](`==`)
+genBoolOp[Position, Vec2](`!=`)
+genBoolOp[Position, Vec2](`~=`)
 
-applyOps(RawVec2, Vec2, genOp, `+`, `-`, `/`, `*`, `mod`, `zmod`, `min`, `zmod`)
-applyOps(RawVec2, Vec2, genEqOp, `+=`, `-=`, `*=`, `/=`)
-applyOps(RawVec2, Vec2, genMathFn, `-`, sin, cos, tan, arcsin, arccos, arctan, sinh, cosh, tanh)
-applyOps(RawVec2, Vec2, genMathFn, exp, ln, log2, sqrt, floor, ceil, abs) 
-applyOps(RawVec2, Vec2, genFloatOp, `*`, `/`)
+applyOps(Position, Vec2, genOp, `+`, `-`, `/`, `*`, `mod`, `zmod`, `min`, `zmod`)
+applyOps(Position, Vec2, genEqOp, `+=`, `-=`, `*=`, `/=`)
+applyOps(Position, Vec2, genMathFn, `-`, sin, cos, tan, arcsin, arccos, arctan, sinh, cosh, tanh)
+applyOps(Position, Vec2, genMathFn, exp, ln, log2, sqrt, floor, ceil, abs) 
+applyOps(Position, Vec2, genFloatOp, `*`, `/`)
 
 type
-  RawRect* = distinct Rect
+  Box* = distinct Rect
 
-proc rrect*(x, y, w, h: float32): RawRect = RawRect(rect(x, y, w, h))
+proc initBox*(x, y, w, h: float32): Box = Box(rect(x, y, w, h))
 
-applyOps(RawRect, Rect, genOp, `+`)
-applyOps(RawRect, Rect, genFloatOp, `*`, `/`)
-genBoolOp[RawRect, Rect](`==`)
-genEqOpC[RawRect, Rect, Vec2](`xy=`)
+applyOps(Box, Rect, genOp, `+`)
+applyOps(Box, Rect, genFloatOp, `*`, `/`)
+genBoolOp[Box, Rect](`==`)
+genEqOpC[Box, Rect, Vec2](`xy=`)
 
-template x*(r: RawRect): float32 = r.Rect.x
-template y*(r: RawRect): float32 = r.Rect.y
-template w*(r: RawRect): float32 = r.Rect.w
-template h*(r: RawRect): float32 = r.Rect.h
-template `x=`*(r: RawRect, v: float32) = r.Rect.x = v
-template `y=`*(r: RawRect, v: float32) = r.Rect.y = v
-template `w=`*(r: RawRect, v: float32) = r.Rect.w = v
-template `h=`*(r: RawRect, v: float32) = r.Rect.h = v
+template x*(r: Box): float32 = r.Rect.x
+template y*(r: Box): float32 = r.Rect.y
+template w*(r: Box): float32 = r.Rect.w
+template h*(r: Box): float32 = r.Rect.h
+template `x=`*(r: Box, v: float32) = r.Rect.x = v
+template `y=`*(r: Box, v: float32) = r.Rect.y = v
+template `w=`*(r: Box, v: float32) = r.Rect.w = v
+template `h=`*(r: Box, v: float32) = r.Rect.h = v
 
-template x*(r: RawVec2): float32 = r.Vec2.x
-template y*(r: RawVec2): float32 = r.Vec2.y
-template `x=`*(r: RawVec2, v: float32) = r.Vec2.x = v
-template `y=`*(r: RawVec2, v: float32) = r.Vec2.y = v
+template wh*(r: Box): Position = position(r.w, r.h)
 
-# proc `$`*(a: Vec2): string =
-  # &"vec<{a[0]:2.2f}, {a[1]:2.2f}>"
-# proc `$`*(a: Rect): string =
-  # &"<{a.x:2.2f}, {a.y:2.2f}; {a.x+a.w:2.2f}, {a.y+a.h:2.2f} [{a.w:2.2f} x {a.h:2.2f}]>"
+template x*(r: Position): float32 = r.Vec2.x
+template y*(r: Position): float32 = r.Vec2.y
+template `x=`*(r: Position, v: float32) = r.Vec2.x = v
+template `y=`*(r: Position, v: float32) = r.Vec2.y = v
 
-proc `$`*(a: RawVec2): string {.borrow.}
-proc `$`*(a: RawRect): string {.borrow.}
+proc `$`*(a: Position): string =
+  &"vec<{a.x:2.2f}, {a.y:2.2f}>"
+proc `$`*(a: Box): string =
+  &"<{a.x:2.2f}, {a.y:2.2f}; {a.x+a.w:2.2f}, {a.y+a.h:2.2f} [{a.w:2.2f} x {a.h:2.2f}]>"
 
-template scaled*(a: Rect): RawRect = RawRect(a * common.uiScale)
-template descaled*(a: RawRect): Rect = Rect(a / common.uiScale)
+# proc `$`*(a: Position): string {.borrow.}
+# proc `$`*(a: Box): string {.borrow.}
+
+template scaled*(a: Box): Rect = Rect(a * common.uiScale)
+template descaled*(a: Rect): Box = Box(a / common.uiScale)
 
 # when isMainModule:
-proc testRawVec2() =
-  let x = rvec2(12.1, 13.4)
-  let y = rvec2(10.0, 10.0)
-  var z = rvec2(0.0, 0.0)
+proc testPosition() =
+  let x = position(12.1, 13.4)
+  let y = position(10.0, 10.0)
+  var z = position(0.0, 0.0)
   let c = 1.0
 
   echo "x + y: ", repr(x + y)
@@ -146,20 +148,20 @@ proc testRawVec2() =
   echo "x ~= y: ", repr(x ~= y)
   echo "min(x, y): ", repr(min(x, y))
 
-  z = vec2(1.0, 1.0).RawVec2
+  z = vec2(1.0, 1.0).Position
   z += y
   z += 3.1'f32
   echo "z: ", repr(z)
-  z = vec2(1.0, 1.0).RawVec2
+  z = vec2(1.0, 1.0).Position
   echo "z: ", repr(-z)
   echo "z: ", repr(sin(z))
 
 proc testRect() =
-  let x = rect(10.0, 10.0, 2.0, 2.0).RawRect
-  let y = rect(10.0, 10.0, 5.0, 5.0).RawRect
+  let x = initBox(10.0, 10.0, 2.0, 2.0).Box
+  let y = initBox(10.0, 10.0, 5.0, 5.0).Box
   let c = 10.0
-  var z = rect(10.0, 10.0, 5.0, 5.0).RawRect
-  let v = vec2(10.0, 10.0).RawVec2
+  var z = initBox(10.0, 10.0, 5.0, 5.0).Box
+  let v = position(10.0, 10.0)
 
   echo "x.w: ", repr(x.w)
   echo "x + y: ", repr(x + y)
@@ -167,12 +169,12 @@ proc testRect() =
   echo "x * y: ", repr(x * c)
   echo "x == y: ", repr(x == y)
 
-  z = rect(10.0, 10.0, 5.0, 5.0).RawRect
+  z = rect(10.0, 10.0, 5.0, 5.0).Box
   z.xy= v
   # z += 3.1'f32
   echo "z: ", repr(z)
-  z = rect(10.0, 10.0, 5.0, 5.0).RawRect
+  z = rect(10.0, 10.0, 5.0, 5.0).Box
 
 when true:
-  testRawVec2()
+  testPosition()
   testRect()

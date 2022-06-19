@@ -20,7 +20,7 @@ var
 
 proc basicText() =
   frame "autoLayoutText":
-    box 130, 0, root.box().w - 130, root.box().h
+    box 130, 0, root.box.w - 130, root.box.h
     fill "#ffffff"
     layout lmVertical
     counterAxisSizingMode csFixed
@@ -158,8 +158,8 @@ proc basicControls() =
     strokeWeight 1
     rectangle "fill":
       progress = selectedButton.len / 5 * 100 + 1
-      let pw = progress/100 * (parent.box().w - 4).
-                clamp(1.0, parent.box().w)
+      let pw = progress/100 * (parent.box.w - 4).
+                clamp(1.0, parent.box.w)
       box 2, 2, pw, 8
       fill "#9fe7f8"
       cornerRadius 5
@@ -240,7 +240,7 @@ proc basicControls() =
     onClick:
       pipDrag = true
     if pipDrag:
-      pipPos = int(mouse.descaled(pos).x - current.descaled(screenBox).x)
+      pipPos = int(mouse.pos.x - current.screenBox.x)
       pipPos = clamp(pipPos, 1, 240)
       pipDrag = buttonDown[MOUSE_LEFT]
     rectangle "pip":
@@ -374,7 +374,7 @@ proc basicConstraints() =
   frame "constraints":
     # Got to specify orgBox for constraints to work.
     # Then grow the normal box.
-    box 130, 0, root.getBox().w - 130, root.getBox().h
+    box 130, 0, root.box.w - 130, root.box.h
     orgBox 0, 0, 400, 400
     # Constraints will work on the difference between orgBox and box.
     fill "#ffffff"
@@ -431,12 +431,12 @@ proc drawMain() =
 
   component "iceUI":
     orgBox 0, 0, 530, 185
-    box root.getBox()
+    boxOf root
     fill "#ffffff"
 
     group "shadow":
       orgBox 0, 0, 530, 3
-      box 0, 0, root.getBox().w, 3
+      box 0, 0, root.box.w, 3
       rectangle "l1":
         box 0, 0, 530, 1
         constraints cStretch, cMin

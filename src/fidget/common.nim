@@ -133,11 +133,11 @@ type
     text*: seq[Rune]
     code*: string
     nodes*: seq[Node]
-    box*: Rect
-    orgBox: Rect
-    screenBox*: RawRect
-    offset*: RawVec2
-    totalOffset*: RawVec2
+    box*: Box
+    orgBox: Box
+    screenBox*: Rect
+    offset*: Vec2
+    totalOffset*: Vec2
     hasRendered*: bool
     rotation*: float32
     fill*: Color
@@ -202,9 +202,9 @@ type
     NSResize
 
   Mouse* = ref object
-    pos*: RawVec2
-    delta*: RawVec2
-    prevPos*: RawVec2
+    pos*: Vec2
+    delta*: Vec2
+    prevPos*: Vec2
     pixelScale*: float32
     wheelDelta*: float32
     cursorStyle*: MouseCursorStyle ## Sets the mouse cursor icon
@@ -267,9 +267,9 @@ var
   inPopup*: bool
   popupBox*: Rect
   fullscreen* = false
-  windowLogicalSize*: RawVec2 ## Screen size in logical coordinates.
-  windowSize*: RawVec2    ## Screen coordinates
-  windowFrame*: RawVec2   ## Pixel coordinates
+  windowLogicalSize*: Vec2 ## Screen size in logical coordinates.
+  windowSize*: Vec2    ## Screen coordinates
+  windowFrame*: Vec2   ## Pixel coordinates
   pixelRatio*: float32 ## Multiplier to convert from screen coords to pixels
   pixelScale*: float32 ## Pixel multiplier user wants on the UI
   zLevelMousePrecedent*: ZLevel
@@ -330,7 +330,7 @@ when not defined(js):
       of vBottom: Bottom
 
 mouse = Mouse()
-mouse.pos = rvec2(0, 0)
+mouse.pos = vec2(0, 0)
 
 # proc `$`*(a: Rect): string =
   # fmt"({a.x:6.2f}, {a.y:6.2f}; {a.w:6.2f}x{a.h:6.2f})"
@@ -378,8 +378,8 @@ proc resetToDefault*(node: Node)=
   node.text = "".toRunes()
   node.code = ""
   # node.nodes = @[]
-  node.box = rect(0,0,0,0)
-  node.orgBox = rect(0,0,0,0)
+  node.box = initBox(0,0,0,0)
+  node.orgBox = initBox(0,0,0,0)
   node.rotation = 0
   # node.screenBox = rect(0,0,0,0)
   # node.offset = vec2(0, 0)
@@ -607,39 +607,26 @@ proc computeScreenBox*(parent, node: Node) =
   for n in node.nodes:
     computeScreenBox(node, n)
 
-proc setBox*(node: var Node, rect: Rect, raw: static[bool] = false) =
-  when raw: node.box = rect
-  else: node.box = rect * uiScale
+proc box*(node: Node): Box = node.box
 
-proc setBox*(node: var Node, x, y, w, h: float32, raw: static[bool]) =
-  node.setBox(Rect(x: x, y: y, w: w, h: h), raw)
-
-proc getBox*(node: Node, raw: static[bool] = false): Rect =
-  when raw: result = node.box
-  else: result = node.box / uiScale
-
-proc box*(node: Node, raw: static[bool] = false): Rect =
-  when raw: result = node.box
-  else: result = node.box / uiScale
-
-proc setOrgBox*(node: Node, rect: Rect, raw: static[bool] = false) =
+proc setOrgBox*(node: Node, rect: Box, raw: static[bool] = false) =
   when raw: node.orgBox = rect
   else: node.orgBox = rect * common.uiScale
 
 proc setOrgBox*(node: Node, x, y, w, h: float32, raw: static[bool]) =
   node.setOrgBox(Rect(x: x, y: y, w: w, h: h), raw)
 
-proc getOrgBox*(node: Node, raw: static[bool] = false): Rect =
+proc getOrgBox*(node: Node, raw: static[bool] = false): Box =
   when raw: result = node.orgBox
   else: result = node.orgBox / common.uiScale
 
 proc setMousePos*(item: var Mouse, x, y: float64) =
-  item.pos = rvec2(x, y)
+  item.pos = vec2(x, y)
   item.pos *= pixelRatio / item.pixelScale
   item.delta = item.pos - item.prevPos
   item.prevPos = item.pos
 
-proc atXY*(rect: Rect | RawRect, x, y: float64|float32|int): RawRect =
+proc atXY*[T](rect: T, x, y: float64|float32|int): T =
   result = rect
   result.x = x.float32
   result.y = y.float32
