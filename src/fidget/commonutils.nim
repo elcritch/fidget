@@ -46,6 +46,12 @@ template genMathFn[T, B](op: untyped) =
 template genOp[T, B](op: untyped) =
   proc `op`*(a, b: T): T = T(`op`(B(a), B(b)))
 
+macro applyOps(fn: untyped, ops: varargs[untyped]) =
+  result = newStmtList()
+  for op in ops:
+    result.add quote do:
+      `fn`[RawVec2, Vec2](`op`)
+
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
 ## Distinct percentages
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
@@ -71,27 +77,10 @@ type
 genBoolOp[RawVec2, Vec2](`==`)
 genBoolOp[RawVec2, Vec2](`!=`)
 genBoolOp[RawVec2, Vec2](`~=`)
+# applyOps(genBoolOp, `==`, `!=`, `-=`)
 
-genOp[RawVec2, Vec2](`+`)
-genOp[RawVec2, Vec2](`-`)
-genOp[RawVec2, Vec2](`/`)
-genOp[RawVec2, Vec2](`*`)
-genOp[RawVec2, Vec2](`mod`)
-# genOp[RawVec2, Vec2](`div`)
-genOp[RawVec2, Vec2](`zmod`)
-genOp[RawVec2, Vec2](min)
-
-genEqOp[RawVec2, Vec2](`+=`)
-genEqOp[RawVec2, Vec2](`-=`)
-genEqOp[RawVec2, Vec2](`*=`)
-genEqOp[RawVec2, Vec2](`/=`)
-
-macro applyOps(fn: untyped, ops: varargs[untyped]) =
-  result = newStmtList()
-  for op in ops:
-    result.add quote do:
-      `fn`[RawVec2, Vec2](`op`)
-
+applyOps(genOp, `+`, `-`, `/`, `*`, `mod`, `zmod`, `min`, `zmod`)
+applyOps(genEqOp, `+=`, `-=`, `*=`, `/=`)
 applyOps(genMathFn, `-`, sin, cos, tan, arcsin, arccos, arctan, sinh, cosh, tanh)
 
 # genMathFns(RawVec2, GVec2[float32], `-`, sin, cos, tan, arcsin, arccos, arctan, sinh, cosh, tanh)
