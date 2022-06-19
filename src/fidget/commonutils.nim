@@ -17,7 +17,6 @@ macro variants*(name, code: untyped) =
   result[1][2] = code
 
 
-
 template borrowMaths*(typ: typedesc) =
   proc `+` *(x, y: typ): typ {.borrow.}
   proc `-` *(x, y: typ): typ {.borrow.}
@@ -32,19 +31,6 @@ template borrowMaths*(typ: typedesc) =
   proc `<=` * (x, y: typ): bool {.borrow.}
   proc `==` * (x, y: typ): bool {.borrow.}
 
-
-type
-  PercKind* = enum
-    relative
-    absolute
-  Percent* = distinct float32
-  Percentages* = tuple[value: float32, kind: PercKind]
-
-borrowMaths(Percent)
-
-type
-  RawVec2* = distinct GVec2[float32]
-  RawRect* = distinct Rect
 
 macro genOp(T, B: untyped, ops: varargs[untyped]) =
   result = newStmtList()
@@ -71,13 +57,39 @@ macro genMathFn(T, B: untyped, ops: varargs[untyped]) =
     result.add quote do:
       proc `op`*[`T`](a: `T`): `T` = `op`(a.`B`).`T`
 
+## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+## Distinct percentages
+## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+
+type
+  PercKind* = enum
+    relative
+    absolute
+  Percent* = distinct float32
+  Percentages* = tuple[value: float32, kind: PercKind]
+
+borrowMaths(Percent)
+
+
+## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+## Distinct vec types
+## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+
+type
+  RawVec2* = distinct Vec2
+  RawRect* = distinct Rect
+
 genOp(RawVec2, Vec2, `+`, `-`, `/`, `*`, `mod`, `div`, `zmod`, min, max)
 genEqOp(RawVec2, Vec2, `+=`, `-=`, `*=`, `/=`)
 genBoolOp(RawVec2, Vec2, `==`, `!=`, `~=`)
 genMathFn(RawVec2, Vec2, `-`, sin, cos, tan, arcsin, arccos, arctan, sinh, cosh, tanh, exp2, inversesqrt, exp, ln, log2, sqrt, floor, ceil, abs) 
 
+# genOp(RawRect, Rect, `+`, `-`, `/`, `*`)
+# genBoolOp(RawRect, Rect, `==`, `!=`, `~=`)
+# genMathFn(RawRect, Rect, `-`, sin, cos, tan, arcsin, arccos, arctan, sinh, cosh, tanh, exp2, inversesqrt, exp, ln, log2, sqrt, floor, ceil, abs) 
+
 # when isMainModule:
-when true:
+proc testRawVec2() =
   let x = vec2(12.1, 13.4).RawVec2
   let y = vec2(10.0, 10.0).RawVec2
   var z = vec2(0.0, 0.0).RawVec2
@@ -98,3 +110,26 @@ when true:
   echo "z: ", repr(-z)
   echo "z: ", repr(sin(z))
 
+# proc testRect() =
+#   let x = rect(10.0, 10.0, 2.0, 2.0).RawRect
+#   let y = rect(10.0, 10.0, 5.0, 5.0).RawRect
+#   var z = rect(10.0, 10.0, 5.0, 5.0).RawRect
+
+#   echo "x + y: ", repr(x + y)
+#   echo "x - y: ", repr(x - y)
+#   echo "x / y: ", repr(x / y)
+#   echo "x * y: ", repr(x * y)
+#   # echo "x == y: ", repr(x == y)
+#   echo "min(x, y): ", repr(min(x, y))
+
+#   z = rect(10.0, 10.0, 5.0, 5.0).RawRect
+#   # z += y
+#   # z += 3.1'f32
+#   echo "z: ", repr(z)
+#   z = rect(10.0, 10.0, 5.0, 5.0).RawRect
+#   echo "z: ", repr(-z)
+#   echo "z: ", repr(sin(z))
+
+when true:
+  testRawVec2()
+  # testRect()
