@@ -124,7 +124,6 @@ proc testRect() =
   let v = vec2(10.0, 10.0).RawVec2
 
   echo "x + y: ", repr(x + y)
-#   echo "x - y: ", repr(x - y)
   echo "x / y: ", repr(x / c)
   echo "x * y: ", repr(x * c)
   echo "x == y: ", repr(x == y)
