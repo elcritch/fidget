@@ -86,13 +86,13 @@ genEqOp[RawVec2, Vec2](`-=`)
 genEqOp[RawVec2, Vec2](`*=`)
 genEqOp[RawVec2, Vec2](`/=`)
 
-macro ops(fn: untyped, ops: varargs[untyped]) =
+macro applyOps(fn: untyped, ops: varargs[untyped]) =
   result = newStmtList()
   for op in ops:
     result.add quote do:
       `fn`[RawVec2, Vec2](`op`)
 
-ops(genMathFn, `-`, sin, cos, tan, arcsin, arccos, arctan, sinh, cosh, tanh)
+applyOps(genMathFn, `-`, sin, cos, tan, arcsin, arccos, arctan, sinh, cosh, tanh)
 
 # genMathFns(RawVec2, GVec2[float32], `-`, sin, cos, tan, arcsin, arccos, arctan, sinh, cosh, tanh)
 # genMathFns(RawVec2, GVec2[float32], exp, ln, log2, sqrt, floor, ceil, abs) 
