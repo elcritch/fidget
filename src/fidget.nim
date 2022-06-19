@@ -207,7 +207,7 @@ proc mouseOverlapLogic*(): bool =
     current.screenBox.w > 0 and
     current.screenBox.h > 0 
   # if mpos.overlaps(current.screenBox):
-    # echo fmt"mouseOverlap: {mpos=} {current.screenBox=}"
+  echo fmt"mouseOverlap: {act=} {mpos=} {current.screenBox=} {mpos.overlaps(current.screenBox)=}"
   # if inPopup:
     # echo fmt"mouseOverlap: popup: {mouse.pos(raw=true).overlaps(popupBox)} {mpos=} {popupBox=}"
 
@@ -674,18 +674,23 @@ proc selectable*(v: bool) =
 
 template binding*(stringVariable, handler: untyped) =
   ## Makes the current object text-editable and binds it to the stringVariable.
+  echo "binding impl"
   current.bindingSet = true
   selectable true
   editableText true
   if not current.hasKeyboardFocus():
     characters stringVariable
-  if not defined(js):
+  when not defined(js):
     onClick:
+      echo "binding impl: onclick"
       keyboard.focus(current)
     onClickOutside:
+      echo "binding impl: onclick outside"
       keyboard.unFocus(current)
   onInput:
+    echo "binding impl: oninput"
     handler
+  echo "binding impl: done\n"
 
 template binding*(stringVariable: untyped) =
   binding(stringVariable) do:
