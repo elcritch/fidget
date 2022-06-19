@@ -71,7 +71,7 @@ macro genMathFn(T, B: untyped, ops: varargs[untyped]) =
     result.add quote do:
       proc `op`*[`T`](a: `T`): `T` = `op`(a.`B`).`T`
 
-genOp(RawVec2, Vec2, `+`, `-`, `/`, `*`, `mod`, `div`, `zmod`)
+genOp(RawVec2, Vec2, `+`, `-`, `/`, `*`, `mod`, `div`, `zmod`, min, max)
 genEqOp(RawVec2, Vec2, `+=`, `-=`, `*=`, `/=`)
 genBoolOp(RawVec2, Vec2, `==`, `!=`, `~=`)
 genMathFn(RawVec2, Vec2, `-`, sin, cos, tan, arcsin, arccos, arctan, sinh, cosh, tanh, exp2, inversesqrt, exp, ln, log2, sqrt, floor, ceil, abs) 
@@ -88,6 +88,7 @@ when true:
   echo "x * y: ", repr(x * y)
   echo "x == y: ", repr(x == y)
   echo "x ~= y: ", repr(x ~= y)
+  echo "min(x, y): ", repr(min(x, y))
 
   z = vec2(1.0, 1.0).RawVec2
   z += y
