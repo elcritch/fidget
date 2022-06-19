@@ -1,6 +1,6 @@
 import chroma, common, hashes, input, internal, opengl/base,
     opengl/context, os, strformat, strutils, tables, times, typography,
-    unicode, vmath, bumpy,
+    unicode,
     typography/svgfont, pixie
 
 import patches/textboxes 

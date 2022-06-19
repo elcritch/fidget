@@ -1,5 +1,5 @@
 import sequtils, tables, json, hashes
-import chroma, input, vmath, bumpy
+import chroma, input
 import strutils, strformat
 import unicode
 
@@ -133,14 +133,13 @@ type
     text*: seq[Rune]
     code*: string
     nodes*: seq[Node]
-    box: Rect
+    box*: Rect
     orgBox: Rect
+    screenBox*: RawRect
+    offset*: RawVec2
+    totalOffset*: RawVec2
     hasRendered*: bool
     rotation*: float32
-    screenBox*: Rect
-    offset*: Vec2
-    totalOffset*: Vec2
-    mouseBase*: Vec2
     fill*: Color
     transparency*: float32
     stroke*: Stroke
@@ -203,7 +202,9 @@ type
     NSResize
 
   Mouse* = ref object
-    pos, delta, prevPos: Vec2
+    pos*: RawVec2
+    delta*: RawVec2
+    prevPos*: RawVec2
     pixelScale*: float32
     wheelDelta*: float32
     cursorStyle*: MouseCursorStyle ## Sets the mouse cursor icon
@@ -266,9 +267,9 @@ var
   inPopup*: bool
   popupBox*: Rect
   fullscreen* = false
-  windowLogicalSize*: Vec2 ## Screen size in logical coordinates.
-  windowSize*: Vec2    ## Screen coordinates
-  windowFrame*: Vec2   ## Pixel coordinates
+  windowLogicalSize*: RawVec2 ## Screen size in logical coordinates.
+  windowSize*: RawVec2    ## Screen coordinates
+  windowFrame*: RawVec2   ## Pixel coordinates
   pixelRatio*: float32 ## Multiplier to convert from screen coords to pixels
   pixelScale*: float32 ## Pixel multiplier user wants on the UI
   zLevelMousePrecedent*: ZLevel
@@ -329,7 +330,7 @@ when not defined(js):
       of vBottom: Bottom
 
 mouse = Mouse()
-mouse.pos = vec2(0)
+mouse.pos = rvec2(0, 0)
 
 # proc `$`*(a: Rect): string =
   # fmt"({a.x:6.2f}, {a.y:6.2f}; {a.w:6.2f}x{a.h:6.2f})"
@@ -346,7 +347,7 @@ proc setNodePath*(node: Node) =
 
 proc dumpTree*(node: Node, indent = "") =
 
-  echo indent, "`", node.id, "`", " sb: ", node.screenBox, " org: ", node.orgBox
+  echo indent, "`", node.id, "`", " sb: ", node.screenBox, " org: ", $node.orgBox
   for n in node.nodes:
     dumpTree(n, "  " & indent)
 
@@ -597,11 +598,11 @@ proc computeScreenBox*(parent, node: Node) =
   ## Setups screenBoxes for the whole tree.
   if parent == nil:
     # echo "compScreenBox: ", node.idPath, " bx: ", node.box
-    node.screenBox = node.box
+    node.screenBox = node.box.scaled
     node.totalOffset = node.offset
   else:
     # echo "compScreenBox: ", node.idPath, " bx: ", node.box, " parent:sb: ", parent.screenBox
-    node.screenBox = node.box + parent.screenBox
+    node.screenBox = node.box.scaled + parent.screenBox
     node.totalOffset = node.offset + parent.totalOffset
   for n in node.nodes:
     computeScreenBox(node, n)
@@ -632,24 +633,13 @@ proc getOrgBox*(node: Node, raw: static[bool] = false): Rect =
   when raw: result = node.orgBox
   else: result = node.orgBox / common.uiScale
 
-template pos*(item: var Mouse, raw: static[bool] = false): Vec2 =
-  when raw: item.pos
-  else: item.pos / common.uiScale
-
-template pos*(item: var Mouse, off: Vec2, raw: static[bool] = false): Vec2 =
-  when raw: item.pos + node.totalOffset
-  else: item.pos / common.uiScale + node.totalOffset
-
 proc setMousePos*(item: var Mouse, x, y: float64) =
-  item.pos = vec2(x, y)
+  item.pos = rvec2(x, y)
   item.pos *= pixelRatio / item.pixelScale
   item.delta = item.pos - item.prevPos
   item.prevPos = item.pos
 
-template descaled*(node, box: untyped): untyped =
-  node.`box`/uiScale
-
-proc atXY*(rect: Rect, x, y: float64|float32|int): Rect =
+proc atXY*(rect: Rect | RawRect, x, y: float64|float32|int): RawRect =
   result = rect
   result.x = x.float32
   result.y = y.float32

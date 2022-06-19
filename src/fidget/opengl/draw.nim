@@ -2,7 +2,8 @@ import std/hashes, unicode, os, strformat, tables, times
 
 import typography
 import ../patches/textboxes
-import pixie, chroma, vmath, bumpy
+import pixie, chroma
+import ../commonutils
 
 import context, formatflippy
 import ../input, ../common
@@ -59,8 +60,6 @@ proc unFocus*(keyboard: Keyboard, node: Node) =
     keyboard.onFocusNode = nil
     keyboard.focusNode = nil
 
-var TEST* = ""
-
 proc drawText(node: Node) =
   if node.textStyle.fontFamily notin fonts:
     quit &"font not found: {node.textStyle.fontFamily}"
@@ -73,7 +72,7 @@ proc drawText(node: Node) =
 
   # TODO: Fixme
   # let mousePos = mouse.pos(raw=false) - node.screenBox.xy + node.totalOffset
-  let mousePos = mouse.pos(raw=false)
+  let mousePos = mouse.pos
   # let mousePos = mouse.pos(raw=true) + node.totalOffset
   # if mouse.click:
   echo fmt"{mousePos=}"
@@ -117,8 +116,9 @@ proc drawText(node: Node) =
 
   if editing:
     var textBox = node.currentEvents().mgetOrPut("$textbox", TextBox[Node])
-    if textBox.size != node.screenBox.wh:
-      textBox.resize(node.screenBox.wh)
+    echo fmt"draw:editing: {textBox.size=} {node.screenBox.descaled.wh=}"
+    if textBox.size != node.screenBox.descaled.wh:
+      textBox.resize(node.screenBox.descaled.wh)
     node.textLayout = textBox.layout
     ctx.saveTransform()
     ctx.translate(-textBox.scroll)

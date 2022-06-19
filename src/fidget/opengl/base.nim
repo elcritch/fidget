@@ -1,7 +1,8 @@
+import ../commonutils
 import ../common, ../input, ../internal
 import ../patches/textboxes 
 import chroma, pixie, opengl, os, perf,
-    staticglfw, times, unicode, vmath, strformat, bumpy
+    staticglfw, times, unicode, strformat
 import std/asyncdispatch
 
 when defined(glDebugMessageCallback):
@@ -74,7 +75,7 @@ proc updateWindowSize() =
   windowFrame.x = float32(cwidth)
   windowFrame.y = float32(cheight)
 
-  minimized = windowSize == vec2(0, 0)
+  minimized = windowSize == rvec2(0, 0)
   pixelRatio = if windowSize.x > 0: windowFrame.x / windowSize.x else: 0
 
   glViewport(0, 0, cwidth, cheight)

@@ -479,10 +479,10 @@ proc mouseAction*[T](
   textBox.wasScrolled = false
   textBox.mousePos = mousePos + textBox.scroll
   # Pick where to place the cursor.
-  echo fmt"mouseAction: {click=} {shift=} {mousePos=} {textBox.mousePos=} "
+  # echo fmt"mouseAction: {click=} {shift=} {mousePos=} {textBox.mousePos=} "
   let pos = textBox.layout.pickGlyphAt(textBox.mousePos)
   if pos.character != "":
-    echo fmt"mouseAction: char found: {pos.character=} "
+    # echo fmt"mouseAction: char found: {pos.character=} "
     textBox.cursor = pos.count
     textBox.savedX = textBox.mousePos.x
     if pos.character != "\n":
@@ -498,7 +498,7 @@ proc mouseAction*[T](
     # If below text select last character + 1.
     if textBox.mousePos.y > float textBox.innerHeight:
       textBox.cursor = textBox.glyphs.len
-  echo fmt"mouseAction: {textBox.mousePos.x=} "
+  # echo fmt"mouseAction: {textBox.mousePos.x=} "
   textBox.savedX = textBox.mousePos.x
   textBox.adjustScroll()
 

@@ -1,4 +1,4 @@
-import bumpy, fidget, math, random
+import fidget, math, random
 
 loadFont("IBM Plex Sans", "IBMPlexSans-Regular.ttf")
 

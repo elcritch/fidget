@@ -1,9 +1,11 @@
 import algorithm, chroma, fidget/common, fidget/input, json, macros, strutils,
-    sequtils, tables, vmath, bumpy
+    sequtils, tables, bumpy
 import math, strformat
 import unicode
+import fidget/commonutils
 
-export chroma, common, input, vmath, bumpy
+export chroma, common, input
+export commonutils
 
 when defined(js):
   import fidget/htmlbackend

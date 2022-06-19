@@ -1,4 +1,4 @@
-import bumpy, fidget, math, random
+import fidget, math, random
 
 # Create an array of 30 bars.
 var bars = newSeq[float](30)

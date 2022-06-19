@@ -6,7 +6,9 @@ export patty
 import vmath except `$`
 import bumpy except `$`
 import math
-export vmath, bumpy, math
+export math
+export vmath except `$`
+export bumpy except `$`
 
 import macros, macroutils
 import typetraits
@@ -117,13 +119,16 @@ template y*(r: RawVec2): float32 = r.Vec2.y
 template `x=`*(r: RawVec2, v: float32) = r.Vec2.x = v
 template `y=`*(r: RawVec2, v: float32) = r.Vec2.y = v
 
-proc `$`*(a: Vec2): string =
-  &"vec<{a[0]:2.2f}, {a[1]:2.2f}>"
-proc `$`*(a: Rect): string =
-  &"<{a.x:2.2f}, {a.y:2.2f}; {a.x+a.w:2.2f}, {a.y+a.h:2.2f} [{a.w:2.2f} x {a.h:2.2f}]>"
+# proc `$`*(a: Vec2): string =
+  # &"vec<{a[0]:2.2f}, {a[1]:2.2f}>"
+# proc `$`*(a: Rect): string =
+  # &"<{a.x:2.2f}, {a.y:2.2f}; {a.x+a.w:2.2f}, {a.y+a.h:2.2f} [{a.w:2.2f} x {a.h:2.2f}]>"
 
 proc `$`*(a: RawVec2): string {.borrow.}
 proc `$`*(a: RawRect): string {.borrow.}
+
+template scaled*(a: Rect): RawRect = RawRect(a * common.uiScale)
+template descaled*(a: RawRect): Rect = Rect(a / common.uiScale)
 
 # when isMainModule:
 proc testRawVec2() =

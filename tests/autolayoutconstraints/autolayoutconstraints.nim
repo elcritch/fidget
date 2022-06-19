@@ -1,4 +1,4 @@
-import fidget, random, bumpy
+import fidget, random
 
 setTitle("Auto Layout Vertical")
 

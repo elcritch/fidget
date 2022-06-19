@@ -1,5 +1,5 @@
 import buffers, chroma, pixie, hashes, opengl, os, shaders, strformat,
-    strutils, tables, textures, times, vmath, formatflippy, bumpy
+    strutils, tables, textures, times, formatflippy
 
 const
   quadLimit = 10_921
