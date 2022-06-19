@@ -3,12 +3,8 @@ import strformat
 import patty
 export patty
 
-import vmath except `$`
-import bumpy except `$`
-import math
-export math
-export vmath except `$`
-export bumpy except `$`
+import vmath, bumpy, math
+export math, vmath, bumpy
 
 import macros, macroutils
 import typetraits
