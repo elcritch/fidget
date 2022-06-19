@@ -50,7 +50,7 @@ macro genOp(T, B: untyped, ops: varargs[untyped]) =
   result = newStmtList()
   for op in ops:
     result.add quote do:
-      proc `op`*(a, b: `T`): `T` = `op`(a.`B`, b.`B`).`T`
+      proc `op`*[`T`](a, b: `T`): `T` = `op`(a.`B`, b.`B`).`T`
 
 macro genBoolOp(T, B: untyped, ops: varargs[untyped]) =
   result = newStmtList()
@@ -62,10 +62,8 @@ macro genEqOp(T, B: untyped, ops: varargs[untyped]) =
   result = newStmtList()
   for op in ops:
     result.add quote do:
-      template `op`*(a: var RawVec2, b: float32) =
-        `op`(a.`B`, b)
-      proc `op`*(a: var `T`, b: `T`) =
-        `op`(a.`B`, b.`B`)
+      template `op`*(a: var RawVec2, b: float32) = `op`(a.`B`, b)
+      proc `op`*(a: var `T`, b: `T`) = `op`(a.`B`, b.`B`)
 
 macro genMathFn(T, B: untyped, ops: varargs[untyped]) =
   result = newStmtList()
