@@ -125,12 +125,12 @@ proc testRect() =
   let y = rect(10.0, 10.0, 5.0, 5.0).RawRect
   var z = rect(10.0, 10.0, 5.0, 5.0).RawRect
 
-#   echo "x + y: ", repr(x + y)
-#   echo "x - y: ", repr(x - y)
-#   echo "x / y: ", repr(x / y)
-#   echo "x * y: ", repr(x * y)
-#   # echo "x == y: ", repr(x == y)
-#   echo "min(x, y): ", repr(min(x, y))
+  echo "x + y: ", repr(x + y)
+  echo "x - y: ", repr(x - y)
+  echo "x / y: ", repr(x / y)
+  echo "x * y: ", repr(x * y)
+  # echo "x == y: ", repr(x == y)
+  echo "min(x, y): ", repr(min(x, y))
 
 #   z = rect(10.0, 10.0, 5.0, 5.0).RawRect
 #   # z += y
