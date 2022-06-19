@@ -81,16 +81,7 @@ genBoolOp[RawVec2, Vec2](`~=`)
 applyOps(RawVec2, Vec2, genOp, `+`, `-`, `/`, `*`, `mod`, `zmod`, `min`, `zmod`)
 applyOps(RawVec2, Vec2, genEqOp, `+=`, `-=`, `*=`, `/=`)
 applyOps(RawVec2, Vec2, genMathFn, `-`, sin, cos, tan, arcsin, arccos, arctan, sinh, cosh, tanh)
-
-# genMathFns(RawVec2, GVec2[float32], `-`, sin, cos, tan, arcsin, arccos, arctan, sinh, cosh, tanh)
-# genMathFns(RawVec2, GVec2[float32], exp, ln, log2, sqrt, floor, ceil, abs) 
-
-# genOp(RawRect, Rect, `+`, `-`, `/`, `*`)
-# genBoolOp[RawRect, Rect](`==`)
-# genBoolOp[RawRect, Rect](`!=`)
-# genBoolOp[RawRect, Rect](`~=`)
-
-# genMathFn(RawRect, Rect, `-`, sin, cos, tan, arcsin, arccos, arctan, sinh, cosh, tanh, exp2, inversesqrt, exp, ln, log2, sqrt, floor, ceil, abs) 
+applyOps(RawVec2, Vec2, genMathFn, exp, ln, log2, sqrt, floor, ceil, abs) 
 
 # when isMainModule:
 proc testRawVec2() =
