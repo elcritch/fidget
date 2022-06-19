@@ -59,6 +59,7 @@ proc unFocus*(keyboard: Keyboard, node: Node) =
     keyboard.onFocusNode = nil
     keyboard.focusNode = nil
 
+var TEST* = ""
 
 proc drawText(node: Node) =
   if node.textStyle.fontFamily notin fonts:
@@ -71,39 +72,46 @@ proc drawText(node: Node) =
     font.lineHeight = font.size
 
   # TODO: Fixme
-  let mousePos = mouse.pos(raw=true) - node.screenBox.xy + node.totalOffset
+  # let mousePos = mouse.pos(raw=false) - node.screenBox.xy + node.totalOffset
+  let mousePos = mouse.pos(raw=false)
   # let mousePos = mouse.pos(raw=true) + node.totalOffset
+  # if mouse.click:
+  echo fmt"{mousePos=}"
 
-  if mouse.pos(raw=true).overlaps(node.screenBox):
-    if node.selectable and mouse.wheelDelta != 0:
-      keyboard.focus(node)
-    elif node.selectable and mouse.down:
-      # mouse actions click, drag, double clicking
-      keyboard.focus(node)
-      if mouse.click:
-        if epochTime() - lastClickTime < 0.5:
-          inc multiClick
-        else:
-          multiClick = 0
-        lastClickTime = epochTime()
-        if multiClick == 1:
-          textBox.selectWord(mousePos)
-          buttonDown[MOUSE_LEFT] = false
-        elif multiClick == 2:
-          textBox.selectParagraph(mousePos)
-          buttonDown[MOUSE_LEFT] = false
-        elif multiClick == 3:
-          textBox.selectAll()
-          buttonDown[MOUSE_LEFT] = false
-        else:
-          textBox.mouseAction(mousePos, click = true, keyboard.shiftKey)
+  # echo fmt"mouse: {mouse.pos(raw=true).overlaps(node.screenBox, true)} mousePos: {mousePos.overlaps(node.screenBox, true)}"
 
-  if textBox != nil and
-      mouse.down and
-      not mouse.click and
-      keyboard.focusNode == node:
-    # Dragging the mouse:
-    textBox.mouseAction(mousePos, click = false, keyboard.shiftKey)
+  # if mouse.pos(raw=true).overlaps(node.screenBox):
+  #   echo fmt"MOUSE: {mouse.click=}"
+  #   if node.selectable and mouse.wheelDelta != 0:
+  #     keyboard.focus(node)
+  #   elif node.selectable and mouse.down:
+  #     # mouse actions click, drag, double clicking
+  #     keyboard.focus(node)
+  #     if mouse.click:
+  #       if epochTime() - lastClickTime < 0.5:
+  #         inc multiClick
+  #       else:
+  #         multiClick = 0
+  #       lastClickTime = epochTime()
+  #       if multiClick == 1:
+  #         textBox.selectWord(mousePos)
+  #         buttonDown[MOUSE_LEFT] = false
+  #       elif multiClick == 2:
+  #         textBox.selectParagraph(mousePos)
+  #         buttonDown[MOUSE_LEFT] = false
+  #       elif multiClick == 3:
+  #         textBox.selectAll()
+  #         buttonDown[MOUSE_LEFT] = false
+  #       else:
+  #         textBox.mouseAction(mousePos, click = true, keyboard.shiftKey)
+
+  # if textBox != nil and
+  #     mouse.down and
+  #     not mouse.click and
+  #     keyboard.focusNode == node:
+  #   # Dragging the mouse:
+  #   echo "dragging mouse"
+  #   textBox.mouseAction(mousePos, click = false, keyboard.shiftKey)
 
   let editing = keyboard.focusNode == node
 
@@ -185,6 +193,7 @@ proc drawText(node: Node) =
       glyphOffset = glyphOffsets[hashFill]
       charPos = vec2(pos.rect.x + glyphOffset.x, pos.rect.y + glyphOffset.y)
 
+    echo fmt"draw: {charPos=} {pos.rect=}"
     if node.stroke.weight > 0 and node.stroke.color.a > 0:
       ctx.drawImage(
         hashStroke,

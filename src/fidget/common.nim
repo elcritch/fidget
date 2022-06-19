@@ -6,7 +6,7 @@ import unicode
 import variant
 import commonutils
 
-export sequtils, strutils, strformat, tables, hashes
+export sequtils, strformat, tables, hashes
 export variant
 export unicode
 export commonutils
@@ -331,8 +331,8 @@ when not defined(js):
 mouse = Mouse()
 mouse.pos = vec2(0)
 
-proc `$`*(a: Rect): string =
-  fmt"({a.x:6.2f}, {a.y:6.2f}; {a.w:6.2f}x{a.h:6.2f})"
+# proc `$`*(a: Rect): string =
+  # fmt"({a.x:6.2f}, {a.y:6.2f}; {a.w:6.2f}x{a.h:6.2f})"
 
 proc setNodePath*(node: Node) =
   node.idPath = ""
@@ -448,7 +448,7 @@ proc clearInputs*() =
     keyboard.state = KeyState.Empty
 
 proc click*(mouse: Mouse): bool =
-  buttonPress[MOUSE_LEFT]
+  result = buttonPress[MOUSE_LEFT]
 
 proc down*(mouse: Mouse): bool =
   buttonDown[MOUSE_LEFT]
