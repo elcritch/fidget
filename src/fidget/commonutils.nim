@@ -1,8 +1,8 @@
 import patty
 export patty
 
-import vmath, bumpy
-export vmath, bumpy
+import vmath, bumpy, math
+export vmath, bumpy, math
 
 import macros, macroutils
 import typetraits
@@ -32,30 +32,39 @@ template borrowMaths*(typ: typedesc) =
   proc `==` * (x, y: typ): bool {.borrow.}
 
 
-macro genOp(T, B: untyped, ops: varargs[untyped]) =
+# template genOps(T, B: untyped, op: untyped) =
+#   proc `op`*(a, b: T): T = `op`[B](a.B, b.B).T
+
+macro genOps(T, B: untyped, ops: varargs[untyped]) =
   result = newStmtList()
   for op in ops:
     result.add quote do:
       proc `op`*[`T`](a, b: `T`): `T` = `op`(a.`B`, b.`B`).`T`
 
-macro genBoolOp(T, B: untyped, ops: varargs[untyped]) =
+macro genOps2(T, B: untyped, ops: varargs[untyped]) =
+  result = newStmtList()
+  for op in ops:
+    result.add quote do:
+      proc `op`*(a, b: `T`): `T` = `op`(a.`B`, b.`B`).`T`
+
+macro genBoolOps(T, B: untyped, ops: varargs[untyped]) =
   result = newStmtList()
   for op in ops:
     result.add quote do:
       proc `op`*(a, b: `T`): bool = `op`(a.`B`, b.`B`)
 
-macro genEqOp(T, B: untyped, ops: varargs[untyped]) =
+macro genEqOps(T, B: untyped, ops: varargs[untyped]) =
   result = newStmtList()
   for op in ops:
     result.add quote do:
       template `op`*(a: var RawVec2, b: float32) = `op`(a.`B`, b)
       proc `op`*(a: var `T`, b: `T`) = `op`(a.`B`, b.`B`)
 
-macro genMathFn(T, B: untyped, ops: varargs[untyped]) =
+macro genMathFns(T, B: untyped, ops: varargs[untyped]) =
   result = newStmtList()
   for op in ops:
     result.add quote do:
-      proc `op`*[`T`](a: `T`): `T` = `op`(a.`B`).`T`
+      proc `op`*(a: `T`): `T` = `op`(a.`B`).`T`
 
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
 ## Distinct percentages
@@ -79,10 +88,11 @@ type
   RawVec2* = distinct Vec2
   RawRect* = distinct Rect
 
-genOp(RawVec2, Vec2, `+`, `-`, `/`, `*`, `mod`, `div`, `zmod`, min, max)
-genEqOp(RawVec2, Vec2, `+=`, `-=`, `*=`, `/=`)
-genBoolOp(RawVec2, Vec2, `==`, `!=`, `~=`)
-genMathFn(RawVec2, Vec2, `-`, sin, cos, tan, arcsin, arccos, arctan, sinh, cosh, tanh, exp2, inversesqrt, exp, ln, log2, sqrt, floor, ceil, abs) 
+genOps(RawVec2, Vec2, `+`, `-`, `/`, `*`, `mod`, `div`, `zmod`, min, max)
+genEqOps(RawVec2, Vec2, `+=`, `-=`, `*=`, `/=`)
+genBoolOps(RawVec2, Vec2, `==`, `!=`, `~=`)
+genMathFns(RawVec2, Vec2, `-`, sin, cos, tan, arcsin, arccos, arctan, sinh, cosh, tanh)
+genMathFns(RawVec2, Vec2, exp, ln, log2, sqrt, floor, ceil, abs) 
 
 # genOp(RawRect, Rect, `+`, `-`, `/`, `*`)
 # genBoolOp(RawRect, Rect, `==`, `!=`, `~=`)
