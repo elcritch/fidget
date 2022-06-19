@@ -35,9 +35,15 @@ template borrowMaths*(typ: typedesc) =
 template genBoolOp[T, B](op: untyped) =
   proc `op`*(a, b: T): bool = `op`(B(a), B(b))
 
+template genFloatOp[T, B](op: untyped) =
+  proc `op`*(a: T, b: float): T = T(`op`(B(a), b))
+
 template genEqOp[T, B](op: untyped) =
   proc `op`*(a: var T, b: float32) = `op`(B(a), b)
   proc `op`*(a: var T, b: T) = `op`(B(a), B(b))
+
+template genEqOpC[T, B, C](op: untyped) =
+  proc `op`*[D](a: var T, b: D) = `op`(B(a), C(b))
 
 template genMathFn[T, B](op: untyped) =
   proc `op`*(a: `T`): `T` =
@@ -83,6 +89,11 @@ applyOps(RawVec2, Vec2, genEqOp, `+=`, `-=`, `*=`, `/=`)
 applyOps(RawVec2, Vec2, genMathFn, `-`, sin, cos, tan, arcsin, arccos, arctan, sinh, cosh, tanh)
 applyOps(RawVec2, Vec2, genMathFn, exp, ln, log2, sqrt, floor, ceil, abs) 
 
+applyOps(RawRect, Rect, genOp, `+`)
+applyOps(RawRect, Rect, genFloatOp, `*`, `/`)
+genBoolOp[RawRect, Rect](`==`)
+genEqOpC[RawRect, Rect, Vec2](`xy=`)
+
 # when isMainModule:
 proc testRawVec2() =
   let x = vec2(12.1, 13.4).RawVec2
@@ -105,26 +116,25 @@ proc testRawVec2() =
   echo "z: ", repr(-z)
   echo "z: ", repr(sin(z))
 
-# proc testRect() =
-#   let x = rect(10.0, 10.0, 2.0, 2.0).RawRect
-#   let y = rect(10.0, 10.0, 5.0, 5.0).RawRect
-#   var z = rect(10.0, 10.0, 5.0, 5.0).RawRect
+proc testRect() =
+  let x = rect(10.0, 10.0, 2.0, 2.0).RawRect
+  let y = rect(10.0, 10.0, 5.0, 5.0).RawRect
+  let c = 10.0
+  var z = rect(10.0, 10.0, 5.0, 5.0).RawRect
+  let v = vec2(10.0, 10.0).RawVec2
 
-#   echo "x + y: ", repr(x + y)
+  echo "x + y: ", repr(x + y)
 #   echo "x - y: ", repr(x - y)
-#   echo "x / y: ", repr(x / y)
-#   echo "x * y: ", repr(x * y)
-#   # echo "x == y: ", repr(x == y)
-#   echo "min(x, y): ", repr(min(x, y))
+  echo "x / y: ", repr(x / c)
+  echo "x * y: ", repr(x * c)
+  echo "x == y: ", repr(x == y)
 
-#   z = rect(10.0, 10.0, 5.0, 5.0).RawRect
-#   # z += y
-#   # z += 3.1'f32
-#   echo "z: ", repr(z)
-#   z = rect(10.0, 10.0, 5.0, 5.0).RawRect
-#   echo "z: ", repr(-z)
-#   echo "z: ", repr(sin(z))
+  z = rect(10.0, 10.0, 5.0, 5.0).RawRect
+  z.xy= v
+  # z += 3.1'f32
+  echo "z: ", repr(z)
+  z = rect(10.0, 10.0, 5.0, 5.0).RawRect
 
 when true:
   testRawVec2()
-  # testRect()
+  testRect()
