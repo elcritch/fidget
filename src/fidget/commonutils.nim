@@ -120,10 +120,10 @@ proc testRawVec2() =
   echo "z: ", repr(-z)
   echo "z: ", repr(sin(z))
 
-# proc testRect() =
-#   let x = rect(10.0, 10.0, 2.0, 2.0).RawRect
-#   let y = rect(10.0, 10.0, 5.0, 5.0).RawRect
-#   var z = rect(10.0, 10.0, 5.0, 5.0).RawRect
+proc testRect() =
+  let x = rect(10.0, 10.0, 2.0, 2.0).RawRect
+  let y = rect(10.0, 10.0, 5.0, 5.0).RawRect
+  var z = rect(10.0, 10.0, 5.0, 5.0).RawRect
 
 #   echo "x + y: ", repr(x + y)
 #   echo "x - y: ", repr(x - y)
