@@ -78,7 +78,6 @@ borrowMaths(Percent)
 
 type
   RawVec2* = distinct Vec2
-  RawRect* = distinct Rect
 
 genBoolOp[RawVec2, Vec2](`==`)
 genBoolOp[RawVec2, Vec2](`!=`)
@@ -88,6 +87,9 @@ applyOps(RawVec2, Vec2, genOp, `+`, `-`, `/`, `*`, `mod`, `zmod`, `min`, `zmod`)
 applyOps(RawVec2, Vec2, genEqOp, `+=`, `-=`, `*=`, `/=`)
 applyOps(RawVec2, Vec2, genMathFn, `-`, sin, cos, tan, arcsin, arccos, arctan, sinh, cosh, tanh)
 applyOps(RawVec2, Vec2, genMathFn, exp, ln, log2, sqrt, floor, ceil, abs) 
+
+type
+  RawRect* = distinct Rect
 
 applyOps(RawRect, Rect, genOp, `+`)
 applyOps(RawRect, Rect, genFloatOp, `*`, `/`)
