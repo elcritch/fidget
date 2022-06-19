@@ -50,7 +50,7 @@ macro genOp(T, B: untyped, ops: varargs[untyped]) =
   result = newStmtList()
   for op in ops:
     result.add quote do:
-      proc `op`*[`T`](a, b: `T`): `T` = `op`(a.`B`, b.`B`).`T`
+      proc `op`*(a, b: `T`): `T` = `op`(a.`B`, b.`B`).`T`
 
 macro genBoolOp(T, B: untyped, ops: varargs[untyped]) =
   result = newStmtList()
