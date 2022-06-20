@@ -22,13 +22,13 @@ Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac tu
 proc drawMain() =
 
   group "pad":
-    box 100, 100, parent.getBox().w - 200, parent.getBox().h - 200
+    box 100, 100, parent.box.w - 200'ui, parent.box.h - 200'ui
     font "IBM Plex Sans Regular", 20.0, 400.0, 25, hLeft, vTop
     fill "#F7F7F9"
     clipContent true
 
     text "input":
-      box 0, 0, parent.getBox().w, parent.getBox().h
+      box 0, 0, parent.box.w, parent.box.h
       fill "#000000"
       multiline true
       binding textValue

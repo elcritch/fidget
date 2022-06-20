@@ -17,7 +17,7 @@ WHERE a = 234 and b = "nothing"
 proc drawMain() =
 
   frame "main":
-    box 0, 0, parent.box.w-20, parent.box.h
+    box 0, 0, parent.box.w-20'ui, parent.box.h
     font "Inconsolata", 16.0, 400.0, 20, hLeft, vTop
     fill "#F7F7F9"
 
@@ -27,4 +27,4 @@ proc drawMain() =
       multiline true
       binding textValue
 
-startFidget(drawMain)
+startFidget(drawMain, uiScale=2.0, )
