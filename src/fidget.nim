@@ -327,7 +327,7 @@ template onUnFocus*(inner: untyped) =
 
 template Em*(size: float32): float32 =
   ## unit size relative to current font size
-  current.textStyle.fontSize * size / common.uiScale
+  current.textStyle.fontSize.float32 * size
 
 proc `'em`*(n: string): float32 =
   ## numeric literal em unit
@@ -421,7 +421,7 @@ proc box*(
   autoOrg()
   # orgBox(float32 x, float32 y, float32 w, float32 h)
 
-proc box*(rect: Rect) =
+proc box*(rect: Box) =
   ## Sets the box dimensions with integers
   box(rect.x, rect.y, rect.w, rect.h)
 
@@ -577,11 +577,11 @@ proc font*(
   ## Sets the font.
   current.textStyle = TextStyle()
   current.textStyle.fontFamily = fontFamily
-  current.textStyle.fontSize = common.uiScale*fontSize
-  current.textStyle.fontWeight = common.uiScale*fontWeight
+  current.textStyle.fontSize = fontSize.UICoord
+  current.textStyle.fontWeight = fontWeight.UICoord
   current.textStyle.lineHeight =
-      if lineHeight != 0.0: common.uiScale*lineHeight
-      else: common.uiScale*fontSize
+      if lineHeight != 0.0: lineHeight.UICoord
+      else: fontSize.UICoord
   current.textStyle.textAlignHorizontal = textAlignHorizontal
   current.textStyle.textAlignVertical = textAlignVertical
 
@@ -595,11 +595,11 @@ proc setFontStyle*(
   ## Sets the font.
   node.textStyle = TextStyle()
   node.textStyle.fontFamily = fontFamily
-  node.textStyle.fontSize = common.uiScale*fontSize
-  node.textStyle.fontWeight = common.uiScale*fontWeight
+  node.textStyle.fontSize = fontSize.UICoord
+  node.textStyle.fontWeight = fontWeight.UICoord
   node.textStyle.lineHeight =
-      if lineHeight != 0.0: common.uiScale*lineHeight
-      else: common.uiScale*fontSize
+      if lineHeight != 0.0: lineHeight.UICoord
+      else: fontSize.UICoord
   node.textStyle.textAlignHorizontal = textAlignHorizontal
   node.textStyle.textAlignVertical = textAlignVertical
 
@@ -628,19 +628,19 @@ proc fontFamily*(fontFamily: string) =
 
 proc fontSize*(fontSize: float32) =
   ## Sets the font size in pixels.
-  current.textStyle.fontSize = fontSize * common.uiScale
+  current.textStyle.fontSize = fontSize.UICoord
 
 proc fontSize*(): float32 =
   ## Sets the font size in pixels.
-  result = current.textStyle.fontSize / common.uiScale
+  result = current.textStyle.fontSize.float32
 
 proc fontWeight*(fontWeight: float32) =
   ## Sets the font weight.
-  current.textStyle.fontWeight = fontWeight * common.uiScale
+  current.textStyle.fontWeight = fontWeight.UICoord
 
 proc lineHeight*(lineHeight: float32) =
   ## Sets the font size.
-  current.textStyle.lineHeight = lineHeight * common.uiScale
+  current.textStyle.lineHeight = lineHeight.UICoord
 
 proc textStyle*(style: TextStyle) =
   ## Sets the font size.

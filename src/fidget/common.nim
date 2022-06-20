@@ -54,9 +54,9 @@ type
   TextStyle* = object
     ## Holder for text styles.
     fontFamily*: string
-    fontSize*: scaled[float32]
-    fontWeight*: float32
-    lineHeight*: float32
+    fontSize*: UICoord
+    fontWeight*: UICoord
+    lineHeight*: UICoord
     textAlignHorizontal*: HAlign
     textAlignVertical*: VAlign
     autoResize*: TextAutoResize

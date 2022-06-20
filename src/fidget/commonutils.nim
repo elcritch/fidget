@@ -25,12 +25,16 @@ template borrowMaths*(typ: typedesc) =
   proc `+` *(x: typ): typ {.borrow.}
   proc `-` *(x: typ): typ {.borrow.}
 
-  proc `*` *(x: typ, y: distinctBase(typ)): typ {.borrow.}
-  proc `*` *(x: distinctBase(typ), y: typ): typ {.borrow.}
+  proc `*` *(x: typ, y: typ): typ {.borrow.}
+  proc `/` *(x: typ, y: typ): typ {.borrow.}
 
   proc `<` * (x, y: typ): bool {.borrow.}
   proc `<=` * (x, y: typ): bool {.borrow.}
   proc `==` * (x, y: typ): bool {.borrow.}
+
+template borrowMathsMixed*(typ: typedesc) =
+  proc `*` *(x: typ, y: distinctBase(typ)): typ {.borrow.}
+  proc `*` *(x: distinctBase(typ), y: typ): typ {.borrow.}
 
 
 template genBoolOp[T, B](op: untyped) =
@@ -71,7 +75,17 @@ type
   Percentages* = tuple[value: float32, kind: PercKind]
 
 borrowMaths(Percent)
+borrowMathsMixed(Percent)
 
+type
+  ScaledCoord* = distinct float32
+  UICoord* = distinct float32
+
+borrowMaths(ScaledCoord)
+borrowMaths(UICoord)
+
+template scaled*(a: UICoord): ScaledCoord = ScaledCoord(a.float32 * common.uiScale)
+template descaled*(a: ScaledCoord): UICoord = UICoord(a.float32 / common.uiScale)
 
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
 ## Distinct vec types

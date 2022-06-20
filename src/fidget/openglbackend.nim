@@ -16,8 +16,8 @@ var
 
 computeTextLayout = proc(node: Node) =
   var font = fonts[node.textStyle.fontFamily]
-  font.size = node.textStyle.fontSize
-  font.lineHeight = node.textStyle.lineHeight
+  font.size = node.textStyle.fontSize.scaled.float32
+  font.lineHeight = node.textStyle.lineHeight.scaled.float32
   if font.lineHeight == 0:
     font.lineHeight = font.size
   var

@@ -34,8 +34,8 @@ proc focus*(keyboard: Keyboard, node: Node) =
     keyboard.focusNode = node
 
     var font = fonts[node.textStyle.fontFamily]
-    font.size = node.textStyle.fontSize
-    font.lineHeight = node.textStyle.lineHeight
+    font.size = node.textStyle.fontSize.scaled.float32
+    font.lineHeight = node.textStyle.lineHeight.scaled.float32
     keyboard.input = node.text
     var tb = node.currentEvents().mgetOrPut("$textbox",
       newTextBox[Node](
@@ -67,8 +67,8 @@ proc drawText(node: Node) =
     quit &"font not found: {node.textStyle.fontFamily}"
 
   var font = fonts[node.textStyle.fontFamily]
-  font.size = node.textStyle.fontSize
-  font.lineHeight = node.textStyle.lineHeight
+  font.size = node.textStyle.fontSize.scaled.float32
+  font.lineHeight = node.textStyle.lineHeight.scaled.float32
   if font.lineHeight == 0:
     font.lineHeight = font.size
 
