@@ -13,7 +13,7 @@ proc drawMain() =
 
   # Use simple math to layout things.
   let barH = bars.len.float32 * 60 + 20
-  let barW = root.box().w - 100
+  let barW = root.box.w - 100'ui
 
   group "button":
     box 0, 0, 90, 20
@@ -33,7 +33,7 @@ proc drawMain() =
       characters "Button"
 
   frame "main":
-    box 0, 0, root.box().w, root.box().h - 20
+    box 0, 0, root.box.w, root.box.h - 20'ui
     fill "#F7F7F9"
     # clipContent true
 
@@ -71,7 +71,7 @@ proc drawMain() =
 
           # Draw the increment button to make the bar go up.
           rectangle "inc":
-            box barW-80, 0, 40, 40
+            box barW-80'ui, 0, 40, 40
             fill "#AEB5C0"
             cornerRadius 3
             onHover:
@@ -86,11 +86,11 @@ proc drawMain() =
 
           # Draw the bar itself.
           group "innerbar":
-            box 60, 0, barW - 80*2, 40
+            box 60, 0, barW - 80'ui*2'ui, 40
             fill "#F7F7F9"
             cornerRadius 5
             rectangle "barFg":
-              box 0, 0, (barW - 80*2) * float(bar), 40
+              box 0, 0, (barW.float32 - 80*2) * float(bar), 40
               fill "#46D15F"
               cornerRadius 5
             onScroll:
