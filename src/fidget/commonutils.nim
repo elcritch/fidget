@@ -118,9 +118,9 @@ template `x=`*(r: Position, v: float32) = r.Vec2.x = v
 template `y=`*(r: Position, v: float32) = r.Vec2.y = v
 
 proc `$`*(a: Position): string =
-  &"vec<{a.x:2.2f}, {a.y:2.2f}>"
+  &"Position<{a.x:2.2f}, {a.y:2.2f}>"
 proc `$`*(a: Box): string =
-  &"<{a.x:2.2f}, {a.y:2.2f}; {a.x+a.w:2.2f}, {a.y+a.h:2.2f} [{a.w:2.2f} x {a.h:2.2f}]>"
+  &"Box<{a.x:2.2f}, {a.y:2.2f}; {a.x+a.w:2.2f}, {a.y+a.h:2.2f} [{a.w:2.2f} x {a.h:2.2f}]>"
 
 # proc `$`*(a: Position): string {.borrow.}
 # proc `$`*(a: Box): string {.borrow.}

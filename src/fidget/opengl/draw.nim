@@ -8,6 +8,8 @@ import context, formatflippy
 import ../input, ../common
 import ../commonutils
 
+import print
+
 type
   Context = context.Context
 
@@ -75,7 +77,7 @@ proc drawText(node: Node) =
   let mousePos = mouse.pos
   # let mousePos = mouse.pos(raw=true) + node.totalOffset
   # if mouse.click:
-  echo fmt"{mousePos=}"
+  print mousePos
 
   # echo fmt"mouse: {mouse.pos(raw=true).overlaps(node.screenBox, true)} mousePos: {mousePos.overlaps(node.screenBox, true)}"
 
@@ -116,7 +118,7 @@ proc drawText(node: Node) =
 
   if editing:
     var textBox = node.currentEvents().mgetOrPut("$textbox", TextBox[Node])
-    echo fmt"draw:editing: {textBox.size=} {node.screenBox.descaled.wh=}"
+    print "draw:editing: ", textBox.size, node.screenBox.descaled.wh
     if textBox.size != node.screenBox.wh:
       textBox.resize(node.screenBox.wh)
     node.textLayout = textBox.layout
@@ -193,7 +195,7 @@ proc drawText(node: Node) =
       glyphOffset = glyphOffsets[hashFill]
       charPos = vec2(pos.rect.x + glyphOffset.x, pos.rect.y + glyphOffset.y)
 
-    echo fmt"draw: {charPos=} {pos.rect=}"
+    print "draw: ", charPos, pos.rect
     if node.stroke.weight > 0 and node.stroke.color.a > 0:
       ctx.drawImage(
         hashStroke,

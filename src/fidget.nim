@@ -7,6 +7,8 @@ import fidget/commonutils
 export chroma, common, input
 export commonutils
 
+import print
+
 when defined(js):
   import fidget/htmlbackend
   export htmlbackend
@@ -209,7 +211,7 @@ proc mouseOverlapLogic*(): bool =
     current.screenBox.w > 0 and
     current.screenBox.h > 0 
   # if mpos.overlaps(current.screenBox):
-  echo fmt"mouseOverlap: {act=} {mpos=} {current.screenBox=} {mpos.overlaps(current.screenBox)=}"
+  print "mouseOverlap: ", act, mpos, current.screenBox, mpos.overlaps(current.screenBox), "\n"
   # if inPopup:
     # echo fmt"mouseOverlap: popup: {mouse.pos(raw=true).overlaps(popupBox)} {mpos=} {popupBox=}"
 
