@@ -50,7 +50,7 @@ type
   ShadowEffect* = object
     kind*: ShadowEffectKind
     color*: ColorRGBA
-    offset*: Vec2
+    offset*: Position
     radius: float32
     visible: bool
     blendMode: BlendMode
