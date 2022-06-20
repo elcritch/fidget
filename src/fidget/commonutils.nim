@@ -1,4 +1,4 @@
-import strformat
+import strformat, strutils, hashes
 
 import patty
 export patty
@@ -24,17 +24,30 @@ template borrowMaths*(typ: typedesc) =
   
   proc `+` *(x: typ): typ {.borrow.}
   proc `-` *(x: typ): typ {.borrow.}
+  proc `floor` *(x: typ): typ {.borrow.}
 
   proc `*` *(x: typ, y: typ): typ {.borrow.}
   proc `/` *(x: typ, y: typ): typ {.borrow.}
+
+  proc `min` *(x: typ, y: typ): typ {.borrow.}
+  proc `max` *(x: typ, y: typ): typ {.borrow.}
 
   proc `<` * (x, y: typ): bool {.borrow.}
   proc `<=` * (x, y: typ): bool {.borrow.}
   proc `==` * (x, y: typ): bool {.borrow.}
 
+  proc `+=` * (x: var typ, y: typ) {.borrow.}
+  proc `-=` * (x: var typ, y: typ) {.borrow.}
+  proc `/=` * (x: var typ, y: typ) {.borrow.}
+  proc `*=` * (x: var typ, y: typ) {.borrow.}
+  proc `$` * (x: typ): string {.borrow.}
+  proc `hash` * (x: typ): Hash {.borrow.}
+
 template borrowMathsMixed*(typ: typedesc) =
   proc `*` *(x: typ, y: distinctBase(typ)): typ {.borrow.}
   proc `*` *(x: distinctBase(typ), y: typ): typ {.borrow.}
+  proc `/` *(x: typ, y: distinctBase(typ)): typ {.borrow.}
+  proc `/` *(x: distinctBase(typ), y: typ): typ {.borrow.}
 
 
 template genBoolOp[T, B](op: untyped) =
@@ -84,6 +97,10 @@ type
 borrowMaths(ScaledCoord)
 borrowMaths(UICoord)
 
+proc `'ui`*(n: string): UICoord =
+  ## numeric literal UI Coordinate unit
+  result = UICoord(parseFloat(n))
+
 template scaled*(a: UICoord): ScaledCoord = ScaledCoord(a.float32 * common.uiScale)
 template descaled*(a: ScaledCoord): UICoord = UICoord(a.float32 / common.uiScale)
 
@@ -109,27 +126,28 @@ type
   Box* = distinct Rect
 
 proc initBox*(x, y, w, h: float32): Box = Box(rect(x, y, w, h))
+proc initBox*(x, y, w, h: UICoord): Box = Box(rect(x.float32, y.float32, w.float32, h.float32))
 
 applyOps(Box, Rect, genOp, `+`)
 applyOps(Box, Rect, genFloatOp, `*`, `/`)
 genBoolOp[Box, Rect](`==`)
 genEqOpC[Box, Rect, Vec2](`xy=`)
 
-template x*(r: Box): float32 = r.Rect.x
-template y*(r: Box): float32 = r.Rect.y
-template w*(r: Box): float32 = r.Rect.w
-template h*(r: Box): float32 = r.Rect.h
-template `x=`*(r: Box, v: float32) = r.Rect.x = v
-template `y=`*(r: Box, v: float32) = r.Rect.y = v
-template `w=`*(r: Box, v: float32) = r.Rect.w = v
-template `h=`*(r: Box, v: float32) = r.Rect.h = v
+template x*(r: Box): UICoord = r.Rect.x.UICoord
+template y*(r: Box): UICoord = r.Rect.y.UICoord
+template w*(r: Box): UICoord = r.Rect.w.UICoord
+template h*(r: Box): UICoord = r.Rect.h.UICoord
+template `x=`*(r: Box, v: UICoord) = r.Rect.x = v.float32
+template `y=`*(r: Box, v: UICoord) = r.Rect.y = v.float32
+template `w=`*(r: Box, v: UICoord) = r.Rect.w = v.float32
+template `h=`*(r: Box, v: UICoord) = r.Rect.h = v.float32
 
-template wh*(r: Box): Position = position(r.w, r.h)
+template wh*(r: Box): Position = position(r.w.float32, r.h.float32)
 
-template x*(r: Position): float32 = r.Vec2.x
-template y*(r: Position): float32 = r.Vec2.y
-template `x=`*(r: Position, v: float32) = r.Vec2.x = v
-template `y=`*(r: Position, v: float32) = r.Vec2.y = v
+template x*(r: Position): UICoord = r.Vec2.x.UICoord
+template y*(r: Position): UICoord = r.Vec2.y.UICoord
+template `x=`*(r: Position, v: UICoord) = r.Vec2.x = v.float32
+template `y=`*(r: Position, v: UICoord) = r.Vec2.y = v.float32
 
 proc `+`*(rect: Box, xy: Position): Box =
   ## offset rect with xy vec2 
@@ -155,6 +173,15 @@ proc overlaps*(a, b: Position): bool = overlaps(Vec2(a), Vec2(b))
 proc overlaps*(a: Position, b: Box, print=false): bool = overlaps(Vec2(a), Rect(b), print)
 proc overlaps*(a: Box, b: Position): bool = overlaps(Rect(a), Vec2(b))
 proc overlaps*(a: Box, b: Box): bool = overlaps(Rect(a), Rect(b))
+
+proc sum*(rect: Rect): float32 =
+  result = rect.x + rect.y + rect.w + rect.h
+proc sum*(rect: (float32, float32, float32, float32)): float32 =
+  result = rect[0] + rect[1] + rect[2] + rect[3]
+proc sum*(rect: Box): UICoord =
+  result = rect.x + rect.y + rect.w + rect.h
+proc sum*(rect: (UICoord, UICoord, UICoord, UICoord)): UICoord =
+  result = rect[0] + rect[1] + rect[2] + rect[3]
 
 
 # when isMainModule:

@@ -100,13 +100,13 @@ type
 
   Shadow* = object
     kind*: ShadowStyle
-    blur*: float32
-    x*: float32
-    y*: float32
+    blur*: UICoord
+    x*: UICoord
+    y*: UICoord
     color*: Color
 
   Stroke* = object
-    weight*: float32
+    weight*: UICoord
     color*: Color
 
   NodeKind* = enum
@@ -147,7 +147,7 @@ type
     htmlDone*: bool
     textStyle*: TextStyle
     image*: ImageStyle
-    cornerRadius*: (float32, float32, float32, float32)
+    cornerRadius*: (UICoord, UICoord, UICoord, UICoord)
     editableText*: bool
     multiline*: bool
     bindingSet*: bool
@@ -161,9 +161,9 @@ type
     layoutAlign*: LayoutAlign
     layoutMode*: LayoutMode
     counterAxisSizingMode*: CounterAxisSizingMode
-    horizontalPadding*: float32
-    verticalPadding*: float32
-    itemSpacing*: float32
+    horizontalPadding*: UICoord
+    verticalPadding*: UICoord
+    itemSpacing*: UICoord
     clipContent*: bool
     nIndex*: int
     diffIndex*: int
@@ -175,8 +175,8 @@ type
       element*: Element
       textElement*: Element
       cache*: Node
-    textLayoutHeight*: float32
-    textLayoutWidth*: float32
+    textLayoutHeight*: UICoord
+    textLayoutWidth*: UICoord
     ## Can the text be selected.
     selectable*: bool
     scrollBars*: bool 
@@ -335,8 +335,8 @@ mouse.pos = vec2(0, 0)
 # proc `$`*(a: Rect): string =
   # fmt"({a.x:6.2f}, {a.y:6.2f}; {a.w:6.2f}x{a.h:6.2f})"
 
-proc x*(mouse: Mouse): float32 = mouse.pos.descaled.x
-proc y*(mouse: Mouse): float32 = mouse.pos.descaled.x
+proc x*(mouse: Mouse): UICoord = mouse.pos.descaled.x
+proc y*(mouse: Mouse): UICoord = mouse.pos.descaled.x
 
 proc setNodePath*(node: Node) =
   node.idPath = ""
@@ -388,12 +388,12 @@ proc resetToDefault*(node: Node)=
   # node.offset = vec2(0, 0)
   node.fill = clearColor
   node.transparency = 0
-  node.stroke = Stroke(weight: 0, color: clearColor)
+  node.stroke = Stroke(weight: 0'ui, color: clearColor)
   node.resizeDone = false
   node.htmlDone = false
   node.textStyle = TextStyle()
   node.image = ImageStyle(name: "", color: whiteColor)
-  node.cornerRadius = (0'f32, 0'f32, 0'f32, 0'f32)
+  node.cornerRadius = (0'ui, 0'ui, 0'ui, 0'ui)
   node.editableText = false
   node.multiline = false
   node.bindingSet = false
@@ -406,9 +406,9 @@ proc resetToDefault*(node: Node)=
   node.layoutAlign = laMin
   node.layoutMode = lmNone
   node.counterAxisSizingMode = csAuto
-  node.horizontalPadding = 0
-  node.verticalPadding = 0
-  node.itemSpacing = 0
+  node.horizontalPadding = 0'ui
+  node.verticalPadding = 0'ui
+  node.itemSpacing = 0'ui
   node.clipContent = false
   node.diffIndex = 0
   node.zLevel = ZLevelDefault
@@ -493,8 +493,8 @@ proc computeLayout*(parent, node: Node) =
       let xDiff = parent.box.w - parent.orgBox.w
       node.box.w += xDiff
     of cCenter:
-      let offset = floor((node.orgBox.w - parent.orgBox.w) / 2.0 + node.orgBox.x)
-      node.box.x = floor((parent.box.w - node.box.w) / 2.0) + offset
+      let offset = floor((node.orgBox.w - parent.orgBox.w) / 2.0'ui + node.orgBox.x)
+      node.box.x = floor((parent.box.w - node.box.w) / 2.0'ui) + offset
 
   case node.constraintsHorizontal:
     of cMin: discard
@@ -509,8 +509,8 @@ proc computeLayout*(parent, node: Node) =
       let yDiff = parent.box.h - parent.orgBox.h
       node.box.h += yDiff
     of cCenter:
-      let offset = floor((node.orgBox.h - parent.orgBox.h) / 2.0 + node.orgBox.y)
-      node.box.y = floor((parent.box.h - node.box.h) / 2.0) + offset
+      let offset = floor((node.orgBox.h - parent.orgBox.h) / 2.0'ui + node.orgBox.y)
+      node.box.y = floor((parent.box.h - node.box.h) / 2.0'ui) + offset
 
   # Typeset text
   if node.kind == nkText:
@@ -531,13 +531,13 @@ proc computeLayout*(parent, node: Node) =
   if node.layoutMode == lmVertical:
     if node.counterAxisSizingMode == csAuto:
       # Resize to fit elements tightly.
-      var maxW = 0.0
+      var maxW = 0.0'ui
       for n in node.nodes:
         if n.layoutAlign != laStretch:
           maxW = max(maxW, n.box.w)
-      node.box.w = maxW + node.horizontalPadding * 2
+      node.box.w = maxW + node.horizontalPadding * 2'ui
 
-    var at = 0.0
+    var at = 0.0'ui
     at += node.verticalPadding
     for i, n in node.nodes.pairs:
       if n.layoutAlign == laIgnore:
@@ -548,12 +548,12 @@ proc computeLayout*(parent, node: Node) =
         of laMin:
           n.box.x = node.horizontalPadding
         of laCenter:
-          n.box.x = node.box.w/2 - n.box.w/2
+          n.box.x = node.box.w/2'ui - n.box.w/2'ui
         of laMax:
           n.box.x = node.box.w - n.box.w - node.horizontalPadding
         of laStretch:
           n.box.x = node.horizontalPadding
-          n.box.w = node.box.w - node.horizontalPadding * 2
+          n.box.w = node.box.w - node.horizontalPadding * 2'ui
           # Redo the layout for child node.
           computeLayout(node, n)
         of laIgnore:
@@ -565,13 +565,13 @@ proc computeLayout*(parent, node: Node) =
   if node.layoutMode == lmHorizontal:
     if node.counterAxisSizingMode == csAuto:
       # Resize to fit elements tightly.
-      var maxH = 0.0
+      var maxH = 0.0'ui
       for n in node.nodes:
         if n.layoutAlign != laStretch:
           maxH = max(maxH, n.box.h)
-      node.box.h = maxH + node.verticalPadding * 2
+      node.box.h = maxH + node.verticalPadding * 2'ui
 
-    var at = 0.0
+    var at = 0.0'ui
     at += node.horizontalPadding
     for i, n in node.nodes.pairs:
       if n.layoutAlign == laIgnore:
@@ -583,12 +583,12 @@ proc computeLayout*(parent, node: Node) =
         of laMin:
           n.box.y = node.verticalPadding
         of laCenter:
-          n.box.y = node.box.h/2 - n.box.h/2
+          n.box.y = node.box.h/2'ui - n.box.h/2'ui
         of laMax:
           n.box.y = node.box.h - n.box.h - node.verticalPadding
         of laStretch:
           n.box.y = node.verticalPadding
-          n.box.h = node.box.h - node.verticalPadding * 2
+          n.box.h = node.box.h - node.verticalPadding * 2'ui
           # Redo the layout for child node.
           computeLayout(node, n)
         of laIgnore:
@@ -627,10 +627,10 @@ proc setMousePos*(item: var Mouse, x, y: float64) =
   item.delta = item.pos - item.prevPos
   item.prevPos = item.pos
 
-proc atXY*[T](rect: T, x, y: float64|float32|int): T =
+proc atXY*[T](rect: T, x, y: float32 | UICoord): T =
   result = rect
-  result.x = x.float32
-  result.y = y.float32
+  result.x = x
+  result.y = y
 
 proc `*`*(color: Color, alpha: float32): Color =
   ## update alpha on color

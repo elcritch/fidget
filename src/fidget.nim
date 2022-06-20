@@ -75,11 +75,11 @@ proc postNode() =
     if mouse.wheelDelta != 0:
       if current.scrollBars:
         let
-          yoffset = mouse.wheelDelta * 2*common.uiScale
+          yoffset = mouse.wheelDelta.UICoord
           ph = parent.screenBox.h
-          ch = (current.screenBox.h - ph).clamp(0, current.screenBox.h)
+          ch = (current.screenBox.h - ph).clamp(0'ui, current.screenBox.h)
         current.offset.y -= yoffset
-        current.offset.y = current.offset.y.clamp(0, ch)
+        current.offset.y = current.offset.y.clamp(0'ui, ch)
         mouse.consumed = true
 
   zLevelMouse = ZLevel(max(zLevelMouse.ord, current.zLevel.ord))
@@ -208,8 +208,8 @@ proc mouseOverlapLogic*(): bool =
   let mpos = mouse.pos.descaled + current.totalOffset 
   let act = 
     (not popupActive or inPopup) and
-    current.screenBox.w > 0 and
-    current.screenBox.h > 0 
+    current.screenBox.w > 0'ui and
+    current.screenBox.h > 0'ui 
   # if mpos.overlaps(current.screenBox):
   print "mouseOverlap: ", act, mpos, current.screenBox, mpos.overlaps(current.screenBox), "\n"
   # if inPopup:
@@ -335,7 +335,7 @@ proc `'em`*(n: string): float32 =
 
 template Vw*(size: float32): float32 =
   ## percentage of Viewport width
-  root.box.w * size / 100.0
+  root.box.w.float32 * size / 100.0
 
 proc `'vw`*(n: string): float32 =
   ## numeric literal view width unit
@@ -343,7 +343,7 @@ proc `'vw`*(n: string): float32 =
 
 template Vh*(size: float32): float32 =
   ## percentage of Viewport height
-  root.box.h * size / 100.0
+  root.box.h.float32 * size / 100.0
 
 proc `'vh`*(n: string): float32 =
   ## numeric literal view height unit
@@ -351,7 +351,7 @@ proc `'vh`*(n: string): float32 =
 
 template WPerc*(size: float32): float32 =
   ## numeric literal percent of parent width
-  max(0'f32, parent.box.w * size / 100.0)
+  max(0'f32, parent.box.w.float32 * size / 100.0)
 
 proc `'pw`*(n: string): float32 =
   ## numeric literal percent of parent width
@@ -359,7 +359,7 @@ proc `'pw`*(n: string): float32 =
 
 template HPerc*(size: float32): float32 =
   ## percentage of parent height
-  max(0'f32, parent.box.h * size / 100.0)
+  max(0'f32, parent.box.h.float32 * size / 100.0)
 
 proc `'ph`*(n: string): float32 =
   ## numeric literal percent of parent height
@@ -388,7 +388,7 @@ proc getId*(): string =
   ## Get current node ID.
   return current.id
 
-proc orgBox*(x, y, w, h: int|float32|float64) =
+proc orgBox*(x, y, w, h: int|float32|float64|UICoord) =
   ## Sets the box dimensions of the original element for constraints.
   current.box = initBox(float32 x, float32 y, float32 w, float32 h)
 
@@ -396,7 +396,7 @@ proc orgBox*(rect: Box) =
   ## Sets the box dimensions with integers
   orgBox(rect.x, rect.y, rect.w, rect.h)
 
-proc autoOrg*(x, y, w, h: int|float32|float64) =
+proc autoOrg*(x, y, w, h: int|float32|float64|UICoord) =
   if current.hasRendered == false:
     let b = Rect(x: float32 x, y: float32 y, w: float32 w, h: float32 h)
     orgBox b
@@ -410,10 +410,10 @@ proc boxFrom(x, y, w, h: float32) =
   current.box = initBox(x, y, w, h)
 
 proc box*(
-  x: int|float32|float64,
-  y: int|float32|float64,
-  w: int|float32|float64,
-  h: int|float32|float64
+  x: int|float32|float64|UICoord,
+  y: int|float32|float64|UICoord,
+  w: int|float32|float64|UICoord,
+  h: int|float32|float64|UICoord
 ) =
   ## Sets the box dimensions with integers
   ## Always set box before orgBox when doing constraints.
@@ -780,25 +780,25 @@ proc stroke*(stroke: Stroke) =
 
 proc strokeWeight*(weight: float32) =
   ## Sets stroke/border weight.
-  current.stroke.weight = weight * common.uiScale
+  current.stroke.weight = weight.UICoord
 
 proc stroke*(weight: float32, color: string, alpha = 1.0): Stroke =
   ## Sets stroke/border color.
   result.color = parseHtmlColor(color)
   result.color.a = alpha
-  result.weight = weight * common.uiScale
+  result.weight = weight.UICoord
 
 proc stroke*(weight: float32, color: Color, alpha = 1.0): Stroke =
   ## Sets stroke/border color.
   result.color = color
   result.color.a = alpha
-  result.weight = weight * common.uiScale
+  result.weight = weight.UICoord
 
 proc strokeLine*(item: Node, weight: float32, color: string, alpha = 1.0) =
   ## Sets stroke/border color.
   current.stroke.color = parseHtmlColor(color)
   current.stroke.color.a = alpha
-  current.stroke.weight = weight * common.uiScale
+  current.stroke.weight = weight.UICoord
 
 proc strokeLine*(weight: float32, color: string, alpha = 1.0'f32) =
   ## Sets stroke/border color.
@@ -807,12 +807,11 @@ proc strokeLine*(weight: float32, color: string, alpha = 1.0'f32) =
 proc strokeLine*(node: Node) =
   ## Sets stroke/border color.
   current.stroke.color = node.stroke.color
-  current.stroke.weight = node.stroke.weight
+  current.stroke.weight = node.stroke.weight.UICoord
 
 proc cornerRadius*(a, b, c, d: float32) =
   ## Sets all radius of all 4 corners.
-  let s = common.uiScale * 3
-  current.cornerRadius = (s*a, s*b, s*c, s*d)
+  current.cornerRadius = (a.UICoord, b.UICoord, c.UICoord, d.UICoord)
 
 proc cornerRadius*(radius: float32) =
   ## Sets all radius of all 4 corners.
@@ -823,7 +822,7 @@ proc cornerRadius*(radius: (float32, float32, float32, float32)) =
   cornerRadius(radius[0], radius[1], radius[2], radius[3] )
 
 proc cornerRadius*(): float32 =
-  result = current.cornerRadius[0] / common.uiScale
+  result = current.cornerRadius[0].float32
 
 proc editableText*(editableText: bool) =
   ## Sets the code for this node.
@@ -887,7 +886,11 @@ proc dropShadow*(item: Node; blur, x, y: float32, color: string, alpha: float32)
   ## Sets drop shadow on an element
   var c = parseHtmlColor(color)
   c.a = alpha
-  let sh: Shadow =  Shadow(kind: DropShadow, blur: blur, x: x, y: y, color: c)
+  let sh: Shadow =  Shadow(kind: DropShadow,
+                           blur: blur.UICoord,
+                           x: x.UICoord,
+                           y: y.UICoord,
+                           color: c)
   item.shadows.add(sh)
 
 proc dropShadow*(blur, x, y: float32, color: string, alpha: float32) =
@@ -900,9 +903,9 @@ proc innerShadow*(blur, x, y: float32, color: string, alpha: float32) =
   c.a = alpha
   current.shadows.add Shadow(
     kind: InnerShadow,
-    blur: blur,
-    x: x,
-    y: y,
+    blur: blur.UICoord,
+    x: x.UICoord,
+    y: y.UICoord,
     color: c
   )
 
@@ -933,15 +936,15 @@ proc counterAxisSizingMode*(mode: CounterAxisSizingMode) =
 
 proc horizontalPadding*(v: float32) =
   ## Set the horizontal padding for auto layout.
-  current.horizontalPadding = v * common.uiScale
+  current.horizontalPadding = v.UICoord
 
 proc verticalPadding*(v: float32) =
   ## Set the vertical padding for auto layout.
-  current.verticalPadding = v * common.uiScale
+  current.verticalPadding = v.UICoord
 
 proc itemSpacing*(v: float32) =
   ## Set the item spacing for auto layout.
-  current.itemSpacing = v * common.uiScale
+  current.itemSpacing = v.UICoord
 
 proc zlevel*(zidx: ZLevel) =
   ## Sets zLevel.
@@ -956,9 +959,9 @@ proc zlevel*(zidx: ZLevel) =
 type
   ScrollPip* = ref object
     drag*: bool
-    hPosLast: float32
-    hPos: float32
-    offLast: float32
+    hPosLast: UICoord
+    hPos: UICoord
+    offLast: UICoord
 
 variants ScrollEvent:
   ## variant case types for scroll events
@@ -996,7 +999,7 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight, setup: proc() = nil) =
       setup()
     onClick:
       pip.drag = true
-      pip.hPosLast = mouse.pos.y 
+      pip.hPosLast = mouse.pos.descaled.y 
       pip.offLast = -current.offset.y
 
   current.postHooks.add proc() =
@@ -1009,13 +1012,13 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight, setup: proc() = nil) =
     let
       evts = useEvents()
       halign: HAlign = hAlign
-      width = 14'f32
+      width = 14'ui
 
     let
       ## Compute various scroll bar items
       parentBox = parent.screenBox
       currBox = current.screenBox
-      boxRatio = (parentBox.h/currBox.h).clamp(0.0, 1.0)
+      boxRatio = (parentBox.h/currBox.h).clamp(0.0'ui, 1.0'ui)
       scrollBoxH = boxRatio * parentBox.h
 
     if pip.drag:
@@ -1025,23 +1028,23 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight, setup: proc() = nil) =
 
       let
         delta = (pip.hPos - pip.hPosLast)
-        topOffsetY = uiScale*max(currBox.h - parentBox.h, 0)
+        topOffsetY = max(currBox.h - parentBox.h, 0'ui)
       
-      current.offset.y = uiScale*(pip.offLast + delta / boxRatio)
-      current.offset.y = current.offset.y.clamp(0, topOffsetY)
+      current.offset.y = (pip.offLast + delta / boxRatio)
+      current.offset.y = current.offset.y.clamp(0'ui, topOffsetY)
 
       # Update scroll percent
       # let scrollPercent = currOffset/(currBox.h - parentBox.h)
       # current.scrollPercent = scrollPercent.clamp(0.0, 1.0)
 
     let
-      xx = if halign == hLeft: 0'f32 else: currBox.w - width
+      xx = if halign == hLeft: 0'ui else: currBox.w - width
       currOffset = current.offset.y
-      hPerc = clamp(currOffset/(currBox.h - parentBox.h), 0.0, 1.0)
-      bx = Rect(x: xx,
-                y: hPerc*(parentBox.h - scrollBoxH),
-                w: width,
-                h: scrollBoxH)
+      hPerc = clamp(currOffset/(currBox.h - parentBox.h), 0'ui, 1'ui)
+      bx = initBox(x= xx,
+                   y= hPerc*(parentBox.h - scrollBoxH),
+                   w= width,
+                   h= scrollBoxH)
 
     var idx = -1
     for i, child in current.nodes:
@@ -1051,7 +1054,7 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight, setup: proc() = nil) =
     
     if idx >= 0:
       var sb = current.nodes[idx]
-      sb.box = bx.descaled
+      sb.box = bx
       sb.offset = current.offset * -1'f32
     else:
       raise newException(Exception, "scrollbar defined but node is missing")

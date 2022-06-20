@@ -36,8 +36,10 @@ computeTextLayout = proc(node: Node) =
     boundsMin = boundsMin,
     boundsMax = boundsMax
   )
-  node.textLayoutWidth = boundsMax.x - boundsMin.x
-  node.textLayoutHeight = boundsMax.y - boundsMin.y
+  let bMin = boundsMin.descaled()
+  let bMax = boundsMin.descaled()
+  node.textLayoutWidth = bMax.x - bMin.x
+  node.textLayoutHeight = bMax.y - bMin.y
 
 proc removeExtraChildren*(node: Node) =
   ## Deal with removed nodes.

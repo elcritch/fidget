@@ -22,11 +22,6 @@ var
   lastClickTime: float
   currLevel: ZLevel
 
-proc sum*(rect: Rect): float32 =
-  result = rect.x + rect.y + rect.w + rect.h
-proc sum*(rect: (float32, float32, float32, float32)): float32 =
-  result = rect[0] + rect[1] + rect[2] + rect[3]
-
 proc focus*(keyboard: Keyboard, node: Node) =
   if keyboard.focusNode != node:
     keyboard.onUnFocusNode = keyboard.focusNode
@@ -157,7 +152,7 @@ proc drawText(node: Node) =
       ))
       hashStroke: Hash
 
-    if node.stroke.weight > 0:
+    if node.stroke.weight > 0'ui:
       hashStroke = hash((
         9812,
         fontFamily,
@@ -179,7 +174,7 @@ proc drawText(node: Node) =
       ctx.putImage(hashFill, glyphFill)
       glyphOffsets[hashFill] = glyphOffset
 
-    if node.stroke.weight > 0 and hashStroke notin ctx.entries:
+    if node.stroke.weight > 0'ui and hashStroke notin ctx.entries:
       var
         glyph = font.typeface.glyphs[pos.character]
         glyphOffset: Vec2
@@ -196,10 +191,10 @@ proc drawText(node: Node) =
       charPos = vec2(pos.rect.x + glyphOffset.x, pos.rect.y + glyphOffset.y)
 
     print "draw: ", charPos, pos.rect
-    if node.stroke.weight > 0 and node.stroke.color.a > 0:
+    if node.stroke.weight > 0'ui and node.stroke.color.a > 0:
       ctx.drawImage(
         hashStroke,
-        charPos - vec2(node.stroke.weight, node.stroke.weight),
+        charPos - vec2(node.stroke.weight.scaled.float32, node.stroke.weight.scaled.float32),
         node.stroke.color
       )
 
@@ -232,46 +227,46 @@ macro ifdraw(check, code: untyped, post: untyped = nil) =
         if `checkval`: `postBlock`
 
 proc drawMasks*(node: Node) =
-  if node.cornerRadius[0] != 0:
+  if node.cornerRadius[0] != 0'ui:
     ctx.fillRoundedRect(rect(
       0, 0,
-      node.screenBox.w, node.screenBox.h
-    ), rgba(255, 0, 0, 255).color, node.cornerRadius[0])
+      node.screenBox.w.scaled.float32, node.screenBox.h.scaled.float32
+    ), rgba(255, 0, 0, 255).color, node.cornerRadius[0].scaled.float32)
   else:
     ctx.fillRect(rect(
       0, 0,
-      node.screenBox.w, node.screenBox.h
+      node.screenBox.w.scaled.float32, node.screenBox.h.scaled.float32
     ), rgba(255, 0, 0, 255).color)
 
 proc drawShadows*(node: Node) =
   ## drawing shadows
   let shadow = node.shadows[0]
-  let blurAmt = shadow.blur / 7.0
+  let blurAmt = shadow.blur / 7.0'ui
   for i in 0..6:
-    let blurs = uiScale * i.toFloat() * blurAmt
+    let blurs = i.toFloat().UICoord * blurAmt
     let box = node.screenBox.atXY(x = shadow.x + blurs,
                                   y = shadow.y + blurs)
     ctx.fillRoundedRect(rect = box.scaled,
                         color = shadow.color,
-                        radius = node.cornerRadius[0])
+                        radius = node.cornerRadius[0].scaled.float32)
 
 proc drawBoxes*(node: Node) =
   ## drawing boxes for rectangles
   if node.fill.a > 0'f32:
-    if node.cornerRadius.sum() > 0:
-      ctx.fillRoundedRect(rect = node.screenBox.scaled.atXY(0, 0),
+    if node.cornerRadius.sum() > 0'ui:
+      ctx.fillRoundedRect(rect = node.screenBox.scaled.atXY(0'f32, 0'f32),
                           color = node.fill,
-                          radius = node.cornerRadius[0])
+                          radius = node.cornerRadius[0].scaled.float32)
     else:
-      ctx.fillRect(node.screenBox.scaled.atXY(0, 0), node.fill)
+      ctx.fillRect(node.screenBox.scaled.atXY(0'f32, 0'f32), node.fill)
 
   if node.highlightColor.a > 0'f32:
-    if node.cornerRadius.sum() > 0:
-      ctx.fillRoundedRect(rect = node.screenBox.scaled.atXY(0, 0),
+    if node.cornerRadius.sum() > 0'ui:
+      ctx.fillRoundedRect(rect = node.screenBox.scaled.atXY(0'f32, 0'f32),
                           color = node.highlightColor,
-                          radius = node.cornerRadius[0])
+                          radius = node.cornerRadius[0].scaled.float32)
     else:
-      ctx.fillRect(node.screenBox.scaled.atXY(0, 0), node.highlightColor)
+      ctx.fillRect(node.screenBox.scaled.atXY(0'f32, 0'f32), node.highlightColor)
 
   if node.image.name != "":
     let path = dataDir / node.image.name
@@ -281,11 +276,11 @@ proc drawBoxes*(node: Node) =
                   color = node.image.color,
                   size = size)
   
-  if node.stroke.color.a > 0 and node.stroke.weight > 0:
-    ctx.strokeRoundedRect(rect = node.screenBox.scaled.atXY(0, 0),
+  if node.stroke.color.a > 0 and node.stroke.weight > 0'ui:
+    ctx.strokeRoundedRect(rect = node.screenBox.scaled.atXY(0'f32, 0'f32),
                           color = node.stroke.color,
-                          weight = node.stroke.weight,
-                          radius = node.cornerRadius[0])
+                          weight = node.stroke.weight.scaled.float32,
+                          radius = node.cornerRadius[0].scaled.float32)
   
 
 
