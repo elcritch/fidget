@@ -20,7 +20,7 @@ var
 
 proc basicText() =
   frame "autoLayoutText":
-    box 130, 0, root.box.w - 130, root.box.h
+    box 130, 0, root.box.w - 130'ui, root.box.h
     fill "#ffffff"
     layout lmVertical
     counterAxisSizingMode csFixed
@@ -158,8 +158,8 @@ proc basicControls() =
     strokeWeight 1
     rectangle "fill":
       progress = selectedButton.len / 5 * 100 + 1
-      let pw = progress/100 * (parent.box.w - 4).
-                clamp(1.0, parent.box.w)
+      let pw = progress/100 * (parent.box.w.float32 - 4).
+                clamp(1.0, parent.box.w.float32)
       box 2, 2, pw, 8
       fill "#9fe7f8"
       cornerRadius 5
@@ -374,7 +374,7 @@ proc basicConstraints() =
   frame "constraints":
     # Got to specify orgBox for constraints to work.
     # Then grow the normal box.
-    box 130, 0, root.box.w - 130, root.box.h
+    box 130, 0, root.box.w - 130'ui, root.box.h
     orgBox 0, 0, 400, 400
     # Constraints will work on the difference between orgBox and box.
     fill "#ffffff"
