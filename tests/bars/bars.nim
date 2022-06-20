@@ -10,15 +10,15 @@ proc drawMain() =
   setTitle("Fidget Bars Example")
 
   # Use simple math to layout things.
-  let h = bars.len * 60 + 20
-  let barW = root.getBox.w - 100
+  let h = UICoord(bars.len * 60 + 20)
+  let barW = root.box.w - 100'ui
 
   frame "main":
-    box 0, 0, int root.getBox().w, max(int root.getBox().h, h)
+    box 0, 0, root.box.w, max(root.box.h, h)
     fill "#F7F7F9"
 
     group "center":
-      box 50, 0, barW, float max(int root.getBox().h, h)
+      box 50, 0, barW, max(root.box.h, h)
       fill "#FFFFFF"
 
       # Draw a list of bars using a simple for loop.
@@ -41,7 +41,7 @@ proc drawMain() =
 
             # Draw the increment button to make the bar go up.
             rectangle "inc":
-              box barW-80, 0, 40, 40
+              box barW-80'ui, 0, 40, 40
               fill "#AEB5C0"
               onHover:
                 fill "#FF4400"
@@ -51,10 +51,10 @@ proc drawMain() =
 
             # Draw the bar itself.
             group "bar":
-              box 60, 0, barW - 80*2, 40
+              box 60, 0, barW.float32 - 80*2, 40
               fill "#F7F7F9"
               rectangle "barFg":
-                box 0, 0, (barW - 80*2) * float(bar), 40
+                box 0, 0, (barW.float32 - 80*2) * float(bar), 40
                 fill "#46D15F"
 
 startFidget(drawMain)

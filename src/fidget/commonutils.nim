@@ -103,6 +103,7 @@ proc `'ui`*(n: string): UICoord =
 
 template scaled*(a: UICoord): ScaledCoord = ScaledCoord(a.float32 * common.uiScale)
 template descaled*(a: ScaledCoord): UICoord = UICoord(a.float32 / common.uiScale)
+template descaled*(a: float32): UICoord = UICoord(a / common.uiScale)
 
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
 ## Distinct vec types

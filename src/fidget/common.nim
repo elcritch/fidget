@@ -256,9 +256,9 @@ var
   prevRoot*: Node
   nodeStack*: seq[Node]
   current*: Node
-  scrollBox*: Rect
-  scrollBoxMega*: Rect ## Scroll box is 500px bigger in y direction
-  scrollBoxMini*: Rect ## Scroll box is smaller by 100px useful for debugging
+  scrollBox*: Box
+  scrollBoxMega*: Box ## Scroll box is 500px bigger in y direction
+  scrollBoxMini*: Box ## Scroll box is smaller by 100px useful for debugging
   mouse* = Mouse()
   keyboard* = Keyboard()
   requestedFrame*: bool

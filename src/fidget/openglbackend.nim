@@ -76,11 +76,11 @@ proc setupFidget(
     mouse.cursorStyle = Default
 
     setupRoot()
-    scrollBox.x = float 0
-    scrollBox.y = float 0
-    scrollBox.w = windowLogicalSize.x
-    scrollBox.h = windowLogicalSize.y
-    root.box = scrollBox.descaled
+    scrollBox.x = 0'ui
+    scrollBox.y = 0'ui
+    scrollBox.w = windowLogicalSize.x.descaled()
+    scrollBox.h = windowLogicalSize.y.descaled()
+    root.box = scrollBox
 
     if textBox != nil:
       keyboard.input = textBox.text
