@@ -294,7 +294,7 @@ proc onSetKey(
 
 proc onScroll(window: staticglfw.Window, xoffset, yoffset: float64) {.cdecl.} =
   requestedFrame = true
-  let yoffset = yoffset * common.uiScale
+  let yoffset = yoffset
   if keyboard.focusNode != nil:
     textBox.scrollBy(-yoffset * 1)
   else:

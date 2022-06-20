@@ -610,16 +610,6 @@ proc computeScreenBox*(parent, node: Node) =
 
 proc box*(node: Node): Box = node.box
 
-proc setOrgBox*(node: Node, rect: Box, raw: static[bool] = false) =
-  when raw: node.orgBox = rect
-  else: node.orgBox = rect * common.uiScale
-
-proc setOrgBox*(node: Node, x, y, w, h: float32, raw: static[bool]) =
-  node.setOrgBox(Rect(x: x, y: y, w: w, h: h), raw)
-
-proc getOrgBox*(node: Node, raw: static[bool] = false): Box =
-  when raw: result = node.orgBox
-  else: result = node.orgBox / common.uiScale
 
 proc setMousePos*(item: var Mouse, x, y: float64) =
   item.pos = vec2(x, y)
