@@ -222,7 +222,7 @@ proc mouseOverlapLogic*(): bool =
 
 proc isCovered*(screenBox: Box): bool =
   ## Returns true if mouse overlaps the current node.
-  let off = current.totalOffset * -1
+  let off = current.totalOffset * -1'ui
   let sb = screenBox
   let cb = current.screenBox
   result = sb.overlaps(cb + off)
@@ -1055,7 +1055,7 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight, setup: proc() = nil) =
     if idx >= 0:
       var sb = current.nodes[idx]
       sb.box = bx
-      sb.offset = current.offset * -1'f32
+      sb.offset = current.offset * -1'ui
     else:
       raise newException(Exception, "scrollbar defined but node is missing")
 

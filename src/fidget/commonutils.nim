@@ -54,7 +54,7 @@ template genBoolOp[T, B](op: untyped) =
   proc `op`*(a, b: T): bool = `op`(B(a), B(b))
 
 template genFloatOp[T, B](op: untyped) =
-  proc `op`*(a: T, b: float): T = T(`op`(B(a), b))
+  proc `op`*(a: T, b: UICoord): T = T(`op`(B(a), b.float32))
 
 template genEqOp[T, B](op: untyped) =
   proc `op`*(a: var T, b: float32) = `op`(B(a), b)
@@ -164,10 +164,10 @@ proc `$`*(a: Box): string =
 # proc `$`*(a: Position): string {.borrow.}
 # proc `$`*(a: Box): string {.borrow.}
 
-template scaled*(a: Box): Rect = Rect(a * common.uiScale)
+template scaled*(a: Box): Rect = Rect(a * common.uiScale.UICoord)
 template descaled*(a: Rect): Box = Box(a / common.uiScale)
 
-template scaled*(a: Position): Vec2 = Vec2(a * common.uiScale)
+template scaled*(a: Position): Vec2 = Vec2(a * common.uiScale.UICoord)
 template descaled*(a: Vec2): Position = Position(a / common.uiScale)
 
 proc overlaps*(a, b: Position): bool = overlaps(Vec2(a), Vec2(b))
@@ -190,7 +190,7 @@ proc testPosition() =
   let x = position(12.1, 13.4)
   let y = position(10.0, 10.0)
   var z = position(0.0, 0.0)
-  let c = 1.0
+  let c = 1.0'ui
 
   echo "x + y: ", repr(x + y)
   echo "x - y: ", repr(x - y)
@@ -212,7 +212,7 @@ proc testPosition() =
 proc testRect() =
   let x = initBox(10.0, 10.0, 2.0, 2.0).Box
   let y = initBox(10.0, 10.0, 5.0, 5.0).Box
-  let c = 10.0
+  let c = 10.0'ui
   var z = initBox(10.0, 10.0, 5.0, 5.0).Box
   let v = position(10.0, 10.0)
 
