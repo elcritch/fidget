@@ -218,7 +218,7 @@ proc mouseOverlapLogic*(): bool =
   result =
     act and
     mpos.overlaps(current.screenBox) and
-    (if inPopup: mouse.pos.overlaps(popupBox) else: true)
+    (if inPopup: mouse.pos.descaled.overlaps(popupBox) else: true)
 
 proc isCovered*(screenBox: Box): bool =
   ## Returns true if mouse overlaps the current node.

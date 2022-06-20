@@ -265,7 +265,7 @@ var
   numNodes*: int
   popupActive*: bool
   inPopup*: bool
-  popupBox*: Rect
+  popupBox*: Box
   fullscreen* = false
   windowLogicalSize*: Vec2 ## Screen size in logical coordinates.
   windowSize*: Vec2    ## Screen coordinates
