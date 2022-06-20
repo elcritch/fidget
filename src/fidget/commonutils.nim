@@ -117,6 +117,12 @@ template y*(r: Position): float32 = r.Vec2.y
 template `x=`*(r: Position, v: float32) = r.Vec2.x = v
 template `y=`*(r: Position, v: float32) = r.Vec2.y = v
 
+proc `+`*(rect: Box, xy: Position): Box =
+  ## offset rect with xy vec2 
+  result = rect
+  result.x += xy.x
+  result.y += xy.y
+
 proc `$`*(a: Position): string =
   &"Position<{a.x:2.2f}, {a.y:2.2f}>"
 proc `$`*(a: Box): string =
@@ -130,6 +136,12 @@ template descaled*(a: Rect): Box = Box(a / common.uiScale)
 
 template scaled*(a: Position): Vec2 = Vec2(a * common.uiScale)
 template descaled*(a: Vec2): Position = Position(a / common.uiScale)
+
+proc overlaps*(a, b: Position): bool = overlaps(Vec2(a), Vec2(b))
+proc overlaps*(a: Position, b: Box, print=false): bool = overlaps(Vec2(a), Rect(b), print)
+proc overlaps*(a: Box, b: Position): bool = overlaps(Rect(a), Vec2(b))
+proc overlaps*(a: Box, b: Box): bool = overlaps(Rect(a), Rect(b))
+
 
 # when isMainModule:
 proc testPosition() =

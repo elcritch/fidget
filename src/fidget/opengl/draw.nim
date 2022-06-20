@@ -118,9 +118,9 @@ proc drawText(node: Node) =
 
   if editing:
     var textBox = node.currentEvents().mgetOrPut("$textbox", TextBox[Node])
-    print "draw:editing: ", textBox.size, node.screenBox.descaled.wh
-    if textBox.size != node.screenBox.wh:
-      textBox.resize(node.screenBox.wh)
+    print "draw:editing: ", textBox.size, node.screenBox.wh
+    if textBox.size != node.screenBox.scaled.wh:
+      textBox.resize(node.screenBox.scaled.wh)
     node.textLayout = textBox.layout
     ctx.saveTransform()
     ctx.translate(-textBox.scroll)
@@ -251,7 +251,7 @@ proc drawShadows*(node: Node) =
     let blurs = uiScale * i.toFloat() * blurAmt
     let box = node.screenBox.atXY(x = shadow.x + blurs,
                                   y = shadow.y + blurs)
-    ctx.fillRoundedRect(rect = box,
+    ctx.fillRoundedRect(rect = box.scaled,
                         color = shadow.color,
                         radius = node.cornerRadius[0])
 
@@ -259,30 +259,30 @@ proc drawBoxes*(node: Node) =
   ## drawing boxes for rectangles
   if node.fill.a > 0'f32:
     if node.cornerRadius.sum() > 0:
-      ctx.fillRoundedRect(rect = node.screenBox.atXY(0, 0),
+      ctx.fillRoundedRect(rect = node.screenBox.scaled.atXY(0, 0),
                           color = node.fill,
                           radius = node.cornerRadius[0])
     else:
-      ctx.fillRect(node.screenBox.atXY(0, 0), node.fill)
+      ctx.fillRect(node.screenBox.scaled.atXY(0, 0), node.fill)
 
   if node.highlightColor.a > 0'f32:
     if node.cornerRadius.sum() > 0:
-      ctx.fillRoundedRect(rect = node.screenBox.atXY(0, 0),
+      ctx.fillRoundedRect(rect = node.screenBox.scaled.atXY(0, 0),
                           color = node.highlightColor,
                           radius = node.cornerRadius[0])
     else:
-      ctx.fillRect(node.screenBox.atXY(0, 0), node.highlightColor)
+      ctx.fillRect(node.screenBox.scaled.atXY(0, 0), node.highlightColor)
 
   if node.image.name != "":
     let path = dataDir / node.image.name
-    let size = vec2(node.screenBox.w, node.screenBox.h)
+    let size = vec2(node.screenBox.scaled.w, node.screenBox.scaled.h)
     ctx.drawImage(path,
                   pos = vec2(0, 0),
                   color = node.image.color,
                   size = size)
   
   if node.stroke.color.a > 0 and node.stroke.weight > 0:
-    ctx.strokeRoundedRect(rect = node.screenBox.atXY(0, 0),
+    ctx.strokeRoundedRect(rect = node.screenBox.scaled.atXY(0, 0),
                           color = node.stroke.color,
                           weight = node.stroke.weight,
                           radius = node.cornerRadius[0])
@@ -303,20 +303,20 @@ proc draw*(node, parent: Node) =
   node.hasRendered = true
 
   ctx.saveTransform()
-  ctx.translate(node.screenBox.xy)
+  ctx.translate(node.screenBox.scaled.xy)
 
   # handles setting up scrollbar region
   ifdraw node.id == "$scrollbar":
     ctx.saveTransform()
-    ctx.translate(parent.offset)
+    ctx.translate(parent.offset.scaled)
   finally:
     ctx.restoreTransform()
 
   # handle node rotation
   ifdraw node.rotation != 0:
-    ctx.translate(node.screenBox.wh/2)
+    ctx.translate(node.screenBox.scaled.wh/2)
     ctx.rotate(node.rotation/180*PI)
-    ctx.translate(-node.screenBox.wh/2)
+    ctx.translate(-node.screenBox.scaled.wh/2)
 
   # handle clipping children content based on this node
   ifdraw node.clipContent:
@@ -343,7 +343,7 @@ proc draw*(node, parent: Node) =
   ifdraw node.scrollBars:
     # handles drawing actual scrollbars
     ctx.saveTransform()
-    ctx.translate(-node.offset)
+    ctx.translate(-node.offset.scaled)
   finally:
     ctx.restoreTransform()
 

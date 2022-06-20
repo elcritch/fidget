@@ -54,7 +54,7 @@ type
   TextStyle* = object
     ## Holder for text styles.
     fontFamily*: string
-    fontSize*: float32
+    fontSize*: scaled[float32]
     fontWeight*: float32
     lineHeight*: float32
     textAlignHorizontal*: HAlign
@@ -135,9 +135,9 @@ type
     nodes*: seq[Node]
     box*: Box
     orgBox: Box
-    screenBox*: Rect
-    offset*: Vec2
-    totalOffset*: Vec2
+    screenBox*: Box
+    offset*: Position
+    totalOffset*: Position
     hasRendered*: bool
     rotation*: float32
     fill*: Color
@@ -600,12 +600,10 @@ proc computeLayout*(parent, node: Node) =
 proc computeScreenBox*(parent, node: Node) =
   ## Setups screenBoxes for the whole tree.
   if parent == nil:
-    # echo "compScreenBox: ", node.idPath, " bx: ", node.box
-    node.screenBox = node.box.scaled
+    node.screenBox = node.box
     node.totalOffset = node.offset
   else:
-    # echo "compScreenBox: ", node.idPath, " bx: ", node.box, " parent:sb: ", parent.screenBox
-    node.screenBox = node.box.scaled + parent.screenBox
+    node.screenBox = node.box + parent.screenBox
     node.totalOffset = node.offset + parent.totalOffset
   for n in node.nodes:
     computeScreenBox(node, n)
