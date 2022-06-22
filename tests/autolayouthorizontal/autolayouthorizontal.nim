@@ -45,4 +45,4 @@ proc drawMain() =
   for i in 0 ..< 7:
     widths[i] = max(widths[i] + rand(-1 .. 2), 10)
 
-startFidget(drawMain, w = 400, h = 400)
+startFidget(drawMain, w = 400, h = 400, uiscale=2.0)

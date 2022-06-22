@@ -398,7 +398,7 @@ proc orgBox*(rect: Box) =
 
 proc autoOrg*(x, y, w, h: int|float32|float64|UICoord) =
   if current.hasRendered == false:
-    let b = Rect(x: float32 x, y: float32 y, w: float32 w, h: float32 h)
+    let b = Box(x: float32 x, y: float32 y, w: float32 w, h: float32 h)
     orgBox b
 
 proc autoOrg*() =
@@ -418,7 +418,7 @@ proc box*(
   ## Sets the box dimensions with integers
   ## Always set box before orgBox when doing constraints.
   boxFrom(float32 x, float32 y, float32 w, float32 h)
-  autoOrg()
+  # autoOrg()
   # orgBox(float32 x, float32 y, float32 w, float32 h)
 
 proc box*(rect: Box) =
@@ -449,7 +449,7 @@ proc offset*(
   y: int|float32|float64
 ) =
   ## Sets the box dimension offset
-  let cb = current.box()
+  let cb = current.box
   box(float32 x, float32 y, cb.w, cb.h)
   # orgBox(float32 x, float32 y, cb.w, cb.h)
 
@@ -470,9 +470,9 @@ proc paddingX*(
   ## width instead. 
   ## 
   let
-    cb = current.box()
+    cb = current.box
     tw = if absolute: 100'vw else: 100'pw
-  box(cb.x + width, cb.y, tw - 2.0*width, cb.h)
+  box(cb.x + width.UICoord, cb.y, tw - 2.0*width, cb.h)
 
 proc paddingY*(
   height: int|float32|float64,
@@ -484,9 +484,9 @@ proc paddingY*(
   ## height instead. 
   ## 
   let
-    cb = current.box()
+    cb = current.box
     th = if absolute: 100'vh else: 100'ph
-  box(cb.x, cb.y + height, cb.w, th - 2.0*height)
+  box(cb.x, cb.y + height.UICoord, cb.w, th - 2.0*height)
 
 proc paddingXY*(
   width: int|float32|float64,

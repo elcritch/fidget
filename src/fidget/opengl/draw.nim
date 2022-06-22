@@ -32,11 +32,11 @@ proc focus*(keyboard: Keyboard, node: Node) =
     font.size = node.textStyle.fontSize.scaled.float32
     font.lineHeight = node.textStyle.lineHeight.scaled.float32
     keyboard.input = node.text
-    var tb = node.currentEvents().mgetOrPut("$textbox",
+    textBox = node.currentEvents().mgetOrPut("$textbox",
       newTextBox[Node](
         font,
-        int node.screenBox.w,
-        int node.screenBox.h,
+        int node.screenBox.w.scaled,
+        int node.screenBox.h.scaled,
         node,
         hAlignMode(node.textStyle.textAlignHorizontal),
         vAlignMode(node.textStyle.textAlignVertical),
@@ -44,10 +44,8 @@ proc focus*(keyboard: Keyboard, node: Node) =
         worldWrap = true,
       )
     )
-    tb.editable = node.editableText
-    tb.scrollable = true
-    textBox = tb
-
+    textBox.editable = node.editableText
+    textBox.scrollable = true
     requestedFrame = true
 
 
@@ -113,12 +111,13 @@ proc drawText(node: Node) =
 
   if editing:
     var textBox = node.currentEvents().mgetOrPut("$textbox", TextBox[Node])
-    print "draw:editing: ", textBox.size, node.screenBox.wh
+    print "draw:editing: ", textBox.size, node.screenBox, node.totalOffset
     if textBox.size != node.screenBox.scaled.wh:
+      print "set:draw:editing: ", textBox.size, node.screenBox.wh
       textBox.resize(node.screenBox.scaled.wh)
-    node.textLayout = textBox.layout
+    node.textLayout = textBox.layout()
     ctx.saveTransform()
-    ctx.translate(-textBox.scroll)
+    ctx.translate(-textBox.scroll - node.screenBox.scaled.xy)
     let selectColor =
       if node.highlightColor == clearColor: node.fill
       else: node.highlightColor
@@ -183,18 +182,21 @@ proc drawText(node: Node) =
         glyphOffset,
         subPixelShift = subPixelShift
       )
-      let glyphStroke = glyphFill.outlineBorder(node.stroke.weight.int)
+      let glyphStroke = glyphFill.outlineBorder(node.stroke.weight.scaled.int)
       ctx.putImage(hashStroke, glyphStroke)
 
     let
       glyphOffset = glyphOffsets[hashFill]
+    var
       charPos = vec2(pos.rect.x + glyphOffset.x, pos.rect.y + glyphOffset.y)
 
-    print "draw: ", charPos, pos.rect
+    print "draw: ", charPos, pos.rect, glyphOffset, "\n"
     if node.stroke.weight > 0'ui and node.stroke.color.a > 0:
+      print "draw: stroke"
       ctx.drawImage(
         hashStroke,
-        charPos - vec2(node.stroke.weight.scaled.float32, node.stroke.weight.scaled.float32),
+        charPos - vec2(node.stroke.weight.scaled.float32,
+                       node.stroke.weight.scaled.float32),
         node.stroke.color
       )
 

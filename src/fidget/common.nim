@@ -484,29 +484,36 @@ proc computeLayout*(parent, node: Node) =
     of cMin: discard
     of cMax:
       let rightSpace = parent.orgBox.w - node.box.x
+      echo "rightSpace : ", rightSpace  
       node.box.x = parent.box.w - rightSpace
     of cScale:
       let xScale = parent.box.w / parent.orgBox.w
+      echo "xScale: ", xScale 
       node.box.x *= xScale
       node.box.w *= xScale
     of cStretch:
       let xDiff = parent.box.w - parent.orgBox.w
+      echo "xDiff: ", xDiff   
       node.box.w += xDiff
     of cCenter:
       let offset = floor((node.orgBox.w - parent.orgBox.w) / 2.0'ui + node.orgBox.x)
+      echo "offset: ", offset   
       node.box.x = floor((parent.box.w - node.box.w) / 2.0'ui) + offset
 
   case node.constraintsHorizontal:
     of cMin: discard
     of cMax:
       let bottomSpace = parent.orgBox.h - node.box.y
+      echo "bottomSpace  : ", bottomSpace   
       node.box.y = parent.box.h - bottomSpace
     of cScale:
       let yScale = parent.box.h / parent.orgBox.h
+      echo "yScale: ", yScale
       node.box.y *= yScale
       node.box.h *= yScale
     of cStretch:
       let yDiff = parent.box.h - parent.orgBox.h
+      echo "yDiff: ", yDiff 
       node.box.h += yDiff
     of cCenter:
       let offset = floor((node.orgBox.h - parent.orgBox.h) / 2.0'ui + node.orgBox.y)
@@ -514,6 +521,7 @@ proc computeLayout*(parent, node: Node) =
 
   # Typeset text
   if node.kind == nkText:
+    echo "nkText : "
     computeTextLayout(node)
     case node.textStyle.autoResize:
       of tsNone:
@@ -529,6 +537,7 @@ proc computeLayout*(parent, node: Node) =
 
   # Auto-layout code.
   if node.layoutMode == lmVertical:
+    echo "layoutMode : ", node.layoutMode 
     if node.counterAxisSizingMode == csAuto:
       # Resize to fit elements tightly.
       var maxW = 0.0'ui
@@ -536,33 +545,43 @@ proc computeLayout*(parent, node: Node) =
         if n.layoutAlign != laStretch:
           maxW = max(maxW, n.box.w)
       node.box.w = maxW + node.horizontalPadding * 2'ui
+      echo "box.w: ", node.box.w
 
     var at = 0.0'ui
     at += node.verticalPadding
+    echo "layoutMode:at: ", at
     for i, n in node.nodes.pairs:
       if n.layoutAlign == laIgnore:
         continue
       if i > 0: at += node.itemSpacing
       n.box.y = at
+      echo "node.box:1: ", n.box.repr
       case n.layoutAlign:
         of laMin:
+          echo "laMin: ", node.horizontalPadding, " box.x: ", n.box.repr
           n.box.x = node.horizontalPadding
         of laCenter:
+          echo "laCenter"
           n.box.x = node.box.w/2'ui - n.box.w/2'ui
         of laMax:
+          echo "laMax"
           n.box.x = node.box.w - n.box.w - node.horizontalPadding
         of laStretch:
+          echo "laStretch"
           n.box.x = node.horizontalPadding
           n.box.w = node.box.w - node.horizontalPadding * 2'ui
           # Redo the layout for child node.
           computeLayout(node, n)
         of laIgnore:
           continue
+      echo "node.box:2: ", n.box.repr, " at: ", at
       at += n.box.h
+      echo "node.box:3: ", n.box.repr, " at: ", at
     at += node.verticalPadding
     node.box.h = at
 
   if node.layoutMode == lmHorizontal:
+    echo "layoutMode : ", node.layoutMode 
     if node.counterAxisSizingMode == csAuto:
       # Resize to fit elements tightly.
       var maxH = 0.0'ui
@@ -573,6 +592,7 @@ proc computeLayout*(parent, node: Node) =
 
     var at = 0.0'ui
     at += node.horizontalPadding
+    echo "horizontalPadding : ", node.horizontalPadding
     for i, n in node.nodes.pairs:
       if n.layoutAlign == laIgnore:
         continue

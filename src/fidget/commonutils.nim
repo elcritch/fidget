@@ -156,11 +156,6 @@ proc `+`*(rect: Box, xy: Position): Box =
   result.x += xy.x
   result.y += xy.y
 
-proc `$`*(a: Position): string =
-  &"Position<{a.x:2.2f}, {a.y:2.2f}>"
-proc `$`*(a: Box): string =
-  &"Box<{a.x:2.2f}, {a.y:2.2f}; {a.x+a.w:2.2f}, {a.y+a.h:2.2f} [{a.w:2.2f} x {a.h:2.2f}]>"
-
 # proc `$`*(a: Position): string {.borrow.}
 # proc `$`*(a: Box): string {.borrow.}
 
@@ -183,6 +178,12 @@ proc sum*(rect: Box): UICoord =
   result = rect.x + rect.y + rect.w + rect.h
 proc sum*(rect: (UICoord, UICoord, UICoord, UICoord)): UICoord =
   result = rect[0] + rect[1] + rect[2] + rect[3]
+
+proc `$`*(a: Position): string =
+  &"Position<{a.x:2.2f}, {a.y:2.2f}>"
+proc `$`*(b: Box): string =
+  let a = b.Rect
+  &"Box<{a.x:2.2f}, {a.y:2.2f}; {a.x+a.w:2.2f}, {a.y+a.h:2.2f} [{a.w:2.2f} x {a.h:2.2f}]>"
 
 
 # when isMainModule:
