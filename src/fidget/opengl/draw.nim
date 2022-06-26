@@ -29,6 +29,8 @@ proc focus*(keyboard: Keyboard, node: Node) =
     var font = fonts[node.textStyle.fontFamily]
     font.size = node.textStyle.fontSize.scaled.float32
     font.lineHeight = node.textStyle.lineHeight.scaled.float32
+    if font.lineHeight == 0:
+      font.lineHeight = defaultLineHeight(node.textStyle).scaled.float32
     keyboard.input = node.text
     textBox = node.currentEvents().mgetOrPut("$textbox",
       newTextBox[Node](
@@ -53,6 +55,8 @@ proc unFocus*(keyboard: Keyboard, node: Node) =
     keyboard.onFocusNode = nil
     keyboard.focusNode = nil
 
+import print
+
 proc drawText(node: Node) =
   if node.textStyle.fontFamily notin fonts:
     quit &"font not found: {node.textStyle.fontFamily}"
@@ -60,8 +64,11 @@ proc drawText(node: Node) =
   var font = fonts[node.textStyle.fontFamily]
   font.size = node.textStyle.fontSize.scaled.float32
   font.lineHeight = node.textStyle.lineHeight.scaled.float32
+  print font.size
+  print font.lineheight
   if font.lineHeight == 0:
-    font.lineHeight = font.size
+    font.lineHeight = defaultLineHeight(node.textStyle).scaled.float32
+  print "post:", font.lineheight
 
   # TODO: Fixme
   # let mousePos = mouse.pos(raw=false) - node.screenBox.xy + node.totalOffset
@@ -95,7 +102,7 @@ proc drawText(node: Node) =
       ))
       hashStroke: Hash
 
-    if node.stroke.weight > 0'ui:
+    if node.stroke.weight > 0:
       hashStroke = hash((
         9812,
         fontFamily,
@@ -117,7 +124,7 @@ proc drawText(node: Node) =
       ctx.putImage(hashFill, glyphFill)
       glyphOffsets[hashFill] = glyphOffset
 
-    if node.stroke.weight > 0'ui and hashStroke notin ctx.entries:
+    if node.stroke.weight > 0 and hashStroke notin ctx.entries:
       var
         glyph = font.typeface.glyphs[pos.character]
         glyphOffset: Vec2
@@ -126,7 +133,7 @@ proc drawText(node: Node) =
         glyphOffset,
         subPixelShift = subPixelShift
       )
-      let glyphStroke = glyphFill.outlineBorder(node.stroke.weight.scaled.int)
+      let glyphStroke = glyphFill.outlineBorder(node.stroke.weight.int)
       ctx.putImage(hashStroke, glyphStroke)
 
     let
@@ -135,14 +142,14 @@ proc drawText(node: Node) =
       charPos = vec2(pos.rect.x + glyphOffset.x, pos.rect.y + glyphOffset.y)
 
     let
-      cp = charPos - vec2(node.stroke.weight.scaled.float32,
-                       node.stroke.weight.scaled.float32)
+      cp = charPos - vec2(node.stroke.weight.float32,
+                       node.stroke.weight.float32)
     
-    if node.stroke.weight > 0'ui and node.stroke.color.a > 0:
+    if node.stroke.weight > 0 and node.stroke.color.a > 0:
       ctx.drawImage(
         hashStroke,
-        charPos - vec2(node.stroke.weight.scaled.float32,
-                       node.stroke.weight.scaled.float32),
+        charPos - vec2(node.stroke.weight.float32,
+                       node.stroke.weight.float32),
         node.stroke.color
       )
 
@@ -191,7 +198,6 @@ proc drawShadows*(node: Node) =
 proc drawBoxes*(node: Node) =
   ## drawing boxes for rectangles
   if node.fill.a > 0'f32:
-    print "drawBoxes: ", node.screenBox, node.screenBox.scaled
     if node.cornerRadius.sum() > 0'ui:
       ctx.fillRoundedRect(rect = node.screenBox.scaled.atXY(0'f32, 0'f32),
                           color = node.fill,
@@ -215,11 +221,11 @@ proc drawBoxes*(node: Node) =
                   color = node.image.color,
                   size = size)
   
-  if node.stroke.color.a > 0 and node.stroke.weight > 0'ui:
+  if node.stroke.color.a > 0 and node.stroke.weight > 0:
     ctx.strokeRoundedRect(rect = node.screenBox.scaled.atXY(0'f32, 0'f32),
                           color = node.stroke.color,
-                          weight = node.stroke.weight.scaled.float32,
-                          radius = node.cornerRadius[0].scaled.float32)
+                          weight = node.stroke.weight.float32,
+                          radius = node.cornerRadius[0].float32)
   
 
 

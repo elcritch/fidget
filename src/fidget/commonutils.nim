@@ -22,12 +22,19 @@ template borrowMaths*(typ: typedesc) =
   proc `+` *(x, y: typ): typ {.borrow.}
   proc `-` *(x, y: typ): typ {.borrow.}
   
+  ## allow NewType(3.2) + 3.2 ... 
+  proc `+` *(x: typ, y: static[distinctBase(typ)]): typ = `+`(x, typ(y))
+  proc `-` *(x: typ, y: static[distinctBase(typ)]): typ = `-`(x, typ(y))
+
   proc `+` *(x: typ): typ {.borrow.}
   proc `-` *(x: typ): typ {.borrow.}
   proc `floor` *(x: typ): typ {.borrow.}
 
   proc `*` *(x: typ, y: typ): typ {.borrow.}
   proc `/` *(x: typ, y: typ): typ {.borrow.}
+
+  proc `*` *(x: typ, y: static[distinctBase(typ)]): typ = `*`(x, typ(y))
+  proc `/` *(x: typ, y: static[distinctBase(typ)]): typ = `/`(x, typ(y))
 
   proc `min` *(x: typ, y: typ): typ {.borrow.}
   proc `max` *(x: typ, y: typ): typ {.borrow.}

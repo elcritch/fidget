@@ -106,7 +106,7 @@ type
     color*: Color
 
   Stroke* = object
-    weight*: UICoord
+    weight*: float32 # not uicoord?
     color*: Color
 
   NodeKind* = enum
@@ -291,6 +291,10 @@ var
 
   # UI Scale
   uiScale*: float32 = 1.0
+  defaultlineHeightRatio* = 1.58.UICoord ##\
+    ## follow purecss
+    ## see https://medium.com/@zkareemz/golden-ratio-62b3b6d4282a
+
 
   ## Whether event is overshadowed by a higher precedent ZLevel
   eventsOvershadowed*: bool
@@ -299,6 +303,11 @@ var
   scrollBarWidth* = 14'f32
   scrollBarFill* = rgba(92, 143, 156, 102).color
   scrollBarHighlight* = rgba(92, 143, 156, 230).color 
+
+proc defaultLineHeight*(fontSize: UICoord): UICoord =
+  result = fontSize * defaultlineHeightRatio + 2.0.UICoord
+proc defaultLineHeight*(ts: TextStyle): UICoord =
+  result = defaultLineHeight(ts.fontSize)
 
 proc newUId*(): NodeUID =
   # Returns next numerical unique id.
@@ -388,7 +397,7 @@ proc resetToDefault*(node: Node)=
   # node.offset = vec2(0, 0)
   node.fill = clearColor
   node.transparency = 0
-  node.stroke = Stroke(weight: 0'ui, color: clearColor)
+  node.stroke = Stroke(weight: 0, color: clearColor)
   node.resizeDone = false
   node.htmlDone = false
   node.textStyle = TextStyle()
@@ -521,7 +530,6 @@ proc computeLayout*(parent, node: Node) =
 
   # Typeset text
   if node.kind == nkText:
-    echo "nkText : "
     computeTextLayout(node)
     case node.textStyle.autoResize:
       of tsNone:

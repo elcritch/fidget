@@ -581,7 +581,7 @@ proc font*(
   current.textStyle.fontWeight = fontWeight.UICoord
   current.textStyle.lineHeight =
       if lineHeight != 0.0: lineHeight.UICoord
-      else: fontSize.UICoord
+      else: defaultLineHeight(current.textStyle)
   current.textStyle.textAlignHorizontal = textAlignHorizontal
   current.textStyle.textAlignVertical = textAlignVertical
 
@@ -599,7 +599,7 @@ proc setFontStyle*(
   node.textStyle.fontWeight = fontWeight.UICoord
   node.textStyle.lineHeight =
       if lineHeight != 0.0: lineHeight.UICoord
-      else: fontSize.UICoord
+      else: defaultLineHeight(node.textStyle)
   node.textStyle.textAlignHorizontal = textAlignHorizontal
   node.textStyle.textAlignVertical = textAlignVertical
 
@@ -780,25 +780,25 @@ proc stroke*(stroke: Stroke) =
 
 proc strokeWeight*(weight: float32) =
   ## Sets stroke/border weight.
-  current.stroke.weight = weight.UICoord
+  current.stroke.weight = weight
 
 proc stroke*(weight: float32, color: string, alpha = 1.0): Stroke =
   ## Sets stroke/border color.
   result.color = parseHtmlColor(color)
   result.color.a = alpha
-  result.weight = weight.UICoord
+  result.weight = weight
 
 proc stroke*(weight: float32, color: Color, alpha = 1.0): Stroke =
   ## Sets stroke/border color.
   result.color = color
   result.color.a = alpha
-  result.weight = weight.UICoord
+  result.weight = weight
 
 proc strokeLine*(item: Node, weight: float32, color: string, alpha = 1.0) =
   ## Sets stroke/border color.
   current.stroke.color = parseHtmlColor(color)
   current.stroke.color.a = alpha
-  current.stroke.weight = weight.UICoord
+  current.stroke.weight = weight
 
 proc strokeLine*(weight: float32, color: string, alpha = 1.0'f32) =
   ## Sets stroke/border color.
@@ -807,7 +807,7 @@ proc strokeLine*(weight: float32, color: string, alpha = 1.0'f32) =
 proc strokeLine*(node: Node) =
   ## Sets stroke/border color.
   current.stroke.color = node.stroke.color
-  current.stroke.weight = node.stroke.weight.UICoord
+  current.stroke.weight = node.stroke.weight
 
 proc cornerRadius*(a, b, c, d: float32) =
   ## Sets all radius of all 4 corners.
