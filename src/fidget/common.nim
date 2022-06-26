@@ -556,25 +556,25 @@ proc computeLayout*(parent, node: Node) =
 
     var at = 0.0'ui
     at += node.verticalPadding
-    echo "layoutMode:at: ", at
+    # echo "layoutMode:at: ", at
     for i, n in node.nodes.pairs:
       if n.layoutAlign == laIgnore:
         continue
       if i > 0: at += node.itemSpacing
       n.box.y = at
-      echo "node.box:1: ", n.box.repr
+      # echo "node.box:1: ", n.box.repr
       case n.layoutAlign:
         of laMin:
-          echo "laMin: ", node.horizontalPadding, " box.x: ", n.box.repr
+          # echo "laMin: ", node.horizontalPadding, " box.x: ", n.box.repr
           n.box.x = node.horizontalPadding
         of laCenter:
-          echo "laCenter"
+          # echo "laCenter"
           n.box.x = node.box.w/2'ui - n.box.w/2'ui
         of laMax:
-          echo "laMax"
+          # echo "laMax"
           n.box.x = node.box.w - n.box.w - node.horizontalPadding
         of laStretch:
-          echo "laStretch"
+          # echo "laStretch"
           n.box.x = node.horizontalPadding
           n.box.w = node.box.w - node.horizontalPadding * 2'ui
           # Redo the layout for child node.
@@ -588,7 +588,7 @@ proc computeLayout*(parent, node: Node) =
     node.box.h = at
 
   if node.layoutMode == lmHorizontal:
-    echo "layoutMode : ", node.layoutMode 
+    # echo "layoutMode : ", node.layoutMode 
     if node.counterAxisSizingMode == csAuto:
       # Resize to fit elements tightly.
       var maxH = 0.0'ui
@@ -599,7 +599,7 @@ proc computeLayout*(parent, node: Node) =
 
     var at = 0.0'ui
     at += node.horizontalPadding
-    echo "horizontalPadding : ", node.horizontalPadding
+    # echo "horizontalPadding : ", node.horizontalPadding
     for i, n in node.nodes.pairs:
       if n.layoutAlign == laIgnore:
         continue
