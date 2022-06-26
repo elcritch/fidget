@@ -544,7 +544,7 @@ proc computeLayout*(parent, node: Node) =
 
   # Auto-layout code.
   if node.layoutMode == lmVertical:
-    echo "layoutMode : ", node.layoutMode 
+    # echo "layoutMode : ", node.layoutMode 
     if node.counterAxisSizingMode == csAuto:
       # Resize to fit elements tightly.
       var maxW = 0.0'ui
@@ -552,7 +552,6 @@ proc computeLayout*(parent, node: Node) =
         if n.layoutAlign != laStretch:
           maxW = max(maxW, n.box.w)
       node.box.w = maxW + node.horizontalPadding * 2'ui
-      echo "box.w: ", node.box.w
 
     var at = 0.0'ui
     at += node.verticalPadding

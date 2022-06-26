@@ -675,7 +675,7 @@ proc selectable*(v: bool) =
 
 template binding*(stringVariable, handler: untyped) =
   ## Makes the current object text-editable and binds it to the stringVariable.
-  echo "binding impl"
+  # echo "binding impl"
   current.bindingSet = true
   selectable true
   editableText true
@@ -683,15 +683,15 @@ template binding*(stringVariable, handler: untyped) =
     characters stringVariable
   when not defined(js):
     onClick:
-      echo "binding impl: onclick"
+      # echo "binding impl: onclick"
       keyboard.focus(current)
     onClickOutside:
-      echo "binding impl: onclick outside"
+      # echo "binding impl: onclick outside"
       keyboard.unFocus(current)
   onInput:
-    echo "binding impl: oninput"
+    # echo "binding impl: oninput"
     handler
-  echo "binding impl: done\n"
+  # echo "binding impl: done\n"
 
 template binding*(stringVariable: untyped) =
   binding(stringVariable) do:
