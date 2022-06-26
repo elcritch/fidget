@@ -244,12 +244,10 @@ proc draw*(node, parent: Node) =
     #   the alternative would require setting
     #   the correct box size on *every* text node
     ctx.translate(parent.screenBox.scaled.xy)
-    node.drawText()
-    ctx.restoreTransform()
-    return
-
-  ctx.saveTransform()
-  ctx.translate(node.screenBox.scaled.xy)
+                  
+  else:
+    ctx.saveTransform()
+    ctx.translate(node.screenBox.scaled.xy)
 
   # handles setting up scrollbar region
   ifdraw node.id == "$scrollbar":
@@ -277,7 +275,10 @@ proc draw*(node, parent: Node) =
     node.drawShadows()
 
   ifdraw true:
-    node.drawBoxes()
+    if node.kind == nkText:
+      node.drawText()
+    else:
+      node.drawBoxes()
 
   # restores the opengl context back to the parent node's (see above)
   ctx.restoreTransform()

@@ -492,36 +492,36 @@ proc computeLayout*(parent, node: Node) =
     of cMin: discard
     of cMax:
       let rightSpace = parent.orgBox.w - node.box.x
-      echo "rightSpace : ", rightSpace  
+      # echo "rightSpace : ", rightSpace  
       node.box.x = parent.box.w - rightSpace
     of cScale:
       let xScale = parent.box.w / parent.orgBox.w
-      echo "xScale: ", xScale 
+      # echo "xScale: ", xScale 
       node.box.x *= xScale
       node.box.w *= xScale
     of cStretch:
       let xDiff = parent.box.w - parent.orgBox.w
-      echo "xDiff: ", xDiff   
+      # echo "xDiff: ", xDiff   
       node.box.w += xDiff
     of cCenter:
       let offset = floor((node.orgBox.w - parent.orgBox.w) / 2.0'ui + node.orgBox.x)
-      echo "offset: ", offset   
+      # echo "offset: ", offset   
       node.box.x = floor((parent.box.w - node.box.w) / 2.0'ui) + offset
 
   case node.constraintsHorizontal:
     of cMin: discard
     of cMax:
       let bottomSpace = parent.orgBox.h - node.box.y
-      echo "bottomSpace  : ", bottomSpace   
+      # echo "bottomSpace  : ", bottomSpace   
       node.box.y = parent.box.h - bottomSpace
     of cScale:
       let yScale = parent.box.h / parent.orgBox.h
-      echo "yScale: ", yScale
+      # echo "yScale: ", yScale
       node.box.y *= yScale
       node.box.h *= yScale
     of cStretch:
       let yDiff = parent.box.h - parent.orgBox.h
-      echo "yDiff: ", yDiff 
+      # echo "yDiff: ", yDiff 
       node.box.h += yDiff
     of cCenter:
       let offset = floor((node.orgBox.h - parent.orgBox.h) / 2.0'ui + node.orgBox.y)
@@ -581,9 +581,9 @@ proc computeLayout*(parent, node: Node) =
           computeLayout(node, n)
         of laIgnore:
           continue
-      echo "node.box:2: ", n.box.repr, " at: ", at
+      # echo "node.box:2: ", n.box.repr, " at: ", at
       at += n.box.h
-      echo "node.box:3: ", n.box.repr, " at: ", at
+      # echo "node.box:3: ", n.box.repr, " at: ", at
     at += node.verticalPadding
     node.box.h = at
 
