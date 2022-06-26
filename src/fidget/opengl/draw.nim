@@ -8,8 +8,6 @@ import context, formatflippy
 import ../input, ../common
 import ../commonutils
 
-import print
-
 type
   Context = context.Context
 
@@ -70,61 +68,7 @@ proc drawText(node: Node) =
   let mousePos = mouse.pos
   # let mousePos = mouse.pos(raw=true) + node.totalOffset
   # if mouse.click:
-  print mousePos
 
-  # echo fmt"mouse: {mouse.pos(raw=true).overlaps(node.screenBox, true)} mousePos: {mousePos.overlaps(node.screenBox, true)}"
-
-  # if mouse.pos(raw=true).overlaps(node.screenBox):
-  #   echo fmt"MOUSE: {mouse.click=}"
-  #   if node.selectable and mouse.wheelDelta != 0:
-  #     keyboard.focus(node)
-  #   elif node.selectable and mouse.down:
-  #     # mouse actions click, drag, double clicking
-  #     keyboard.focus(node)
-  #     if mouse.click:
-  #       if epochTime() - lastClickTime < 0.5:
-  #         inc multiClick
-  #       else:
-  #         multiClick = 0
-  #       lastClickTime = epochTime()
-  #       if multiClick == 1:
-  #         textBox.selectWord(mousePos)
-  #         buttonDown[MOUSE_LEFT] = false
-  #       elif multiClick == 2:
-  #         textBox.selectParagraph(mousePos)
-  #         buttonDown[MOUSE_LEFT] = false
-  #       elif multiClick == 3:
-  #         textBox.selectAll()
-  #         buttonDown[MOUSE_LEFT] = false
-  #       else:
-  #         textBox.mouseAction(mousePos, click = true, keyboard.shiftKey)
-
-  # if textBox != nil and
-  #     mouse.down and
-  #     not mouse.click and
-  #     keyboard.focusNode == node:
-  #   # Dragging the mouse:
-  #   echo "dragging mouse"
-  #   textBox.mouseAction(mousePos, click = false, keyboard.shiftKey)
-
-  let editing = keyboard.focusNode == node
-
-  # if editing:
-  #   var textBox = node.currentEvents().mgetOrPut("$textbox", TextBox[Node])
-  #   print "draw:editing: ", textBox.size, node.screenBox, node.totalOffset
-  #   if textBox.size != node.screenBox.scaled.wh:
-  #     print "set:draw:editing: ", textBox.size, node.screenBox.wh
-  #     textBox.resize(node.screenBox.scaled.wh)
-  #   node.textLayout = textBox.layout()
-  #   ctx.saveTransform()
-  #   ctx.translate(-textBox.scroll - node.screenBox.scaled.xy)
-  #   let selectColor =
-  #     if node.highlightColor == clearColor: node.fill
-  #     else: node.highlightColor
-  #   for rect in textBox.selectionRegions():
-  #     ctx.fillRect(rect, selectColor)
-  # else:
-  #   discard
 
   # draw characters
   for glyphIdx, pos in node.textLayout:
@@ -194,10 +138,7 @@ proc drawText(node: Node) =
       cp = charPos - vec2(node.stroke.weight.scaled.float32,
                        node.stroke.weight.scaled.float32)
     
-    print "draw: ", charPos, pos.rect, glyphOffset, cp, node.screenBox.scaled
-
     if node.stroke.weight > 0'ui and node.stroke.color.a > 0:
-      print "draw: stroke"
       ctx.drawImage(
         hashStroke,
         charPos - vec2(node.stroke.weight.scaled.float32,
@@ -206,16 +147,6 @@ proc drawText(node: Node) =
       )
 
     ctx.drawImage(hashFill, charPos, node.fill)
-
-  # if editing:
-  #   var textBox = node.currentEvents().mgetOrPut("$textbox", TextBox[Node])
-  #   if textBox.cursor == textBox.selector and node.editableText:
-  #     # draw cursor
-  #     ctx.fillRect(textBox.cursorRect, node.cursorColor)
-  #   # debug
-  #   # ctx.fillRect(textBox.selectorRect, rgba(0, 0, 0, 255).color)
-  #   # ctx.fillRect(rect(textBox.mousePos, vec2(4, 4)), rgba(255, 128, 128, 255).color)
-  #   ctx.restoreTransform()
 
 import macros
 
@@ -307,6 +238,10 @@ proc draw*(node, parent: Node) =
 
   if node.kind == nkText:
     ctx.saveTransform()
+    # text assumes parents transform 
+    # TODO: is this correct or desired?
+    #   the alternative would require setting
+    #   the correct box size on *every* text node
     ctx.translate(parent.screenBox.scaled.xy)
     node.drawText()
     ctx.restoreTransform()
@@ -341,19 +276,7 @@ proc draw*(node, parent: Node) =
     node.drawShadows()
 
   ifdraw true:
-    # draw visiable decorations for node
-    if node.kind == nkText:
-      # print "nkText:", parent.screenBox, node.screenBox
-      # ctx.saveTransform()
-      # ctx.translate(-parent.screenBox.scaled.xy)
-      # ctx.saveTransform()
-      # ctx.translate(-node.screenBox.scaled.xy)
-      # node.drawText()
-      # ctx.restoreTransform()
-      # ctx.restoreTransform()
-      discard
-    else:
-      node.drawBoxes()
+    node.drawBoxes()
 
   # restores the opengl context back to the parent node's (see above)
   ctx.restoreTransform()
