@@ -17,18 +17,19 @@ var
 computeTextLayout = proc(node: Node) =
   var font = fonts[node.textStyle.fontFamily]
   font.size = node.textStyle.fontSize.scaled.float32
-  font.lineHeight = node.textStyle.lineHeight.scaled.float32
+  font.lineHeight = node.textStyle.lineHeight.float32
   if font.lineHeight == 0:
     font.lineHeight = font.size
   var
     boundsMin: Vec2
     boundsMax: Vec2
-    size = node.box.scaled.wh
+    size: Vec2 = node.box.scaled.wh
   if node.textStyle.autoResize == tsWidthAndHeight:
     size.x = 0
   node.textLayout = font.typeset(
     node.text,
     pos = vec2(0, 0),
+    # pos = vec2(-size.x/2, -size.y/2),
     size = size,
     hAlignMode(node.textStyle.textAlignHorizontal),
     vAlignMode(node.textStyle.textAlignVertical),
@@ -36,8 +37,8 @@ computeTextLayout = proc(node: Node) =
     boundsMin = boundsMin,
     boundsMax = boundsMax
   )
-  let bMin = boundsMin.descaled()
-  let bMax = boundsMin.descaled()
+  let bMin = boundsMin.Position()
+  let bMax = boundsMin.Position()
   node.textLayoutWidth = bMax.x - bMin.x
   node.textLayoutHeight = bMax.y - bMin.y
 

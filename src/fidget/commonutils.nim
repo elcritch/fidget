@@ -166,7 +166,7 @@ template scaled*(a: Position): Vec2 = Vec2(a * common.uiScale.UICoord)
 template descaled*(a: Vec2): Position = Position(a / common.uiScale)
 
 proc overlaps*(a, b: Position): bool = overlaps(Vec2(a), Vec2(b))
-proc overlaps*(a: Position, b: Box, print=false): bool = overlaps(Vec2(a), Rect(b), print)
+proc overlaps*(a: Position, b: Box): bool = overlaps(Vec2(a), Rect(b))
 proc overlaps*(a: Box, b: Position): bool = overlaps(Rect(a), Vec2(b))
 proc overlaps*(a: Box, b: Box): bool = overlaps(Rect(a), Rect(b))
 

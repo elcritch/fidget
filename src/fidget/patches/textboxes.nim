@@ -120,8 +120,9 @@ proc layout*[T](textBox: TextBox[T]): seq[GlyphPosition] =
     textBox.font.size = textBox.fontSize
     textBox.font.lineHeight = textBox.lineHeight
     textBox.multilineCheck()
+    let r = textBox.runes
     textBox.glyphs = textBox.font.typeset(
-      textBox.runes,
+      r,
       vec2(0, 0),
       size = textBox.size,
       textBox.hAling,
@@ -130,6 +131,9 @@ proc layout*[T](textBox: TextBox[T]): seq[GlyphPosition] =
       boundsMin = textBox.boundsMin,
       boundsMax = textBox.boundsMax
     )
+  echo "layout: "
+  for g in textBox.glyphs:
+    echo "g: ", repr(g.rect)
   return textBox.glyphs
 
 proc innerHeight*[T](textBox: TextBox[T]): int =

@@ -109,22 +109,22 @@ proc drawText(node: Node) =
 
   let editing = keyboard.focusNode == node
 
-  if editing:
-    var textBox = node.currentEvents().mgetOrPut("$textbox", TextBox[Node])
-    print "draw:editing: ", textBox.size, node.screenBox, node.totalOffset
-    if textBox.size != node.screenBox.scaled.wh:
-      print "set:draw:editing: ", textBox.size, node.screenBox.wh
-      textBox.resize(node.screenBox.scaled.wh)
-    node.textLayout = textBox.layout()
-    ctx.saveTransform()
-    ctx.translate(-textBox.scroll - node.screenBox.scaled.xy)
-    let selectColor =
-      if node.highlightColor == clearColor: node.fill
-      else: node.highlightColor
-    for rect in textBox.selectionRegions():
-      ctx.fillRect(rect, selectColor)
-  else:
-    discard
+  # if editing:
+  #   var textBox = node.currentEvents().mgetOrPut("$textbox", TextBox[Node])
+  #   print "draw:editing: ", textBox.size, node.screenBox, node.totalOffset
+  #   if textBox.size != node.screenBox.scaled.wh:
+  #     print "set:draw:editing: ", textBox.size, node.screenBox.wh
+  #     textBox.resize(node.screenBox.scaled.wh)
+  #   node.textLayout = textBox.layout()
+  #   ctx.saveTransform()
+  #   ctx.translate(-textBox.scroll - node.screenBox.scaled.xy)
+  #   let selectColor =
+  #     if node.highlightColor == clearColor: node.fill
+  #     else: node.highlightColor
+  #   for rect in textBox.selectionRegions():
+  #     ctx.fillRect(rect, selectColor)
+  # else:
+  #   discard
 
   # draw characters
   for glyphIdx, pos in node.textLayout:
@@ -190,7 +190,12 @@ proc drawText(node: Node) =
     var
       charPos = vec2(pos.rect.x + glyphOffset.x, pos.rect.y + glyphOffset.y)
 
-    print "draw: ", charPos, pos.rect, glyphOffset, "\n"
+    let
+      cp = charPos - vec2(node.stroke.weight.scaled.float32,
+                       node.stroke.weight.scaled.float32)
+    
+    print "draw: ", charPos, pos.rect, glyphOffset, cp, node.screenBox.scaled
+
     if node.stroke.weight > 0'ui and node.stroke.color.a > 0:
       print "draw: stroke"
       ctx.drawImage(
@@ -202,15 +207,15 @@ proc drawText(node: Node) =
 
     ctx.drawImage(hashFill, charPos, node.fill)
 
-  if editing:
-    var textBox = node.currentEvents().mgetOrPut("$textbox", TextBox[Node])
-    if textBox.cursor == textBox.selector and node.editableText:
-      # draw cursor
-      ctx.fillRect(textBox.cursorRect, node.cursorColor)
-    # debug
-    # ctx.fillRect(textBox.selectorRect, rgba(0, 0, 0, 255).color)
-    # ctx.fillRect(rect(textBox.mousePos, vec2(4, 4)), rgba(255, 128, 128, 255).color)
-    ctx.restoreTransform()
+  # if editing:
+  #   var textBox = node.currentEvents().mgetOrPut("$textbox", TextBox[Node])
+  #   if textBox.cursor == textBox.selector and node.editableText:
+  #     # draw cursor
+  #     ctx.fillRect(textBox.cursorRect, node.cursorColor)
+  #   # debug
+  #   # ctx.fillRect(textBox.selectorRect, rgba(0, 0, 0, 255).color)
+  #   # ctx.fillRect(rect(textBox.mousePos, vec2(4, 4)), rgba(255, 128, 128, 255).color)
+  #   ctx.restoreTransform()
 
 import macros
 
@@ -255,6 +260,7 @@ proc drawShadows*(node: Node) =
 proc drawBoxes*(node: Node) =
   ## drawing boxes for rectangles
   if node.fill.a > 0'f32:
+    print "drawBoxes: ", node.screenBox, node.screenBox.scaled
     if node.cornerRadius.sum() > 0'ui:
       ctx.fillRoundedRect(rect = node.screenBox.scaled.atXY(0'f32, 0'f32),
                           color = node.fill,
@@ -299,6 +305,13 @@ proc draw*(node, parent: Node) =
   # setup the opengl context to match the current node size and position
   node.hasRendered = true
 
+  if node.kind == nkText:
+    ctx.saveTransform()
+    ctx.translate(parent.screenBox.scaled.xy)
+    node.drawText()
+    ctx.restoreTransform()
+    return
+
   ctx.saveTransform()
   ctx.translate(node.screenBox.scaled.xy)
 
@@ -330,7 +343,15 @@ proc draw*(node, parent: Node) =
   ifdraw true:
     # draw visiable decorations for node
     if node.kind == nkText:
-      node.drawText()
+      # print "nkText:", parent.screenBox, node.screenBox
+      # ctx.saveTransform()
+      # ctx.translate(-parent.screenBox.scaled.xy)
+      # ctx.saveTransform()
+      # ctx.translate(-node.screenBox.scaled.xy)
+      # node.drawText()
+      # ctx.restoreTransform()
+      # ctx.restoreTransform()
+      discard
     else:
       node.drawBoxes()
 
