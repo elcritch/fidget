@@ -643,10 +643,15 @@ proc setMousePos*(item: var Mouse, x, y: float64) =
   item.delta = item.pos - item.prevPos
   item.prevPos = item.pos
 
-proc atXY*[T](rect: T, x, y: float32 | UICoord): T =
+proc atXY*[T: Box](rect: T, x, y: int | float32 | UICoord): T =
+  result = rect
+  result.x = UICoord(x)
+  result.y = UICoord(y)
+proc atXY*[T: Rect](rect: T, x, y: int | float32): T =
   result = rect
   result.x = x
   result.y = y
+
 
 proc `*`*(color: Color, alpha: float32): Color =
   ## update alpha on color

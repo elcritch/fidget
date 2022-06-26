@@ -122,17 +122,17 @@ template withDefaultName(name: untyped): untyped =
 template frame*(id: string, inner: untyped): untyped =
   ## Starts a new frame.
   node(nkFrame, id, inner):
-    boxOf root
+    boxSizeOf parent
 
 template group*(id: string, inner: untyped): untyped =
   ## Starts a new node.
   node(nkGroup, id, inner):
-    boxOf parent
+    boxSizeOf parent
 
 template component*(id: string, inner: untyped): untyped =
   ## Starts a new component.
   node(nkComponent, id, inner):
-    boxOf parent
+    boxSizeOf parent
 
 template rectangle*(id: string, inner: untyped): untyped =
   ## Starts a new text element.
@@ -141,12 +141,12 @@ template rectangle*(id: string, inner: untyped): untyped =
 template element*(id: string, inner: untyped): untyped =
   ## Starts a new rectangle.
   node(nkRectangle, id, inner):
-    boxOf parent
+    boxSizeOf parent
 
 template text*(id: string, inner: untyped): untyped =
   ## Starts a new text element.
   node(nkText, id, inner):
-    boxOf parent
+    boxSizeOf parent
 
 template instance*(id: string, inner: untyped): untyped =
   ## Starts a new instance of a component.
@@ -558,6 +558,11 @@ template boxOf*(node: Node) =
   ## Sets current node's box from another node
   ## e.g. `boxOf(parent)`
   current.box = node.box
+
+template boxSizeOf*(node: Node) =
+  ## Sets current node's box from another node
+  ## e.g. `boxOf(parent)`
+  current.box = node.box.atXY(0, 0)
 
 proc rotation*(rotationInDeg: float32) =
   ## Sets rotation in degrees.

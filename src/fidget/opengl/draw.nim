@@ -221,8 +221,8 @@ proc drawBoxes*(node: Node) =
                           color = node.stroke.color,
                           weight = node.stroke.weight.float32,
                           radius = node.cornerRadius[0].float32)
-  
 
+import print
 
 proc draw*(node, parent: Node) =
   ## Draws the node.
@@ -237,17 +237,8 @@ proc draw*(node, parent: Node) =
   # setup the opengl context to match the current node size and position
   node.hasRendered = true
 
-  if node.kind == nkText:
-    ctx.saveTransform()
-    # text assumes parents transform 
-    # TODO: is this correct or desired?
-    #   the alternative would require setting
-    #   the correct box size on *every* text node
-    ctx.translate(parent.screenBox.scaled.xy)
-                  
-  else:
-    ctx.saveTransform()
-    ctx.translate(node.screenBox.scaled.xy)
+  ctx.saveTransform()
+  ctx.translate(node.screenBox.scaled.xy)
 
   # handles setting up scrollbar region
   ifdraw node.id == "$scrollbar":
