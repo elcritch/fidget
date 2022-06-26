@@ -55,8 +55,6 @@ proc unFocus*(keyboard: Keyboard, node: Node) =
     keyboard.onFocusNode = nil
     keyboard.focusNode = nil
 
-import print
-
 proc drawText(node: Node) =
   if node.textStyle.fontFamily notin fonts:
     quit &"font not found: {node.textStyle.fontFamily}"
@@ -64,11 +62,8 @@ proc drawText(node: Node) =
   var font = fonts[node.textStyle.fontFamily]
   font.size = node.textStyle.fontSize.scaled.float32
   font.lineHeight = node.textStyle.lineHeight.scaled.float32
-  print font.size
-  print font.lineheight
   if font.lineHeight == 0:
     font.lineHeight = defaultLineHeight(node.textStyle).scaled.float32
-  print "post:", font.lineheight
 
   # TODO: Fixme
   # let mousePos = mouse.pos(raw=false) - node.screenBox.xy + node.totalOffset

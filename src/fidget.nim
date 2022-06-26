@@ -211,7 +211,7 @@ proc mouseOverlapLogic*(): bool =
     current.screenBox.w > 0'ui and
     current.screenBox.h > 0'ui 
   # if mpos.overlaps(current.screenBox):
-  print "mouseOverlap: ", act, mpos, current.screenBox, mpos.overlaps(current.screenBox), "\n"
+  # print "mouseOverlap: ", act, mpos, current.screenBox, mpos.overlaps(current.screenBox), "\n"
   # if inPopup:
     # echo fmt"mouseOverlap: popup: {mouse.pos(raw=true).overlaps(popupBox)} {mpos=} {popupBox=}"
 
