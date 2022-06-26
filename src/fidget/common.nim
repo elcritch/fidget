@@ -291,8 +291,7 @@ var
 
   # UI Scale
   uiScale*: float32 = 1.0
-  defaultlineHeightRatio* = 1.58.UICoord ##\
-    ## follow purecss
+  defaultlineHeightRatio* = 1.618.UICoord ##\
     ## see https://medium.com/@zkareemz/golden-ratio-62b3b6d4282a
 
 
