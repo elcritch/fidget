@@ -32,8 +32,8 @@ type TextBox*[T] = ref object
   cursor*: int      # The typing cursor.
   selector*: int    # The selection cursor.
   item*: T # Item holding the runes we are typing.
-  width*: int       # Width of text box in px.
-  height*: int      # Height of text box in px.
+  width*: float32       # Width of text box in px.
+  height*: float32      # Height of text box in px.
   vAlign*: VAlignMode
   hAling*: HAlignMode
   scrollable*: bool
@@ -60,8 +60,8 @@ proc clamp[T](v, a, b: int): int =
 
 proc newTextBox*[T](
   font: Font,
-  width: int,
-  height: int,
+  width: float32,
+  height: float32,
   item: T,
   hAlign = Left,
   vAlign = Top,
@@ -132,14 +132,14 @@ proc layout*[T](textBox: TextBox[T]): seq[GlyphPosition] =
     )
   return textBox.glyphs
 
-proc innerHeight*[T](textBox: TextBox[T]): int =
+proc innerHeight*[T](textBox: TextBox[T]): float32 =
   ## Rectangle where selection cursor should be drawn.
   let layout = textBox.layout()
   if layout.len > 0:
     let lastPos = layout[^1].selectRect
-    return int(lastPos.y + lastPos.h)
+    return lastPos.y + lastPos.h
   else:
-    return int(textBox.font.lineHeight)
+    return textBox.font.lineHeight
 
 proc locationRect*[T](textBox: TextBox[T], loc: int): Rect =
   ## Rectangle where cursor should be drawn.
@@ -534,8 +534,8 @@ proc selectAll*[T](textBox: TextBox[T]) =
 
 proc resize*[T](textBox: TextBox[T], size: Vec2) =
   ## Resize text box.
-  textBox.width = int size.x
-  textBox.height = int size.y
+  textBox.width = size.x
+  textBox.height = size.y
   textBox.glyphs.setLen(0)
   textBox.adjustScroll()
 
@@ -547,7 +547,7 @@ proc scrollBy*[T](textBox: TextBox[T], amount: float) =
   textBox.scroll.y = max(0, textBox.scroll.y)
   # Or the bottom.
   textBox.scroll.y = min(
-    float(textBox.innerHeight - textBox.height),
+    textBox.innerHeight - textBox.height,
     textBox.scroll.y
   )
   # Check if there is not enough text to scroll.

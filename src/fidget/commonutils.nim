@@ -98,18 +98,18 @@ borrowMaths(Percent)
 borrowMathsMixed(Percent)
 
 type
-  ScaledCoord* = distinct float32
+  # ScaledCoord* = distinct float32
   UICoord* = distinct float32
 
-borrowMaths(ScaledCoord)
+# borrowMaths(ScaledCoord)
 borrowMaths(UICoord)
 
 proc `'ui`*(n: string): UICoord =
   ## numeric literal UI Coordinate unit
   result = UICoord(parseFloat(n))
 
-template scaled*(a: UICoord): ScaledCoord = ScaledCoord(a.float32 * common.uiScale)
-template descaled*(a: ScaledCoord): UICoord = UICoord(a.float32 / common.uiScale)
+template scaled*(a: UICoord): float32 = a.float32 * common.uiScale
+# template descaled*(a: ScaledCoord): UICoord = UICoord(a.float32 / common.uiScale)
 template descaled*(a: float32): UICoord = UICoord(a / common.uiScale)
 
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
@@ -119,7 +119,7 @@ template descaled*(a: float32): UICoord = UICoord(a / common.uiScale)
 type
   Position* = distinct Vec2
 
-proc position*(x, y: float32): Position = Position(vec2(x, y))
+proc initPosition*(x, y: float32): Position = Position(vec2(x, y))
 genBoolOp[Position, Vec2](`==`)
 genBoolOp[Position, Vec2](`!=`)
 genBoolOp[Position, Vec2](`~=`)
@@ -195,9 +195,9 @@ proc `$`*(b: Box): string =
 
 # when isMainModule:
 proc testPosition() =
-  let x = position(12.1, 13.4)
-  let y = position(10.0, 10.0)
-  var z = position(0.0, 0.0)
+  let x = initPosition(12.1, 13.4)
+  let y = initPosition(10.0, 10.0)
+  var z = initPosition(0.0, 0.0)
   let c = 1.0'ui
 
   echo "x + y: ", repr(x + y)
@@ -222,7 +222,7 @@ proc testRect() =
   let y = initBox(10.0, 10.0, 5.0, 5.0).Box
   let c = 10.0'ui
   var z = initBox(10.0, 10.0, 5.0, 5.0).Box
-  let v = position(10.0, 10.0)
+  let v = initPosition(10.0, 10.0)
 
   echo "x.w: ", repr(x.w)
   echo "x + y: ", repr(x + y)

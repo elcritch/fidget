@@ -35,8 +35,8 @@ proc focus*(keyboard: Keyboard, node: Node) =
     textBox = node.currentEvents().mgetOrPut("$textbox",
       newTextBox[Node](
         font,
-        int node.screenBox.w.scaled,
-        int node.screenBox.h.scaled,
+        node.screenBox.w.scaled,
+        node.screenBox.h.scaled,
         node,
         hAlignMode(node.textStyle.textAlignHorizontal),
         vAlignMode(node.textStyle.textAlignVertical),
