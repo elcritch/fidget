@@ -29,6 +29,7 @@ computeTextLayout = proc(node: Node) =
   node.textLayout = font.typeset(
     node.text,
     pos = vec2(0, 0),
+    # pos = vec2(font.lineHeight / 4.0, font.lineHeight / 4.0),
     # pos = vec2(-size.x/2, -size.y/2),
     size = size,
     hAlignMode(node.textStyle.textAlignHorizontal),
@@ -37,8 +38,8 @@ computeTextLayout = proc(node: Node) =
     boundsMin = boundsMin,
     boundsMax = boundsMax
   )
-  let bMin = boundsMin.Position()
-  let bMax = boundsMin.Position()
+  let bMin = boundsMin.descaled
+  let bMax = boundsMin.descaled
   node.textLayoutWidth = bMax.x - bMin.x
   node.textLayoutHeight = bMax.y - bMin.y
 
