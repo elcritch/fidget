@@ -18,23 +18,30 @@ macro variants*(name, code: untyped) =
     {.pop.}
   result[1][2] = code
 
-template borrowMaths*(typ: typedesc) =
-  proc `+` *(x, y: typ): typ {.borrow.}
-  proc `-` *(x, y: typ): typ {.borrow.}
+template borrowMaths*(typ, base: typedesc) =
+  proc `+` *(x, y: typ): typ = typ(`+`(base(x), base(y)))
+  proc `-` *(x, y: typ): typ = typ(`-`(base(x), base(y)))
   
+  proc `-` *(x: typ): typ = typ(`-`(base(x)))
+
   ## allow NewType(3.2) + 3.2 ... 
-  proc `+` *(x: typ, y: static[distinctBase(typ)]): typ = `+`(x, typ(y))
-  proc `-` *(x: typ, y: static[distinctBase(typ)]): typ = `-`(x, typ(y))
+  proc `+` *(x: typ, y: static[float32|float64|int]): typ = typ(`+`(base x, base y))
+  proc `-` *(x: typ, y: static[float32|float64|int]): typ = typ(`-`(base x, base y))
+  proc `+` *(x: static[float32|float64|int], y: typ): typ = typ(`+`(base x, base y))
+  proc `-` *(x: static[float32|float64|int], y: typ): typ = typ(`-`(base x, base y))
 
-  proc `+` *(x: typ): typ {.borrow.}
-  proc `-` *(x: typ): typ {.borrow.}
   proc `floor` *(x: typ): typ {.borrow.}
+  proc `clamp` *(v: typ, a, b: typ): typ = typ(clamp(base(v), base(a), base(b)))
+  proc `clamp` *(v, a: typ, b: static[float32|float64|int|typ]): typ = typ(clamp(base(v), base(a), base(b)))
+  proc `clamp` *(v: typ, a, b: static[float32|float64|int|typ]): typ = typ(clamp(base(v), base(a), base(b)))
 
-  proc `*` *(x: typ, y: typ): typ {.borrow.}
-  proc `/` *(x: typ, y: typ): typ {.borrow.}
+  proc `*` *(x, y: typ): typ = typ(`*`(base(x), base(y)))
+  proc `/` *(x, y: typ): typ = typ(`/`(base(x), base(y)))
 
-  proc `*` *(x: typ, y: static[distinctBase(typ)]): typ = `*`(x, typ(y))
-  proc `/` *(x: typ, y: static[distinctBase(typ)]): typ = `/`(x, typ(y))
+  proc `*` *(x: typ, y: static[distinctBase(typ)]): typ = typ(`*`(base(x), base(y)))
+  proc `/` *(x: typ, y: static[distinctBase(typ)]): typ = typ(`/`(base(x), base(y)))
+  proc `*` *(x: static[base], y: typ): typ = typ(`*`(base(x), base(y)))
+  proc `/` *(x: static[base], y: typ): typ = typ(`/`(base(x), base(y)))
 
   proc `min` *(x: typ, y: typ): typ {.borrow.}
   proc `max` *(x: typ, y: typ): typ {.borrow.}
@@ -94,15 +101,15 @@ type
   Percent* = distinct float32
   Percentages* = tuple[value: float32, kind: PercKind]
 
-borrowMaths(Percent)
-borrowMathsMixed(Percent)
+borrowMaths(Percent, float32)
+# borrowMathsMixed(Percent)
 
 type
   # ScaledCoord* = distinct float32
   UICoord* = distinct float32
 
 # borrowMaths(ScaledCoord)
-borrowMaths(UICoord)
+borrowMaths(UICoord, float32)
 
 proc `'ui`*(n: string): UICoord =
   ## numeric literal UI Coordinate unit

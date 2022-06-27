@@ -426,27 +426,27 @@ proc box*(rect: Box) =
   box(rect.x, rect.y, rect.w, rect.h)
 
 proc size*(
-  w: int|float32|float64,
-  h: int|float32|float64
+  w: int|float32|float64|UICoord,
+  h: int|float32|float64|UICoord
 ) =
   ## Sets the box dimension width and height
   let cb = current.box
-  box(cb.x, cb.y, float32 w, float32 h)
+  box(cb.x, cb.y, w, h)
   # orgBox(cb.x, cb.y, float32 w, float32 h)
 
-proc width*(w: int|float32|float64) =
+proc width*(w: int|float32|float64|UICoord) =
   ## Sets the width of current node
   let cb = current.box
   box(cb.x, cb.y, float32 w, float32 cb.h)
 
-proc height*(h: int|float32|float64) =
+proc height*(h: int|float32|float64|UICoord) =
   ## Sets the height of current node
   let cb = current.box()
   box(cb.x, cb.y, float32 cb.w, float32 h)
 
 proc offset*(
-  x: int|float32|float64,
-  y: int|float32|float64
+  x: int|float32|float64|UICoord,
+  y: int|float32|float64|UICoord
 ) =
   ## Sets the box dimension offset
   let cb = current.box
@@ -454,14 +454,14 @@ proc offset*(
   # orgBox(float32 x, float32 y, cb.w, cb.h)
 
 proc xy*(
-  x: int|float32|float64,
-  y: int|float32|float64
+  x: int|float32|float64|UICoord,
+  y: int|float32|float64|UICoord
 ) =
   ## Sets the box dimension XY position
   offset(x, y)
 
 proc paddingX*(
-  width: int|float32|float64,
+  width: int|float32|float64|UICoord,
   absolute = false,
 ) =
   ## Sets X padding based on `width`. By default
@@ -475,7 +475,7 @@ proc paddingX*(
   box(cb.x + width.UICoord, cb.y, tw - 2.0*width, cb.h)
 
 proc paddingY*(
-  height: int|float32|float64,
+  height: int|float32|float64|UICoord,
   absolute = false,
 ) =
   ## Sets Y padding based on `height`. By default
@@ -489,8 +489,8 @@ proc paddingY*(
   box(cb.x, cb.y + height.UICoord, cb.w, th - 2.0*height)
 
 proc paddingXY*(
-  width: int|float32|float64,
-  height: int|float32|float64,
+  width: int|float32|float64|UICoord,
+  height: int|float32|float64|UICoord,
   absolute = false,
 ) =
   ## Combination of `paddingX` and `paddingY`. 
@@ -498,7 +498,7 @@ proc paddingXY*(
   paddingY(height, absolute)
 
 proc paddingXY*(
-  padding: int|float32|float64,
+  padding: int|float32|float64|UICoord,
   absolute = false,
 ) =
   ## Combination of `paddingX` and `paddingY`. 
@@ -507,7 +507,7 @@ proc paddingXY*(
 
 
 proc centeredW*(
-  width: int|float32|float64,
+  width: int|float32|float64|UICoord,
   absolute = false,
 ) =
   ## Center box based on `width`. By default
@@ -522,7 +522,7 @@ proc centeredW*(
   box(wpad, cb.y, width, cb.h)
 
 proc centeredH*(
-  height: int|float32|float64,
+  height: int|float32|float64|UICoord,
   absolute = false,
 ) =
   ## Center box based on `height`. By default
@@ -537,8 +537,8 @@ proc centeredH*(
   box(cb.x, hpad, cb.w, height)
 
 proc centeredWH*(
-  width: int|float32|float64,
-  height: int|float32|float64,
+  width: int|float32|float64|UICoord,
+  height: int|float32|float64|UICoord,
   absolute = false,
 ) =
   ## Combination of `centerX` and `centerY`. 
@@ -546,7 +546,7 @@ proc centeredWH*(
   centeredH(height, absolute)
 
 proc centerWH*(
-  padding: int|float32|float64,
+  padding: int|float32|float64|UICoord,
   absolute = false,
 ) =
   ## Combination of `centerX` and `centerY`. 
@@ -786,6 +786,10 @@ proc strokeWeight*(weight: float32) =
   ## Sets stroke/border weight.
   current.stroke.weight = weight
 
+proc strokeWeight*(weight: UICoord) =
+  ## Sets stroke/border weight.
+  current.stroke.weight = weight.float32
+
 proc stroke*(weight: float32, color: string, alpha = 1.0): Stroke =
   ## Sets stroke/border color.
   result.color = parseHtmlColor(color)
@@ -942,11 +946,11 @@ proc horizontalPadding*(v: float32) =
   ## Set the horizontal padding for auto layout.
   current.horizontalPadding = v.UICoord
 
-proc verticalPadding*(v: float32) =
+proc verticalPadding*(v: float32|UICoord) =
   ## Set the vertical padding for auto layout.
   current.verticalPadding = v.UICoord
 
-proc itemSpacing*(v: float32) =
+proc itemSpacing*(v: float32|UICoord) =
   ## Set the item spacing for auto layout.
   current.itemSpacing = v.UICoord
 
