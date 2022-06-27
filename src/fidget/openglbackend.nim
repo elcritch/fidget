@@ -28,8 +28,8 @@ computeTextLayout = proc(node: Node) =
     # size.x = 0
   node.textLayout = font.typeset(
     node.text,
-    pos = vec2(0, 0),
-    # pos = vec2(font.lineHeight / 4.0, font.lineHeight / 4.0),
+    # pos = vec2(0, 0),
+    pos = vec2(0, font.lineHeight * common.adjustTopTextFactor),
     # pos = vec2(-size.x/2, -size.y/2),
     size = size,
     hAlignMode(node.textStyle.textAlignHorizontal),

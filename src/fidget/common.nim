@@ -293,7 +293,7 @@ var
   uiScale*: float32 = 1.0
   defaultlineHeightRatio* = 1.618.UICoord ##\
     ## see https://medium.com/@zkareemz/golden-ratio-62b3b6d4282a
-
+  adjustTopTextFactor* = 1/16.0 # adjust top of text box for visual balance with descender's -- about 1/8 of fonts, so 1/2 that
 
   ## Whether event is overshadowed by a higher precedent ZLevel
   eventsOvershadowed*: bool

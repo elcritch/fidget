@@ -37,6 +37,7 @@ proc focus*(keyboard: Keyboard, node: Node) =
         font,
         node.screenBox.w.scaled,
         node.screenBox.h.scaled,
+        font.size * adjustTopTextFactor,
         node,
         hAlignMode(node.textStyle.textAlignHorizontal),
         vAlignMode(node.textStyle.textAlignVertical),

@@ -34,6 +34,7 @@ type TextBox*[T] = ref object
   item*: T # Item holding the runes we are typing.
   width*: float32       # Width of text box in px.
   height*: float32      # Height of text box in px.
+  adjustTopTextFactor*: float32      # Adjust top of text down for visual balance
   vAlign*: VAlignMode
   hAling*: HAlignMode
   scrollable*: bool
@@ -62,6 +63,7 @@ proc newTextBox*[T](
   font: Font,
   width: float32,
   height: float32,
+  adjustTopTextFactor: float32,
   item: T,
   hAlign = Left,
   vAlign = Top,
@@ -76,6 +78,7 @@ proc newTextBox*[T](
   result.font = font
   result.fontSize = font.size
   result.lineHeight = font.lineHeight
+  result.adjustTopTextFactor = adjustTopTextFactor
   result.width = width
   result.height = height
   result.hAling = hAlign
@@ -122,7 +125,7 @@ proc layout*[T](textBox: TextBox[T]): seq[GlyphPosition] =
     textBox.multilineCheck()
     textBox.glyphs = textBox.font.typeset(
       textBox.runes,
-      vec2(0, 0),
+      pos = vec2(0, textBox.font.size * textBox.adjustTopTextFactor),
       size = textBox.size,
       textBox.hAling,
       textBox.vAlign,
@@ -349,7 +352,8 @@ proc down*[T](textBox: TextBox[T], shift = false) =
   if textBox.layout.len == 0:
     return
   let pos = textBox.layout.pickGlyphAt(
-    vec2(textBox.savedX, textBox.cursorPos.y + textBox.font.lineHeight * 1.5))
+    vec2(textBox.savedX,
+         1.5 * textBox.cursorPos.y + textBox.font.lineHeight))
   if pos.character != "":
     textBox.cursor = pos.count
     textBox.adjustScroll()
