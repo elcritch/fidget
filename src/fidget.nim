@@ -453,7 +453,7 @@ proc offset*(
   box(float32 x, float32 y, cb.w, cb.h)
   # orgBox(float32 x, float32 y, cb.w, cb.h)
 
-proc position*(
+proc xy*(
   x: int|float32|float64,
   y: int|float32|float64
 ) =
@@ -519,7 +519,6 @@ proc centeredW*(
     cb = current.box
     tw = if absolute: 100'vw else: 100'pw
     wpad = (tw - width)/2.0
-  echo "WIDTH: ", $width
   box(wpad, cb.y, width, cb.h)
 
 proc centeredH*(
@@ -826,8 +825,8 @@ proc cornerRadius*(radius: (float32, float32, float32, float32)) =
   ## Sets all radius of all 4 corners.
   cornerRadius(radius[0], radius[1], radius[2], radius[3] )
 
-proc cornerRadius*(): float32 =
-  result = current.cornerRadius[0].float32
+proc cornerRadius*(): UICoord =
+  result = current.cornerRadius[0]
 
 proc editableText*(editableText: bool) =
   ## Sets the code for this node.

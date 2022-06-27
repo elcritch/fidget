@@ -19,13 +19,13 @@ computeTextLayout = proc(node: Node) =
   font.size = node.textStyle.fontSize.scaled.float32
   font.lineHeight = node.textStyle.lineHeight.float32
   if font.lineHeight == 0:
-    font.lineHeight = font.size
+    font.lineHeight = defaultLineHeight(node.textStyle).scaled.float32
   var
     boundsMin: Vec2
     boundsMax: Vec2
     size: Vec2 = node.box.scaled.wh
-  if node.textStyle.autoResize == tsWidthAndHeight:
-    size.x = 0
+  # if node.textStyle.autoResize == tsWidthAndHeight:
+    # size.x = 0
   node.textLayout = font.typeset(
     node.text,
     pos = vec2(0, 0),

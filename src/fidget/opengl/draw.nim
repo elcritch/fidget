@@ -220,7 +220,7 @@ proc drawBoxes*(node: Node) =
     ctx.strokeRoundedRect(rect = node.screenBox.scaled.atXY(0'f32, 0'f32),
                           color = node.stroke.color,
                           weight = node.stroke.weight.float32,
-                          radius = node.cornerRadius[0].float32)
+                          radius = node.cornerRadius[0].scaled.float32)
 
 import print
 
