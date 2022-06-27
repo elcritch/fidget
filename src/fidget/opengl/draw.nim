@@ -60,10 +60,10 @@ proc drawText(node: Node) =
     quit &"font not found: {node.textStyle.fontFamily}"
 
   var font = fonts[node.textStyle.fontFamily]
-  font.size = node.textStyle.fontSize.scaled.float32
-  font.lineHeight = node.textStyle.lineHeight.scaled.float32
+  font.size = node.textStyle.fontSize.scaled
+  font.lineHeight = node.textStyle.lineHeight.scaled
   if font.lineHeight == 0:
-    font.lineHeight = defaultLineHeight(node.textStyle).scaled.float32
+    font.lineHeight = defaultLineHeight(node.textStyle).scaled
 
   # TODO: Fixme
   # let mousePos = mouse.pos(raw=false) - node.screenBox.xy + node.totalOffset
@@ -137,14 +137,14 @@ proc drawText(node: Node) =
       charPos = vec2(pos.rect.x + glyphOffset.x, pos.rect.y + glyphOffset.y)
 
     let
-      cp = charPos - vec2(node.stroke.weight.float32,
-                       node.stroke.weight.float32)
+      cp = charPos - vec2(node.stroke.weight,
+                       node.stroke.weight)
     
     if node.stroke.weight > 0 and node.stroke.color.a > 0:
       ctx.drawImage(
         hashStroke,
-        charPos - vec2(node.stroke.weight.float32,
-                       node.stroke.weight.float32),
+        charPos - vec2(node.stroke.weight,
+                       node.stroke.weight),
         node.stroke.color
       )
 
