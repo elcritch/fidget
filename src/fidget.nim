@@ -325,43 +325,43 @@ template onUnFocus*(inner: untyped) =
 ## specify details like: "set node width to 100% of it's parents size."
 ## 
 
-template Em*(size: float32): float32 =
+template Em*(size: float32): UICoord =
   ## unit size relative to current font size
-  current.textStyle.fontSize.float32 * size
+  current.textStyle.fontSize * size.UICoord
 
-proc `'em`*(n: string): float32 =
+proc `'em`*(n: string): UICoord =
   ## numeric literal em unit
   result = Em(parseFloat(n))
 
-template Vw*(size: float32): float32 =
+template Vw*(size: float32): UICoord =
   ## percentage of Viewport width
-  root.box.w.float32 * size / 100.0
+  root.box.w * size.UICoord / 100.0
 
-proc `'vw`*(n: string): float32 =
+proc `'vw`*(n: string): UICoord =
   ## numeric literal view width unit
   result = Vw(parseFloat(n))
 
-template Vh*(size: float32): float32 =
+template Vh*(size: float32): UICoord =
   ## percentage of Viewport height
-  root.box.h.float32 * size / 100.0
+  root.box.h * size.UICoord / 100.0
 
-proc `'vh`*(n: string): float32 =
+proc `'vh`*(n: string): UICoord =
   ## numeric literal view height unit
   result = Vh(parseFloat(n))
 
-template WPerc*(size: float32): float32 =
+template WPerc*(size: float32): UICoord =
   ## numeric literal percent of parent width
-  max(0'f32, parent.box.w.float32 * size / 100.0)
+  UICoord(max(0'f32, parent.box.w.float32 * size / 100.0))
 
-proc `'pw`*(n: string): float32 =
+proc `'pw`*(n: string): UICoord =
   ## numeric literal percent of parent width
   result = WPerc(parseFloat(n))
 
-template HPerc*(size: float32): float32 =
+template HPerc*(size: float32): UICoord =
   ## percentage of parent height
-  max(0'f32, parent.box.h.float32 * size / 100.0)
+  UICoord(max(0'f32, parent.box.h.float32 * size / 100.0))
 
-proc `'ph`*(n: string): float32 =
+proc `'ph`*(n: string): UICoord =
   ## numeric literal percent of parent height
   result = HPerc(parseFloat(n))
 

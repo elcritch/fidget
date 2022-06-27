@@ -108,9 +108,10 @@ proc `'ui`*(n: string): UICoord =
   ## numeric literal UI Coordinate unit
   result = UICoord(parseFloat(n))
 
-template scaled*(a: UICoord): float32 = a.float32 * common.uiScale
-# template descaled*(a: ScaledCoord): UICoord = UICoord(a.float32 / common.uiScale)
-template descaled*(a: float32): UICoord = UICoord(a / common.uiScale)
+template scaled*(a: UICoord): float32 =
+  a.float32 * common.uiScale
+template descaled*(a: float32): UICoord =
+  UICoord(a / common.uiScale)
 
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
 ## Distinct vec types
