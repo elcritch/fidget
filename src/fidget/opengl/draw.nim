@@ -27,10 +27,10 @@ proc focus*(keyboard: Keyboard, node: Node) =
     keyboard.focusNode = node
 
     var font = fonts[node.textStyle.fontFamily]
-    font.size = node.textStyle.fontSize.scaled.float32
-    font.lineHeight = node.textStyle.lineHeight.scaled.float32
+    font.size = node.textStyle.fontSize.scaled
+    font.lineHeight = node.textStyle.lineHeight.scaled
     if font.lineHeight == 0:
-      font.lineHeight = defaultLineHeight(node.textStyle).scaled.float32
+      font.lineHeight = defaultLineHeight(node.textStyle).scaled
     keyboard.input = node.text
     textBox = node.currentEvents().mgetOrPut("$textbox",
       newTextBox[Node](
@@ -170,12 +170,12 @@ proc drawMasks*(node: Node) =
   if node.cornerRadius[0] != 0'ui:
     ctx.fillRoundedRect(rect(
       0, 0,
-      node.screenBox.w.scaled.float32, node.screenBox.h.scaled.float32
-    ), rgba(255, 0, 0, 255).color, node.cornerRadius[0].scaled.float32)
+      node.screenBox.w.scaled, node.screenBox.h.scaled
+    ), rgba(255, 0, 0, 255).color, node.cornerRadius[0].scaled)
   else:
     ctx.fillRect(rect(
       0, 0,
-      node.screenBox.w.scaled.float32, node.screenBox.h.scaled.float32
+      node.screenBox.w.scaled, node.screenBox.h.scaled
     ), rgba(255, 0, 0, 255).color)
 
 proc drawShadows*(node: Node) =
@@ -188,7 +188,7 @@ proc drawShadows*(node: Node) =
                                   y = shadow.y + blurs)
     ctx.fillRoundedRect(rect = box.scaled,
                         color = shadow.color,
-                        radius = node.cornerRadius[0].scaled.float32)
+                        radius = node.cornerRadius[0].scaled)
 
 proc drawBoxes*(node: Node) =
   ## drawing boxes for rectangles
@@ -196,7 +196,7 @@ proc drawBoxes*(node: Node) =
     if node.cornerRadius.sum() > 0'ui:
       ctx.fillRoundedRect(rect = node.screenBox.scaled.atXY(0'f32, 0'f32),
                           color = node.fill,
-                          radius = node.cornerRadius[0].scaled.float32)
+                          radius = node.cornerRadius[0].scaled)
     else:
       ctx.fillRect(node.screenBox.scaled.atXY(0'f32, 0'f32), node.fill)
 
@@ -204,7 +204,7 @@ proc drawBoxes*(node: Node) =
     if node.cornerRadius.sum() > 0'ui:
       ctx.fillRoundedRect(rect = node.screenBox.scaled.atXY(0'f32, 0'f32),
                           color = node.highlightColor,
-                          radius = node.cornerRadius[0].scaled.float32)
+                          radius = node.cornerRadius[0].scaled)
     else:
       ctx.fillRect(node.screenBox.scaled.atXY(0'f32, 0'f32), node.highlightColor)
 
@@ -219,8 +219,8 @@ proc drawBoxes*(node: Node) =
   if node.stroke.color.a > 0 and node.stroke.weight > 0:
     ctx.strokeRoundedRect(rect = node.screenBox.scaled.atXY(0'f32, 0'f32),
                           color = node.stroke.color,
-                          weight = node.stroke.weight.float32,
-                          radius = node.cornerRadius[0].scaled.float32)
+                          weight = node.stroke.weight,
+                          radius = node.cornerRadius[0].scaled)
 
 import print
 
