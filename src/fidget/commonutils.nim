@@ -111,6 +111,8 @@ type
 # borrowMaths(ScaledCoord)
 borrowMaths(UICoord, float32)
 
+converter toUI*[F: float|int|float32](x: static[F]): UICoord = UICoord x
+
 proc `'ui`*(n: string): UICoord =
   ## numeric literal UI Coordinate unit
   result = UICoord(parseFloat(n))
