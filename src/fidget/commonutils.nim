@@ -246,6 +246,6 @@ proc testRect() =
   echo "z: ", repr(z)
   z = rect(10.0, 10.0, 5.0, 5.0).Box
 
-when isMainModule()
+when isMainModule:
   testPosition()
   testRect()
