@@ -43,8 +43,6 @@ type TextBox*[T] = ref object
   editable*: bool
   scroll*: Vec2     # Scroll position.
   font*: Font
-  fontSize*: float
-  lineHeight*: float
   mousePos*: Vec2
   hasChange*: bool
 
@@ -78,8 +76,6 @@ proc newTextBox*[T](
   result = TextBox[T]()
   result.item = item
   result.font = font
-  result.fontSize = font.size
-  result.lineHeight = font.lineHeight
   result.adjustTopTextFactor = adjustTopTextFactor
   result.width = width
   result.height = height
@@ -119,9 +115,8 @@ proc selection*[T](textBox: TextBox[T]): HSlice[int, int] =
   result.b = max(textBox.cursor, textBox.selector)
 
 proc layout*[T](textBox: TextBox[T]): seq[GlyphPosition] =
+  assert not textBox.font.isNil
   if textBox.glyphs.len == 0:
-    textBox.font.size = textBox.fontSize
-    textBox.font.lineHeight = textBox.lineHeight
     textBox.multilineCheck()
     textBox.glyphs = textBox.font.typeset(
       textBox.runes,

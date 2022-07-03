@@ -21,6 +21,7 @@ var
   currLevel: ZLevel
 
 proc focus*(keyboard: Keyboard, node: Node) =
+  echo "FOCUS"
   if keyboard.focusNode != node:
     keyboard.onUnFocusNode = keyboard.focusNode
     keyboard.onFocusNode = node

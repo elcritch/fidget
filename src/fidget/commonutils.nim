@@ -9,6 +9,14 @@ export math, vmath, bumpy
 import macros, macroutils
 import typetraits
 
+import typography/font
+
+proc repr*(font: Font): string =
+  if font.isNil:
+    result = "Font(nil)"
+  else:
+    result = fmt"Font({font.typeface.name=}, {font.size=}, {font.weight=})"
+
 macro variants*(name, code: untyped) =
   ## convenience wrapper for Patty variant macros
   result = quote do:
