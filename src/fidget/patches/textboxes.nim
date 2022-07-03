@@ -35,6 +35,7 @@ type TextBox*[T] = ref object
   width*: float32       # Width of text box in px.
   height*: float32      # Height of text box in px.
   adjustTopTextFactor*: float32      # Adjust top of text down for visual balance
+  cursorWidth*: float32      # size of cursor width
   vAlign*: VAlignMode
   hAling*: HAlignMode
   scrollable*: bool
@@ -71,6 +72,7 @@ proc newTextBox*[T](
   worldWrap = true,
   scrollable = true,
   editable = true,
+  cursorWidthFactor = 0.125
 ): TextBox[T] =
   ## Creates new empty text box.
   result = TextBox[T]()
@@ -87,9 +89,7 @@ proc newTextBox*[T](
   result.wordWrap = worldWrap
   result.scrollable = scrollable
   result.editable = editable
-
-proc cursorWidth*(font: Font): float =
-  min(font.size / 12, 1)
+  result.cursorWidth = max(font.size * cursorWidthFactor, 2)
 
 template runes*[T](textBox: TextBox[T]): seq[Rune] =
   ## Converts internal runes to string.
@@ -160,7 +160,7 @@ proc locationRect*[T](textBox: TextBox[T], loc: int): Rect =
     else:
       let g = layout[loc]
       result = g.selectRect
-  result.w = textBox.font.cursorWidth
+  result.w = textBox.cursorWidth
   result.h = max(textBox.font.size, textBox.font.lineHeight)
 
 proc cursorRect*[T](textBox: TextBox[T]): Rect =
