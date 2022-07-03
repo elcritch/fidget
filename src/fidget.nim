@@ -782,31 +782,27 @@ proc stroke*(stroke: Stroke) =
   ## Sets stroke/border color.
   current.stroke = stroke
 
-proc strokeWeight*(weight: float32) =
-  ## Sets stroke/border weight.
-  current.stroke.weight = weight
-
-proc strokeWeight*(weight: UICoord) =
+proc strokeWeight*(weight: float32|UICoord) =
   ## Sets stroke/border weight.
   current.stroke.weight = weight.float32
 
-proc stroke*(weight: float32, color: string, alpha = 1.0): Stroke =
+proc stroke*(weight: float32|UICoord, color: string, alpha = 1.0): Stroke =
   ## Sets stroke/border color.
   result.color = parseHtmlColor(color)
   result.color.a = alpha
-  result.weight = weight
+  result.weight = weight.float32
 
-proc stroke*(weight: float32, color: Color, alpha = 1.0): Stroke =
+proc stroke*(weight: float32|UICoord, color: Color, alpha = 1.0): Stroke =
   ## Sets stroke/border color.
   result.color = color
   result.color.a = alpha
-  result.weight = weight
+  result.weight = weight.float32
 
-proc strokeLine*(item: Node, weight: float32, color: string, alpha = 1.0) =
+proc strokeLine*(item: Node, weight: float32|UICoord, color: string, alpha = 1.0) =
   ## Sets stroke/border color.
   current.stroke.color = parseHtmlColor(color)
   current.stroke.color.a = alpha
-  current.stroke.weight = weight
+  current.stroke.weight = weight.float32
 
 proc strokeLine*(weight: float32, color: string, alpha = 1.0'f32) =
   ## Sets stroke/border color.

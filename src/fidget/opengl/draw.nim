@@ -98,10 +98,9 @@ proc drawText(node: Node) =
     let
       font = pos.font
       subPixelShift = floor(pos.subPixelShift * 10) / 10
-      fontFamily = node.textStyle.fontFamily
+      hashFill = node.hashFontFill(pos, subPixelShift)
 
     var
-      hashFill = node.hashFontFill(pos, subPixelShift)
       hashStroke: Hash
 
     if hashFill notin ctx.entries:
@@ -109,27 +108,23 @@ proc drawText(node: Node) =
         glyph = font.typeface.glyphs[pos.character]
         glyphOffset: Vec2
       let
-        glyphFill = font.getGlyphImage(
-          glyph,
-          glyphOffset,
-          subPixelShift = subPixelShift)
+        glyphFill = font.getGlyphImage(glyph, glyphOffset, subPixelShift=subPixelShift)
+
       ctx.putImage(hashFill, glyphFill)
       glyphOffsets[hashFill] = glyphOffset
 
     if node.stroke.weight > 0:
       hashStroke = node.hashFontStroke(pos, subPixelShift)
 
-    if node.stroke.weight > 0 and hashStroke notin ctx.entries:
-      var
-        glyph = font.typeface.glyphs[pos.character]
-        glyphOffset: Vec2
-      let
-        glyphFill = font.getGlyphImage(
-          glyph,
-          glyphOffset,
-          subPixelShift = subPixelShift)
-      let glyphStroke = glyphFill.outlineBorder(node.stroke.weight.int)
-      ctx.putImage(hashStroke, glyphStroke)
+      if hashStroke notin ctx.entries:
+        var
+          glyph = font.typeface.glyphs[pos.character]
+          glyphOffset: Vec2
+        let
+          glyphFill = font.getGlyphImage( glyph, glyphOffset, subPixelShift=subPixelShift)
+
+        let glyphStroke = glyphFill.outlineBorder(node.stroke.weight.int)
+        ctx.putImage(hashStroke, glyphStroke)
 
     let
       glyphOffset = glyphOffsets[hashFill]
