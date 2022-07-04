@@ -237,45 +237,45 @@ proc onSetKey(
     case cast[Button](key):
       of ARROW_LEFT:
         if ctrl:
-          textBox.leftWord(shift)
+          currTextBox.leftWord(shift)
         else:
-          textBox.left(shift)
+          currTextBox.left(shift)
       of ARROW_RIGHT:
         if ctrl:
-          textBox.rightWord(shift)
+          currTextBox.rightWord(shift)
         else:
-          textBox.right(shift)
+          currTextBox.right(shift)
       of ARROW_UP:
-        textBox.up(shift)
+        currTextBox.up(shift)
       of ARROW_DOWN:
-        textBox.down(shift)
+        currTextBox.down(shift)
       of Button.HOME:
-        textBox.startOfLine(shift)
+        currTextBox.startOfLine(shift)
       of Button.END:
-        textBox.endOfLine(shift)
+        currTextBox.endOfLine(shift)
       of Button.PAGE_UP:
-        textBox.pageUp(shift)
+        currTextBox.pageUp(shift)
       of Button.PAGE_DOWN:
-        textBox.pageDown(shift)
+        currTextBox.pageDown(shift)
       of ENTER:
         #TODO: keyboard.multiline:
-        textBox.typeCharacter(Rune(10))
+        currTextBox.typeCharacter(Rune(10))
       of BACKSPACE:
-        textBox.backspace(shift)
+        currTextBox.backspace(shift)
       of DELETE:
-        textBox.delete(shift)
+        currTextBox.delete(shift)
       of LETTER_C: # copy
         if ctrl:
-          base.window.setClipboardString(textBox.copy())
+          base.window.setClipboardString(currTextBox.copy())
       of LETTER_V: # paste
         if ctrl:
-          textBox.paste($base.window.getClipboardString())
+          currTextBox.paste($base.window.getClipboardString())
       of LETTER_X: # cut
         if ctrl:
-          base.window.setClipboardString(textBox.cut())
+          base.window.setClipboardString(currTextBox.cut())
       of LETTER_A: # select all
         if ctrl:
-          textBox.selectAll()
+          currTextBox.selectAll()
       else:
         discard
 
@@ -295,10 +295,7 @@ proc onSetKey(
 proc onScroll(window: staticglfw.Window, xoffset, yoffset: float64) {.cdecl.} =
   requestedFrame = true
   let yoffset = yoffset
-  if keyboard.focusNode != nil:
-    textBox.scrollBy(-yoffset * 1)
-  else:
-    mouse.wheelDelta += yoffset
+  mouse.wheelDelta += yoffset
   uiEvent.trigger()
 
 proc onMouseButton(
@@ -324,7 +321,7 @@ proc onSetCharCallback(window: staticglfw.Window, character: cuint) {.cdecl.} =
   requestedFrame = true
   if keyboard.focusNode != nil:
     keyboard.state = KeyState.Press
-    textBox.typeCharacter(Rune(character))
+    currTextBox.typeCharacter(Rune(character))
   else:
     keyboard.state = KeyState.Press
     keyboard.keyString = Rune(character).toUTF8()

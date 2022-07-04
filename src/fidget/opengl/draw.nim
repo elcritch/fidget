@@ -20,35 +20,36 @@ var
   lastClickTime: float
   currLevel: ZLevel
 
-proc focus*(keyboard: Keyboard, node: Node) =
-  echo "FOCUS"
+proc focus*(keyboard: Keyboard, node: Node, textBox: TextBox) =
   if keyboard.focusNode != node:
     keyboard.onUnFocusNode = keyboard.focusNode
     keyboard.onFocusNode = node
     keyboard.focusNode = node
 
-    var font = fonts[node.textStyle.fontFamily]
-    font.size = node.textStyle.fontSize.scaled
-    font.lineHeight = node.textStyle.lineHeight.scaled
-    if font.lineHeight == 0:
-      font.lineHeight = defaultLineHeight(node.textStyle).scaled
     keyboard.input = node.text
-    textBox = node.currentEvents().mgetOrPut("$textbox",
-      newTextBox[Node](
-        font,
-        node.screenBox.w.scaled,
-        node.screenBox.h.scaled,
-        font.size * adjustTopTextFactor,
-        node,
-        hAlignMode(node.textStyle.textAlignHorizontal),
-        vAlignMode(node.textStyle.textAlignVertical),
-        node.multiline,
-        worldWrap = true,
-      )
-    )
-    textBox.editable = node.editableText
-    textBox.scrollable = true
+    currTextBox = node.currentEvents().mgetOrPut("$textbox", textBox)
+    currTextBox.editable = node.editableText
+    currTextBox.scrollable = true
     requestedFrame = true
+
+proc focus*(keyboard: Keyboard, node: Node) =
+  var font = fonts[node.textStyle.fontFamily]
+  font.size = node.textStyle.fontSize.scaled
+  font.lineHeight = node.textStyle.lineHeight.scaled
+  if font.lineHeight == 0:
+    font.lineHeight = defaultLineHeight(node.textStyle).scaled
+  let textBox = newTextBox[Node](
+    font,
+    node.screenBox.w.scaled,
+    node.screenBox.h.scaled,
+    font.size * adjustTopTextFactor,
+    node,
+    hAlignMode(node.textStyle.textAlignHorizontal),
+    vAlignMode(node.textStyle.textAlignVertical),
+    node.multiline,
+    worldWrap = true,
+  )
+  keyboard.focus(node, textBox)
 
 
 proc unFocus*(keyboard: Keyboard, node: Node) =

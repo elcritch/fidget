@@ -677,7 +677,7 @@ proc selectable*(v: bool) =
   ## Set text selectable flag.
   current.selectable = v
 
-template binding*(stringVariable, handler: untyped) =
+template binding*(stringVariable, textBox, handler: untyped) =
   ## Makes the current object text-editable and binds it to the stringVariable.
   # echo "binding impl"
   current.bindingSet = true
@@ -688,7 +688,7 @@ template binding*(stringVariable, handler: untyped) =
   when not defined(js):
     onClick:
       # echo "binding impl: onclick"
-      keyboard.focus(current)
+      keyboard.focus(current, textBox)
     onClickOutside:
       # echo "binding impl: onclick outside"
       keyboard.unFocus(current)
@@ -697,8 +697,11 @@ template binding*(stringVariable, handler: untyped) =
     handler
   # echo "binding impl: done\n"
 
+template binding*(stringVariable, textBox, handler: untyped) =
+  binding(stringVariable, nil, handler)
+
 template binding*(stringVariable: untyped) =
-  binding(stringVariable) do:
+  binding(stringVariable, nil) do:
     let input = $keyboard.input
     if stringVariable != input:
       stringVariable = input

@@ -84,8 +84,8 @@ proc setupFidget(
     scrollBox.h = windowLogicalSize.y.descaled()
     root.box = scrollBox
 
-    if textBox != nil:
-      keyboard.input = textBox.text
+    if currTextBox != nil:
+      keyboard.input = currTextBox.text
 
     drawMain()
 
