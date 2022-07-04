@@ -123,7 +123,6 @@ proc layout*[T](textBox: TextBox[T]): seq[GlyphPosition] =
   assert not textBox.font.isNil
   if textBox.glyphs.len == 0:
     textBox.multilineCheck()
-    echo fmt"{textBox.font.repr=}"
     textBox.glyphs = textBox.font.typeset(
       textBox.runes,
       pos = vec2(0, textBox.font.size * textBox.adjustTopTextFactor),
