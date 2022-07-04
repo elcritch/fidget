@@ -131,7 +131,7 @@ proc setupFidget(
 proc asyncPoll() =
   when not defined(emscripten) and not defined(fidgetNoAsync):
     if hasPendingOperations():
-      poll()
+      poll(1)
       if isEvent:
         isEvent = false
         eventTimePost = epochTime()
