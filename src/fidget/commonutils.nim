@@ -168,6 +168,7 @@ template `y=`*(r: Box, v: UICoord) = r.Rect.y = v.float32
 template `w=`*(r: Box, v: UICoord) = r.Rect.w = v.float32
 template `h=`*(r: Box, v: UICoord) = r.Rect.h = v.float32
 
+template xy*(r: Box): Position = Position r.Rect.xy
 template wh*(r: Box): Position = position(r.w.float32, r.h.float32)
 
 template x*(r: Position): UICoord = r.Vec2.x.UICoord
@@ -180,6 +181,12 @@ proc `+`*(rect: Box, xy: Position): Box =
   result = rect
   result.x += xy.x
   result.y += xy.y
+
+proc `-`*(rect: Box, xy: Position): Box =
+  ## offset rect with xy vec2 
+  result = rect
+  result.x -= xy.x
+  result.y -= xy.y
 
 # proc `$`*(a: Position): string {.borrow.}
 # proc `$`*(a: Box): string {.borrow.}

@@ -78,6 +78,8 @@ proc hashFontStroke(node: Node, pos: GlyphPosition, subPixelShift: float32): Has
     node.stroke.weight
   ))
 
+proc drawBoxes*(node: Node)
+
 proc drawText(node: Node) =
   if node.textStyle.fontFamily notin fonts:
     quit &"font not found: {node.textStyle.fontFamily}"
@@ -141,7 +143,7 @@ proc drawText(node: Node) =
       )
 
     ctx.drawImage(hashFill, charPos, node.fill)
-
+  
 import macros
 
 macro ifdraw(check, code: untyped, post: untyped = nil) =

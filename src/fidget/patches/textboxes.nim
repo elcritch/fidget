@@ -35,7 +35,7 @@ type TextBox*[T] = ref object
   width*: float32       # Width of text box in px.
   height*: float32      # Height of text box in px.
   adjustTopTextFactor*: float32      # Adjust top of text down for visual balance
-  cursorWidth*: float32      # size of cursor width
+  cursorFactors*: (float32, float32)      # cursor to font ratio
   vAlign*: VAlignMode
   hAling*: HAlignMode
   scrollable*: bool
@@ -70,7 +70,7 @@ proc newTextBox*[T](
   worldWrap = true,
   scrollable = true,
   editable = true,
-  cursorWidthFactor = 0.125
+  cursorFactors = (0.125'f32, 0.68'f32)
 ): TextBox[T] =
   ## Creates new empty text box.
   result = TextBox[T]()
@@ -85,7 +85,10 @@ proc newTextBox*[T](
   result.wordWrap = worldWrap
   result.scrollable = scrollable
   result.editable = editable
-  result.cursorWidth = max(font.size * cursorWidthFactor, 2)
+  result.cursorFactors = cursorFactors 
+
+proc cursorWidth *[T](textBox: TextBox[T]): float32 =
+  result = max(textBox.font.size * textBox.cursorFactors[0], 2)
 
 template runes*[T](textBox: TextBox[T]): seq[Rune] =
   ## Converts internal runes to string.
@@ -114,10 +117,13 @@ proc selection*[T](textBox: TextBox[T]): HSlice[int, int] =
   result.a = min(textBox.cursor, textBox.selector)
   result.b = max(textBox.cursor, textBox.selector)
 
+import strformat
+
 proc layout*[T](textBox: TextBox[T]): seq[GlyphPosition] =
   assert not textBox.font.isNil
   if textBox.glyphs.len == 0:
     textBox.multilineCheck()
+    echo fmt"{textBox.font.repr=}"
     textBox.glyphs = textBox.font.typeset(
       textBox.runes,
       pos = vec2(0, textBox.font.size * textBox.adjustTopTextFactor),
@@ -156,7 +162,8 @@ proc locationRect*[T](textBox: TextBox[T], loc: int): Rect =
       let g = layout[loc]
       result = g.selectRect
   result.w = textBox.cursorWidth
-  result.h = max(textBox.font.size, textBox.font.lineHeight)
+  # result.h = min(textBox.font.size, textBox.font.lineHeight)
+  result.h = textBox.font.lineHeight * textBox.cursorFactors[1]
 
 proc cursorRect*[T](textBox: TextBox[T]): Rect =
   ## Rectangle where cursor should be drawn.

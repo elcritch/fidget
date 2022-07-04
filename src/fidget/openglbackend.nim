@@ -42,6 +42,7 @@ computeTextLayout = proc(node: Node) =
   let bMax = boundsMin.descaled
   node.textLayoutWidth = bMax.x - bMin.x
   node.textLayoutHeight = bMax.y - bMin.y
+  # echo fmt"{boundsMin=} {boundsMax=}"
 
 proc removeExtraChildren*(node: Node) =
   ## Deal with removed nodes.
