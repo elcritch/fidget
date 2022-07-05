@@ -70,7 +70,7 @@ proc newTextBox*[T](
   worldWrap = true,
   scrollable = true,
   editable = true,
-  cursorFactors = (0.125'f32, 0.68'f32)
+  cursorFactors = (0.10'f32, 0.68'f32)
 ): TextBox[T] =
   ## Creates new empty text box.
   result = TextBox[T]()
