@@ -52,8 +52,8 @@ type TextBox*[T] = ref object
   glyphs: seq[GlyphPosition]
   savedX: float
 
-  boundsMin: Vec2
-  boundsMax: Vec2
+  boundsMin*: Vec2
+  boundsMax*: Vec2
 
 proc clamp[T](v, a, b: int): int =
   max(a, min(b, v))
@@ -162,7 +162,9 @@ proc locationRect*[T](textBox: TextBox[T], loc: int): Rect =
       result = g.selectRect
   result.w = textBox.cursorWidth
   # result.h = min(textBox.font.size, textBox.font.lineHeight)
-  result.h = textBox.font.lineHeight * textBox.cursorFactors[1]
+  let cusorHFactor = textBox.cursorFactors[1]
+  result.h = textBox.font.lineHeight * cusorHFactor
+  result.y += (textBox.font.lineHeight - result.h) / 2
 
 proc cursorRect*[T](textBox: TextBox[T]): Rect =
   ## Rectangle where cursor should be drawn.
