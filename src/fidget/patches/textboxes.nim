@@ -52,8 +52,8 @@ type TextBox*[T] = ref object
   glyphs: seq[GlyphPosition]
   savedX: float
 
-  boundsMin*: Vec2
-  boundsMax*: Vec2
+  boundsMin: Vec2
+  boundsMax: Vec2
 
 proc clamp[T](v, a, b: int): int =
   max(a, min(b, v))
@@ -100,7 +100,8 @@ proc text*[T](textBox: TextBox[T]): seq[Rune] =
 
 proc `text=`*[T](textBox: TextBox[T], text: string) =
   ## Converts string to internal runes.
-  textBox.runes = toRunes(text)
+  textBox.item.text = toRunes(text)
+  textBox.cursor = min(textBox.cursor, textBox.item.text.len())
   textBox.hasChange = true
 
 proc multilineCheck[T](textBox: TextBox[T]) =
