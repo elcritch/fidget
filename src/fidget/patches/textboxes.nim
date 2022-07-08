@@ -529,10 +529,10 @@ proc selectParagraph*[T](textBox: TextBox[T], mousePos: Vec2) =
   ## Select paragraph under the cursor (triple click).
   textBox.mouseAction(mousePos, click = true)
   while textBox.cursor > 0 and
-    textBox.currRune(-1)  != Rune(10):
+          textBox.currRune(-1)  != Rune(10):
     dec textBox.cursor
   while textBox.selector < textBox.runes.len and
-    textBox.currRuneAt(textBox.selector) != Rune(10):
+          textBox.currRuneAt(textBox.selector) != Rune(10):
     inc textBox.selector
 
 proc selectAll*[T](textBox: TextBox[T]) =
