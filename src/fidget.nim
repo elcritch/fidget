@@ -816,15 +816,15 @@ proc strokeLine*(node: Node) =
   current.stroke.color = node.stroke.color
   current.stroke.weight = node.stroke.weight
 
-proc cornerRadius*(a, b, c, d: float32) =
+proc cornerRadius*(a, b, c, d: UICoord) =
   ## Sets all radius of all 4 corners.
   current.cornerRadius = (a.UICoord, b.UICoord, c.UICoord, d.UICoord)
 
-proc cornerRadius*(radius: float32) =
+proc cornerRadius*(radius: UICoord) =
   ## Sets all radius of all 4 corners.
   cornerRadius(radius, radius, radius, radius)
 
-proc cornerRadius*(radius: (float32, float32, float32, float32)) =
+proc cornerRadius*(radius: (UICoord, UICoord, UICoord, UICoord)) =
   ## Sets all radius of all 4 corners.
   cornerRadius(radius[0], radius[1], radius[2], radius[3] )
 
