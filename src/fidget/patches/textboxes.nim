@@ -1,4 +1,5 @@
 import sequtils, typography, unicode, vmath, bumpy
+import std/re
 
 #[
 It's hard to implement a text. A text box has many complex features one does not think about
@@ -48,6 +49,7 @@ type TextBox*[T] = ref object
 
   multiline*: bool  # Single line only (good for input fields).
   wordWrap*: bool   # Should the lines wrap or not.
+  pattern*: Regex   # pattern for input chars
 
   glyphs: seq[GlyphPosition]
   savedX: float
@@ -70,6 +72,7 @@ proc newTextBox*[T](
   worldWrap = true,
   scrollable = true,
   editable = true,
+  pattern: Regex = nil,
   cursorFactors = (0.10'f32, 0.68'f32)
 ): TextBox[T] =
   ## Creates new empty text box.
@@ -225,14 +228,23 @@ proc typeCharacter*[T](textBox: TextBox[T], rune: Rune) =
   ## Add a character to the text box.
   if not textBox.editable:
     return
+
   textBox.removeSelection()
+
   # don't add new lines in a single line box.
   if not textBox.multiline and rune == Rune(10):
     return
+
+  # only match pattern
+  let pattern = textBox.pattern
+  if not pattern.isNil and match($rune, pattern):
+    return
+
   if textBox.cursor == textBox.runes.len:
     textBox.runes.add(rune)
   else:
     textBox.runes.insert(rune, textBox.cursor)
+
   inc textBox.cursor
   textBox.selector = textBox.cursor
   textBox.glyphs.setLen(0)
