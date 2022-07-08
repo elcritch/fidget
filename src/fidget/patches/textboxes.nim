@@ -89,6 +89,7 @@ proc newTextBox*[T](
   result.scrollable = scrollable
   result.editable = editable
   result.cursorFactors = cursorFactors 
+  result.pattern = pattern 
 
 proc cursorWidth *[T](textBox: TextBox[T]): float32 =
   result = max(textBox.font.size * textBox.cursorFactors[0], 2)
@@ -237,7 +238,7 @@ proc typeCharacter*[T](textBox: TextBox[T], rune: Rune) =
 
   # only match pattern
   let pattern = textBox.pattern
-  if not pattern.isNil and match($rune, pattern):
+  if not pattern.isNil and not match($rune, pattern):
     return
 
   if textBox.cursor == textBox.runes.len:
