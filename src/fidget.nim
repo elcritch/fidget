@@ -553,6 +553,23 @@ proc centerWH*(
   centeredW(padding, absolute)
   centeredH(padding, absolute)
 
+proc centerAt*(
+  x: UICoord,
+  y: UICoord,
+  absolute = false,
+) =
+  ## Center box based on `width`. By default
+  ## it uses the parent's width. 
+  ## 
+  let cb = current.box
+  box(x - cb.w/2.0, y - cb.h/2.0, cb.w, cb.h)
+
+
+## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+##             Box Stuff
+## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+## 
+
 template boxOf*(node: Node) =
   ## Sets current node's box from another node
   ## e.g. `boxOf(parent)`
