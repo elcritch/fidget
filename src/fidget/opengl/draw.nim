@@ -82,6 +82,10 @@ proc hashFontStroke(node: Node, pos: GlyphPosition, subPixelShift: float32): Has
 
 proc drawBoxes*(node: Node)
 
+proc drawDrawable*(node: Node) =
+  # ctx: Context, poly: seq[Vec2], weight: float32, color: Color
+  ctx.linePolygon(node.poly, node.stroke.weight, node.stroke.color)
+
 proc drawText(node: Node) =
   if node.textStyle.fontFamily notin fonts:
     quit &"font not found: {node.textStyle.fontFamily}"
@@ -264,6 +268,8 @@ proc draw*(node, parent: Node) =
   ifdraw true:
     if node.kind == nkText:
       node.drawText()
+    elif node.kind == nkDrawable:
+      node.drawDrawable()
     else:
       node.drawBoxes()
 

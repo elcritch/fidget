@@ -184,6 +184,7 @@ type
     hookName*: string
     hookStates*: Variant
     hookEvents*: GeneralEvents
+    poly*: seq[Vec2]
 
   GeneralEvents* = object
     data*: TableRef[string, seq[Variant]]

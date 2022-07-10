@@ -604,12 +604,14 @@ proc strokeRoundedRect*(
   )
 
 proc line*(
-  ctx: Context, a: Vec2, b: Vec2, color: Color
+  ctx: Context, a: Vec2, b: Vec2, weight: float32, color: Color
 ) =
   let hash = hash((
     2345,
     a,
-    b
+    b,
+    (weight*100).int,
+    hash(color)
   ))
 
   let
@@ -625,6 +627,7 @@ proc line*(
       image = newImage(w, h)
       c = newContext(image)
     c.fillStyle = rgba(255, 255, 255, 255)
+    c.lineWidth = weight
     c.strokeSegment(segment(a - pos, b - pos))
     ctx.putImage(hash, image)
   let
@@ -639,10 +642,10 @@ proc line*(
   )
 
 proc linePolygon*(
-  ctx: Context, poly: seq[Vec2], color: Color
+  ctx: Context, poly: seq[Vec2], weight: float32, color: Color
 ) =
   for i in 0 ..< poly.len:
-    ctx.line(poly[i], poly[(i+1) mod poly.len], color)
+    ctx.line(poly[i], poly[(i+1) mod poly.len], weight, color)
 
 proc clearMask*(ctx: Context) =
   ## Sets mask off (actually fills the mask with white).
