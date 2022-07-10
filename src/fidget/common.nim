@@ -556,7 +556,8 @@ proc computeLayout*(parent, node: Node) =
           maxOrth = max(maxOrth, n.box.`field`)
       node.box.`field` = maxOrth  + node.`paddingField` * 2'ui
 
-  template compAutoLayoutNorm(field, fieldSz, padding, orthPadding, orth, orthSz: untyped) =
+  template compAutoLayoutNorm(field, fieldSz, padding: untyped;
+                              orth, orthSz, orthPadding: untyped) =
     var at = 0.0'ui
     at += node.`padding`
     for i, n in node.nodes.pairs:
@@ -588,12 +589,12 @@ proc computeLayout*(parent, node: Node) =
   # Auto-layout code.
   if node.layoutMode == lmVertical:
     compAutoLayoutOrth(w, horizontalPadding)
-    compAutoLayoutNorm(y, h, verticalPadding, horizontalPadding, x, w)
+    compAutoLayoutNorm(y, h, verticalPadding, x, w, horizontalPadding)
 
   if node.layoutMode == lmHorizontal:
     # echo "layoutMode : ", node.layoutMode 
     compAutoLayoutOrth(h, verticalPadding)
-    compAutoLayoutNorm(x, w, horizontalPadding, verticalPadding, y, h)
+    compAutoLayoutNorm(x, w, horizontalPadding, y, h, verticalPadding)
 
 proc computeScreenBox*(parent, node: Node) =
   ## Setups screenBoxes for the whole tree.
