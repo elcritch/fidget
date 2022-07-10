@@ -556,10 +556,7 @@ proc computeLayout*(parent, node: Node) =
           maxOrth = max(maxOrth, n.box.`field`)
       node.box.`field` = maxOrth  + node.`paddingField` * 2'ui
 
-  # Auto-layout code.
-  if node.layoutMode == lmVertical:
-    compAutoLayoutOrth(w, horizontalPadding)
-
+  template compAutoLayoutNorm(field, paddingField: untyped) =
     var at = 0.0'ui
     at += node.verticalPadding
     # echo "layoutMode:at: ", at
@@ -592,6 +589,11 @@ proc computeLayout*(parent, node: Node) =
       # echo "node.box:3: ", n.box.repr, " at: ", at
     at += node.verticalPadding
     node.box.h = at
+
+  # Auto-layout code.
+  if node.layoutMode == lmVertical:
+    compAutoLayoutOrth(w, horizontalPadding)
+    compAutoLayoutNorm(w, horizontalPadding)
 
   if node.layoutMode == lmHorizontal:
     # echo "layoutMode : ", node.layoutMode 
