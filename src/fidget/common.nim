@@ -546,16 +546,19 @@ proc computeLayout*(parent, node: Node) =
         node.box.w = node.textLayoutWidth
         node.box.h = node.textLayoutHeight
 
-  # Auto-layout code.
-  if node.layoutMode == lmVertical:
+  template compAutoLayoutOrth(field, paddingField: untyped) =
     # echo "layoutMode : ", node.layoutMode 
     if node.counterAxisSizingMode == csAuto:
       # Resize to fit elements tightly.
-      var maxW = 0.0'ui
+      var maxOrth = 0.0'ui
       for n in node.nodes:
         if n.layoutAlign != laStretch:
-          maxW = max(maxW, n.box.w)
-      node.box.w = maxW + node.horizontalPadding * 2'ui
+          maxOrth = max(maxOrth, n.box.`field`)
+      node.box.`field` = maxOrth  + node.`paddingField` * 2'ui
+
+  # Auto-layout code.
+  if node.layoutMode == lmVertical:
+    compAutoLayoutOrth(w, horizontalPadding)
 
     var at = 0.0'ui
     at += node.verticalPadding
@@ -592,13 +595,7 @@ proc computeLayout*(parent, node: Node) =
 
   if node.layoutMode == lmHorizontal:
     # echo "layoutMode : ", node.layoutMode 
-    if node.counterAxisSizingMode == csAuto:
-      # Resize to fit elements tightly.
-      var maxH = 0.0'ui
-      for n in node.nodes:
-        if n.layoutAlign != laStretch:
-          maxH = max(maxH, n.box.h)
-      node.box.h = maxH + node.verticalPadding * 2'ui
+    compAutoLayoutOrth(h, verticalPadding)
 
     var at = 0.0'ui
     at += node.horizontalPadding
