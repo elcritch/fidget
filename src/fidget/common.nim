@@ -210,6 +210,7 @@ type
     cursorStyle*: MouseCursorStyle ## Sets the mouse cursor icon
     prevCursorStyle*: MouseCursorStyle
     consumed*: bool ## Consumed - need to prevent default action.
+    clickedOutside*: bool ## 
 
   Keyboard* = ref object
     state*: KeyState
@@ -446,6 +447,7 @@ proc clearInputs*() =
 
   mouse.wheelDelta = 0
   mouse.consumed = false
+  mouse.clickedOutside = false
   zLevelMousePrecedent = zLevelMouse
   zLevelMouse = ZLevelBottom
 
@@ -478,6 +480,8 @@ proc consume*(keyboard: Keyboard) =
 proc consume*(mouse: Mouse) =
   ## Reset the mouse state consuming any event information.
   buttonPress[MOUSE_LEFT] = false
+  mouse.clickedOutside = true
+
 
 proc computeLayout*(parent, node: Node) =
   ## Computes constraints and auto-layout.

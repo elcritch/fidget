@@ -35,6 +35,5 @@ elif defined(macosx):
   --d:pixieNoSimd
   --d:kqueueUserEvent
   --threads:on
-  --passC:"-mfloat-abi=hard"
 
 # patchFile("typography", "textboxes", "patches/textboxes")
