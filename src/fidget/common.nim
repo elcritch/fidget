@@ -546,18 +546,17 @@ proc computeLayout*(parent, node: Node) =
         node.box.w = node.textLayoutWidth
         node.box.h = node.textLayoutHeight
 
-  template compAutoLayoutOrth(field, paddingField: untyped) =
+  template compAutoLayoutNorm(field, fieldSz, padding: untyped;
+                              orth, orthSz, orthPadding: untyped) =
     # echo "layoutMode : ", node.layoutMode 
     if node.counterAxisSizingMode == csAuto:
       # Resize to fit elements tightly.
       var maxOrth = 0.0'ui
       for n in node.nodes:
         if n.layoutAlign != laStretch:
-          maxOrth = max(maxOrth, n.box.`field`)
-      node.box.`field` = maxOrth  + node.`paddingField` * 2'ui
+          maxOrth = max(maxOrth, n.box.`orthSz`)
+      node.box.`orthSz` = maxOrth  + node.`orthPadding` * 2'ui
 
-  template compAutoLayoutNorm(field, fieldSz, padding: untyped;
-                              orth, orthSz, orthPadding: untyped) =
     var at = 0.0'ui
     at += node.`padding`
     for i, n in node.nodes.pairs:
@@ -588,12 +587,10 @@ proc computeLayout*(parent, node: Node) =
 
   # Auto-layout code.
   if node.layoutMode == lmVertical:
-    compAutoLayoutOrth(w, horizontalPadding)
     compAutoLayoutNorm(y, h, verticalPadding, x, w, horizontalPadding)
 
   if node.layoutMode == lmHorizontal:
     # echo "layoutMode : ", node.layoutMode 
-    compAutoLayoutOrth(h, verticalPadding)
     compAutoLayoutNorm(x, w, horizontalPadding, y, h, verticalPadding)
 
 proc computeScreenBox*(parent, node: Node) =
