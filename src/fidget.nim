@@ -958,15 +958,15 @@ proc counterAxisSizingMode*(mode: CounterAxisSizingMode) =
   ## Set the counter axis sizing mode.
   current.counterAxisSizingMode = mode
 
-proc horizontalPadding*(v: float32) =
+proc horizontalPadding*(v: UICoord) =
   ## Set the horizontal padding for auto layout.
   current.horizontalPadding = v.UICoord
 
-proc verticalPadding*(v: float32|UICoord) =
+proc verticalPadding*(v: UICoord) =
   ## Set the vertical padding for auto layout.
   current.verticalPadding = v.UICoord
 
-proc itemSpacing*(v: float32|UICoord) =
+proc itemSpacing*(v: UICoord) =
   ## Set the item spacing for auto layout.
   current.itemSpacing = v.UICoord
 
