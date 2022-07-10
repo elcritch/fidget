@@ -556,75 +556,44 @@ proc computeLayout*(parent, node: Node) =
           maxOrth = max(maxOrth, n.box.`field`)
       node.box.`field` = maxOrth  + node.`paddingField` * 2'ui
 
-  template compAutoLayoutNorm(field, paddingField: untyped) =
+  template compAutoLayoutNorm(field, fieldSz, padding, orthPadding, orth, orthSz: untyped) =
     var at = 0.0'ui
-    at += node.verticalPadding
-    # echo "layoutMode:at: ", at
-    for i, n in node.nodes.pairs:
-      if n.layoutAlign == laIgnore:
-        continue
-      if i > 0: at += node.itemSpacing
-      n.box.y = at
-      # echo "node.box:1: ", n.box.repr
-      case n.layoutAlign:
-        of laMin:
-          # echo "laMin: ", node.horizontalPadding, " box.x: ", n.box.repr
-          n.box.x = node.horizontalPadding
-        of laCenter:
-          # echo "laCenter"
-          n.box.x = node.box.w/2'ui - n.box.w/2'ui
-        of laMax:
-          # echo "laMax"
-          n.box.x = node.box.w - n.box.w - node.horizontalPadding
-        of laStretch:
-          # echo "laStretch"
-          n.box.x = node.horizontalPadding
-          n.box.w = node.box.w - node.horizontalPadding * 2'ui
-          # Redo the layout for child node.
-          computeLayout(node, n)
-        of laIgnore:
-          continue
-      # echo "node.box:2: ", n.box.repr, " at: ", at
-      at += n.box.h
-      # echo "node.box:3: ", n.box.repr, " at: ", at
-    at += node.verticalPadding
-    node.box.h = at
-
-  # Auto-layout code.
-  if node.layoutMode == lmVertical:
-    compAutoLayoutOrth(w, horizontalPadding)
-    compAutoLayoutNorm(w, horizontalPadding)
-
-  if node.layoutMode == lmHorizontal:
-    # echo "layoutMode : ", node.layoutMode 
-    compAutoLayoutOrth(h, verticalPadding)
-
-    var at = 0.0'ui
-    at += node.horizontalPadding
-    # echo "horizontalPadding : ", node.horizontalPadding
+    at += node.`padding`
     for i, n in node.nodes.pairs:
       if n.layoutAlign == laIgnore:
         continue
       if i > 0:
         at += node.itemSpacing
-      n.box.x = at
+
+      n.box.`field` = at
+
       case n.layoutAlign:
         of laMin:
-          n.box.y = node.verticalPadding
+          n.box.`orth` = node.`orthPadding`
         of laCenter:
-          n.box.y = node.box.h/2'ui - n.box.h/2'ui
+          n.box.`orth` = node.box.`orthSz`/2'ui - n.box.`orthSz`/2'ui
         of laMax:
-          n.box.y = node.box.h - n.box.h - node.verticalPadding
+          n.box.`orth` = node.box.`orthSz` - n.box.`orthSz` - node.`orthPadding`
         of laStretch:
-          n.box.y = node.verticalPadding
-          n.box.h = node.box.h - node.verticalPadding * 2'ui
+          n.box.`orth` = node.`orthPadding`
+          n.box.`orthSz` = node.box.`orthSz` - node.`orthPadding` * 2'ui
           # Redo the layout for child node.
           computeLayout(node, n)
         of laIgnore:
           continue
-      at += n.box.w
-    at += node.horizontalPadding
-    node.box.w = at
+      at += n.box.`fieldSz`
+    at += node.`padding`
+    node.box.`fieldSz` = at
+
+  # Auto-layout code.
+  if node.layoutMode == lmVertical:
+    compAutoLayoutOrth(w, horizontalPadding)
+    compAutoLayoutNorm(y, h, verticalPadding, horizontalPadding, x, w)
+
+  if node.layoutMode == lmHorizontal:
+    # echo "layoutMode : ", node.layoutMode 
+    compAutoLayoutOrth(h, verticalPadding)
+    compAutoLayoutNorm(x, w, horizontalPadding, verticalPadding, y, h)
 
 proc computeScreenBox*(parent, node: Node) =
   ## Setups screenBoxes for the whole tree.
