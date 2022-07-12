@@ -153,7 +153,12 @@ template instance*(id: string, inner: untyped): untyped =
   node(nkInstance, id, inner)
 
 template drawable*(id: string, inner: untyped): untyped =
-  ## Starts a new instance of a component.
+  ## Starts a drawable node. These don't draw a normal rectangle.
+  ## Instead they draw a list of points set in `current.points`
+  ## using the nodes fill/stroke. The size of the drawable node
+  ## is used for the point sizes, etc. 
+  ## 
+  ## Note: Experimental!
   node(nkDrawable, id, inner)
 
 template blank*(id, inner: untyped): untyped =
