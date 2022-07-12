@@ -84,7 +84,12 @@ proc drawBoxes*(node: Node)
 
 proc drawDrawable*(node: Node) =
   # ctx: Context, poly: seq[Vec2], weight: float32, color: Color
-  ctx.linePolygon(node.poly, node.stroke.weight, node.stroke.color)
+  for line in node.lines:
+    # ctx.linePolygon(node.poly, node.stroke.weight, node.stroke.color)
+    let
+      pos = line.scaled
+      bx = node.box.scaled.atXY(pos.x, pos.y)
+    ctx.fillRect(bx, node.fill)
 
 proc drawText(node: Node) =
   if node.textStyle.fontFamily notin fonts:
