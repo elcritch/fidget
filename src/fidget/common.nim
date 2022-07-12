@@ -184,7 +184,7 @@ type
     hookName*: string
     hookStates*: Variant
     hookEvents*: GeneralEvents
-    lines*: seq[Position]
+    points*: seq[Position]
 
   GeneralEvents* = object
     data*: TableRef[string, seq[Variant]]
