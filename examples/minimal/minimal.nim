@@ -9,5 +9,6 @@ proc drawMain() =
       group "block":
         box 20 + i * 120, 20, 100, 100
         fill "#2B9FEA"
+        cornerRadius 10
 
-startFidget(drawMain, w = 620, h = 140)
+startFidget(drawMain, w = 620, h = 140, uiScale=2.0)

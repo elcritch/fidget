@@ -519,31 +519,40 @@ proc fillRect*(ctx: Context, rect: Rect, color: Color) =
     uvRect.xy + uvRect.wh / 2, color
   )
 
-proc fillRoundedRect*(ctx: Context, rect: Rect, color: Color, radius: float32) =
+proc fillRoundedRect*(
+    ctx: Context,
+    rect: Rect,
+    color: Color,
+    radius: float32
+) =
   if rect.w <= 0 or rect.h <= -0:
-    when defined(fidgetExtraDebugLogging): echo "fillRoundedRect: too small: ", rect
+    when defined(fidgetExtraDebugLogging):
+      echo "fillRoundedRect: too small: ", rect
     return
-
-  # TODO: Make this a 9 patch
-  let radius = min(radius, min(rect.w/2, rect.h/2))
-  let hash = hash((
-    6118,
-    rect.w.int,
-    rect.h.int,
-    (radius*100).int
-  ))
 
   let
     w = ceil(rect.w).int
     h = ceil(rect.h).int
 
+  # TODO: Make this a 9 patch
+  let
+    radius = min(radius, min(rect.w/2, rect.h/2))
+    rw = ceil(radius).int
+    rh = ceil(radius).int
+
+  let hash = hash((
+    6118,
+    (rw*100).int, (rh*100).int,
+    (radius*100).int
+  ))
+
   if hash notin ctx.entries:
     let
-      image = newImage(w, h)
+      image = newImage(rw, rh)
       c = newContext(image)
     c.fillStyle = rgba(255, 255, 255, 255)
     c.fillRoundedRect(
-      rect(0, 0, rect.w, rect.h),
+      rect(0, 0, 2.0*rw.toFloat, 2.0*rh.toFloat),
       radius
     )
     ctx.putImage(hash, image)
@@ -551,13 +560,36 @@ proc fillRoundedRect*(ctx: Context, rect: Rect, color: Color, radius: float32) =
   let
     uvRect = ctx.entries[hash]
     wh = rect.wh * ctx.atlasSize.float32
-  ctx.drawUvRect(
-    rect.xy,
-    rect.xy + vec2(w.float32, h.float32),
-    uvRect.xy,
-    uvRect.xy + uvRect.wh,
-    color
-  )
+
+  let cl = [
+   parseHtmlColor("#F00"),
+   parseHtmlColor("#0F0"),
+   parseHtmlColor("#00F"),
+   parseHtmlColor("#FF0"),
+  ]
+  for i, idx in [(0, 0), (0, 1), (1, 0), (1, 1)]:
+    let
+      uidx = vec2(idx[0].float32, idx[1].float32)
+
+      udiff = uvRect.wh * 2
+
+      rwh = vec2(w.float32, h.float32)
+      rrwh = vec2(rw.float32, rh.float32)
+
+    ctx.drawUvRect(
+      rect.xy + uidx * rwh / 2,
+      rect.xy + rrwh + uidx * rwh / 2, # + uidx * rwh,
+      uvRect.xy, # + uidx*uvRect.wh/2,
+      uvRect.xy + uvRect.wh, # + uidx*uvRect.wh/2,
+      cl[i]
+    )
+
+  # ctx.drawUvRect(
+  #   rect.xy,
+  #   rect.xy + vec2(w.float32, h.float32),
+  #   uxtl, uwtl,
+  #   color
+  # )
 
 proc strokeRoundedRect*(
   ctx: Context, rect: Rect, color: Color, weight: float32, radius: float32
