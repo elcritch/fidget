@@ -511,7 +511,7 @@ proc paddingXY*(
   paddingY(padding, absolute)
 
 
-proc centeredW*(
+proc centeredX*(
   width: int|float32|float64|UICoord,
   absolute = false,
 ) =
@@ -526,7 +526,7 @@ proc centeredW*(
     wpad = (tw - width)/2.0
   box(wpad, cb.y, width, cb.h)
 
-proc centeredH*(
+proc centeredY*(
   height: int|float32|float64|UICoord,
   absolute = false,
 ) =
@@ -541,22 +541,22 @@ proc centeredH*(
     hpad = (th - height)/2.0
   box(cb.x, hpad, cb.w, height)
 
-proc centeredWH*(
+proc centeredXY*(
   width: int|float32|float64|UICoord,
   height: int|float32|float64|UICoord,
   absolute = false,
 ) =
   ## Combination of `centerX` and `centerY`. 
-  centeredW(width, absolute)
-  centeredH(height, absolute)
+  centeredX(width, absolute)
+  centeredY(height, absolute)
 
-proc centerWH*(
+proc centerXY*(
   padding: int|float32|float64|UICoord,
   absolute = false,
 ) =
   ## Combination of `centerX` and `centerY`. 
-  centeredW(padding, absolute)
-  centeredH(padding, absolute)
+  centeredX(padding, absolute)
+  centeredY(padding, absolute)
 
 proc centerAt*(
   x: UICoord,
