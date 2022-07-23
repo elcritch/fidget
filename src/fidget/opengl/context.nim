@@ -568,16 +568,18 @@ proc fillRoundedRect*(
    parseHtmlColor("#FF0"),
   ]
 
-  fillRect(ctx, rect, color)
+  let
+    ra = rect(rect.x + rw/2, rect.y, rect.w - rw/1, rect.h)
+    rb = rect(rect.x, rect.y + rh/2, rect.w, rect.h - rh/1)
+  fillRect(ctx, ra, color)
+  fillRect(ctx, rb, color)
+
   for i, idx in [(0, 0), (0, 1), (1, 0), (1, 1)]:
     let
       uidx = vec2(idx[0].float32, idx[1].float32)
 
-      udiff = uvRect.wh * 2
-
       rwh = vec2(w.float32, h.float32)
       rrwh = vec2(rw.float32, rh.float32)
-      az = ctx.atlasSize.float32
 
     ctx.drawUvRect(
       rect.xy + uidx * rwh - uidx * rrwh,
