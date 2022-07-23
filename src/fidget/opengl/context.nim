@@ -548,7 +548,7 @@ proc fillRoundedRect*(
 
   if hash notin ctx.entries:
     let
-      image = newImage(rw, rh)
+      image = newImage(2*rw, 2*rh)
       c = newContext(image)
     c.fillStyle = rgba(255, 255, 255, 255)
     c.fillRoundedRect(
@@ -575,12 +575,13 @@ proc fillRoundedRect*(
 
       rwh = vec2(w.float32, h.float32)
       rrwh = vec2(rw.float32, rh.float32)
+      az = ctx.atlasSize.float32
 
     ctx.drawUvRect(
       rect.xy + uidx * rwh / 2,
-      rect.xy + rrwh + uidx * rwh / 2, # + uidx * rwh,
-      uvRect.xy, # + uidx*uvRect.wh/2,
-      uvRect.xy + uvRect.wh, # + uidx*uvRect.wh/2,
+      rect.xy + rrwh + uidx * rwh / 2,
+      uvRect.xy,
+      uvRect.xy + uvRect.wh,
       cl[i]
     )
 
