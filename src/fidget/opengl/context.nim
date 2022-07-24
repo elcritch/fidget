@@ -561,13 +561,6 @@ proc fillRoundedRect*(
     uvRect = ctx.entries[hash]
     wh = rect.wh * ctx.atlasSize.float32
 
-  let cl = [
-   parseHtmlColor("#F00"),
-   parseHtmlColor("#0F0"),
-   parseHtmlColor("#00F"),
-   parseHtmlColor("#FF0"),
-  ]
-
   let
     ra = rect(rect.x + rw/2, rect.y, rect.w - rw/1, rect.h)
     rb = rect(rect.x, rect.y + rh/2, rect.w, rect.h - rh/1)
@@ -586,7 +579,7 @@ proc fillRoundedRect*(
       rect.xy + rrwh + uidx * rwh - uidx * rrwh,
       uvRect.xy,
       uvRect.xy + uvRect.wh,
-      cl[i]
+      color,
     )
 
 proc strokeRoundedRect*(
