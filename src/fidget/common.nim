@@ -513,11 +513,19 @@ proc mouseOverlapsNode*(node: Node): bool =
 
 const onOutEvents = {evMouseClickOut, evMouseHoverOut, evKeyboardFocusOut}
 
+var clippedParents: seq[Node]
+
 proc checkNodeEvents*(node: Node): EventFlags =
   ## Compute mouse events
   template checkEvent(evt: EventType, predicate: untyped) =
     if evt in node.listen and predicate: result.incl(evt)
   # check events
+  var overlaps: seq[bool]
+  for cp in clippedParents:
+    overlaps.add node.mouseOverlapsNode()
+  if overlaps.allIt(it == true):
+    echo "overlaps: ", node.id, " => ", repr overlaps
+
   if node.mouseOverlapsNode():
     checkEvent(evMouseClick, mouse.click())
     checkEvent(evMouseDown, mouse.down())
@@ -534,6 +542,9 @@ proc max(a, b: (ZLevel, Node, EventFlags)): (ZLevel, Node, EventFlags) =
 
 proc computeNodeEvents*(node: Node): (ZLevel, Node, EventFlags) =
   ## Compute mouse events
+  if node.clipContent:
+    clippedParents.add node
+
   for n in node.nodes:
     result = computeNodeEvents(n).max(result)
 
@@ -541,7 +552,11 @@ proc computeNodeEvents*(node: Node): (ZLevel, Node, EventFlags) =
   node.inputEvents.incl(allEvts * onOutEvents)
   result = (node.zlevel, node, allEvts - onOutEvents).max(result)
 
+  if node.clipContent:
+    discard clippedParents.pop()
+
 proc computeEvents*(parent, node: Node) =
+  clippedParents.setLen(0)
   let res = computeNodeEvents(node)
   # TODO: fix overlap and masking
   echo "computeEvents: ", res[0], " => ", res[2].repr, " node: ", node.id
