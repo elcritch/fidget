@@ -520,12 +520,6 @@ proc checkNodeEvents*(node: Node): EventFlags =
   template checkEvent(evt: EventType, predicate: untyped) =
     if evt in node.listen and predicate: result.incl(evt)
   # check events
-  var overlaps: seq[bool]
-  for cp in clippedParents:
-    overlaps.add node.mouseOverlapsNode()
-  if overlaps.allIt(it == true):
-    echo "overlaps: ", node.id, " => ", repr overlaps
-
   if node.mouseOverlapsNode():
     checkEvent(evMouseClick, mouse.click())
     checkEvent(evMouseDown, mouse.down())
@@ -542,18 +536,20 @@ proc max(a, b: (ZLevel, Node, EventFlags)): (ZLevel, Node, EventFlags) =
 
 proc computeNodeEvents*(node: Node): (ZLevel, Node, EventFlags) =
   ## Compute mouse events
-  if node.clipContent:
-    clippedParents.add node
-
   for n in node.nodes:
     result = computeNodeEvents(n).max(result)
 
-  let allEvts = node.checkNodeEvents()
+  let
+    allEvts = node.checkNodeEvents()
+    evts = allEvts - onOutEvents
   node.inputEvents.incl(allEvts * onOutEvents)
-  result = (node.zlevel, node, allEvts - onOutEvents).max(result)
 
-  if node.clipContent:
-    discard clippedParents.pop()
+  if node.clipContent and not node.mouseOverlapsNode():
+    # node clips events, so it must overlap events
+    result = (node.zlevel, node, evts)
+  else:
+    result = (node.zlevel, node, evts).max(result)
+
 
 proc computeEvents*(parent, node: Node) =
   clippedParents.setLen(0)
