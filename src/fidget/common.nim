@@ -529,23 +529,22 @@ proc checkNodeEvents*(node: Node): EventFlags =
     checkEvent(evMouseHoverOut, true)
 
 proc max(a, b: (ZLevel, Node, EventFlags)): (ZLevel, Node, EventFlags) =
-  if a[0] > b[0] and a[2] != {}: a
-  else: b
+  if b[0] >= a[0] and b[2] != {}: b
+  else: a
 
 proc computeNodeEvents*(node: Node): (ZLevel, Node, EventFlags) =
   ## Compute mouse events
-  for n in node.nodes.reverse:
-    result = result.max(computeNodeEvents(n))
+  for n in node.nodes:
+    result = computeNodeEvents(n).max(result)
 
   let allEvts = node.checkNodeEvents()
-  if allEvts != {}:
-    echo fmt"{allEvts=} {(allEvts - onOutEvents).repr=}"
   node.inputEvents.incl(allEvts * onOutEvents)
   result = (node.zlevel, node, allEvts - onOutEvents).max(result)
 
 proc computeEvents*(parent, node: Node) =
   let res = computeNodeEvents(node)
-  echo "computeEvents: ", res[0], " => ", res[2].repr
+  # TODO: fix overlap and masking
+  echo "computeEvents: ", res[0], " => ", res[2].repr, " node: ", node.id
   if not res[1].isNil:
     res[1].inputEvents = res[2]
 
