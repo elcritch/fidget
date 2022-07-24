@@ -94,6 +94,7 @@ type
   ZLevel* = enum
     ## The z-index for widget interactions
     ZLevelBottom
+    ZLevelLower
     ZLevelDefault
     ZLevelRaised
     ZLevelOverlay
@@ -167,9 +168,9 @@ type
     clipContent*: bool
     nIndex*: int
     diffIndex*: int
-    onEvents*: EventFlags
+    inputEvents*: EventFlags
+    listen*: EventFlags
     zLevel*: ZLevel
-    zLevelMousePrecedent*: ZLevel
     when not defined(js):
       textLayout*: seq[GlyphPosition]
     else:
@@ -282,8 +283,6 @@ var
   windowFrame*: Vec2   ## Pixel coordinates
   pixelRatio*: float32 ## Multiplier to convert from screen coords to pixels
   pixelScale*: float32 ## Pixel multiplier user wants on the UI
-  zLevelMousePrecedent*: ZLevel
-  zLevelMouse*: ZLevel
 
   # Used to check for duplicate ID paths.
   pathChecker*: Table[string, bool]
@@ -304,9 +303,6 @@ var
   defaultlineHeightRatio* = 1.618.UICoord ##\
     ## see https://medium.com/@zkareemz/golden-ratio-62b3b6d4282a
   adjustTopTextFactor* = 1/16.0 # adjust top of text box for visual balance with descender's -- about 1/8 of fonts, so 1/2 that
-
-  ## Whether event is overshadowed by a higher precedent ZLevel
-  eventsOvershadowed*: bool
 
   # global scroll bar settings
   scrollBarWidth* = 14'f32
@@ -457,8 +453,6 @@ proc clearInputs*() =
   mouse.wheelDelta = 0
   mouse.consumed = false
   mouse.clickedOutside = false
-  zLevelMousePrecedent = zLevelMouse
-  zLevelMouse = ZLevelBottom
 
   # Reset key and mouse press to default state
   for i in 0 ..< buttonPress.len:
@@ -476,6 +470,9 @@ proc click*(mouse: Mouse): bool =
 proc down*(mouse: Mouse): bool =
   buttonDown[MOUSE_LEFT]
 
+proc release*(mouse: Mouse): bool =
+  buttonRelease[MOUSE_LEFT]
+
 proc consume*(keyboard: Keyboard) =
   ## Reset the keyboard state consuming any event information.
   keyboard.state = Empty
@@ -489,8 +486,48 @@ proc consume*(keyboard: Keyboard) =
 proc consume*(mouse: Mouse) =
   ## Reset the mouse state consuming any event information.
   buttonPress[MOUSE_LEFT] = false
-  mouse.clickedOutside = true
 
+proc setMousePos*(item: var Mouse, x, y: float64) =
+  item.pos = vec2(x, y)
+  item.pos *= pixelRatio / item.pixelScale
+  item.delta = item.pos - item.prevPos
+  item.prevPos = item.pos
+
+proc mouseOverlapsNode*(node: Node): bool =
+  ## Returns true if mouse overlaps the node node.
+  let mpos = mouse.pos.descaled + node.totalOffset 
+  let act = 
+    (not popupActive or inPopup) and
+    node.screenBox.w > 0'ui and
+    node.screenBox.h > 0'ui 
+
+  result =
+    act and
+    mpos.overlaps(node.screenBox) and
+    (if inPopup: mouse.pos.descaled.overlaps(popupBox) else: true)
+
+proc computeNodeEvents*(parent, node: Node): bool =
+  ## Compute mouse events
+  for n in node.nodes:
+    result = result or computeNodeEvents(node, n)
+
+  if node.mouseOverlapsNode():
+    for evt in node.listen:
+      case evt:
+      of evMouseClick:
+        if mouse.click():
+          node.inputEvents.incl(evt)
+      of evMouseDown:
+        if mouse.down():
+          node.inputEvents.incl(evt)
+      of evMouseRelease:
+        if mouse.release():
+          node.inputEvents.incl(evt)
+      else:
+        node.inputEvents.incl(evt)
+  
+proc computeEvents*(parent, node: Node) =
+  let res = computeNodeEvents(parent, node)
 
 proc computeLayout*(parent, node: Node) =
   ## Computes constraints and auto-layout.
@@ -614,13 +651,6 @@ proc computeScreenBox*(parent, node: Node) =
     computeScreenBox(node, n)
 
 proc box*(node: Node): Box = node.box
-
-
-proc setMousePos*(item: var Mouse, x, y: float64) =
-  item.pos = vec2(x, y)
-  item.pos *= pixelRatio / item.pixelScale
-  item.delta = item.pos - item.prevPos
-  item.prevPos = item.pos
 
 proc atXY*[T: Box](rect: T, x, y: int | float32 | UICoord): T =
   result = rect

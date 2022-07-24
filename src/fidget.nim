@@ -56,7 +56,6 @@ proc preNode(kind: NodeKind, id: string) =
   inc parent.diffIndex
 
   current.diffIndex = 0
-  common.eventsOvershadowed = current.zLevel.ord() < zLevelMousePrecedent.ord()
   when defined(fidgetNodePath):
     current.setNodePath()
 
@@ -67,22 +66,8 @@ proc postNode() =
   current.postHooks = @[]
 
   current.removeExtraChildren()
+  current.inputEvents = {}
 
-  let mpos = mouse.pos.descaled + current.totalOffset
-  if not common.eventsOvershadowed and
-      not mouse.consumed and
-      mpos.overlaps(current.screenBox):
-    if mouse.wheelDelta != 0:
-      if current.scrollBars:
-        let
-          yoffset = mouse.wheelDelta.UICoord
-          ph = parent.screenBox.h
-          ch = (current.screenBox.h - ph).clamp(0'ui, current.screenBox.h)
-        current.offset.y -= yoffset
-        current.offset.y = current.offset.y.clamp(0'ui, ch)
-        mouse.consumed = true
-
-  zLevelMouse = ZLevel(max(zLevelMouse.ord, current.zLevel.ord))
   # Pop the stack.
   discard nodeStack.pop()
   if nodeStack.len > 1:
@@ -206,24 +191,7 @@ template blank*(): untyped =
 ## 
 
 proc mouseOverlapLogic*(): bool =
-  ## Returns true if mouse overlaps the current node.
-  if common.eventsOvershadowed:
-    return
-
-  let mpos = mouse.pos.descaled + current.totalOffset 
-  let act = 
-    (not popupActive or inPopup) and
-    current.screenBox.w > 0'ui and
-    current.screenBox.h > 0'ui 
-  # if mpos.overlaps(current.screenBox):
-  # print "mouseOverlap: ", act, mpos, current.screenBox, mpos.overlaps(current.screenBox), "\n"
-  # if inPopup:
-    # echo fmt"mouseOverlap: popup: {mouse.pos(raw=true).overlaps(popupBox)} {mpos=} {popupBox=}"
-
-  result =
-    act and
-    mpos.overlaps(current.screenBox) and
-    (if inPopup: mouse.pos.descaled.overlaps(popupBox) else: true)
+  result = mouseOverlapsNode(current)
 
 proc isCovered*(screenBox: Box): bool =
   ## Returns true if mouse overlaps the current node.
@@ -244,8 +212,8 @@ template useEvents*(): GeneralEvents =
 
 template onClick*(inner: untyped) =
   ## On click event handler.
-  if mouse.click and mouseOverlapLogic():
-    mouse.consume()
+  current.listen.incl(evMouseClick)
+  if evMouseClick in current.inputEvents:
     inner
 
 template onClickOutside*(inner: untyped) =
@@ -290,7 +258,8 @@ template onInput*(inner: untyped) =
 
 template onHover*(inner: untyped) =
   ## Code in the block will run when this box is hovered.
-  if mouseOverlapLogic():
+  current.listen.incl(evMouseHover)
+  if evMouseHover in current.inputEvents:
     inner
 
 template onScroll*(inner: untyped) =
