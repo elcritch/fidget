@@ -506,26 +506,24 @@ proc mouseOverlapsNode*(node: Node): bool =
     mpos.overlaps(node.screenBox) and
     (if inPopup: mouse.pos.descaled.overlaps(popupBox) else: true)
 
+template checkEvent(evt: EventType, predicate: untyped) =
+  if evt in node.listen and predicate:
+    node.inputEvents.incl(evt)
+
 proc computeNodeEvents*(parent, node: Node): bool =
   ## Compute mouse events
   for n in node.nodes:
     result = result or computeNodeEvents(node, n)
 
   if node.mouseOverlapsNode():
-    for evt in node.listen:
-      case evt:
-      of evMouseClick:
-        if mouse.click():
-          node.inputEvents.incl(evt)
-      of evMouseDown:
-        if mouse.down():
-          node.inputEvents.incl(evt)
-      of evMouseRelease:
-        if mouse.release():
-          node.inputEvents.incl(evt)
-      else:
-        node.inputEvents.incl(evt)
-  
+    checkEvent(evMouseClick, mouse.click())
+    checkEvent(evMouseDown, mouse.down())
+    checkEvent(evMouseRelease, mouse.release())
+    checkEvent(evMouseHover, true)
+  else:
+    checkEvent(evMouseClickOut, mouse.click())
+    checkEvent(evMouseHoverOut, true)
+
 proc computeEvents*(parent, node: Node) =
   let res = computeNodeEvents(parent, node)
 
