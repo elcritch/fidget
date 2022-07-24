@@ -167,6 +167,7 @@ type
     clipContent*: bool
     nIndex*: int
     diffIndex*: int
+    onEvents*: set[EventType]
     zLevel*: ZLevel
     zLevelMousePrecedent*: ZLevel
     when not defined(js):
@@ -229,10 +230,15 @@ type
     selectionCursor*: int ## To which character are we selecting to
 
   EventType* = enum
-    evClick,
-    evClickOut,
-    evHovered,
+    evClick
+    evClickOut
+    evHover
+    evHoverOut
     evDown
+    evRelease
+    evScroll
+    evKeyboardInput
+    evKeyboardFocus
 
   HttpStatus* = enum
     Starting
