@@ -273,7 +273,7 @@ var
   scrollBoxMini*: Box ## Scroll box is smaller by 100px useful for debugging
   mouse* = Mouse()
   keyboard* = Keyboard()
-  requestedFrame*: bool
+  requestedFrame*: int
   numNodes*: int
   popupActive*: bool
   inPopup*: bool
@@ -514,8 +514,6 @@ proc mouseOverlapsNode*(node: Node): bool =
 
 const onOutEvents = {evMouseClickOut, evMouseHoverOut, evKeyboardFocusOut}
 
-var clippedParents: seq[Node]
-
 proc checkNodeEvents*(node: Node): EventFlags =
   ## Compute mouse events
   template checkEvent(evt: EventType, predicate: untyped) =
@@ -553,16 +551,15 @@ proc computeNodeEvents*(node: Node): (ZLevel, Node, EventFlags) =
 
 
 proc computeEvents*(parent, node: Node) =
-  clippedParents.setLen(0)
   let res = computeNodeEvents(node)
   # TODO: fix overlap and masking
   if not res[1].isNil:
-    if res[1].kind != nkRoot:
-      echo "computeEvents: ", res[0], " => ", res[2].repr, " node: ", node.id
+    # if res[1].id != "root":
+    #   echo "computeEvents: ", res[0], " => ", res[2].repr, " node: ", node.id
     res[1].inputEvents = res[2]
     if res[1].kind != nkRoot and
        res[2] - {evMouseHover} != {}:
-      requestedFrame = true
+      requestedFrame = 2
 
 proc computeLayout*(parent, node: Node) =
   ## Computes constraints and auto-layout.

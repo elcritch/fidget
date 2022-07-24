@@ -481,12 +481,13 @@ proc hardRedraw() =
   drawFinish()
 
 proc requestHardRedraw(time: float = 0.0) =
-  requestedFrame = false
+  requestedFrame = 0
   hardRedraw()
 
 proc refresh*() =
-  if not requestedFrame:
-    requestedFrame = true
+  # if not requestedFrame:
+  if requestedFrame == 0:
+    requestedFrame.inc
     discard dom.window.requestAnimationFrame(requestHardRedraw)
 
 proc startFidget*(draw: proc(), load: proc() = nil, w = 0, h = 0) =

@@ -64,7 +64,7 @@ proc setCursor*(cursor: CursorHandle) =
   window.setCursor(cursor)
 
 proc updateWindowSize() =
-  requestedFrame = true
+  requestedFrame.inc
 
   var cwidth, cheight: cint
   window.getWindowSize(addr cwidth, addr cheight)
@@ -143,12 +143,13 @@ proc updateLoop*(poll = true) =
     of RepaintOnEvent:
       if poll:
         pollEvents()
-      if not requestedFrame or minimized:
+      if requestedFrame <= 0 or minimized:
         # Only repaint when necessary
-        when not defined(emscripten):
-          sleep(16)
+        # when not defined(emscripten):
+          # echo "update loop: ", loopMode.repr
+          # sleep(16)
         return
-      requestedFrame = false
+      requestedFrame.dec
       preInput()
       if tickMain != nil:
         preTick()
@@ -220,7 +221,7 @@ proc onFocus(window: staticglfw.Window, state: cint) {.cdecl.} =
 proc onSetKey(
   window: staticglfw.Window, key, scancode, action, modifiers: cint
 ) {.cdecl.} =
-  requestedFrame = true
+  requestedFrame.inc
   let setKey = action != RELEASE
 
   keyboard.altKey = setKey and ((modifiers and MOD_ALT) != 0)
@@ -293,7 +294,7 @@ proc onSetKey(
   uiEvent.trigger()
 
 proc onScroll(window: staticglfw.Window, xoffset, yoffset: float64) {.cdecl.} =
-  requestedFrame = true
+  requestedFrame.inc
   let yoffset = yoffset
   mouse.wheelDelta += yoffset
   uiEvent.trigger()
@@ -301,7 +302,7 @@ proc onScroll(window: staticglfw.Window, xoffset, yoffset: float64) {.cdecl.} =
 proc onMouseButton(
   window: staticglfw.Window, button, action, modifiers: cint
 ) {.cdecl.} =
-  requestedFrame = true
+  requestedFrame.inc
   let
     setKey = action != 0
     button = button + 1 # Fidget mouse buttons are +1 from staticglfw
@@ -314,11 +315,11 @@ proc onMouseButton(
   uiEvent.trigger()
 
 proc onMouseMove(window: staticglfw.Window, x, y: cdouble) {.cdecl.} =
-  requestedFrame = true
+  requestedFrame.inc
   uiEvent.trigger()
 
 proc onSetCharCallback(window: staticglfw.Window, character: cuint) {.cdecl.} =
-  requestedFrame = true
+  requestedFrame.inc
   if keyboard.focusNode != nil:
     keyboard.state = KeyState.Press
     currTextBox.typeCharacter(Rune(character))
@@ -406,15 +407,6 @@ proc start*(openglVersion: (int, int), msaa: MSAA, mainLoopMode: MainLoopMode) =
     echo "GL_VERSION:", cast[cstring](glGetString(GL_VERSION))
     echo "GL_SHADING_LANGUAGE_VERSION:",
       cast[cstring](glGetString(GL_SHADING_LANGUAGE_VERSION))
-
-  echo "setting up new UI Event "
-  uiEvent = newAsyncEvent()
-  let uiEventCb =
-    proc (fd: AsyncFD): bool =
-      echo "UI event!"
-      return true
-  addEvent(uiEvent, uiEventCb)
-  echo "setup new UI Event ", repr uiEvent
 
   discard window.setFramebufferSizeCallback(onResize)
   discard window.setWindowFocusCallback(onFocus)

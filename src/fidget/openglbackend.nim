@@ -68,7 +68,7 @@ proc setupFidget(
 
   setWindowTitle(windowTitle)
   ctx = newContext(atlasSize = atlasSize, pixelate = pixelate, pixelScale = pixelScale)
-  requestedFrame = true
+  requestedFrame.inc
 
   base.drawFrame = proc() =
     clearColorBuffer(color(1.0, 1.0, 1.0, 1.0))
@@ -130,12 +130,12 @@ proc setupFidget(
     loadMain()
 
 proc asyncPoll() =
-  when not defined(emscripten) and not defined(fidgetNoAsync):
-    if hasPendingOperations():
-      poll(1)
-      if isEvent:
-        isEvent = false
-        eventTimePost = epochTime()
+  when not defined(emscripten) and
+        not defined(fidgetNoAsync):
+    poll(16)
+    if isEvent:
+      isEvent = false
+      eventTimePost = epochTime()
 # 
 type
   MainProc* = proc () 
@@ -166,6 +166,16 @@ proc startFidget*(
   loadMain = load
   let atlasStartSz = 1024 shl (uiScale.round().toInt() + 1)
   echo fmt"{atlasStartSz=}"
+  
+  echo "setting up new UI Event "
+  uiEvent = newAsyncEvent()
+  let uiEventCb =
+    proc (fd: AsyncFD): bool =
+      echo "UI event!"
+      return true
+  addEvent(uiEvent, uiEventCb)
+  echo "setup new UI Event ", repr uiEvent
+
   setupFidget(openglVersion, msaa, mainLoopMode, pixelate, pixelScale, atlasStartSz)
   mouse.pixelScale = pixelScale
 
@@ -180,9 +190,15 @@ proc startFidget*(
       updateLoop()
     emscripten_set_main_loop(main_loop, 0, true)
   else:
-    while base.running:
-      updateLoop()
-      asyncPoll()
+    proc running() {.async.} =
+      while base.running:
+        updateLoop()
+        # asyncPoll()
+        if isEvent:
+          isEvent = false
+          eventTimePost = epochTime()
+        await sleepAsync(16)
+    waitFor: running()
     exit()
 
 proc openBrowser*(url: string) =
@@ -191,7 +207,7 @@ proc openBrowser*(url: string) =
 
 proc refresh*() =
   ## Request the screen be redrawn
-  requestedFrame = true
+  requestedFrame.inc
 
 proc getTitle*(): string =
   ## Gets window title

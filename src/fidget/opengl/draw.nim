@@ -30,7 +30,7 @@ proc focus*(keyboard: Keyboard, node: Node, textBox: TextBox) =
     currTextBox = node.currentEvents().mgetOrPut("$textbox", textBox)
     currTextBox.editable = node.editableText
     currTextBox.scrollable = true
-    requestedFrame = true
+    requestedFrame.inc
 
 proc focus*(keyboard: Keyboard, node: Node) =
   var font = fonts[node.textStyle.fontFamily]

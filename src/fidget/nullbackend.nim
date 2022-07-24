@@ -15,7 +15,7 @@ proc postDrawChildren*(node: Node) =
 
 proc refresh*() =
   ## Request the screen be redrawn
-  requestedFrame = true
+  requestedFrame.inc
 
 proc openBrowser*(url: string) =
   ## Opens a URL in a browser
