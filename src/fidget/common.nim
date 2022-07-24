@@ -440,6 +440,7 @@ proc setupRoot*() =
     root.id = "root"
     root.uid = newUId()
     root.zlevel = ZLevelDefault
+    root.listen = {}
     # root.highlightColor = parseHtmlColor("#3297FD")
     root.cursorColor = rgba(0, 0, 0, 255).color
   nodeStack = @[root]
@@ -555,9 +556,13 @@ proc computeEvents*(parent, node: Node) =
   clippedParents.setLen(0)
   let res = computeNodeEvents(node)
   # TODO: fix overlap and masking
-  # echo "computeEvents: ", res[0], " => ", res[2].repr, " node: ", node.id
   if not res[1].isNil:
+    if res[1].kind != nkRoot:
+      echo "computeEvents: ", res[0], " => ", res[2].repr, " node: ", node.id
     res[1].inputEvents = res[2]
+    if res[1].kind != nkRoot and
+       res[2] - {evMouseHover} != {}:
+      requestedFrame = true
 
 proc computeLayout*(parent, node: Node) =
   ## Computes constraints and auto-layout.
