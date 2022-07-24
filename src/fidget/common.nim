@@ -549,17 +549,18 @@ proc computeNodeEvents*(node: Node): (ZLevel, Node, EventFlags) =
   else:
     result = (node.zlevel, node, evts).max(result)
 
-
-proc computeEvents*(parent, node: Node) =
+proc computeEvents*(node: Node) =
   let res = computeNodeEvents(node)
   # TODO: fix overlap and masking
   if not res[1].isNil:
-    # if res[1].id != "root":
-    #   echo "computeEvents: ", res[0], " => ", res[2].repr, " node: ", node.id
     res[1].inputEvents = res[2]
     if res[1].kind != nkRoot and
-       res[2] - {evMouseHover} != {}:
+        res[2] - {evMouseHover} != {}:
+      echo "computeEvents: ", res[0], " => ", res[2].repr, " node: ", res[1].id
       requestedFrame = 2
+    else:
+      discard
+      # raise newException(ValueError, "")
 
 proc computeLayout*(parent, node: Node) =
   ## Computes constraints and auto-layout.

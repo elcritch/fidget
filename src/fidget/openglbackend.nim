@@ -94,7 +94,7 @@ proc setupFidget(
 
     computeLayout(nil, root)
     computeScreenBox(nil, root)
-    computeEvents(nil, root)
+    computeEvents(root)
     processHooks(nil, root)
 
     # Only draw the root after everything was done:

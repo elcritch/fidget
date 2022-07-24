@@ -207,8 +207,8 @@ proc glGetInteger*(what: GLenum): int =
 
 proc onResize(handle: staticglfw.Window, w, h: int32) {.cdecl.} =
   updateWindowSize()
-  let prevloopMode = loopMode
-  updateLoop(poll = false)
+  # let prevloopMode = loopMode
+  # updateLoop(poll = false)
   # loopMode = RepaintOnFrame
   # updateLoop(poll = false)
   # loopMode = prevloopMode
