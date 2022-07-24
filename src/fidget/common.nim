@@ -168,8 +168,7 @@ type
     clipContent*: bool
     nIndex*: int
     diffIndex*: int
-    inputEvents*: EventFlags
-    listen*: EventFlags
+    inputs*: InputEvents
     zlevel*: ZLevel
     when not defined(js):
       textLayout*: seq[GlyphPosition]
@@ -229,21 +228,35 @@ type
     input*: seq[Rune]
     textCursor*: int ## At which character in the input string are we
     selectionCursor*: int ## To which character are we selecting to
+  
+  MouseEventType* {.size: sizeof(int16).} = enum
+    evClick
+    evClickOut
+    evHover
+    evHoverOut
+    evDown
+    evRelease
 
-  EventType* {.size: sizeof(int16).} = enum
-    evMouseClick,
-    evMouseClickOut,
-    evMouseHover,
-    evMouseHoverOut,
-    evMouseDown,
-    evMouseRelease,
-    evMouseScroll,
-    evKeyboardInput,
-    evKeyboardFocus,
+  KeyboardEventType* {.size: sizeof(int16).} = enum
+    evKeyboardInput
+    evKeyboardFocus
     evKeyboardFocusOut
 
-  EventFlags* = set[EventType]
+  GestureEventType* {.size: sizeof(int16).} = enum
+    evScroll
 
+  MouseEventFlags* = set[MouseEventType]
+  KeyboardEventFlags* = set[KeyboardEventType]
+  GestureEventFlags* = set[GestureEventType]
+
+  EventsHandle*[T] = object
+    events*: T
+    listen*: T
+  InputEvents = object
+    mouse*: EventsHandle[MouseEventFlags]
+    gesture*: EventsHandle[GestureEventFlags]
+
+type
   HttpStatus* = enum
     Starting
     Ready
@@ -474,7 +487,7 @@ proc down*(mouse: Mouse): bool =
   buttonDown[MOUSE_LEFT]
 
 proc scrolled*(mouse: Mouse): bool =
-  mouse.wheelDelta > 0.0
+  mouse.wheelDelta != 0.0
 
 proc release*(mouse: Mouse): bool =
   buttonRelease[MOUSE_LEFT]
@@ -512,36 +525,49 @@ proc mouseOverlapsNode*(node: Node): bool =
     mpos.overlaps(node.screenBox) and
     (if inPopup: mouse.pos.descaled.overlaps(popupBox) else: true)
 
-const onOutEvents = {evMouseClickOut, evMouseHoverOut, evKeyboardFocusOut}
+type
+  EventCapture*[T] = object
+    zlevel*: ZLevel
+    events*: T
+    target*: Node
 
-proc checkNodeEvents*(node: Node): EventFlags =
-  ## Compute mouse events
-  template checkEvent(evt: EventType, predicate: untyped) =
-    if evt in node.listen and predicate: result.incl(evt)
-  # check events
-  if node.mouseOverlapsNode():
-    checkEvent(evMouseClick, mouse.click())
-    checkEvent(evMouseDown, mouse.down())
-    checkEvent(evMouseRelease, mouse.release())
-    checkEvent(evMouseScroll, mouse.scrolled())
-    checkEvent(evMouseHover, true)
-  else:
-    checkEvent(evMouseClickOut, mouse.click())
-    checkEvent(evMouseHoverOut, true)
+const
+  MouseOnOutEvents = {evClickOut, evHoverOut}
 
-proc max(a, b: (ZLevel, Node, EventFlags)): (ZLevel, Node, EventFlags) =
-  if b[0] >= a[0] and b[2] != {}: b
+proc max*[T](a, b: EventCapture[T]): EventCapture[T] =
+  if b.zlevel >= a.zlevel and b.events != {}: b
   else: a
 
-proc computeNodeEvents*(node: Node): (ZLevel, Node, EventFlags) =
+template checkEvent[EventType](evt: EventType, predicate: typed) =
+  if evt in node.listen and predicate: result.incl(evt)
+
+proc checkMouseEvents*(node: Node): MouseEventFlags =
+  ## Compute mouse events
+  if node.mouseOverlapsNode():
+    checkEvent(evClick, mouse.click())
+    checkEvent(evDown, mouse.down())
+    checkEvent(evRelease, mouse.release())
+    checkEvent(evScroll, mouse.scrolled())
+    checkEvent(evHover, true)
+  else:
+    checkEvent(evHoverOut, true)
+
+proc checkGestureEvents*(node: Node): GestureEventFlags =
+  ## Compute gesture events
+  if node.mouseOverlapsNode():
+    checkEvent(evScroll, mouse.scrolled())
+
+
+
+proc computeNodeEvents*(node: Node): EventInstance =
   ## Compute mouse events
   for n in node.nodes:
     result = computeNodeEvents(n).max(result)
 
   let
     allEvts = node.checkNodeEvents()
-    evts = allEvts - onOutEvents
-  node.inputEvents.incl(allEvts * onOutEvents)
+    evts = allEvts - OnOutEvents
+  node.inputEvents.incl(allEvts * OnOutEvents)
 
   if node.clipContent and not node.mouseOverlapsNode():
     # node clips events, so it must overlap events

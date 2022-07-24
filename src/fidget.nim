@@ -68,6 +68,20 @@ proc postNode() =
   current.removeExtraChildren()
   current.inputEvents = {}
 
+  let mpos = mouse.pos.descaled + current.totalOffset
+  if not common.eventsOvershadowed and
+      not mouse.consumed and
+      mpos.overlaps(current.screenBox):
+    if mouse.wheelDelta != 0:
+      if current.scrollBars:
+        let
+          yoffset = mouse.wheelDelta.UICoord
+          ph = parent.screenBox.h
+          ch = (current.screenBox.h - ph).clamp(0'ui, current.screenBox.h)
+        current.offset.y -= yoffset
+        current.offset.y = current.offset.y.clamp(0'ui, ch)
+        mouse.consumed = true
+
   # Pop the stack.
   discard nodeStack.pop()
   if nodeStack.len > 1:
