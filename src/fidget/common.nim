@@ -555,7 +555,7 @@ proc computeEvents*(parent, node: Node) =
   clippedParents.setLen(0)
   let res = computeNodeEvents(node)
   # TODO: fix overlap and masking
-  echo "computeEvents: ", res[0], " => ", res[2].repr, " node: ", node.id
+  # echo "computeEvents: ", res[0], " => ", res[2].repr, " node: ", node.id
   if not res[1].isNil:
     res[1].inputEvents = res[2]
 
