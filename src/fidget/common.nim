@@ -170,7 +170,7 @@ type
     diffIndex*: int
     inputEvents*: EventFlags
     listen*: EventFlags
-    zLevel*: ZLevel
+    zlevel*: ZLevel
     when not defined(js):
       textLayout*: seq[GlyphPosition]
     else:
@@ -239,7 +239,8 @@ type
     evMouseRelease,
     evMouseScroll,
     evKeyboardInput,
-    evKeyboardFocus
+    evKeyboardFocus,
+    evKeyboardFocusOut
 
   EventFlags* = set[EventType]
 
@@ -438,6 +439,7 @@ proc setupRoot*() =
     root.kind = nkRoot
     root.id = "root"
     root.uid = newUId()
+    root.zlevel = ZLevelDefault
     # root.highlightColor = parseHtmlColor("#3297FD")
     root.cursorColor = rgba(0, 0, 0, 255).color
   nodeStack = @[root]
@@ -469,6 +471,9 @@ proc click*(mouse: Mouse): bool =
 
 proc down*(mouse: Mouse): bool =
   buttonDown[MOUSE_LEFT]
+
+proc scrolled*(mouse: Mouse): bool =
+  mouse.wheelDelta > 0.0
 
 proc release*(mouse: Mouse): bool =
   buttonRelease[MOUSE_LEFT]
@@ -506,26 +511,43 @@ proc mouseOverlapsNode*(node: Node): bool =
     mpos.overlaps(node.screenBox) and
     (if inPopup: mouse.pos.descaled.overlaps(popupBox) else: true)
 
-template checkEvent(evt: EventType, predicate: untyped) =
-  if evt in node.listen and predicate:
-    node.inputEvents.incl(evt)
+const onOutEvents = {evMouseClickOut, evMouseHoverOut, evKeyboardFocusOut}
 
-proc computeNodeEvents*(parent, node: Node): bool =
+proc checkNodeEvents*(node: Node): EventFlags =
   ## Compute mouse events
-  for n in node.nodes:
-    result = result or computeNodeEvents(node, n)
-
+  template checkEvent(evt: EventType, predicate: untyped) =
+    if evt in node.listen and predicate: result.incl(evt)
+  # check events
   if node.mouseOverlapsNode():
     checkEvent(evMouseClick, mouse.click())
     checkEvent(evMouseDown, mouse.down())
     checkEvent(evMouseRelease, mouse.release())
+    checkEvent(evMouseScroll, mouse.scrolled())
     checkEvent(evMouseHover, true)
   else:
     checkEvent(evMouseClickOut, mouse.click())
     checkEvent(evMouseHoverOut, true)
 
+proc max(a, b: (ZLevel, Node, EventFlags)): (ZLevel, Node, EventFlags) =
+  if a[0] > b[0] and a[2] != {}: a
+  else: b
+
+proc computeNodeEvents*(node: Node): (ZLevel, Node, EventFlags) =
+  ## Compute mouse events
+  for n in node.nodes.reverse:
+    result = result.max(computeNodeEvents(n))
+
+  let allEvts = node.checkNodeEvents()
+  if allEvts != {}:
+    echo fmt"{allEvts=} {(allEvts - onOutEvents).repr=}"
+  node.inputEvents.incl(allEvts * onOutEvents)
+  result = (node.zlevel, node, allEvts - onOutEvents).max(result)
+
 proc computeEvents*(parent, node: Node) =
-  let res = computeNodeEvents(parent, node)
+  let res = computeNodeEvents(node)
+  echo "computeEvents: ", res[0], " => ", res[2].repr
+  if not res[1].isNil:
+    res[1].inputEvents = res[2]
 
 proc computeLayout*(parent, node: Node) =
   ## Computes constraints and auto-layout.
