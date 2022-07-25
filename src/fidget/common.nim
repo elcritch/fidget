@@ -543,10 +543,6 @@ const
 proc max[T](a, b: EventsCapture[T]): EventsCapture[T] =
   if b.zlvl >= a.zlvl and b.flags != {}: b else: a
 
-proc maxes(x, y: CapturedEvents): CapturedEvents =
-  result.mouse = max(x.mouse, y.mouse)
-  result.gesture = max(x.gesture, y.gesture)
-
 template checkEvent[ET](evt: ET, predicate: typed) =
   when ET is MouseEventType:
     if evt in node.listens.mouse and predicate: result.incl(evt)
@@ -566,13 +562,14 @@ proc checkMouseEvents*(node: Node): MouseEventFlags =
 proc checkGestureEvents*(node: Node): GestureEventFlags =
   ## Compute gesture events
   if node.mouseOverlapsNode():
-    if evScroll in node.listens.gesture and mouse.scrolled():
-      result.incl(evScroll)
+    checkEvent(evScroll, mouse.scrolled())
 
 proc computeNodeEvents*(node: Node): CapturedEvents =
   ## Compute mouse events
   for n in node.nodes:
-    result = computeNodeEvents(n).maxes(result)
+    let child = computeNodeEvents(n)
+    result.mouse = max(result.mouse, child.mouse)
+    result.gesture = max(result.gesture, child.gesture)
 
   let
     allMouseEvts = node.checkMouseEvents()
@@ -593,20 +590,22 @@ proc computeNodeEvents*(node: Node): CapturedEvents =
     # e.g. ignore child captures if this node isn't also overlapping 
     result = captured
   else:
-    result = captured.maxes(result)
+    result.mouse = max(captured.mouse, result.mouse)
+    result.gesture = max(captured.gesture, result.gesture)
   
 
 proc computeEvents*(node: Node) =
   let res = computeNodeEvents(node)
-  # TODO: fix overlap and masking
   template handleCapture(name, field, ignore: untyped) =
+    ## process event capture
     if not res.`field`.target.isNil:
       let evts = res.`field`
       let target = evts.target
       target.events.`field` = evts.flags
       if target.kind != nkRoot and evts.flags - ignore != {}:
-        echo "computeEvents:", $(`name`), evts.flags, " => ", evts.zlvl.repr, " target: ", target.id
         requestedFrame = 2
+  ## mouse and gesture are handled separately as they can have separate
+  ## node targets
   handleCapture("mouse", mouse, {evHover})
   handleCapture("gesture", gesture, {})
 
