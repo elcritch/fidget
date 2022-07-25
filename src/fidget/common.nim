@@ -2,6 +2,7 @@ import sequtils, tables, json, hashes
 import chroma, input
 import strutils, strformat
 import unicode
+import typetraits
 
 import variant
 import commonutils
@@ -168,7 +169,8 @@ type
     clipContent*: bool
     nIndex*: int
     diffIndex*: int
-    inputs*: InputEvents
+    events*: InputEvents
+    listens*: ListenEvents
     zlevel*: ZLevel
     when not defined(js):
       textLayout*: seq[GlyphPosition]
@@ -249,21 +251,24 @@ type
   KeyboardEventFlags* = set[KeyboardEventType]
   GestureEventFlags* = set[GestureEventType]
 
-  EventsHandle*[T] = object
-    events*: T
-    listen*: T
-
   InputEvents* = object
-    mouse*: EventsHandle[MouseEventFlags]
-    gesture*: EventsHandle[GestureEventFlags]
+    mouse*: MouseEventFlags
+    gesture*: GestureEventFlags
+  ListenEvents* = object
+    mouse*: MouseEventFlags
+    gesture*: GestureEventFlags
 
   EventsCapture*[T] = object
     zlvl*: ZLevel
     flags*: T
-    ndoe*: Node
+    target*: Node
 
-  MouseCapture* = EventsCapture[MouseEventFlags]
-  GestureCapture* = EventsCapture[GestureEventFlags]
+  MouseCapture* = EventsCapture[MouseEventFlags] 
+  GestureCapture* = EventsCapture[GestureEventFlags] 
+
+  CapturedEvents = object
+    mouse*: MouseCapture
+    gesture*: GestureCapture
 
 type
   HttpStatus* = enum
@@ -448,7 +453,7 @@ proc resetToDefault*(node: Node)=
   node.itemSpacing = 0'ui
   node.clipContent = false
   node.diffIndex = 0
-  node.zLevel = ZLevelDefault
+  node.zlevel = ZLevelDefault
   node.selectable = false
   node.scrollBars = false
   node.hasRendered = false
@@ -536,15 +541,17 @@ const
   MouseOnOutEvents = {evClickOut, evHoverOut}
 
 proc max[T](a, b: EventsCapture[T]): EventsCapture[T] =
-  if b.zlevel >= a.zlevel and b.events != {}: b else: a
-proc maxes[T: tuple](a, b: T): T =
-  for i in type(x).arity: result[i] = max(a[i], b[i])
+  if b.zlvl >= a.zlvl and b.flags != {}: b else: a
+
+proc maxes(x, y: CapturedEvents): CapturedEvents =
+  result.mouse = max(x.mouse, y.mouse)
+  result.gesture = max(x.gesture, y.gesture)
 
 template checkEvent[ET](evt: ET, predicate: typed) =
   when ET is MouseEventType:
-    if evt in node.inputs.mouse.listen and predicate: result.incl(evt)
+    if evt in node.listens.mouse and predicate: result.incl(evt)
   elif ET is GestureEventType:
-    if evt in node.inputs.gesture.listen and predicate: result.incl(evt)
+    if evt in node.listens.gesture and predicate: result.incl(evt)
 
 proc checkMouseEvents*(node: Node): MouseEventFlags =
   ## Compute mouse events
@@ -559,36 +566,56 @@ proc checkMouseEvents*(node: Node): MouseEventFlags =
 proc checkGestureEvents*(node: Node): GestureEventFlags =
   ## Compute gesture events
   if node.mouseOverlapsNode():
-    checkEvent(evScroll, mouse.scrolled())
+    if evScroll in node.listens.gesture and mouse.scrolled():
+      if current.scrollBars:
+        let
+          yoffset = mouse.wheelDelta.UICoord
+          ph = parent.screenBox.h
+          ch = (current.screenBox.h - ph).clamp(0'ui, current.screenBox.h)
+        current.offset.y -= yoffset
+        current.offset.y = current.offset.y.clamp(0'ui, ch)
+      result.incl(evScroll)
 
-proc computeNodeEvents*(node: Node): (MouseCapture, GestureCapture) =
+proc computeNodeEvents*(node: Node): CapturedEvents =
   ## Compute mouse events
   for n in node.nodes:
     result = computeNodeEvents(n).maxes(result)
 
   let
-    allEvts = node.checkNodeEvents()
-    evts = allEvts - OnOutEvents
-  node.inputEvents.incl(allEvts * OnOutEvents)
+    allMouseEvts = node.checkMouseEvents()
+    mouseEvts = allMouseEvts - MouseOnOutEvents
+    gestureEvts = node.checkGestureEvents()
+
+  # set on-out events 
+  node.events.mouse.incl(mouseEvts * MouseOnOutEvents)
+
+  let
+    captured = CapturedEvents(
+      mouse: MouseCapture(zlvl: node.zlevel, flags: mouseEvts, target: node),
+      gesture: GestureCapture(zlvl: node.zlevel, flags: gestureEvts, target: node)
+    )
 
   if node.clipContent and not node.mouseOverlapsNode():
-    # node clips events, so it must overlap events
-    result = (node.zlevel, node, evts)
+    # this node clips events, so it must overlap child events, 
+    # e.g. ignore child captures if this node isn't also overlapping 
+    result = captured
   else:
-    result = (node.zlevel, node, evts).max(result)
+    result = captured.maxes(result)
+  
 
 proc computeEvents*(node: Node) =
-  let (resMouse, resGesture) = computeNodeEvents(node)
+  let res = computeNodeEvents(node)
   # TODO: fix overlap and masking
-  # if not resMouse.node.isNil:
-  #   resMouse.node.inputEvents = resMouse[2]
-  #   if res[1].kind != nkRoot and
-  #       res[2] - {evMouseHover} != {}:
-  #     echo "computeEvents: ", res[0], " => ", res[2].repr, " node: ", res[1].id
-  #     requestedFrame = 2
-  #   else:
-  #     discard
-  #     # raise newException(ValueError, "")
+  template handleCapture(name, field, ignore: untyped) =
+    if not res.`field`.target.isNil:
+      let evts = res.`field`
+      let target = evts.target
+      target.events.`field` = evts.flags
+      if target.kind != nkRoot and evts.flags - ignore != {}:
+        echo "computeEvents:", $(`name`), evts.flags, " => ", evts.zlvl.repr, " target: ", target.id
+        requestedFrame = 2
+  handleCapture("mouse", mouse, {evHover})
+  handleCapture("gesture", gesture, {})
 
 proc computeLayout*(parent, node: Node) =
   ## Computes constraints and auto-layout.

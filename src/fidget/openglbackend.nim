@@ -207,7 +207,7 @@ proc openBrowser*(url: string) =
 
 proc refresh*() =
   ## Request the screen be redrawn
-  requestedFrame.inc
+  requestedFrame = max(1, requestedFrame)
 
 proc getTitle*(): string =
   ## Gets window title
