@@ -184,7 +184,6 @@ type
     ## Can the text be selected.
     selectable*: bool
     scrollBars*: bool 
-    postHooks*: seq[proc() {.closure.}]
     hookName*: string
     hookStates*: Variant
     hookEvents*: GeneralEvents
@@ -317,7 +316,6 @@ var
   pathChecker*: Table[string, bool]
 
   computeTextLayout*: proc(node: Node)
-  computeHooks*: proc(parent, node: Node)
 
   lastUId: int
   nodeLookup*: Table[string, Node]
