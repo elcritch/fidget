@@ -206,26 +206,65 @@ template useEvents*(): GeneralEvents =
     current.hookEvents.data = newTable[string, seq[Variant]]()
   current.hookEvents
 
-template onClick*(inner: untyped) =
+template onClick*(inner: untyped, button = MOUSE_LEFT) =
   ## On click event handler.
   current.listens.mouse.incl(evClick)
-  if evClick in current.events.mouse:
+  if evClick in current.events.mouse and buttonPress[button]:
     inner
 
-template onClickOutside*(inner: untyped) =
+template onClickOutside*(inner: untyped, button = MOUSE_LEFT) =
   ## On click outside event handler. Useful for deselecting things.
-  if (mouse.click or mouse.clickedOutside) and not mouseOverlapLogic():
+  ## 
+  if evClickOut in current.events.mouse and buttonPress[button]:
     # mark as consumed but don't block other onClickOutside's
     inner
 
 template onRightClick*(inner: untyped) =
   ## On right click event handler.
-  if buttonPress[MOUSE_RIGHT] and mouseOverlapLogic():
+  current.listens.mosue.incl(evPress)
+  if evPress in current.events.mouse and buttonDown[MOUSE_RIGHT]:
     inner
 
-template onMouseDown*(inner: untyped) =
+template onMouseDown*(inner: untyped, button = MOUSE_LEFT) =
   ## On when mouse is down and overlapping the element.
-  if buttonDown[MOUSE_LEFT] and mouseOverlapLogic():
+  current.listens.mosue.incl(evPress)
+  if evDown in current.events.mouse and buttonDown[button]:
+    inner
+
+template onHover*(inner: untyped) =
+  ## Code in the block will run when this box is hovered.
+  current.listens.mouse.incl(evHover)
+  if evHover in current.events.mouse:
+    inner
+
+template onHoverOut*(inner: untyped) =
+  ## Code in the block will run when hovering outside the box.
+  current.listens.mouse.incl(evHoverOut)
+  if evHoverOut in current.events.mouse:
+    inner
+
+template onDown*(inner: untyped, button = MOUSE_LEFT) =
+  ## Code in the block will run when this mouse is dragging.
+  current.listens.mouse.incl(evDown)
+  if evDown in current.events.mouse and buttonDoww[button]:
+    inner
+
+template onScroll*(inner: untyped) =
+  ## Code in the block will run when mouse scrolls
+  current.listens.gesture.incl(evScroll)
+  if evScroll in current.events.gesture:
+    inner
+
+template onFocus*(inner: untyped) =
+  ## On focusing an input element.
+  if keyboard.onFocusNode == current:
+    keyboard.onFocusNode = nil
+    inner
+
+template onUnFocus*(inner: untyped) =
+  ## On loosing focus on an input element.
+  if keyboard.onUnFocusNode == current:
+    keyboard.onUnFocusNode = nil
     inner
 
 template onKey*(inner: untyped) =
@@ -250,40 +289,6 @@ proc hasKeyboardFocus*(node: Node): bool =
 template onInput*(inner: untyped) =
   ## This is called when key is pressed and this element has focus.
   if keyboard.state == Press and current.hasKeyboardFocus():
-    inner
-
-template onHover*(inner: untyped) =
-  ## Code in the block will run when this box is hovered.
-  current.listens.mouse.incl(evHover)
-  if evHover in current.events.mouse:
-    inner
-
-template onScroll*(inner: untyped) =
-  ## Code in the block will run when mouse scrolls
-  current.listens.gesture.incl(evScroll)
-  if evScroll in current.events.gesture:
-    inner
-
-template onHoverOut*(inner: untyped) =
-  ## Code in the block will run when hovering outside the box.
-  if not mouseOverlapLogic():
-    inner
-
-template onDown*(inner: untyped) =
-  ## Code in the block will run when this mouse is dragging.
-  if mouse.down and mouseOverlapLogic():
-    inner
-
-template onFocus*(inner: untyped) =
-  ## On focusing an input element.
-  if keyboard.onFocusNode == current:
-    keyboard.onFocusNode = nil
-    inner
-
-template onUnFocus*(inner: untyped) =
-  ## On loosing focus on an input element.
-  if keyboard.onUnFocusNode == current:
-    keyboard.onUnFocusNode = nil
     inner
 
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

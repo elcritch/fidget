@@ -236,7 +236,7 @@ type
     evClickOut
     evHover
     evHoverOut
-    evDown
+    evPress
     evRelease
 
   KeyboardEventType* {.size: sizeof(int16).} = enum
@@ -491,17 +491,29 @@ proc clearInputs*() =
   else:
     keyboard.state = KeyState.Empty
 
+const
+  MouseButtons = [
+    MOUSE_LEFT,
+    MOUSE_RIGHT,
+    MOUSE_MIDDLE,
+    MOUSE_BACK,
+    MOUSE_FORWARD
+  ]
+
 proc click*(mouse: Mouse): bool =
-  result = buttonPress[MOUSE_LEFT]
+  for mbtn in MouseButtons:
+    if buttonPress[mbtn]: return true
 
 proc down*(mouse: Mouse): bool =
-  buttonDown[MOUSE_LEFT]
+  for mbtn in MouseButtons:
+    if buttonDown[mbtn]: return true
 
 proc scrolled*(mouse: Mouse): bool =
   mouse.wheelDelta != 0.0
 
 proc release*(mouse: Mouse): bool =
-  buttonRelease[MOUSE_LEFT]
+  for mbtn in MouseButtons:
+    if buttonRelease[mbtn]: return true
 
 proc consume*(keyboard: Keyboard) =
   ## Reset the keyboard state consuming any event information.
@@ -552,7 +564,7 @@ proc checkMouseEvents*(node: Node): MouseEventFlags =
   ## Compute mouse events
   if node.mouseOverlapsNode():
     checkEvent(evClick, mouse.click())
-    checkEvent(evDown, mouse.down())
+    checkEvent(evPress, mouse.down())
     checkEvent(evRelease, mouse.release())
     checkEvent(evHover, true)
   else:
