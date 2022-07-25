@@ -252,9 +252,18 @@ type
   EventsHandle*[T] = object
     events*: T
     listen*: T
-  InputEvents = object
+
+  InputEvents* = object
     mouse*: EventsHandle[MouseEventFlags]
     gesture*: EventsHandle[GestureEventFlags]
+
+  EventsCapture*[T] = object
+    zlvl*: ZLevel
+    flags*: T
+    ndoe*: Node
+
+  MouseCapture* = EventsCapture[MouseEventFlags]
+  GestureCapture* = EventsCapture[GestureEventFlags]
 
 type
   HttpStatus* = enum
@@ -453,8 +462,6 @@ proc setupRoot*() =
     root.id = "root"
     root.uid = newUId()
     root.zlevel = ZLevelDefault
-    root.listen = {}
-    # root.highlightColor = parseHtmlColor("#3297FD")
     root.cursorColor = rgba(0, 0, 0, 255).color
   nodeStack = @[root]
   current = root
@@ -525,21 +532,19 @@ proc mouseOverlapsNode*(node: Node): bool =
     mpos.overlaps(node.screenBox) and
     (if inPopup: mouse.pos.descaled.overlaps(popupBox) else: true)
 
-type
-  EventCapture*[T] = object
-    zlevel*: ZLevel
-    events*: T
-    target*: Node
-
 const
   MouseOnOutEvents = {evClickOut, evHoverOut}
 
-proc max*[T](a, b: EventCapture[T]): EventCapture[T] =
-  if b.zlevel >= a.zlevel and b.events != {}: b
-  else: a
+proc max[T](a, b: EventsCapture[T]): EventsCapture[T] =
+  if b.zlevel >= a.zlevel and b.events != {}: b else: a
+proc maxes[T: tuple](a, b: T): T =
+  for i in type(x).arity: result[i] = max(a[i], b[i])
 
-template checkEvent[EventType](evt: EventType, predicate: typed) =
-  if evt in node.listen and predicate: result.incl(evt)
+template checkEvent[ET](evt: ET, predicate: typed) =
+  when ET is MouseEventType:
+    if evt in node.inputs.mouse.listen and predicate: result.incl(evt)
+  elif ET is GestureEventType:
+    if evt in node.inputs.gesture.listen and predicate: result.incl(evt)
 
 proc checkMouseEvents*(node: Node): MouseEventFlags =
   ## Compute mouse events
@@ -547,7 +552,6 @@ proc checkMouseEvents*(node: Node): MouseEventFlags =
     checkEvent(evClick, mouse.click())
     checkEvent(evDown, mouse.down())
     checkEvent(evRelease, mouse.release())
-    checkEvent(evScroll, mouse.scrolled())
     checkEvent(evHover, true)
   else:
     checkEvent(evHoverOut, true)
@@ -557,12 +561,10 @@ proc checkGestureEvents*(node: Node): GestureEventFlags =
   if node.mouseOverlapsNode():
     checkEvent(evScroll, mouse.scrolled())
 
-
-
-proc computeNodeEvents*(node: Node): EventInstance =
+proc computeNodeEvents*(node: Node): (MouseCapture, GestureCapture) =
   ## Compute mouse events
   for n in node.nodes:
-    result = computeNodeEvents(n).max(result)
+    result = computeNodeEvents(n).maxes(result)
 
   let
     allEvts = node.checkNodeEvents()
@@ -576,17 +578,17 @@ proc computeNodeEvents*(node: Node): EventInstance =
     result = (node.zlevel, node, evts).max(result)
 
 proc computeEvents*(node: Node) =
-  let res = computeNodeEvents(node)
+  let (resMouse, resGesture) = computeNodeEvents(node)
   # TODO: fix overlap and masking
-  if not res[1].isNil:
-    res[1].inputEvents = res[2]
-    if res[1].kind != nkRoot and
-        res[2] - {evMouseHover} != {}:
-      echo "computeEvents: ", res[0], " => ", res[2].repr, " node: ", res[1].id
-      requestedFrame = 2
-    else:
-      discard
-      # raise newException(ValueError, "")
+  # if not resMouse.node.isNil:
+  #   resMouse.node.inputEvents = resMouse[2]
+  #   if res[1].kind != nkRoot and
+  #       res[2] - {evMouseHover} != {}:
+  #     echo "computeEvents: ", res[0], " => ", res[2].repr, " node: ", res[1].id
+  #     requestedFrame = 2
+  #   else:
+  #     discard
+  #     # raise newException(ValueError, "")
 
 proc computeLayout*(parent, node: Node) =
   ## Computes constraints and auto-layout.
