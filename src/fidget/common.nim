@@ -566,7 +566,7 @@ proc checkGestureEvents*(node: Node): GestureEventFlags =
 
 proc computeNodeEvents*(node: Node): CapturedEvents =
   ## Compute mouse events
-  for n in node.nodes:
+  for n in node.nodes.reverse:
     let child = computeNodeEvents(n)
     result.mouse = max(result.mouse, child.mouse)
     result.gesture = max(result.gesture, child.gesture)
