@@ -567,13 +567,6 @@ proc checkGestureEvents*(node: Node): GestureEventFlags =
   ## Compute gesture events
   if node.mouseOverlapsNode():
     if evScroll in node.listens.gesture and mouse.scrolled():
-      if current.scrollBars:
-        let
-          yoffset = mouse.wheelDelta.UICoord
-          ph = parent.screenBox.h
-          ch = (current.screenBox.h - ph).clamp(0'ui, current.screenBox.h)
-        current.offset.y -= yoffset
-        current.offset.y = current.offset.y.clamp(0'ui, ch)
       result.incl(evScroll)
 
 proc computeNodeEvents*(node: Node): CapturedEvents =

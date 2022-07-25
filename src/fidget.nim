@@ -279,8 +279,8 @@ template onHover*(inner: untyped) =
 
 template onScroll*(inner: untyped) =
   ## Code in the block will run when mouse scrolls
-  if mouse.wheelDelta != 0.0 and mouseOverlapLogic():
-    mouse.consumed = true
+  current.listens.gesture.incl(evScroll)
+  if evScroll in current.events.gesture:
     inner
 
 template onHoverOut*(inner: untyped) =
@@ -994,7 +994,15 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight, setup: proc() = nil) =
   ## Causes the parent to clip the children and draw scroll bars.
   current.scrollBars = scrollBars
   if scrollBars == true:
-    current.clipContent = scrollBars
+    current.clipContent = true
+
+    onScroll:
+      let
+        yoffset = mouse.wheelDelta.UICoord
+        ph = parent.screenBox.h
+        ch = (current.screenBox.h - ph).clamp(0'ui, current.screenBox.h)
+      current.offset.y -= yoffset
+      current.offset.y = current.offset.y.clamp(0'ui, ch)
 
   # todo? make useData?
   let evts = useEvents()
