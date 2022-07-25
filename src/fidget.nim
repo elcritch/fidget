@@ -227,8 +227,8 @@ template useEvents*(): GeneralEvents =
 
 template onClick*(inner: untyped) =
   ## On click event handler.
-  current.listen.incl(evMouseClick)
-  if evMouseClick in current.inputEvents:
+  current.listens.mouse.incl(evClick)
+  if evClick in current.events.mouse:
     inner
 
 template onClickOutside*(inner: untyped) =
@@ -273,8 +273,8 @@ template onInput*(inner: untyped) =
 
 template onHover*(inner: untyped) =
   ## Code in the block will run when this box is hovered.
-  current.listen.incl(evMouseHover)
-  if evMouseHover in current.inputEvents:
+  current.listens.mouse.incl(evHover)
+  if evHover in current.events.mouse:
     inner
 
 template onScroll*(inner: untyped) =
