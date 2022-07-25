@@ -430,7 +430,7 @@ proc width*(w: int|float32|float64|UICoord) =
 
 proc height*(h: int|float32|float64|UICoord) =
   ## Sets the height of current node
-  let cb = current.box()
+  let cb = current.box
   box(cb.x, cb.y, float32 cb.w, float32 h)
 
 proc offset*(
@@ -1008,10 +1008,43 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight, setup: proc() = nil) =
   let evts = useEvents()
   let pip = evts.mgetOrPut("$scrollbar", ScrollPip)
 
+  let
+    halign: HAlign = hAlign
+    width = 14'ui
+
+  let
+    ## Compute various scroll bar items
+    parentBox = parent.screenBox
+    currBox = current.screenBox
+    boxRatio = (parentBox.h/currBox.h).clamp(0.0'ui, 1.0'ui)
+    scrollBoxH = boxRatio * parentBox.h
+
+  if pip.drag:
+    ## Calculate drag of scroll bar
+    pip.hPos = mouse.pos.descaled.y 
+    pip.drag = buttonDown[MOUSE_LEFT]
+
+    let
+      delta = (pip.hPos - pip.hPosLast)
+      topOffsetY = max(currBox.h - parentBox.h, 0'ui)
+    
+    current.offset.y = (pip.offLast + delta / boxRatio)
+    current.offset.y = current.offset.y.clamp(0'ui, topOffsetY)
+
+  let
+    xx = if halign == hLeft: 0'ui else: currBox.w - width
+    currOffset = current.offset.y
+    hPerc = clamp(currOffset/(currBox.h - parentBox.h), 0'ui, 1'ui)
+    bx = initBox(x= xx,
+                  y= hPerc*(parentBox.h - scrollBoxH),
+                  w= width,
+                  h= scrollBoxH)
+  
   # define basics of scrollbar
   rectangle "$scrollbar":
-
-    box 0, 0, 0, 0
+    current.kind = nkScrollBar
+    box bx
+    current.offset = parent.offset * -1'ui
     layoutAlign laIgnore
     fill scrollBarFill
     onHover:
@@ -1022,63 +1055,6 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight, setup: proc() = nil) =
       pip.drag = true
       pip.hPosLast = mouse.pos.descaled.y 
       pip.offLast = -current.offset.y
-
-  current.postHooks.add proc() =
-    ## add post inner callback to calculate the scrollbar box
-    ## not sure this is the best way to handle this, but it's
-    ## easier to calculate some things after the node has been
-    ## called and computed. 
-    # evts.data["$scrollbar"] = @[newVariant(pip)]
-
-    let
-      evts = useEvents()
-      halign: HAlign = hAlign
-      width = 14'ui
-
-    let
-      ## Compute various scroll bar items
-      parentBox = parent.screenBox
-      currBox = current.screenBox
-      boxRatio = (parentBox.h/currBox.h).clamp(0.0'ui, 1.0'ui)
-      scrollBoxH = boxRatio * parentBox.h
-
-    if pip.drag:
-      ## Calculate drag of scroll bar
-      pip.hPos = mouse.pos.descaled.y 
-      pip.drag = buttonDown[MOUSE_LEFT]
-
-      let
-        delta = (pip.hPos - pip.hPosLast)
-        topOffsetY = max(currBox.h - parentBox.h, 0'ui)
-      
-      current.offset.y = (pip.offLast + delta / boxRatio)
-      current.offset.y = current.offset.y.clamp(0'ui, topOffsetY)
-
-      # Update scroll percent
-      # let scrollPercent = currOffset/(currBox.h - parentBox.h)
-      # current.scrollPercent = scrollPercent.clamp(0.0, 1.0)
-
-    let
-      xx = if halign == hLeft: 0'ui else: currBox.w - width
-      currOffset = current.offset.y
-      hPerc = clamp(currOffset/(currBox.h - parentBox.h), 0'ui, 1'ui)
-      bx = initBox(x= xx,
-                   y= hPerc*(parentBox.h - scrollBoxH),
-                   w= width,
-                   h= scrollBoxH)
-
-    var idx = -1
-    for i, child in current.nodes:
-      if child.id == "$scrollbar":
-        idx = i
-        break
-    
-    if idx >= 0:
-      var sb = current.nodes[idx]
-      sb.box = bx
-      sb.offset = current.offset * -1'ui
-    else:
-      raise newException(Exception, "scrollbar defined but node is missing")
 
 
 proc defaultTheme*() =

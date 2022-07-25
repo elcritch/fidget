@@ -122,6 +122,7 @@ type
     nkComponent
     nkInstance
     nkDrawable
+    nkScrollBar
 
   ImageStyle* = object
     name*: string

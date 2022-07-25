@@ -246,7 +246,7 @@ proc draw*(node, parent: Node) =
   ctx.translate(node.screenBox.scaled.xy)
 
   # handles setting up scrollbar region
-  ifdraw node.id == "$scrollbar":
+  ifdraw node.kind == nkScrollBar:
     ctx.saveTransform()
     ctx.translate(parent.offset.scaled)
   finally:
@@ -282,7 +282,7 @@ proc draw*(node, parent: Node) =
   ctx.restoreTransform()
 
   ifdraw node.scrollBars:
-    # handles drawing actual scrollbars
+    # handles scrolling panel
     ctx.saveTransform()
     ctx.translate(-node.offset.scaled)
   finally:
