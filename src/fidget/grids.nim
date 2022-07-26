@@ -87,27 +87,39 @@ proc newGridTemplate*(
 proc newGridItem*(): GridItem =
   new(result)
 
-proc computeLineLayout*(lines: var seq[GridLine], length: UICoord) =
+proc computeLineLayout*(
+    lines: var seq[GridLine],
+    length: UICoord,
+    spacing: UICoord,
+) =
   var
     fixed = 0'ui
-    totalFracs = 0
-    totalAutos = 0
+    totalFracs = 0.0
+    totalAutos = 0.0
   
   # compute total fixed sizes and fracs
-  for ln in lines:
-    match ln.track:
+  for grdLn in lines:
+    match grdLn.track:
       grFixed(coord): fixed += coord
-      grFrac(frac): totalFracs += frac
+      grFrac(frac): totalFracs += frac.float
       grAuto(): totalAutos += 1
-  
-  var freeSpace = length - fixed
-  for ln in lines.mitems():
-    if ln.track.kind == grFrac:
-      echo ""
-  for ln in lines.filter(l => l.track.kind == grAuto):
-    fixed += ln.track.coord
+  fixed += spacing * lines.len().UICoord
 
+  var
+    fracPos = 0'ui
+    freeSpace = length - fixed
   
+  # frac's
+  for grdLn in lines.mitems():
+    if grdLn.track.kind == grFrac:
+      grdLn.position = fracPos
+      fracPos += freeSpace * UICoord(grdLn.track.frac.float/totalFracs)
+  
+  # auto's
+  for grdLn in lines.mitems():
+    if grdLn.track.kind == grAuto:
+      grdLn.position = fracPos
+      fracPos += freeSpace * UICoord(1.0/totalAutos)
 
 proc computeLayout*(grid: GridTemplate, box: Box) =
   ## computing grid layout
