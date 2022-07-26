@@ -3,6 +3,8 @@ import chroma, input
 import strutils, strformat
 import unicode
 import typetraits
+import rationals
+
 
 import variant
 import commonutils
@@ -81,6 +83,11 @@ type
     lmNone
     lmVertical
     lmHorizontal
+    lmGrid
+
+  GridStyle* = object
+    columns*: Rational[int8]
+    rows*: Rational[int8]
 
   CounterAxisSizingMode* = enum
     ## How to deal with the opposite side of an auto-layout frame.
@@ -164,6 +171,7 @@ type
     layoutAlign*: LayoutAlign
     layoutMode*: LayoutMode
     counterAxisSizingMode*: CounterAxisSizingMode
+    grid*: GridStyle
     horizontalPadding*: UICoord
     verticalPadding*: UICoord
     itemSpacing*: UICoord
@@ -631,6 +639,10 @@ proc computeLayout*(parent, node: Node) =
     computeLayout(node, n)
 
   if node.layoutAlign == laIgnore:
+    return
+
+  if node.layoutMode == lmGrid:
+
     return
 
   # Constraints code.

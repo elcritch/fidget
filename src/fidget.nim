@@ -343,6 +343,14 @@ proc `'ph`*(n: string): UICoord =
   ## numeric literal percent of parent height
   result = HPerc(parseFloat(n))
 
+template Frac*(size: int): int =
+  ## percentage of parent height
+  size
+
+proc `'fr`*(n: string): int =
+  ## numeric literal percent of parent height
+  result = Frac(parseInt(n))
+
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ##             Node Content and Settings
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
