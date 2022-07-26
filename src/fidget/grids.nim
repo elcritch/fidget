@@ -94,32 +94,40 @@ proc computeLineLayout*(
 ) =
   var
     fixed = 0'ui
-    totalFracs = 0.0
-    totalAutos = 0.0
+    totalFracs = 0.0'ui
+    totalAutos = 0
   
   # compute total fixed sizes and fracs
   for grdLn in lines:
     match grdLn.track:
       grFixed(coord): fixed += coord
-      grFrac(frac): totalFracs += frac.float
+      grFrac(frac): totalFracs += frac.UICoord
       grAuto(): totalAutos += 1
   fixed += spacing * lines.len().UICoord
 
   var
-    fracPos = 0'ui
     freeSpace = length - fixed
+    remSpace = freeSpace
   
   # frac's
   for grdLn in lines.mitems():
     if grdLn.track.kind == grFrac:
-      grdLn.position = fracPos
-      fracPos += freeSpace * UICoord(grdLn.track.frac.float/totalFracs)
+      grdLn.position =
+        freeSpace * grdLn.track.frac.UICoord/totalFracs
+      remSpace -= grdLn.position
+    elif grdLn.track.kind == grFixed:
+      grdLn.position = grdLn.track.coord
   
   # auto's
   for grdLn in lines.mitems():
     if grdLn.track.kind == grAuto:
-      grdLn.position = fracPos
-      fracPos += freeSpace * UICoord(1.0/totalAutos)
+      grdLn.position = remSpace * 1/totalAutos.UICoord
+
+  var cursor = 0.0'ui
+  for grdLn in lines.mitems():
+    let tmp = grdLn.position
+    grdLn.position = cursor
+    cursor += tmp
 
 proc computeLayout*(grid: GridTemplate, box: Box) =
   ## computing grid layout
@@ -166,7 +174,7 @@ when isMainModule:
         rows = @[1'fr, 1'fr, 1'fr],
       )
       gt.computeLayout(initBox(0, 0, 100, 100))
-      print "grid template: ", gt
+      # print "grid template: ", gt
 
       check abs(gt.columns[0].position.float - 0.0) < 1.0e-3
       check abs(gt.columns[1].position.float - 33.3333) < 1.0e-3
@@ -174,3 +182,16 @@ when isMainModule:
       check abs(gt.rows[0].position.float - 0.0) < 1.0e-3
       check abs(gt.rows[1].position.float - 33.3333) < 1.0e-3
       check abs(gt.rows[2].position.float - 66.6666) < 1.0e-3
+
+    test "basic grid compute":
+      var gt = newGridTemplate(
+        columns = @[1'fr, gridLine(50.mkFixed), 1'fr, 1'fr],
+      )
+      gt.computeLayout(initBox(0, 0, 100, 100))
+      print "grid template: ", gt
+
+      check abs(gt.columns[0].position.float - 0.0) < 1.0e-3
+      check abs(gt.columns[1].position.float - 33.3333) < 1.0e-3
+      check abs(gt.columns[2].position.float - 66.6666) < 1.0e-3
+      check abs(gt.columns[3].position.float - 66.6666) < 1.0e-3
+      check abs(gt.rows[0].position.float - 0.0) < 1.0e-3
