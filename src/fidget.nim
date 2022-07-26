@@ -51,7 +51,9 @@ proc preNode(kind: NodeKind, id: string) =
   current.cursorColor = parent.cursorColor
   current.highlightColor = parent.highlightColor
   current.transparency = parent.transparency
-  current.zLevel = parent.zLevel
+  current.zlevel = parent.zlevel
+  current.listens.mouse = {}
+  current.listens.gesture = {}
   nodeStack.add(current)
   inc parent.diffIndex
 
