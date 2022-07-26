@@ -68,10 +68,27 @@ proc gridLine*(
 
 let defaultLine = GridLine(trackSize: mkFrac(1))
 
-proc newGridTemplate*(): GridTemplate =
+proc newGridTemplate*(
+  columns = @[defaultLine],
+  rows = @[defaultLine],
+): GridTemplate =
   new(result)
-  result.columns = @[defaultLine]
-  result.rows = @[defaultLine]
+  result.columns = columns
+  result.rows = rows
 
 proc newGridItem*(): GridItem =
   new(result)
+
+when isMainModule:
+  import unittest
+
+  suite "grids":
+
+    test "basic grid template":
+
+      var gt = newGridTemplate(
+        columns = @[gridLine(mkFrac(1)), gridLine(mkFrac(1))],
+        rows = @[gridLine(mkFrac(1)), gridLine(mkFrac(1))],
+      )
+
+      echo "grid template: ", repr gt
