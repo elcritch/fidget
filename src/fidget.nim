@@ -215,6 +215,7 @@ template onClick*(inner: untyped, button = MOUSE_LEFT) =
 template onClickOutside*(inner: untyped, button = MOUSE_LEFT) =
   ## On click outside event handler. Useful for deselecting things.
   ## 
+  current.listens.mouse.incl(evClickOut)
   if evClickOut in current.events.mouse and buttonPress[button]:
     # mark as consumed but don't block other onClickOutside's
     inner

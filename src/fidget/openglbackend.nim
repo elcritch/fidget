@@ -88,13 +88,14 @@ proc setupFidget(
     if currTextBox != nil:
       keyboard.input = currTextBox.text
 
+    computeEvents(root)
+
     drawMain()
 
     root.removeExtraChildren()
 
     computeLayout(nil, root)
     computeScreenBox(nil, root)
-    computeEvents(root)
     processHooks(nil, root)
 
     # Only draw the root after everything was done:

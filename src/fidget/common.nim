@@ -246,6 +246,7 @@ type
 
   GestureEventType* {.size: sizeof(int16).} = enum
     evScroll
+    evDrag # TODO: implement this!?
 
   MouseEventFlags* = set[MouseEventType]
   KeyboardEventFlags* = set[KeyboardEventType]
@@ -502,7 +503,8 @@ const
 
 proc click*(mouse: Mouse): bool =
   for mbtn in MouseButtons:
-    if buttonPress[mbtn]: return true
+    if buttonPress[mbtn]:
+      return true
 
 proc down*(mouse: Mouse): bool =
   for mbtn in MouseButtons:
@@ -569,6 +571,7 @@ proc checkMouseEvents*(node: Node): MouseEventFlags =
     checkEvent(evHover, true)
   else:
     checkEvent(evHoverOut, true)
+    checkEvent(evClickOut, mouse.click())
 
 proc checkGestureEvents*(node: Node): GestureEventFlags =
   ## Compute gesture events
@@ -614,6 +617,7 @@ proc computeEvents*(node: Node) =
       let target = evts.target
       target.events.`field` = evts.flags
       if target.kind != nkRoot and evts.flags - ignore != {}:
+        # echo "EVT: ", target.kind, " => ", evts.flags, " @ ", target.id
         requestedFrame = 2
   ## mouse and gesture are handled separately as they can have separate
   ## node targets
