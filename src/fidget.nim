@@ -248,8 +248,8 @@ template onHoverOut*(inner: untyped) =
 
 template onDown*(inner: untyped, button = MOUSE_LEFT) =
   ## Code in the block will run when this mouse is dragging.
-  current.listens.mouse.incl(evDown)
-  if evDown in current.events.mouse and buttonDoww[button]:
+  current.listens.mouse.incl(evPress)
+  if evPress in current.events.mouse and buttonPress[button]:
     inner
 
 template onScroll*(inner: untyped) =

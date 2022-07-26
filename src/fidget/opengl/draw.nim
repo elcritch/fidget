@@ -162,7 +162,7 @@ macro ifdraw(check, code: untyped, post: untyped = nil) =
   result = newStmtList()
   let checkval = genSym(nskLet, "checkval")
   result.add quote do:
-    let `checkval` = node.zLevel == currLevel and `check`
+    let `checkval` = node.zlevel == currLevel and `check`
     if `checkval`: `code`
   if post != nil:
     post.expectKind(nnkFinally)
