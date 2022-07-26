@@ -35,7 +35,8 @@ type
   GridLine* = object
     aliases*: HashSet[LineName]
     track*: TrackSize
-    position*: UICoord
+    start*: UICoord
+    width*: UICoord
 
   GridTemplate* = ref object
     columns*: seq[GridLine]
@@ -112,22 +113,21 @@ proc computeLineLayout*(
   # frac's
   for grdLn in lines.mitems():
     if grdLn.track.kind == grFrac:
-      grdLn.position =
+      grdLn.width =
         freeSpace * grdLn.track.frac.UICoord/totalFracs
-      remSpace -= grdLn.position
+      remSpace -= grdLn.width 
     elif grdLn.track.kind == grFixed:
-      grdLn.position = grdLn.track.coord
+      grdLn.width = grdLn.track.coord
   
   # auto's
   for grdLn in lines.mitems():
     if grdLn.track.kind == grAuto:
-      grdLn.position = remSpace * 1/totalAutos.UICoord
+      grdLn.width = remSpace * 1/totalAutos.UICoord
 
   var cursor = 0.0'ui
   for grdLn in lines.mitems():
-    let tmp = grdLn.position
-    grdLn.position = cursor
-    cursor += tmp
+    grdLn.start = cursor
+    cursor += grdLn.width
 
 proc computeLayout*(grid: GridTemplate, box: Box) =
   ## computing grid layout
@@ -163,10 +163,10 @@ when isMainModule:
       gt.computeLayout(initBox(0, 0, 100, 100))
       print "grid template: ", gt
 
-      check gt.columns[0].position == 0'ui
-      check gt.columns[1].position == 50'ui
-      check gt.rows[0].position == 0'ui
-      check gt.rows[1].position == 50'ui
+      check gt.columns[0].start == 0'ui
+      check gt.columns[1].start == 50'ui
+      check gt.rows[0].start == 0'ui
+      check gt.rows[1].start == 50'ui
 
     test "basic grid compute":
       var gt = newGridTemplate(
@@ -176,22 +176,22 @@ when isMainModule:
       gt.computeLayout(initBox(0, 0, 100, 100))
       # print "grid template: ", gt
 
-      check abs(gt.columns[0].position.float - 0.0) < 1.0e-3
-      check abs(gt.columns[1].position.float - 33.3333) < 1.0e-3
-      check abs(gt.columns[2].position.float - 66.6666) < 1.0e-3
-      check abs(gt.rows[0].position.float - 0.0) < 1.0e-3
-      check abs(gt.rows[1].position.float - 33.3333) < 1.0e-3
-      check abs(gt.rows[2].position.float - 66.6666) < 1.0e-3
+      check abs(gt.columns[0].start.float - 0.0) < 1.0e-3
+      check abs(gt.columns[1].start.float - 33.3333) < 1.0e-3
+      check abs(gt.columns[2].start.float - 66.6666) < 1.0e-3
+      check abs(gt.rows[0].start.float - 0.0) < 1.0e-3
+      check abs(gt.rows[1].start.float - 33.3333) < 1.0e-3
+      check abs(gt.rows[2].start.float - 66.6666) < 1.0e-3
 
     test "basic grid compute":
       var gt = newGridTemplate(
-        columns = @[1'fr, gridLine(50.mkFixed), 1'fr, 1'fr],
+        columns = @[1'fr, gridLine(5.mkFixed), 1'fr, 1'fr],
       )
       gt.computeLayout(initBox(0, 0, 100, 100))
       print "grid template: ", gt
 
-      check abs(gt.columns[0].position.float - 0.0) < 1.0e-3
-      check abs(gt.columns[1].position.float - 33.3333) < 1.0e-3
-      check abs(gt.columns[2].position.float - 66.6666) < 1.0e-3
-      check abs(gt.columns[3].position.float - 66.6666) < 1.0e-3
-      check abs(gt.rows[0].position.float - 0.0) < 1.0e-3
+      check abs(gt.columns[0].start.float - 0.0) < 1.0e-3
+      check abs(gt.columns[1].start.float - 33.3333) < 1.0e-3
+      check abs(gt.columns[2].start.float - 66.6666) < 1.0e-3
+      check abs(gt.columns[3].start.float - 66.6666) < 1.0e-3
+      check abs(gt.rows[0].start.float - 0.0) < 1.0e-3
