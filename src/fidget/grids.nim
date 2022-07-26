@@ -1,7 +1,9 @@
 import prelude
 import variant
 import strformat
+import sequtils
 import strutils
+import sugar
 import commonutils
 import hashes
 import sets
@@ -32,7 +34,7 @@ type
 
   GridLine* = object
     aliases*: HashSet[LineName]
-    trackSize*: TrackSize
+    track*: TrackSize
     position*: UICoord
 
   GridTemplate* = ref object
@@ -63,16 +65,16 @@ proc mkFixed*(coord: UICoord): TrackSize = TrackSize(kind: grFixed, coord: coord
 proc toLineName*(name: string): LineName = LineName(name.hash())
 
 proc gridLine*(
-    trackSize = mkFrac(1),
+    track = mkFrac(1),
     aliases: varargs[LineName, toGridName],
 ): GridLine =
-  GridLine(trackSize: trackSize, aliases: toHashSet(aliases))
+  GridLine(track: track, aliases: toHashSet(aliases))
 
 proc `'fr`*(n: string): GridLine =
   ## numeric literal percent of parent height
-  result = gridLine(trackSize=mkFrac(parseInt(n)))
+  result = gridLine(track=mkFrac(parseInt(n)))
 
-let defaultLine = GridLine(trackSize: mkFrac(1))
+let defaultLine = GridLine(track: mkFrac(1))
 
 proc newGridTemplate*(
   columns = @[defaultLine],
@@ -85,17 +87,29 @@ proc newGridTemplate*(
 proc newGridItem*(): GridItem =
   new(result)
 
-proc computeLineLayout*(lines: seq[GridLine]) =
+proc computeLineLayout*(lines: var seq[GridLine], length: UICoord) =
   var
     fixed = 0'ui
     totalFracs = 0
-  for col in lines:
-    match col.trackSize:
+    totalAutos = 0
+  
+  # compute total fixed sizes and fracs
+  for ln in lines:
+    match ln.track:
       grFixed(coord): fixed += coord
       grFrac(frac): totalFracs += frac
-      grAuto(): discard
+      grAuto(): totalAutos += 1
+  
+  var freeSpace = length - fixed
+  for ln in lines.mitems():
+    if ln.track.kind == grFrac:
+      echo ""
+  for ln in lines.filter(l => l.track.kind == grAuto):
+    fixed += ln.track.coord
 
-proc computeLayout*(grid: GridTemplate) =
+  
+
+proc computeLayout*(grid: GridTemplate, box: Box) =
   ## computing grid layout
   
   # The free space is calculated after any non-flexible items. In 
@@ -113,5 +127,7 @@ when isMainModule:
         columns = @[gridLine(mkFrac(1)), gridLine(mkFrac(1))],
         rows = @[gridLine(mkFrac(1)), gridLine(mkFrac(1))],
       )
+      print "grid template: ", gt
 
+      gt.computeLayout(initBox(0, 0, 100, 100))
       print "grid template: ", gt
