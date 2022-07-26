@@ -27,26 +27,51 @@ type
     of grUICoord:
       coord*: UICoord
   
-  ItemLocation* = object
-    line*: int8
-    isSpan*: bool
-    isAuto*: bool
-  
-  GridName* = distinct Hash
+  LineName* = distinct Hash
 
   GridLine* = object
-    lineNames*: HashSet[GridName]
     trackSize*: TrackSize
+    aliases*: HashSet[LineName]
 
   GridTemplate* = ref object
     columns*: seq[GridLine]
+    rows*: seq[GridLine]
     rowGap*: UICoord
     columnGap*: UICoord
     justifyItems*: GridConstraint
     alignItems*: GridConstraint
 
-  GridStyle* = ref object
+  ItemLocation* = object
+    line*: int8
+    isSpan*: bool
+    isAuto*: bool
+  
+  GridItem* = ref object
     columnStart*: ItemLocation
     columnEnd*: ItemLocation
     rowStart*: ItemLocation
     rowEnd*: ItemLocation
+
+proc `==`*(a, b: LineName): bool {.borrow.}
+
+proc mkFrac*(size: int): TrackSize = TrackSize(kind: grFrac, frac: size)
+proc mkAuto*(): TrackSize = TrackSize(kind: grAuto)
+proc mkCoord*(coord: UICoord): TrackSize = TrackSize(kind: grUICoord, coord: coord)
+
+proc toLineName*(name: string): LineName = LineName(name.hash())
+
+proc gridLine*(
+    trackSize = mkFrac(1),
+    aliases: varargs[LineName, toGridName],
+): GridLine =
+  GridLine(trackSize: trackSize, aliases: toHashSet(aliases))
+
+let defaultLine = GridLine(trackSize: mkFrac(1))
+
+proc newGridTemplate*(): GridTemplate =
+  new(result)
+  result.columns = @[defaultLine]
+  result.rows = @[defaultLine]
+
+proc newGridItem*(): GridItem =
+  new(result)
