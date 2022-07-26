@@ -191,7 +191,7 @@ when isMainModule:
       print "grid template: ", gt
 
       check abs(gt.columns[0].start.float - 0.0) < 1.0e-3
-      check abs(gt.columns[1].start.float - 33.3333) < 1.0e-3
-      check abs(gt.columns[2].start.float - 66.6666) < 1.0e-3
-      check abs(gt.columns[3].start.float - 66.6666) < 1.0e-3
+      check abs(gt.columns[1].start.float - 31.6666) < 1.0e-3
+      check abs(gt.columns[2].start.float - 36.6666) < 1.0e-3
+      check abs(gt.columns[3].start.float - 68.3333) < 1.0e-3
       check abs(gt.rows[0].start.float - 0.0) < 1.0e-3
