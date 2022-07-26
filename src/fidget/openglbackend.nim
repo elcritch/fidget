@@ -71,6 +71,7 @@ proc setupFidget(
   requestedFrame.inc
 
   base.drawFrame = proc() =
+    # echo "\ndrawFrame"
     clearColorBuffer(color(1.0, 1.0, 1.0, 1.0))
     ctx.beginFrame(windowFrame)
     ctx.saveTransform()
@@ -87,7 +88,6 @@ proc setupFidget(
 
     if currTextBox != nil:
       keyboard.input = currTextBox.text
-
     computeEvents(root)
 
     drawMain()

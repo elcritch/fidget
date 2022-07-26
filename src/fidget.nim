@@ -222,13 +222,13 @@ template onClickOutside*(inner: untyped, button = MOUSE_LEFT) =
 
 template onRightClick*(inner: untyped) =
   ## On right click event handler.
-  current.listens.mosue.incl(evPress)
+  current.listens.mouse.incl(evPress)
   if evPress in current.events.mouse and buttonDown[MOUSE_RIGHT]:
     inner
 
 template onMouseDown*(inner: untyped, button = MOUSE_LEFT) =
   ## On when mouse is down and overlapping the element.
-  current.listens.mosue.incl(evPress)
+  current.listens.mouse.incl(evPress)
   if evDown in current.events.mouse and buttonDown[button]:
     inner
 

@@ -587,11 +587,12 @@ proc computeNodeEvents*(node: Node): CapturedEvents =
 
   let
     allMouseEvts = node.checkMouseEvents()
+    mouseOutEvts = allMouseEvts * MouseOnOutEvents
     mouseEvts = allMouseEvts - MouseOnOutEvents
     gestureEvts = node.checkGestureEvents()
 
   # set on-out events 
-  node.events.mouse.incl(mouseEvts * MouseOnOutEvents)
+  node.events.mouse.incl(mouseOutEvts)
 
   let
     captured = CapturedEvents(
