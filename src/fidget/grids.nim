@@ -141,11 +141,17 @@ when isMainModule:
     test "basic grid template":
 
       var gt = newGridTemplate(
-        columns = @[gridLine(mkFrac(1)), gridLine(mkFrac(1))],
-        rows = @[gridLine(mkFrac(1)), gridLine(mkFrac(1))],
+        columns = @[gridLine(mkFrac(1))],
+        rows = @[gridLine(mkFrac(1))],
       )
-      print "grid template: ", gt
+      check gt.columns.len() == 1
+      check gt.rows.len() == 1
 
+    test "basic grid compute":
+      var gt = newGridTemplate(
+        columns = @[1'fr, 1'fr],
+        rows = @[1'fr, 1'fr],
+      )
       gt.computeLayout(initBox(0, 0, 100, 100))
       print "grid template: ", gt
 
@@ -153,3 +159,18 @@ when isMainModule:
       check gt.columns[1].position == 50'ui
       check gt.rows[0].position == 0'ui
       check gt.rows[1].position == 50'ui
+
+    test "basic grid compute":
+      var gt = newGridTemplate(
+        columns = @[1'fr, 1'fr, 1'fr],
+        rows = @[1'fr, 1'fr, 1'fr],
+      )
+      gt.computeLayout(initBox(0, 0, 100, 100))
+      print "grid template: ", gt
+
+      check abs(gt.columns[0].position.float - 0.0) < 1.0e-3
+      check abs(gt.columns[1].position.float - 33.3333) < 1.0e-3
+      check abs(gt.columns[2].position.float - 66.6666) < 1.0e-3
+      check abs(gt.rows[0].position.float - 0.0) < 1.0e-3
+      check abs(gt.rows[1].position.float - 33.3333) < 1.0e-3
+      check abs(gt.rows[2].position.float - 66.6666) < 1.0e-3
