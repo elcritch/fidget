@@ -28,6 +28,10 @@ proc drawMain() =
         rectangle "area1":
           box 0, 0, 100'pw, 70'vh
           fill "#90caff"
+
+          layout lmGrid
+          gridTemplateColumns 40'ui, 50'ui
+
         rectangle "area2":
           box 0, 0, 100'pw, 70'vh
           fill "#379fff"

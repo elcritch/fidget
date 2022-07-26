@@ -5,7 +5,6 @@ import unicode
 import typetraits
 import rationals
 
-
 import variant
 import commonutils
 
@@ -84,10 +83,6 @@ type
     lmVertical
     lmHorizontal
     lmGrid
-
-  GridStyle* = object
-    columns*: Rational[int8]
-    rows*: Rational[int8]
 
   CounterAxisSizingMode* = enum
     ## How to deal with the opposite side of an auto-layout frame.
