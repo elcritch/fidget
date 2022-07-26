@@ -125,6 +125,11 @@ proc computeLayout*(grid: GridTemplate, box: Box) =
   ## computing grid layout
   
   # The free space is calculated after any non-flexible items. In 
+  let
+    colLen = box.w - box.x
+    rowLen = box.h - box.y
+  grid.columns.computeLineLayout(length=colLen, spacing=0'ui)
+  grid.rows.computeLineLayout(length=rowLen, spacing=0'ui)
 
 
 when isMainModule:
@@ -143,3 +148,8 @@ when isMainModule:
 
       gt.computeLayout(initBox(0, 0, 100, 100))
       print "grid template: ", gt
+
+      check gt.columns[0].position == 0'ui
+      check gt.columns[1].position == 50'ui
+      check gt.rows[0].position == 0'ui
+      check gt.rows[1].position == 50'ui
