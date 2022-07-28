@@ -136,21 +136,21 @@ proc computeLineLayout*(
 
   var
     freeSpace = length - fixed
-    remSpace = freeSpace
+    remSpace = max(freeSpace, 0.0'ui)
   
   # frac's
   for grdLn in lines.mitems():
     if grdLn.track.kind == grFrac:
       grdLn.width =
         freeSpace * grdLn.track.frac.UICoord/totalFracs
-      remSpace -= grdLn.width 
+      remSpace -= max(grdLn.width, 0.0'ui)
     elif grdLn.track.kind == grFixed:
       grdLn.width = grdLn.track.coord
   
   # auto's
   for grdLn in lines.mitems():
     if grdLn.track.kind == grAuto:
-      grdLn.width = remSpace * 1/totalAutos.UICoord
+      grdLn.width = remSpace / totalAutos.UICoord
 
   var cursor = 0.0'ui
   for grdLn in lines.mitems():
@@ -191,16 +191,17 @@ proc parseTmplCmd*(arg: NimNode): NimNode {.compileTime.} =
       let kd = item[1].strVal
       if kd == "'fr":
         result.add quote do:
-          gl = initGridLine(mkFrac(`n`))
+          gl.track = mkFrac(`n`)
       elif kd == "'perc":
         result.add quote do:
-          gl = initGridLine(mkPerc(`n`))
+          gl.track = mkPerc(`n`)
       elif kd == "'ui":
         result.add quote do:
-          gl = initGridLine(mkFixed(`n`))
+          gl.track = mkFixed(`n`)
       else:
         error("error: unknown argument ", item)
       result.add quote do:
+        echo "gl:setup: ", repr(gl)
         grids.add move(gl)
     else:
       discard
@@ -216,15 +217,14 @@ macro gridTemplateImpl*(args: untyped, field: untyped) =
       var gl {.inject.}: GridLine
       `cols`
       gridTemplate.`field` = grids
-
-  echo "\nGTC:result: ", result.repr
+  echo "gridTmplImpl: ", repr field, " => "
+  echo result.repr
 
 template gridTemplateColumns*(args: untyped) =
   gridTemplateImpl(args, columns)
 
 template gridTemplateRows*(args: untyped) =
   gridTemplateImpl(args, rows)
-
 
 when isMainModule:
   import unittest
@@ -287,7 +287,7 @@ when isMainModule:
       # grid-template-columns: [first] 40px [line2] 50px [line3] auto [col4-start] 50px [five] 40px [end];
       gridTemplateColumns ["first"] 40'ui ["second", "line2"] 50'perc ["line3"] auto ["col4-start"] 50'ui ["five"] 40'ui ["end"]
 
-      # grid.computeLayout(initBox(0, 0, 100, 100))
+      gridTemplate.computeLayout(initBox(0, 0, 100, 100))
       print "grid template: ", gridTemplate
       echo "grid template: ", repr gridTemplate
       
