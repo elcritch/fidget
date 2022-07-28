@@ -173,7 +173,6 @@ proc parseTmplCmd*(arg: NimNode): NimNode {.compileTime.} =
   while node.kind == nnkCommand:
     let item = node[0]
     node = node[1]
-    # echo "GTC:item: ", item.treeRepr
     case item.kind:
     of nnkBracket:
       for x in item:
