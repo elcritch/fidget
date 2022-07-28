@@ -166,20 +166,29 @@ proc parseTmplCmd*(arg: NimNode): NimNode {.compileTime.} =
         echo "RES: ", res.repr
         result.add res
       # echo "bracket: ", result.repr
+    of nnkIdent:
+      if item.strVal != "auto":
+        error("argument must be 'auto'", item)
+      result.add quote do:
+        gl = initGridLine(mkAuto())
+        grids.add move(gl)
     of nnkDotExpr:
       # result.add grdLn
       echo "dotExper... ", repr(item)
       let n = item[0].strVal.parseInt()
       let kd = item[1].strVal
-      if kd == "`ui":
+      if kd == "`fr":
         result.add quote do:
-          gl = initGridLine(mkFrac(1))
+          gl = initGridLine(mkFrac(`n`))
       elif kd == "`perc":
         result.add quote do:
-          gl = initGridLine(mkFrac(1))
+          gl = initGridLine(mkPerc(`n`))
+      elif kd == "`ui":
+        result.add quote do:
+          gl = initGridLine(mkFixed(`n`))
       else:
         result.add quote do:
-          gl = initGridLine(mkFrac(1))
+          gl = initGridLine(mkFixed(`n`))
       result.add quote do:
         grids.add move(gl)
     else:
