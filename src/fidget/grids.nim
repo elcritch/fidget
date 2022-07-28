@@ -177,42 +177,43 @@ proc parseTmplCmd*(arg: NimNode): NimNode {.compileTime.} =
       echo "dotExper... ", repr(item)
       let n = item[0].strVal.parseInt()
       let kd = item[1].strVal
-      if kd == "`fr":
+      if kd == "'fr":
         result.add quote do:
           gl = initGridLine(mkFrac(`n`))
-      elif kd == "`perc":
+      elif kd == "'perc":
         result.add quote do:
           gl = initGridLine(mkPerc(`n`))
-      elif kd == "`ui":
+      elif kd == "'ui":
         result.add quote do:
           gl = initGridLine(mkFixed(`n`))
       else:
-        result.add quote do:
-          gl = initGridLine(mkFixed(`n`))
+        echo "error: ", kd.repr, " => ", item.repr
+        error("error: ")
       result.add quote do:
         grids.add move(gl)
     else:
       discard
 
-proc gridTemplateParser*(args: NimNode): NimNode =
-  echo "\nGTP:args: ", args.treeRepr
+macro gridTemplateImpl*(args: untyped, field: untyped) =
   result = newStmtList()
+  let cols = parseTmplCmd(args)
   result.add quote do:
-    var grids {.inject.}: seq[GridLine]
-    var gl {.inject.}: GridLine
-  result.add parseTmplCmd(args)
-  echo "\nGTP:result: ", result.repr
+    if gridTemplate.isNil:
+      gridTemplate = newGridTemplate()
+    block:
+      var grids {.inject.}: seq[GridLine]
+      var gl {.inject.}: GridLine
+      `cols`
+      gridTemplate.`field` = grids
 
-macro gridTemplateColumns*(args: untyped) =
-  echo "\nGTC:args: ", args.treeRepr
-  result = newStmtList()
-  let cols = gridTemplateParser(args)
-  result.add quote do:
-    if grid.isNil:
-      grid = newGridTemplate()
-    `cols`
-  
   echo "\nGTC:result: ", result.repr
+
+template gridTemplateColumns*(args: untyped) =
+  gridTemplateImpl(args, columns)
+
+template gridTemplateRows*(args: untyped) =
+  gridTemplateImpl(args, rows)
+
 
 when isMainModule:
   import unittest
@@ -270,11 +271,11 @@ when isMainModule:
       check abs(gt.rows[0].start.float - 0.0) < 1.0e-3
 
     test "initial macros":
-      var grid: GridTemplate
+      var gridTemplate: GridTemplate
 
       # grid-template-columns: [first] 40px [line2] 50px [line3] auto [col4-start] 50px [five] 40px [end];
       gridTemplateColumns ["first"] 40'ui ["second", "line2"] 50'perc ["line3"] auto ["col4-start"] 50'ui ["five"] 40'ui ["end"]
 
       # grid.computeLayout(initBox(0, 0, 100, 100))
-      print "grid template: ", grid
+      print "grid template: ", gridTemplate
       
