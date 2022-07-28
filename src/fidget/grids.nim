@@ -17,7 +17,7 @@ type
     grAuto
     grPerc
     grFixed
-    grNone
+    grEnd
 
   TrackSize* = object
     case kind*: GridUnits
@@ -29,7 +29,7 @@ type
       perc*: float
     of grFixed:
       coord*: UICoord
-    of grNone:
+    of grEnd:
       discard
   
   LineName* = distinct string
@@ -71,7 +71,7 @@ proc repr*(a: TrackSize): string =
     grFixed(coord): result = $coord & "'ui"
     grPerc(perc): result = $perc & "'perc"
     grAuto(): result = "auto"
-    grNone(): result = "none"
+    grEnd(): result = "ends"
 proc repr*(a: GridLine): string =
   result = fmt"GL({a.track.repr}; <{$a.start} x {$a.width}'w> <- {a.aliases.repr})"
 proc repr*(a: GridTemplate): string =
@@ -87,7 +87,7 @@ proc mkFrac*(size: int): TrackSize = TrackSize(kind: grFrac, frac: size)
 proc mkFixed*(coord: UICoord): TrackSize = TrackSize(kind: grFixed, coord: coord)
 proc mkPerc*(perc: float): TrackSize = TrackSize(kind: grPerc, perc: perc)
 proc mkAuto*(): TrackSize = TrackSize(kind: grAuto)
-proc mkNoneTrack*(): TrackSize = TrackSize(kind: grNone)
+proc mkEndTrack*(): TrackSize = TrackSize(kind: grEnd)
 
 proc toLineName*(name: string): LineName = LineName(name)
 proc toLineNames*(names: varargs[string]): HashSet[LineName] = toHashSet names.toSeq().mapIt(it.toLineName())
@@ -132,7 +132,7 @@ proc computeLineLayout*(
       grFrac(frac): totalFracs += frac.UICoord
       grAuto(): totalAutos += 1
       grPerc(): discard
-      grNone(): discard
+      grEnd(): discard
   fixed += spacing * lines.len().UICoord
 
   var
@@ -160,7 +160,10 @@ proc computeLineLayout*(
 
 proc computeLayout*(grid: GridTemplate, box: Box) =
   ## computing grid layout
-  
+  if grid.columns[^1].track.kind != grEnd:
+    grid.columns.add initGridLine(mkEndTrack())
+  if grid.rows[^1].track.kind != grEnd:
+    grid.rows.add initGridLine(mkEndTrack())
   # The free space is calculated after any non-flexible items. In 
   let
     colLen = box.w - box.x
@@ -171,21 +174,23 @@ proc computeLayout*(grid: GridTemplate, box: Box) =
 proc parseTmplCmd*(arg: NimNode): NimNode {.compileTime.} =
   result = newStmtList()
   var node: NimNode = arg
+  proc prepareNames(item: NimNode): NimNode =
+    result = newStmtList()
+    for x in item:
+      let n = newLit x.strVal
+      result.add quote do:
+        gl.aliases.incl toLineName(`n`)
   while node.kind == nnkCommand:
     let item = node[0]
     node = node[1]
     case item.kind:
     of nnkBracket:
-      for x in item:
-        let n = newLit x.strVal
-        let res = quote do:
-          gl.aliases.incl toLineName(`n`)
-        result.add res
+      result.add prepareNames(item)
     of nnkIdent:
       if item.strVal != "auto":
         error("argument must be 'auto'", item)
       result.add quote do:
-        gl = initGridLine(mkAuto())
+        gl.track = mkAuto()
         grids.add move(gl)
     of nnkDotExpr:
       let n = item[0].strVal.parseInt()
@@ -202,10 +207,15 @@ proc parseTmplCmd*(arg: NimNode): NimNode {.compileTime.} =
       else:
         error("error: unknown argument ", item)
       result.add quote do:
-        echo "gl:setup: ", repr(gl)
         grids.add move(gl)
     else:
       discard
+  ## add final implicit line
+  if node.kind == nnkBracket:
+    result.add prepareNames(node)
+  result.add quote do:
+    gl.track = mkEndTrack()
+    grids.add move(gl)
 
 macro gridTemplateImpl*(args: untyped, field: untyped) =
   result = newStmtList()
@@ -305,9 +315,13 @@ when isMainModule:
       check gt.columns[4].track.kind == grFixed
       check gt.columns[4].track.coord == 40.0'ui
       check gt.columns[4].aliases == toLineNames("five")
-      check gt.columns[5].aliases == toLineNames("end")
+      check gt.columns[5].track.kind == grEnd
+      check toLineNames("end") == gt.columns[5].aliases
 
-    test "initial macros":
+      print "grid template: ", gridTemplate
+      echo "grid template: ", repr gridTemplate
+
+    test "compute macros":
       var gridTemplate: GridTemplate
 
       # grid-template-columns: [first] 40px [line2] 50px [line3] auto [col4-start] 50px [five] 40px [end];
@@ -320,7 +334,7 @@ when isMainModule:
       gridTemplate.computeLayout(initBox(0, 0, 100, 100))
       let gt = gridTemplate
       check abs(gt.columns[0].start.float - 0.0) < 1.0e-3
-      check abs(gt.columns[1].start.float - 40.0) < 1.0e-3
+      check abs(gt.columns[1].start.float - 31.66666603) < 1.0e-3
       check abs(gt.columns[2].start.float - 40.0) < 1.0e-3
       check abs(gt.columns[3].start.float - 40.0) < 1.0e-3
       print "grid template: ", gridTemplate
