@@ -15,6 +15,7 @@ type
   GridUnits* = enum
     grFrac
     grAuto
+    grPerc
     grFixed
     grNone
 
@@ -24,10 +25,12 @@ type
       frac*: int
     of grAuto:
       discard
-    of grNone:
-      discard
+    of grPerc:
+      perc*: float
     of grFixed:
       coord*: UICoord
+    of grNone:
+      discard
   
   LineName* = distinct string
 
@@ -59,6 +62,8 @@ type
 proc `==`*(a, b: LineName): bool {.borrow.}
 proc `$`*(a: LineName): string {.borrow.}
 proc hash*(a: LineName): Hash {.borrow.}
+proc `repr`*(a: HashSet[LineName]): string =
+  result = "{" & a.toSeq().join(", ") & "}"
 
 proc mkFrac*(size: int): TrackSize = TrackSize(kind: grFrac, frac: size)
 proc mkAuto*(): TrackSize = TrackSize(kind: grAuto)
@@ -66,7 +71,7 @@ proc mkFixed*(coord: UICoord): TrackSize = TrackSize(kind: grFixed, coord: coord
 
 proc toLineName*(name: string): LineName = LineName(name)
 
-proc gridLine*(
+proc initGridLine*(
     track = mkFrac(1),
     aliases: varargs[LineName, toLineName],
 ): GridLine =
@@ -74,7 +79,7 @@ proc gridLine*(
 
 proc `'fr`*(n: string): GridLine =
   ## numeric literal percent of parent height
-  result = gridLine(track=mkFrac(parseInt(n)))
+  result = initGridLine(track=mkFrac(parseInt(n)))
 
 let defaultLine = GridLine(track: mkFrac(1))
 
@@ -105,6 +110,7 @@ proc computeLineLayout*(
       grFixed(coord): fixed += coord
       grFrac(frac): totalFracs += frac.UICoord
       grAuto(): totalAutos += 1
+      grPerc(): discard
       grNone(): discard
   fixed += spacing * lines.len().UICoord
 
@@ -141,36 +147,61 @@ proc computeLayout*(grid: GridTemplate, box: Box) =
   grid.columns.computeLineLayout(length=colLen, spacing=0'ui)
   grid.rows.computeLineLayout(length=rowLen, spacing=0'ui)
 
-proc parseTmplCmd*(arg: NimNode): seq[GridLine] {.compileTime.} =
+proc parseTmplCmd*(arg: NimNode): NimNode {.compileTime.} =
+  result = newStmtList()
   var node: NimNode = arg
-  var grdLn: GridLine
   while node.kind == nnkCommand:
     let item = node[0]
     node = node[1]
     # echo "GTC:item: ", item.treeRepr
     case item.kind:
     of nnkBracket:
-      for it in item:
-        grdLn.aliases.incl toLineName(item[0].strVal)
-      echo "bracket: ", grdLn.aliases.items().toSeq().repr
+      for x in item:
+        let n = newLit x.strVal
+        echo "N: ", repr n
+        let res = quote do:
+          gl.aliases.incl toLineName(`n`)
+        echo "RES: ", res.repr
+        result.add res
+      # echo "bracket: ", result.repr
     of nnkDotExpr:
-      result.add grdLn
+      # result.add grdLn
       echo "dotExper... ", repr(item)
       let n = item[0].strVal.parseInt()
       let kd = item[1].strVal
-      let track = 
-        if kd == "`px": mkFrac(1)
-        elif kd == "`px": mkFrac(1)
-        else: mkFrac(1)
-      grdLn = gridLine(track)
+      if kd == "`ui":
+        result.add quote do:
+          gl = initGridLine(mkFrac(1))
+      elif kd == "`perc":
+        result.add quote do:
+          gl = initGridLine(mkFrac(1))
+      else:
+        result.add quote do:
+          gl = initGridLine(mkFrac(1))
+      result.add quote do:
+        grids.add move(gl)
     else:
       discard
 
+proc gridTemplateParser*(args: NimNode): NimNode =
+  echo "\nGTP:args: ", args.treeRepr
+  result = newStmtList()
+  result.add quote do:
+    var grids {.inject.}: seq[GridLine]
+    var gl {.inject.}: GridLine
+  result.add parseTmplCmd(args)
+  echo "\nGTP:result: ", result.repr
+
 macro gridTemplateColumns*(args: untyped) =
-  echo "GTC:args: ", args.treeRepr
-  let grdLns = parseTmplCmd(args)
-  echo repr grdLns
-  echo "GTC:result: ", result.treeRepr
+  echo "\nGTC:args: ", args.treeRepr
+  result = newStmtList()
+  let cols = gridTemplateParser(args)
+  result.add quote do:
+    if grid.isNil:
+      grid = newGridTemplate()
+    `cols`
+  
+  echo "\nGTC:result: ", result.repr
 
 when isMainModule:
   import unittest
@@ -180,8 +211,8 @@ when isMainModule:
     test "basic grid template":
 
       var gt = newGridTemplate(
-        columns = @[gridLine(mkFrac(1))],
-        rows = @[gridLine(mkFrac(1))],
+        columns = @[initGridLine(mkFrac(1))],
+        rows = @[initGridLine(mkFrac(1))],
       )
       check gt.columns.len() == 1
       check gt.rows.len() == 1
@@ -216,7 +247,7 @@ when isMainModule:
 
     test "4x1 grid test":
       var gt = newGridTemplate(
-        columns = @[1'fr, gridLine(5.mkFixed), 1'fr, 1'fr],
+        columns = @[1'fr, initGridLine(5.mkFixed), 1'fr, 1'fr],
       )
       gt.computeLayout(initBox(0, 0, 100, 100))
       print "grid template: ", gt
@@ -234,5 +265,5 @@ when isMainModule:
       gridTemplateColumns ["first"] 40'ui ["second", "line2"] 50'perc ["line3"] auto ["col4-start"] 50'ui ["five"] 40'ui ["end"]
 
       # grid.computeLayout(initBox(0, 0, 100, 100))
-      # print "grid template: ", grid
+      print "grid template: ", grid
       
