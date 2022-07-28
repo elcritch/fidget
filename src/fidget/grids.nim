@@ -90,6 +90,7 @@ proc mkAuto*(): TrackSize = TrackSize(kind: grAuto)
 proc mkNoneTrack*(): TrackSize = TrackSize(kind: grNone)
 
 proc toLineName*(name: string): LineName = LineName(name)
+proc toLineNames*(names: varargs[string]): HashSet[LineName] = toHashSet names.toSeq().mapIt(it.toLineName())
 
 proc initGridLine*(
     track = mkFrac(1),
@@ -292,19 +293,29 @@ when isMainModule:
 
       check gt.columns[0].track.kind == grFixed
       check gt.columns[0].track.coord == 40.0'ui
+      check gt.columns[0].aliases == toLineNames("first")
       check gt.columns[1].track.kind == grPerc
       check gt.columns[1].track.perc == 50.0
+      check gt.columns[1].aliases == toLineNames("second", "line2")
       check gt.columns[2].track.kind == grAuto
+      check gt.columns[2].aliases == toLineNames("line3")
       check gt.columns[3].track.kind == grFixed
       check gt.columns[3].track.coord == 50.0'ui
+      check gt.columns[3].aliases == toLineNames("col4-start")
       check gt.columns[4].track.kind == grFixed
       check gt.columns[4].track.coord == 40.0'ui
+      check gt.columns[4].aliases == toLineNames("five")
+      check gt.columns[5].aliases == toLineNames("end")
 
     test "initial macros":
       var gridTemplate: GridTemplate
 
       # grid-template-columns: [first] 40px [line2] 50px [line3] auto [col4-start] 50px [five] 40px [end];
-      gridTemplateColumns ["first"] 40'ui ["second", "line2"] 50'perc ["line3"] auto ["col4-start"] 50'ui ["five"] 40'ui ["end"]
+      gridTemplateColumns ["first"] 40'ui \
+        ["second", "line2"] 50'perc \
+        ["line3"] auto \
+        ["col4-start"] 50'ui \
+        ["five"] 40'ui ["end"]
 
       gridTemplate.computeLayout(initBox(0, 0, 100, 100))
       let gt = gridTemplate
