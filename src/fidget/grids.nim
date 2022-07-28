@@ -181,8 +181,11 @@ proc parseTmplCmd*(arg: NimNode): NimNode {.compileTime.} =
       result.add quote do:
         gl.aliases.incl toLineName(`n`)
   while node.kind == nnkCommand:
-    let item = node[0]
+    var item = node[0]
     node = node[1]
+    ## handle `\` for line wrap
+    if node.kind == nnkInfix:
+      node = nnkCommand.newTree(node[1], node[2])
     case item.kind:
     of nnkBracket:
       result.add prepareNames(item)
@@ -318,7 +321,7 @@ when isMainModule:
       check gt.columns[5].track.kind == grEnd
       check toLineNames("end") == gt.columns[5].aliases
 
-      print "grid template: ", gridTemplate
+      # print "grid template: ", gridTemplate
       echo "grid template: ", repr gridTemplate
 
     test "compute macros":
@@ -326,17 +329,19 @@ when isMainModule:
 
       # grid-template-columns: [first] 40px [line2] 50px [line3] auto [col4-start] 50px [five] 40px [end];
       gridTemplateColumns ["first"] 40'ui \
-        ["second", "line2"] 50'perc \
+        ["second", "line2"] 50'ui \
         ["line3"] auto \
         ["col4-start"] 50'ui \
         ["five"] 40'ui ["end"]
 
-      gridTemplate.computeLayout(initBox(0, 0, 100, 100))
+      gridTemplate.computeLayout(initBox(0, 0, 1000, 1000))
       let gt = gridTemplate
+      # print "grid template: ", gridTemplate
       check abs(gt.columns[0].start.float - 0.0) < 1.0e-3
-      check abs(gt.columns[1].start.float - 31.66666603) < 1.0e-3
-      check abs(gt.columns[2].start.float - 40.0) < 1.0e-3
-      check abs(gt.columns[3].start.float - 40.0) < 1.0e-3
-      print "grid template: ", gridTemplate
+      check abs(gt.columns[1].start.float - 40.0) < 1.0e-3
+      check abs(gt.columns[2].start.float - 90.0) < 1.0e-3
+      check abs(gt.columns[3].start.float - 910.0) < 1.0e-3
+      check abs(gt.columns[4].start.float - 960.0) < 1.0e-3
+      check abs(gt.columns[5].start.float - 1000.0) < 1.0e-3
       echo "grid template: ", repr gridTemplate
       
