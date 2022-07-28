@@ -65,10 +65,28 @@ proc hash*(a: LineName): Hash {.borrow.}
 proc `repr`*(a: HashSet[LineName]): string =
   result = "{" & a.toSeq().join(", ") & "}"
 
+proc repr*(a: TrackSize): string =
+  match a:
+    grFrac(frac): result = $frac & "'fr"
+    grFixed(coord): result = $coord & "'ui"
+    grPerc(perc): result = $perc & "'perc"
+    grAuto(): result = "auto"
+    grNone(): result = "none"
+proc repr*(a: GridLine): string =
+  result = fmt"GL({a.track.repr}; <{$a.start} x {$a.width}'w>, aliases: {a.aliases.repr})"
+proc repr*(a: GridTemplate): string =
+  result = "GridTemplate:"
+  result &= "\n\tcols: "
+  for c in a.columns:
+    result &= &"\n\t\t{c.repr}"
+  result &= "\n\trows: "
+  for r in a.rows:
+    result &= &"\n\t\t{r.repr}"
+
 proc mkFrac*(size: int): TrackSize = TrackSize(kind: grFrac, frac: size)
-proc mkAuto*(): TrackSize = TrackSize(kind: grAuto)
 proc mkFixed*(coord: UICoord): TrackSize = TrackSize(kind: grFixed, coord: coord)
 proc mkPerc*(perc: float): TrackSize = TrackSize(kind: grPerc, perc: perc)
+proc mkAuto*(): TrackSize = TrackSize(kind: grAuto)
 proc mkNoneTrack*(): TrackSize = TrackSize(kind: grNone)
 
 proc toLineName*(name: string): LineName = LineName(name)
@@ -277,5 +295,5 @@ when isMainModule:
       gridTemplateColumns ["first"] 40'ui ["second", "line2"] 50'perc ["line3"] auto ["col4-start"] 50'ui ["five"] 40'ui ["end"]
 
       # grid.computeLayout(initBox(0, 0, 100, 100))
-      print "grid template: ", gridTemplate
+      echo "grid template: ", repr gridTemplate
       
