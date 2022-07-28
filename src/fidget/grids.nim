@@ -83,6 +83,69 @@ proc repr*(a: GridTemplate): string =
   for r in a.rows:
     result &= &"\n\t\t{r.repr}"
 
+proc parseTmplCmd*(arg: NimNode): NimNode {.compileTime.} =
+  result = newStmtList()
+  var node: NimNode = arg
+  proc prepareNames(item: NimNode): NimNode =
+    result = newStmtList()
+    for x in item:
+      let n = newLit x.strVal
+      result.add quote do:
+        gl.aliases.incl toLineName(`n`)
+  while node.kind == nnkCommand:
+    var item = node[0]
+    node = node[1]
+    ## handle `\` for line wrap
+    if node.kind == nnkInfix:
+      node = nnkCommand.newTree(node[1], node[2])
+    case item.kind:
+    of nnkBracket:
+      result.add prepareNames(item)
+    of nnkIdent:
+      if item.strVal != "auto":
+        error("argument must be 'auto'", item)
+      result.add quote do:
+        gl.track = mkAuto()
+        grids.add move(gl)
+    of nnkDotExpr:
+      let n = item[0].strVal.parseInt()
+      let kd = item[1].strVal
+      if kd == "'fr":
+        result.add quote do:
+          gl.track = mkFrac(`n`)
+      elif kd == "'perc":
+        result.add quote do:
+          gl.track = mkPerc(`n`)
+      elif kd == "'ui":
+        result.add quote do:
+          gl.track = mkFixed(`n`)
+      else:
+        error("error: unknown argument ", item)
+      result.add quote do:
+        grids.add move(gl)
+    else:
+      discard
+  ## add final implicit line
+  if node.kind == nnkBracket:
+    result.add prepareNames(node)
+  result.add quote do:
+    gl.track = mkEndTrack()
+    grids.add move(gl)
+
+macro gridTemplateImpl*(args: untyped, field: untyped) =
+  result = newStmtList()
+  let cols = parseTmplCmd(args)
+  result.add quote do:
+    if gridTemplate.isNil:
+      gridTemplate = newGridTemplate()
+    block:
+      var grids {.inject.}: seq[GridLine]
+      var gl {.inject.}: GridLine
+      `cols`
+      gridTemplate.`field` = grids
+  # echo "gridTmplImpl: ", repr field, " => "
+  # echo result.repr
+
 proc mkFrac*(size: int): TrackSize = TrackSize(kind: grFrac, frac: size)
 proc mkFixed*(coord: UICoord): TrackSize = TrackSize(kind: grFixed, coord: coord)
 proc mkPerc*(perc: float): TrackSize = TrackSize(kind: grPerc, perc: perc)
@@ -147,6 +210,9 @@ proc computeLineLayout*(
       remSpace -= max(grdLn.width, 0.0'ui)
     elif grdLn.track.kind == grFixed:
       grdLn.width = grdLn.track.coord
+    elif grdLn.track.kind == grPerc:
+      grdLn.width = length * UICoord(grdLn.track.perc / 100.0)
+      remSpace -= max(grdLn.width, 0.0'ui)
   
   # auto's
   for grdLn in lines.mitems():
@@ -170,69 +236,6 @@ proc computeLayout*(grid: GridTemplate, box: Box) =
     rowLen = box.h - box.y
   grid.columns.computeLineLayout(length=colLen, spacing=0'ui)
   grid.rows.computeLineLayout(length=rowLen, spacing=0'ui)
-
-proc parseTmplCmd*(arg: NimNode): NimNode {.compileTime.} =
-  result = newStmtList()
-  var node: NimNode = arg
-  proc prepareNames(item: NimNode): NimNode =
-    result = newStmtList()
-    for x in item:
-      let n = newLit x.strVal
-      result.add quote do:
-        gl.aliases.incl toLineName(`n`)
-  while node.kind == nnkCommand:
-    var item = node[0]
-    node = node[1]
-    ## handle `\` for line wrap
-    if node.kind == nnkInfix:
-      node = nnkCommand.newTree(node[1], node[2])
-    case item.kind:
-    of nnkBracket:
-      result.add prepareNames(item)
-    of nnkIdent:
-      if item.strVal != "auto":
-        error("argument must be 'auto'", item)
-      result.add quote do:
-        gl.track = mkAuto()
-        grids.add move(gl)
-    of nnkDotExpr:
-      let n = item[0].strVal.parseInt()
-      let kd = item[1].strVal
-      if kd == "'fr":
-        result.add quote do:
-          gl.track = mkFrac(`n`)
-      elif kd == "'perc":
-        result.add quote do:
-          gl.track = mkPerc(`n`)
-      elif kd == "'ui":
-        result.add quote do:
-          gl.track = mkFixed(`n`)
-      else:
-        error("error: unknown argument ", item)
-      result.add quote do:
-        grids.add move(gl)
-    else:
-      discard
-  ## add final implicit line
-  if node.kind == nnkBracket:
-    result.add prepareNames(node)
-  result.add quote do:
-    gl.track = mkEndTrack()
-    grids.add move(gl)
-
-macro gridTemplateImpl*(args: untyped, field: untyped) =
-  result = newStmtList()
-  let cols = parseTmplCmd(args)
-  result.add quote do:
-    if gridTemplate.isNil:
-      gridTemplate = newGridTemplate()
-    block:
-      var grids {.inject.}: seq[GridLine]
-      var gl {.inject.}: GridLine
-      `cols`
-      gridTemplate.`field` = grids
-  echo "gridTmplImpl: ", repr field, " => "
-  echo result.repr
 
 template gridTemplateColumns*(args: untyped) =
   gridTemplateImpl(args, columns)
@@ -260,7 +263,7 @@ when isMainModule:
         rows = @[1'fr, 1'fr],
       )
       gt.computeLayout(initBox(0, 0, 100, 100))
-      print "grid template: ", gt
+      # print "grid template: ", gt
 
       check gt.columns[0].start == 0'ui
       check gt.columns[1].start == 50'ui
@@ -287,7 +290,7 @@ when isMainModule:
         columns = @[1'fr, initGridLine(5.mkFixed), 1'fr, 1'fr],
       )
       gt.computeLayout(initBox(0, 0, 100, 100))
-      print "grid template: ", gt
+      # print "grid template: ", gt
 
       check abs(gt.columns[0].start.float - 0.0) < 1.0e-3
       check abs(gt.columns[1].start.float - 31.6666) < 1.0e-3
@@ -333,6 +336,7 @@ when isMainModule:
         ["line3"] auto \
         ["col4-start"] 50'ui \
         ["five"] 40'ui ["end"]
+      gridTemplateRows ["row1-start"] 25'perc ["row1-end"] 100'ui ["third-line"] auto ["last-line"]
 
       gridTemplate.computeLayout(initBox(0, 0, 1000, 1000))
       let gt = gridTemplate
@@ -343,5 +347,10 @@ when isMainModule:
       check abs(gt.columns[3].start.float - 910.0) < 1.0e-3
       check abs(gt.columns[4].start.float - 960.0) < 1.0e-3
       check abs(gt.columns[5].start.float - 1000.0) < 1.0e-3
+
+      check abs(gt.rows[0].start.float - 0.0) < 1.0e-3
+      check abs(gt.rows[1].start.float - 250.0) < 1.0e-3
+      check abs(gt.rows[2].start.float - 350.0) < 1.0e-3
+      check abs(gt.rows[3].start.float - 1000.0) < 1.0e-3
       echo "grid template: ", repr gridTemplate
       
