@@ -178,12 +178,9 @@ proc parseTmplCmd*(arg: NimNode): NimNode {.compileTime.} =
     of nnkBracket:
       for x in item:
         let n = newLit x.strVal
-        echo "N: ", repr n
         let res = quote do:
           gl.aliases.incl toLineName(`n`)
-        echo "RES: ", res.repr
         result.add res
-      # echo "bracket: ", result.repr
     of nnkIdent:
       if item.strVal != "auto":
         error("argument must be 'auto'", item)
@@ -191,8 +188,6 @@ proc parseTmplCmd*(arg: NimNode): NimNode {.compileTime.} =
         gl = initGridLine(mkAuto())
         grids.add move(gl)
     of nnkDotExpr:
-      # result.add grdLn
-      echo "dotExper... ", repr(item)
       let n = item[0].strVal.parseInt()
       let kd = item[1].strVal
       if kd == "'fr":
@@ -205,8 +200,7 @@ proc parseTmplCmd*(arg: NimNode): NimNode {.compileTime.} =
         result.add quote do:
           gl = initGridLine(mkFixed(`n`))
       else:
-        echo "error: ", kd.repr, " => ", item.repr
-        error("error: ")
+        error("error: unknown argument ", item)
       result.add quote do:
         grids.add move(gl)
     else:
@@ -295,5 +289,6 @@ when isMainModule:
       gridTemplateColumns ["first"] 40'ui ["second", "line2"] 50'perc ["line3"] auto ["col4-start"] 50'ui ["five"] 40'ui ["end"]
 
       # grid.computeLayout(initBox(0, 0, 100, 100))
+      print "grid template: ", gridTemplate
       echo "grid template: ", repr gridTemplate
       
