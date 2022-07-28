@@ -68,6 +68,8 @@ proc `repr`*(a: HashSet[LineName]): string =
 proc mkFrac*(size: int): TrackSize = TrackSize(kind: grFrac, frac: size)
 proc mkAuto*(): TrackSize = TrackSize(kind: grAuto)
 proc mkFixed*(coord: UICoord): TrackSize = TrackSize(kind: grFixed, coord: coord)
+proc mkPerc*(perc: float): TrackSize = TrackSize(kind: grPerc, perc: perc)
+proc mkNoneTrack*(): TrackSize = TrackSize(kind: grNone)
 
 proc toLineName*(name: string): LineName = LineName(name)
 
