@@ -1,12 +1,8 @@
-import prelude
-import variant
-import strformat
-import sequtils
-import strutils
-import sugar
+import std/[strformat, sugar]
+import std/[sequtils, strutils, hashes, sets]
+import macros except `$`
+import print
 import commonutils
-import hashes
-import sets
 
 type
   GridConstraint* = enum
@@ -20,6 +16,7 @@ type
     grFrac
     grAuto
     grFixed
+    grNone
 
   TrackSize* = object
     case kind*: GridUnits
@@ -27,10 +24,12 @@ type
       frac*: int
     of grAuto:
       discard
+    of grNone:
+      discard
     of grFixed:
       coord*: UICoord
   
-  LineName* = distinct Hash
+  LineName* = distinct string
 
   GridLine* = object
     aliases*: HashSet[LineName]
@@ -58,16 +57,18 @@ type
     rowEnd*: ItemLocation
 
 proc `==`*(a, b: LineName): bool {.borrow.}
+proc `$`*(a: LineName): string {.borrow.}
+proc hash*(a: LineName): Hash {.borrow.}
 
 proc mkFrac*(size: int): TrackSize = TrackSize(kind: grFrac, frac: size)
 proc mkAuto*(): TrackSize = TrackSize(kind: grAuto)
 proc mkFixed*(coord: UICoord): TrackSize = TrackSize(kind: grFixed, coord: coord)
 
-proc toLineName*(name: string): LineName = LineName(name.hash())
+proc toLineName*(name: string): LineName = LineName(name)
 
 proc gridLine*(
     track = mkFrac(1),
-    aliases: varargs[LineName, toGridName],
+    aliases: varargs[LineName, toLineName],
 ): GridLine =
   GridLine(track: track, aliases: toHashSet(aliases))
 
@@ -104,6 +105,7 @@ proc computeLineLayout*(
       grFixed(coord): fixed += coord
       grFrac(frac): totalFracs += frac.UICoord
       grAuto(): totalAutos += 1
+      grNone(): discard
   fixed += spacing * lines.len().UICoord
 
   var
@@ -139,10 +141,39 @@ proc computeLayout*(grid: GridTemplate, box: Box) =
   grid.columns.computeLineLayout(length=colLen, spacing=0'ui)
   grid.rows.computeLineLayout(length=rowLen, spacing=0'ui)
 
+proc parseTmplCmd*(arg: NimNode): seq[GridLine] {.compileTime.} =
+  var node: NimNode = arg
+  var grdLn: GridLine
+  while node.kind == nnkCommand:
+    let item = node[0]
+    node = node[1]
+    # echo "GTC:item: ", item.treeRepr
+    case item.kind:
+    of nnkBracket:
+      for it in item:
+        grdLn.aliases.incl toLineName(item[0].strVal)
+      echo "bracket: ", grdLn.aliases.items().toSeq().repr
+    of nnkDotExpr:
+      result.add grdLn
+      echo "dotExper... ", repr(item)
+      let n = item[0].strVal.parseInt()
+      let kd = item[1].strVal
+      let track = 
+        if kd == "`px": mkFrac(1)
+        elif kd == "`px": mkFrac(1)
+        else: mkFrac(1)
+      grdLn = gridLine(track)
+    else:
+      discard
+
+macro gridTemplateColumns*(args: untyped) =
+  echo "GTC:args: ", args.treeRepr
+  let grdLns = parseTmplCmd(args)
+  echo repr grdLns
+  echo "GTC:result: ", result.treeRepr
 
 when isMainModule:
   import unittest
-  import print
 
   suite "grids":
 
@@ -168,7 +199,7 @@ when isMainModule:
       check gt.rows[0].start == 0'ui
       check gt.rows[1].start == 50'ui
 
-    test "basic grid compute":
+    test "3x3 grid compute with frac's":
       var gt = newGridTemplate(
         columns = @[1'fr, 1'fr, 1'fr],
         rows = @[1'fr, 1'fr, 1'fr],
@@ -183,7 +214,7 @@ when isMainModule:
       check abs(gt.rows[1].start.float - 33.3333) < 1.0e-3
       check abs(gt.rows[2].start.float - 66.6666) < 1.0e-3
 
-    test "basic grid compute":
+    test "4x1 grid test":
       var gt = newGridTemplate(
         columns = @[1'fr, gridLine(5.mkFixed), 1'fr, 1'fr],
       )
@@ -195,3 +226,13 @@ when isMainModule:
       check abs(gt.columns[2].start.float - 36.6666) < 1.0e-3
       check abs(gt.columns[3].start.float - 68.3333) < 1.0e-3
       check abs(gt.rows[0].start.float - 0.0) < 1.0e-3
+
+    test "initial macros":
+      var grid: GridTemplate
+
+      # grid-template-columns: [first] 40px [line2] 50px [line3] auto [col4-start] 50px [five] 40px [end];
+      gridTemplateColumns ["first"] 40'ui ["second", "line2"] 50'perc ["line3"] auto ["col4-start"] 50'ui ["five"] 40'ui ["end"]
+
+      # grid.computeLayout(initBox(0, 0, 100, 100))
+      # print "grid template: ", grid
+      
