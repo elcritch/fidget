@@ -73,7 +73,7 @@ proc repr*(a: TrackSize): string =
     grAuto(): result = "auto"
     grNone(): result = "none"
 proc repr*(a: GridLine): string =
-  result = fmt"GL({a.track.repr}; <{$a.start} x {$a.width}'w>, aliases: {a.aliases.repr})"
+  result = fmt"GL({a.track.repr}; <{$a.start} x {$a.width}'w> <- {a.aliases.repr})"
 proc repr*(a: GridTemplate): string =
   result = "GridTemplate:"
   result &= "\n\tcols: "
@@ -288,6 +288,30 @@ when isMainModule:
       gridTemplateColumns ["first"] 40'ui ["second", "line2"] 50'perc ["line3"] auto ["col4-start"] 50'ui ["five"] 40'ui ["end"]
 
       gridTemplate.computeLayout(initBox(0, 0, 100, 100))
+      let gt = gridTemplate
+
+      check gt.columns[0].track.kind == grFixed
+      check gt.columns[0].track.coord == 40.0'ui
+      check gt.columns[1].track.kind == grPerc
+      check gt.columns[1].track.perc == 50.0
+      check gt.columns[2].track.kind == grAuto
+      check gt.columns[3].track.kind == grFixed
+      check gt.columns[3].track.coord == 50.0'ui
+      check gt.columns[4].track.kind == grFixed
+      check gt.columns[4].track.coord == 40.0'ui
+
+    test "initial macros":
+      var gridTemplate: GridTemplate
+
+      # grid-template-columns: [first] 40px [line2] 50px [line3] auto [col4-start] 50px [five] 40px [end];
+      gridTemplateColumns ["first"] 40'ui ["second", "line2"] 50'perc ["line3"] auto ["col4-start"] 50'ui ["five"] 40'ui ["end"]
+
+      gridTemplate.computeLayout(initBox(0, 0, 100, 100))
+      let gt = gridTemplate
+      check abs(gt.columns[0].start.float - 0.0) < 1.0e-3
+      check abs(gt.columns[1].start.float - 40.0) < 1.0e-3
+      check abs(gt.columns[2].start.float - 40.0) < 1.0e-3
+      check abs(gt.columns[3].start.float - 40.0) < 1.0e-3
       print "grid template: ", gridTemplate
       echo "grid template: ", repr gridTemplate
       
