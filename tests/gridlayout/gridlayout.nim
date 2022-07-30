@@ -33,24 +33,24 @@ proc drawMain() =
           gridTemplateColumns ["first"] 40'ui ["second", "line2"] 50'ui ["line3"] auto ["col4-start"] 50'ui ["five"] 40'ui ["end"]
           gridTemplateRows ["row1-start"] 25'perc ["row1-end"] 100'ui ["third-line"] auto ["last-line"]
 
-        rectangle "area2":
-          box 0, 0, 100'pw, 70'vh
-          fill "#379fff"
+          rectangle "area2":
+            box 0, 0, 100'pw, 70'vh
+            fill "#379fff"
 
-        rectangle "area3":
-          box 0, 0, 100'pw, 70'vh
-          fill "#007ff4"
-        rectangle "area4":
-          box 0, 0, 100'pw, 70'vh
-          fill "#0074df"
-        rectangle "area5":
-          box 0, 0, 100'pw, 70'vh
-          fill "#0062bd"
-        rectangle "area6":
-          box 0, 0, 100'pw, 70'vh
-          fill "#005fb7"
-        rectangle "area7":
-          box 0, 0, 100'pw, 70'vh
-          fill "#00407b"
+          rectangle "area3":
+            box 0, 0, 100'pw, 70'vh
+            fill "#007ff4"
+          rectangle "area4":
+            box 0, 0, 100'pw, 70'vh
+            fill "#0074df"
+          rectangle "area5":
+            box 0, 0, 100'pw, 70'vh
+            fill "#0062bd"
+          rectangle "area6":
+            box 0, 0, 100'pw, 70'vh
+            fill "#005fb7"
+          rectangle "area7":
+            box 0, 0, 100'pw, 70'vh
+            fill "#00407b"
 
 startFidget(drawMain, w = 400, h = 400, uiScale = 2.0)

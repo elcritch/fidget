@@ -920,6 +920,12 @@ proc innerShadow*(blur, x, y: float32, color: string, alpha: float32) =
 ## setting up layouts and constraingts. 
 ## 
 
+template gridTemplateColumns*(args: untyped) =
+  parseGridTemplateColumns(current.gridTemplate, args)
+
+template gridTemplateRows*(args: untyped) =
+  parseGridTemplateRows(current.gridTemplate, args)
+
 proc constraints*(vCon: Constraint, hCon: Constraint) =
   ## Sets vertical or horizontal constraint.
   current.constraintsVertical = vCon
