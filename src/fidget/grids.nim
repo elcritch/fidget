@@ -48,17 +48,17 @@ type
     justifyItems*: GridConstraint
     alignItems*: GridConstraint
 
-  ItemLine* = object
+  GridIndex* = object
     line*: int
     isSpan*: bool
     isAuto*: bool
     isName*: bool
   
   GridItem* = ref object
-    columnStart*: ItemLine
-    columnEnd*: ItemLine
-    rowStart*: ItemLine
-    rowEnd*: ItemLine
+    columnStart*: GridIndex
+    columnEnd*: GridIndex
+    rowStart*: GridIndex
+    rowEnd*: GridIndex
 
 proc `==`*(a, b: LineName): bool {.borrow.}
 proc `$`*(a: LineName): string {.borrow.}
@@ -71,14 +71,14 @@ proc toLineName*(name: string): LineName =
 proc toLineNames*(names: varargs[string]): HashSet[LineName] =
   toHashSet names.toSeq().mapIt(it.toLineName())
 
-proc mkIndex*(line: int, isSpan = false, isAuto = false, isName = false): ItemLine =
-  ItemLine(line: line, isSpan: isSpan, isAuto: isAuto, isName: isName)
+proc mkIndex*(line: int, isSpan = false, isAuto = false, isName = false): GridIndex =
+  GridIndex(line: line, isSpan: isSpan, isAuto: isAuto, isName: isName)
 
-proc mkIndex*(name: string, isSpan = false, isAuto = false): ItemLine =
-  ItemLine(line: name.toLineName().int, isSpan: isSpan, isAuto: isAuto, isName: true)
+proc mkIndex*(name: string, isSpan = false, isAuto = false): GridIndex =
+  GridIndex(line: name.toLineName().int, isSpan: isSpan, isAuto: isAuto, isName: true)
 
 proc `columnStart=`*(item: GridItem, a: int) =
-  item.columnStart = ItemLine(line: a, isSpan: false, isAuto: false, isName: false)
+  item.columnStart = GridIndex(line: a, isSpan: false, isAuto: false, isName: false)
 
 proc repr*(a: TrackSize): string =
   match a:
@@ -255,6 +255,28 @@ template gridTemplateColumns*(args: untyped) =
 template gridTemplateRows*(args: untyped) =
   gridTemplateImpl(args, rows)
 
+proc findLine(index: GridIndex, lines: seq[GridLine]): UICoord =
+  for line in lines:
+    if index.line.LineName in line.aliases:
+      return line.start
+  raise newException(KeyError, "couldn't find index")
+
+proc computePosition*(item: GridItem, grid: GridTemplate): Box =
+  ## computing grid layout
+  template setPosition(target, index, lines: untyped) =
+    if not item.`index`.isName:
+      result.`target` = grid.`lines`[item.`index`.line - 1].start
+    else:
+      result.`target` = findLine(item.`index`, grid.`lines`)
+  # find positions
+  setPosition(x, columnStart, columns)
+  setPosition(w, columnEnd, columns)
+  setPosition(y, rowStart, rows)
+  setPosition(h, rowEnd, rows)
+  result.w = result.w - result.x
+  result.h = result.h - result.y
+
+
 when isMainModule:
   import unittest
 
@@ -380,5 +402,8 @@ when isMainModule:
       gridItem.columnEnd = "five".mkIndex
       gridItem.rowStart = "row1Start".mkIndex
       gridItem.rowEnd = 3.mkIndex
+
+      let itemBox = gridItem.computePosition(gridTemplate)
+      print itemBox
 
       
