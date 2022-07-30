@@ -1,5 +1,5 @@
 import std/[strformat, sugar]
-import std/[sequtils, strutils, hashes, sets]
+import std/[sequtils, strutils, hashes, sets, tables]
 import macros except `$`
 import print
 import commonutils
@@ -60,14 +60,19 @@ type
     rowStart*: GridIndex
     rowEnd*: GridIndex
 
+var lineName: Table[LineName, string]
+
 proc `==`*(a, b: LineName): bool {.borrow.}
-proc `$`*(a: LineName): string {.borrow.}
 proc hash*(a: LineName): Hash {.borrow.}
+
+proc `repr`*(a: LineName): string = lineName[a]
 proc `repr`*(a: HashSet[LineName]): string =
-  result = "{" & a.toSeq().join(", ") & "}"
+  result = "{" & a.toSeq().mapIt(repr it).join(", ") & "}"
 
 proc toLineName*(name: string): LineName =
-  LineName(name.hash())
+  result = LineName(name.hash())
+  lineName[result] = name
+
 proc toLineNames*(names: varargs[string]): HashSet[LineName] =
   toHashSet names.toSeq().mapIt(it.toLineName())
 
