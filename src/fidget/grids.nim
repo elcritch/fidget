@@ -32,7 +32,7 @@ type
     of grEnd:
       discard
   
-  LineName* = distinct string
+  LineName* = distinct int
 
   GridLine* = object
     aliases*: HashSet[LineName]
@@ -48,22 +48,37 @@ type
     justifyItems*: GridConstraint
     alignItems*: GridConstraint
 
-  ItemLocation* = object
-    line*: int8
+  ItemLine* = object
+    line*: int
     isSpan*: bool
     isAuto*: bool
+    isName*: bool
   
   GridItem* = ref object
-    columnStart*: ItemLocation
-    columnEnd*: ItemLocation
-    rowStart*: ItemLocation
-    rowEnd*: ItemLocation
+    columnStart*: ItemLine
+    columnEnd*: ItemLine
+    rowStart*: ItemLine
+    rowEnd*: ItemLine
 
 proc `==`*(a, b: LineName): bool {.borrow.}
 proc `$`*(a: LineName): string {.borrow.}
 proc hash*(a: LineName): Hash {.borrow.}
 proc `repr`*(a: HashSet[LineName]): string =
   result = "{" & a.toSeq().join(", ") & "}"
+
+proc toLineName*(name: string): LineName =
+  LineName(name.hash())
+proc toLineNames*(names: varargs[string]): HashSet[LineName] =
+  toHashSet names.toSeq().mapIt(it.toLineName())
+
+proc mkIndex*(line: int, isSpan = false, isAuto = false, isName = false): ItemLine =
+  ItemLine(line: line, isSpan: isSpan, isAuto: isAuto, isName: isName)
+
+proc mkIndex*(name: string, isSpan = false, isAuto = false): ItemLine =
+  ItemLine(line: name.toLineName().int, isSpan: isSpan, isAuto: isAuto, isName: true)
+
+proc `columnStart=`*(item: GridItem, a: int) =
+  item.columnStart = ItemLine(line: a, isSpan: false, isAuto: false, isName: false)
 
 proc repr*(a: TrackSize): string =
   match a:
@@ -151,9 +166,6 @@ proc mkFixed*(coord: UICoord): TrackSize = TrackSize(kind: grFixed, coord: coord
 proc mkPerc*(perc: float): TrackSize = TrackSize(kind: grPerc, perc: perc)
 proc mkAuto*(): TrackSize = TrackSize(kind: grAuto)
 proc mkEndTrack*(): TrackSize = TrackSize(kind: grEnd)
-
-proc toLineName*(name: string): LineName = LineName(name)
-proc toLineNames*(names: varargs[string]): HashSet[LineName] = toHashSet names.toSeq().mapIt(it.toLineName())
 
 proc initGridLine*(
     track = mkFrac(1),
@@ -353,4 +365,20 @@ when isMainModule:
       check abs(gt.rows[2].start.float - 350.0) < 1.0e-3
       check abs(gt.rows[3].start.float - 1000.0) < 1.0e-3
       echo "grid template: ", repr gridTemplate
+      
+    test "compute macro and item layout":
+      var gridTemplate: GridTemplate
+
+      # grid-template-columns: [first] 40px [line2] 50px [line3] auto [col4-start] 50px [five] 40px [end];
+      gridTemplateColumns ["first"] 40'ui ["second", "line2"] 50'ui ["line3"] auto ["col4-start"] 50'ui ["five"] 40'ui ["end"]
+      gridTemplateRows ["row1-start"] 25'perc ["row1-end"] 100'ui ["third-line"] auto ["last-line"]
+      gridTemplate.computeLayout(initBox(0, 0, 1000, 1000))
+      echo "grid template: ", repr gridTemplate
+
+      var gridItem = newGridItem()
+      gridItem.columnStart = 2.mkIndex
+      gridItem.columnEnd = "five".mkIndex
+      gridItem.rowStart = "row1Start".mkIndex
+      gridItem.rowEnd = 3.mkIndex
+
       
