@@ -400,8 +400,9 @@ when isMainModule:
       var gridItem = newGridItem()
       gridItem.columnStart = 2.mkIndex
       gridItem.columnEnd = "five".mkIndex
-      gridItem.rowStart = "row1Start".mkIndex
+      gridItem.rowStart = "row1-start".mkIndex
       gridItem.rowEnd = 3.mkIndex
+      print gridItem
 
       let itemBox = gridItem.computePosition(gridTemplate)
       print itemBox
