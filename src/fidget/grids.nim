@@ -152,17 +152,17 @@ proc parseTmplCmd*(arg: NimNode): NimNode {.compileTime.} =
     gl.track = mkEndTrack()
     grids.add move(gl)
 
-macro gridTemplateImpl*(args: untyped, field: untyped) =
+macro gridTemplateImpl*(gridTmpl, args: untyped, field: untyped) =
   result = newStmtList()
   let cols = parseTmplCmd(args)
   result.add quote do:
-    if gridTemplate.isNil:
-      gridTemplate = newGridTemplate()
+    if `gridTmpl`.isNil:
+      `gridTmpl` = newGridTemplate()
     block:
       var grids {.inject.}: seq[GridLine]
       var gl {.inject.}: GridLine
       `cols`
-      gridTemplate.`field` = grids
+      `gridTmpl`.`field` = grids
   # echo "gridTmplImpl: ", repr field, " => "
   # echo result.repr
 
@@ -254,11 +254,11 @@ proc computeLayout*(grid: GridTemplate, box: Box) =
   grid.columns.computeLineLayout(length=colLen, spacing=0'ui)
   grid.rows.computeLineLayout(length=rowLen, spacing=0'ui)
 
-template gridTemplateColumns*(args: untyped) =
-  gridTemplateImpl(args, columns)
+template parseGridTemplateColumns*(gridTmpl, args: untyped) =
+  gridTemplateImpl(gridTmpl, args, columns)
 
-template gridTemplateRows*(args: untyped) =
-  gridTemplateImpl(args, rows)
+template parseGridTemplateRows*(gridTmpl, args: untyped) =
+  gridTemplateImpl(gridTmpl, args, rows)
 
 proc findLine(index: GridIndex, lines: seq[GridLine]): UICoord =
   for line in lines:
@@ -341,7 +341,7 @@ when isMainModule:
       var gridTemplate: GridTemplate
 
       # grid-template-columns: [first] 40px [line2] 50px [line3] auto [col4-start] 50px [five] 40px [end];
-      gridTemplateColumns ["first"] 40'ui ["second", "line2"] 50'perc ["line3"] auto ["col4-start"] 50'ui ["five"] 40'ui ["end"]
+      parseGridTemplateColumns gridTemplate, ["first"] 40'ui ["second", "line2"] 50'perc ["line3"] auto ["col4-start"] 50'ui ["five"] 40'ui ["end"]
 
       gridTemplate.computeLayout(initBox(0, 0, 100, 100))
       let gt = gridTemplate
@@ -367,18 +367,18 @@ when isMainModule:
       echo "grid template: ", repr gridTemplate
 
     test "compute macros":
-      var gridTemplate: GridTemplate
+      var tmpl: GridTemplate
 
       # grid-template-columns: [first] 40px [line2] 50px [line3] auto [col4-start] 50px [five] 40px [end];
-      gridTemplateColumns ["first"] 40'ui \
+      parseGridTemplateColumns tmpl, ["first"] 40'ui \
         ["second", "line2"] 50'ui \
         ["line3"] auto \
         ["col4-start"] 50'ui \
         ["five"] 40'ui ["end"]
-      gridTemplateRows ["row1-start"] 25'perc ["row1-end"] 100'ui ["third-line"] auto ["last-line"]
+      parseGridTemplateRows tmpl, ["row1-start"] 25'perc ["row1-end"] 100'ui ["third-line"] auto ["last-line"]
 
-      gridTemplate.computeLayout(initBox(0, 0, 1000, 1000))
-      let gt = gridTemplate
+      tmpl.computeLayout(initBox(0, 0, 1000, 1000))
+      let gt = tmpl
       # print "grid template: ", gridTemplate
       check abs(gt.columns[0].start.float - 0.0) < 1.0e-3
       check abs(gt.columns[1].start.float - 40.0) < 1.0e-3
@@ -391,14 +391,14 @@ when isMainModule:
       check abs(gt.rows[1].start.float - 250.0) < 1.0e-3
       check abs(gt.rows[2].start.float - 350.0) < 1.0e-3
       check abs(gt.rows[3].start.float - 1000.0) < 1.0e-3
-      echo "grid template: ", repr gridTemplate
+      echo "grid template: ", repr tmpl
       
     test "compute macro and item layout":
       var gridTemplate: GridTemplate
 
       # grid-template-columns: [first] 40px [line2] 50px [line3] auto [col4-start] 50px [five] 40px [end];
-      gridTemplateColumns ["first"] 40'ui ["second", "line2"] 50'ui ["line3"] auto ["col4-start"] 50'ui ["five"] 40'ui ["end"]
-      gridTemplateRows ["row1-start"] 25'perc ["row1-end"] 100'ui ["third-line"] auto ["last-line"]
+      parseGridTemplateColumns gridTemplate, ["first"] 40'ui ["second", "line2"] 50'ui ["line3"] auto ["col4-start"] 50'ui ["five"] 40'ui ["end"]
+      parseGridTemplateRows gridTemplate, ["row1-start"] 25'perc ["row1-end"] 100'ui ["third-line"] auto ["last-line"]
       gridTemplate.computeLayout(initBox(0, 0, 1000, 1000))
       echo "grid template: ", repr gridTemplate
 

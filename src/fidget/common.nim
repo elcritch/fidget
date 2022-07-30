@@ -1,17 +1,17 @@
 import sequtils, tables, json, hashes
-import chroma, input
 import strutils, strformat
 import unicode
 import typetraits
-import rationals
+import variant, chroma, input
 
-import variant
 import commonutils
+import grids
 
 export sequtils, strformat, tables, hashes
 export variant
 export unicode
 export commonutils
+export grids
 
 when defined(js):
   import dom2, html/ajax
@@ -166,7 +166,8 @@ type
     layoutAlign*: LayoutAlign
     layoutMode*: LayoutMode
     counterAxisSizingMode*: CounterAxisSizingMode
-    grid*: GridStyle
+    gridTemplate*: GridTemplate
+    gridItem*: GridItem
     horizontalPadding*: UICoord
     verticalPadding*: UICoord
     itemSpacing*: UICoord
@@ -298,6 +299,7 @@ var
   root*: Node
   prevRoot*: Node
   nodeStack*: seq[Node]
+  gridStack*: seq[GridTemplate]
   current*: Node
   scrollBox*: Box
   scrollBoxMega*: Box ## Scroll box is 500px bigger in y direction
@@ -630,14 +632,19 @@ proc computeEvents*(node: Node) =
 
 proc computeLayout*(parent, node: Node) =
   ## Computes constraints and auto-layout.
+  
+  # compute grid item's position (this item can also be a grid)
+  if node.gridItem.isNil and gridStack.len() > 0:
+    node.box = node.gridItem.computePosition(gridStack[^1])
+
+  # next
+  if node.gridTemplate.isNil:
+    computeLayout(node.gridTemplate, node.box)
+
   for n in node.nodes:
     computeLayout(node, n)
 
-  if node.layoutAlign == laIgnore:
-    return
-
-  if node.layoutMode == lmGrid:
-
+  if node.layoutAlign == laIgnore or node.layoutMode == lmGrid:
     return
 
   # Constraints code.

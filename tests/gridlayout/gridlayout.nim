@@ -30,7 +30,8 @@ proc drawMain() =
           fill "#90caff"
 
           layout lmGrid
-          gridTemplateColumns 40'ui, 50'ui
+          gridTemplateColumns ["first"] 40'ui ["second", "line2"] 50'ui ["line3"] auto ["col4-start"] 50'ui ["five"] 40'ui ["end"]
+          gridTemplateRows ["row1-start"] 25'perc ["row1-end"] 100'ui ["third-line"] auto ["last-line"]
 
         rectangle "area2":
           box 0, 0, 100'pw, 70'vh
