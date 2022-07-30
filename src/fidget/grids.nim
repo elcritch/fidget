@@ -412,4 +412,9 @@ when isMainModule:
       let itemBox = gridItem.computePosition(gridTemplate)
       print itemBox
 
+      check abs(itemBox.x.float - 40.0) < 1.0e-3
+      check abs(itemBox.w.float - 920.0) < 1.0e-3
+      check abs(itemBox.y.float - 0.0) < 1.0e-3
+      check abs(itemBox.h.float - 350.0) < 1.0e-3
+
       
