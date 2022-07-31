@@ -21,7 +21,6 @@ proc drawMain() =
       clipContent true
 
       # Setup CSS Grid Template
-
       gridTemplateColumns ["first"] 40'ui \
                             ["line2"] 50'ui \
                             ["line3"] auto \
@@ -36,7 +35,7 @@ proc drawMain() =
 
       rectangle "css grid item":
         # Setup CSS Grid Template
-        cornerRadius 0.5'em
+        cornerRadius 1'em
         columnStart 2.mkIndex
         columnEnd "five".mkIndex
         rowStart "row1-start".mkIndex
