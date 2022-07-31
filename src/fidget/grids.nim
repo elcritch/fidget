@@ -289,31 +289,35 @@ proc computePosition*(item: GridItem, grid: GridTemplate, contentSize: Position)
   var rxw: UICoord
   setPosition(result.x, columnStart, columns)
   setPosition(rxw, columnEnd, columns)
+  let rww = (rxw - result.x) - grid.columnGap
   case grid.justifyItems:
   of gcStretch:
-    result.w = rxw - result.x - grid.columnGap
-  of gcStart:
-    discard
-  of gcEnd:
-    discard
+    result.w = rww
   of gcCenter:
-    discard
+    result.x = result.x + (rww - contentSize.x)/2.0
+    result.w = contentSize.x
+  of gcStart:
+    result.w = contentSize.x
+  of gcEnd:
+    result.w = rxw - result.w
+    result.w = contentSize.x
 
   # set rows
-  var rxh: UICoord
+  var ryh: UICoord
   setPosition(result.y, rowStart, rows)
-  setPosition(rxh, rowEnd, rows)
-  # setPosition(result.h, rowEnd, rows)
-  # result.h = result.h - result.y - grid.rowGap
+  setPosition(ryh, rowEnd, rows)
+  let rhh = (ryh - result.y) - grid.rowGap
   case grid.alignItems:
   of gcStretch:
-    result.h = rxh - result.y - grid.rowGap
-  of gcStart:
-    discard
-  of gcEnd:
-    discard
+    result.h = rhh
   of gcCenter:
-    discard
+    result.y = result.y + (rhh - contentSize.y)/2.0
+    result.h = contentSize.y
+  of gcStart:
+    result.h = contentSize.y
+  of gcEnd:
+    result.h = ryh - result.h
+    result.h = contentSize.y
 
 
 when isMainModule:
@@ -471,7 +475,7 @@ when isMainModule:
 
       let contentSize = initPosition(0, 0)
       let itemBox = gridItem.computePosition(gridTemplate, contentSize)
-      print itemBox
+      # print itemBox
 
       check abs(itemBox.x.float - 40.0) < 1.0e-3
       check abs(itemBox.w.float - 920.0) < 1.0e-3
@@ -495,13 +499,24 @@ when isMainModule:
       # print gridItem
 
       let contentSize = initPosition(500, 200)
-      let itemBox = gridItem.computePosition(gridTemplate, contentSize)
-      print itemBox
+      var itemBox: Box
 
+      ## test stretch
+      itemBox = gridItem.computePosition(gridTemplate, contentSize)
+      print itemBox
       check abs(itemBox.x.float - 40.0) < 1.0e-3
       check abs(itemBox.w.float - 920.0) < 1.0e-3
       check abs(itemBox.y.float - 0.0) < 1.0e-3
       check abs(itemBox.h.float - 350.0) < 1.0e-3
 
+      ## test start
+      gridTemplate.justifyItems = gcStart
+      gridTemplate.alignItems = gcStart
+      itemBox = gridItem.computePosition(gridTemplate, contentSize)
+      print itemBox
+      check abs(itemBox.x.float - 40.0) < 1.0e-3
+      check abs(itemBox.w.float - 500.0) < 1.0e-3
+      check abs(itemBox.y.float - 0.0) < 1.0e-3
+      check abs(itemBox.h.float - 200.0) < 1.0e-3
       
       
