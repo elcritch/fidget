@@ -8,7 +8,7 @@ proc drawMain() =
   frame "autoLayout":
     font "IBM Plex Sans", 16, 400, 16, hLeft, vCenter
     box 0, 0, 100'vw, 100'vh
-    fill "#cccccc"
+    fill rgb(224, 239, 255).to(Color)
 
     frame "autoFrame":
       box 0, 0, 80'pw, 80'ph
@@ -20,8 +20,10 @@ proc drawMain() =
       # strokeLine 0.1'em.float32, "#444444" # wow this is slow!!
 
       layout lmGrid
-      gridTemplateColumns ["first"] 40'ui ["second", "line2"] 50'ui ["line3"] auto ["col4-start"] 50'ui ["five"] 40'ui ["end"]
-      gridTemplateRows ["row1-start"] 25'perc ["row1-end"] 100'ui ["third-line"] auto ["last-line"]
+      gridTemplateColumns ["first"] 40'ui ["second", "line2"] 50'ui ["line3"] auto \
+                              ["col4-start"] 50'ui ["five"] 40'ui ["end"]
+      gridTemplateRows ["row1-start"] 25'perc ["row1-end"] 100'ui ["third-line"] auto \ 
+                              ["last-line"]
 
       rectangle "area2":
         # fill rgb(248, 152, 87).to(Color)
@@ -51,4 +53,4 @@ proc drawMain() =
 
       
 
-startFidget(drawMain, w = 400, h = 400, uiScale = 2.0)
+startFidget(drawMain, w = 600, h = 400, uiScale = 2.0)
