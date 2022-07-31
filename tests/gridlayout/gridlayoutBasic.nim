@@ -11,14 +11,15 @@ proc drawMain() =
     fill rgb(224, 239, 255).to(Color)
 
     frame "autoFrame":
+      # setup frame for css grid
       box 0, 0, 80'pw, 80'ph
       centeredX 80'pw
       centeredY 80'ph
       fill "#FFFFFF"
       cornerRadius 0.5'em
       clipContent true
-      # strokeLine 0.1'em.float32, "#444444" # wow this is slow!!
 
+      # Setup CSS Grid Template
       layout lmGrid
       gridTemplateColumns ["first"] 40'ui ["second", "line2"] 50'ui ["line3"] auto \
                               ["col4-start"] 50'ui ["five"] 40'ui ["end"]
@@ -26,17 +27,16 @@ proc drawMain() =
                               ["last-line"]
 
       rectangle "area2":
-        # fill rgb(248, 152, 87).to(Color)
-        fill rgba(245, 129, 49, 123).to(Color)
+        # Setup CSS Grid Template
         cornerRadius 0.5'em
         columnStart 2.mkIndex
         columnEnd "five".mkIndex
         rowStart "row1-start".mkIndex
         rowEnd 3.mkIndex
+        # some color stuff
+        fill rgba(245, 129, 49, 123).to(Color)
         rectangle "area2":
           box 0.5'em, 0.5'em, 100'pw - 0.5'em, 100'ph - 0.5'em 
-          cornerRadius 0.5'em
-          # fill rgb(245, 129, 49).to(Color)
           fill rgba(245, 129, 49, 80).to(Color)
 
       for col in current.gridTemplate.columns[1..^1]:
