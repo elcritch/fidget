@@ -16,13 +16,11 @@ proc drawMain() =
       centeredY 80'ph
       fill "#FFFFFF"
 
-      if not current.gridTemplate.isNil:
-        print "start"
-        for col in current.gridTemplate.columns:
-          rectangle "column":
-            fill "#cccccc"
-            print col.start
-            box col.start, 0, 0.2'em, 100'ph
+      # if not current.gridTemplate.isNil:
+      #   for col in current.gridTemplate.columns:
+      #     rectangle "column":
+      #       fill "#cccccc"
+      #       box col.start, 0, 0.2'em, 100'ph
 
       layout lmGrid
       gridTemplateColumns ["first"] 40'ui ["second", "line2"] 50'ui ["line3"] auto ["col4-start"] 50'ui ["five"] 40'ui ["end"]
@@ -35,6 +33,20 @@ proc drawMain() =
         columnEnd "five".mkIndex
         rowStart "row1-start".mkIndex
         rowEnd 3.mkIndex
+
+      rectangle "area3":
+        fill "#379fff"
+        box 0, 0, 1'em, 1'em
+
+      rectangle "area2":
+        fill "#379fff"
+        cornerRadius 0.3'em
+
+        columnStart 1.mkIndex
+        columnEnd 2.mkIndex
+        rowStart 3.mkIndex
+        rowEnd "last-line".mkIndex
+
       
 
       
