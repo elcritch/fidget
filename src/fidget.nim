@@ -959,6 +959,9 @@ template gridTemplateRows*(args: untyped) =
   parseGridTemplateRows(current.gridTemplate, args)
   layout lmGrid
 
+template defaultGridTemplate() =
+  if current.gridTemplate.isNil:
+    current.gridTemplate = newGridTemplate()
 template setGridItem(field: untyped, idx: GridIndex) =
   if current.gridItem.isNil:
     current.gridItem = newGridItem()
@@ -976,19 +979,30 @@ proc rowStart*(idx: int | string) =
 proc rowEnd*(idx: int | string) =
   ## set CSS grid ending row 
   setGridItem(rowEnd, mkIndex idx)
+proc columnGap*(value: UICoord) =
+  ## set CSS grid column gap
+  defaultGridTemplate()
+  current.gridTemplate.columnGap = value
+proc rowGap*(value: UICoord) =
+  ## set CSS grid column gap
+  defaultGridTemplate()
+  current.gridTemplate.rowGap = value
+
 
 proc gridTemplateDebugLines*(draw: bool, color: Color = blackColor) =
   ## helper that draws css grid lines. great for debugging layouts.
   if draw:
     # draw debug lines
+    let cg = current.gridTemplate.columnGap
+    let wd = max(0.1'em, cg)
     for col in current.gridTemplate.columns[1..^2]:
       rectangle "column":
         fill color
-        box col.start, 0, 0.1'em, 100'ph
+        box col.start - wd, 0, wd, 100'ph
     for row in current.gridTemplate.rows[1..^2]:
       rectangle "row":
         fill color
-        box 0, row.start, 100'pw, 0.1'em
+        box 0, row.start - wd, 100'pw, wd
 
 proc constraints*(vCon: Constraint, hCon: Constraint) =
   ## Sets vertical or horizontal constraint.

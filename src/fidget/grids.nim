@@ -289,8 +289,8 @@ proc computePosition*(item: GridItem, grid: GridTemplate): Box =
   setPosition(w, columnEnd, columns)
   setPosition(y, rowStart, rows)
   setPosition(h, rowEnd, rows)
-  result.w = result.w - result.x
-  result.h = result.h - result.y
+  result.w = result.w - result.x - grid.columnGap
+  result.h = result.h - result.y - grid.rowGap
 
 
 when isMainModule:

@@ -4,6 +4,7 @@ import fidget/grids
 setTitle("Auto Layout Vertical")
 
 import print
+const hasGaps = false
 
 proc drawMain() =
   frame "autoLayout":
@@ -19,7 +20,10 @@ proc drawMain() =
       fill "#FFFFFF"
       cornerRadius 0.5'em
       clipContent true
-
+      if hasGaps:
+        columnGap 1'em
+        rowGap 1'em
+      
       # Setup CSS Grid Template
       gridTemplateColumns ["first"] 40'ui \
                             ["line2"] 50'ui \
