@@ -48,11 +48,11 @@ proc drawMain() =
           fill rgba(245, 129, 49, 80).to(Color)
 
       # draw debug lines
-      for col in current.gridTemplate.columns[1..^1]:
+      for col in current.gridTemplate.columns[1..^2]:
         rectangle "column":
           fill "#888888"
           box col.start, 0, 0.1'em, 100'ph
-      for row in current.gridTemplate.rows[1..^1]:
+      for row in current.gridTemplate.rows[1..^2]:
         rectangle "row":
           fill "#888888"
           box 0, row.start, 100'pw, 0.1'em
