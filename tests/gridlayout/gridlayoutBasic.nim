@@ -15,40 +15,37 @@ proc drawMain() =
       centeredX 80'pw
       centeredY 80'ph
       fill "#FFFFFF"
-
-      if not current.gridTemplate.isNil:
-        print "\nstart"
-        for col in current.gridTemplate.columns:
-          rectangle "column":
-            cornerRadius 1'em
-            fill "#cccccc"
-            box col.start, 0, 0.2'em, 100'ph
-            print current.box
+      cornerRadius 0.5'em
+      clipContent true
+      strokeLine 0.1'em.float32, "#444444"
 
       layout lmGrid
       gridTemplateColumns ["first"] 40'ui ["second", "line2"] 50'ui ["line3"] auto ["col4-start"] 50'ui ["five"] 40'ui ["end"]
       gridTemplateRows ["row1-start"] 25'perc ["row1-end"] 100'ui ["third-line"] auto ["last-line"]
 
       rectangle "area2":
-        fill "#379fff"
-        cornerRadius 0.3'em
+        # fill rgb(248, 152, 87).to(Color)
+        fill rgba(245, 129, 49, 123).to(Color)
+        cornerRadius 0.5'em
         columnStart 2.mkIndex
         columnEnd "five".mkIndex
         rowStart "row1-start".mkIndex
         rowEnd 3.mkIndex
+        rectangle "area2":
+          box 0.5'em, 0.5'em, 100'pw - 0.5'em, 100'ph - 0.5'em 
+          cornerRadius 0.5'em
+          # fill rgb(245, 129, 49).to(Color)
+          fill rgba(245, 129, 49, 80).to(Color)
 
-      rectangle "area3":
-        fill "#379fff"
-        box 0, 0, 1'em, 1'em
+      for col in current.gridTemplate.columns[1..^1]:
+        rectangle "column":
+          fill "#222222"
+          box col.start, 0, 0.1'em, 100'ph
+      for row in current.gridTemplate.rows[1..^1]:
+        rectangle "row":
+          fill "#222222"
+          box 0, row.start, 100'pw, 0.1'em
 
-      rectangle "area2":
-        fill "#379fff"
-        cornerRadius 0.3'em
-
-        columnStart 1.mkIndex
-        columnEnd 2.mkIndex
-        rowStart 3.mkIndex
-        rowEnd "last-line".mkIndex
 
       
 
