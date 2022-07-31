@@ -223,7 +223,7 @@ proc computeLineLayout*(
       grAuto(): totalAutos += 1
       grPerc(): discard
       grEnd(): discard
-  fixed += spacing * lines.len().UICoord
+  fixed += spacing * UICoord(lines.len() - 1)
 
   var
     freeSpace = length - fixed
@@ -249,7 +249,7 @@ proc computeLineLayout*(
   var cursor = 0.0'ui
   for grdLn in lines.mitems():
     grdLn.start = cursor
-    cursor += grdLn.width
+    cursor += grdLn.width + spacing
 
 proc computeLayout*(grid: GridTemplate, box: Box) =
   ## computing grid layout
@@ -261,8 +261,8 @@ proc computeLayout*(grid: GridTemplate, box: Box) =
   let
     colLen = box.w
     rowLen = box.h
-  grid.columns.computeLineLayout(length=colLen, spacing=0'ui)
-  grid.rows.computeLineLayout(length=rowLen, spacing=0'ui)
+  grid.columns.computeLineLayout(length=colLen, spacing=grid.columnGap)
+  grid.rows.computeLineLayout(length=rowLen, spacing=grid.rowGap)
 
 template parseGridTemplateColumns*(gridTmpl, args: untyped) =
   gridTemplateImpl(gridTmpl, args, columns)
@@ -354,7 +354,7 @@ when isMainModule:
       # grid-template-columns: [first] 40px [line2] 50px [line3] auto [col4-start] 50px [five] 40px [end];
       parseGridTemplateColumns gridTemplate, ["first"] 40'ui ["second", "line2"] 50'perc ["line3"] auto ["col4-start"] 50'ui ["five"] 40'ui ["end"]
 
-      gridTemplate.computeLayout(initBox(0, 0, 100, 100))
+      # gridTemplate.computeLayout(initBox(0, 0, 100, 100))
       let gt = gridTemplate
 
       check gt.columns[0].track.kind == grFixed
@@ -375,7 +375,7 @@ when isMainModule:
       check toLineNames("end") == gt.columns[5].aliases
 
       # print "grid template: ", gridTemplate
-      echo "grid template: ", repr gridTemplate
+      # echo "grid template: ", repr gridTemplate
 
     test "compute macros":
       var tmpl: GridTemplate
@@ -402,7 +402,33 @@ when isMainModule:
       check abs(gt.rows[1].start.float - 250.0) < 1.0e-3
       check abs(gt.rows[2].start.float - 350.0) < 1.0e-3
       check abs(gt.rows[3].start.float - 1000.0) < 1.0e-3
-      echo "grid template: ", repr tmpl
+      # echo "grid template: ", repr tmpl
+      
+    test "compute others":
+      var gt: GridTemplate
+
+      parseGridTemplateColumns gt, ["first"] 40'ui \
+        ["second", "line2"] 50'ui \
+        ["line3"] auto \
+        ["col4-start"] 50'ui \
+        ["five"] 40'ui ["end"]
+      parseGridTemplateRows gt, ["row1-start"] 25'perc ["row1-end"] 100'ui ["third-line"] auto ["last-line"]
+
+      gt.columnGap = 10'ui
+      gt.rowGap = 10'ui
+      gt.computeLayout(initBox(0, 0, 1000, 1000))
+      print "grid template: ", gt
+      check abs(gt.columns[0].start.float - 0.0) < 1.0e-3
+      check abs(gt.columns[1].start.float - 40.0 - 10.0) < 1.0e-3
+      check abs(gt.columns[2].start.float - 90.0 - 20.0) < 1.0e-3
+      check abs(gt.columns[3].start.float - 910.0 + 20.0) < 1.0e-3
+      check abs(gt.columns[4].start.float - 960.0 + 10.0) < 1.0e-3
+      check abs(gt.columns[5].start.float - 1000.0) < 1.0e-3
+
+      check abs(gt.rows[0].start.float - 0.0) < 1.0e-3
+      check abs(gt.rows[1].start.float - 250.0 - 10.0) < 1.0e-3
+      check abs(gt.rows[2].start.float - 350.0 - 20.0) < 1.0e-3
+      check abs(gt.rows[3].start.float - 1000.0) < 1.0e-3
       
     test "compute macro and item layout":
       var gridTemplate: GridTemplate
@@ -411,17 +437,17 @@ when isMainModule:
       parseGridTemplateColumns gridTemplate, ["first"] 40'ui ["second", "line2"] 50'ui ["line3"] auto ["col4-start"] 50'ui ["five"] 40'ui ["end"]
       parseGridTemplateRows gridTemplate, ["row1-start"] 25'perc ["row1-end"] 100'ui ["third-line"] auto ["last-line"]
       gridTemplate.computeLayout(initBox(0, 0, 1000, 1000))
-      echo "grid template: ", repr gridTemplate
+      # echo "grid template: ", repr gridTemplate
 
       var gridItem = newGridItem()
       gridItem.columnStart = 2.mkIndex
       gridItem.columnEnd = "five".mkIndex
       gridItem.rowStart = "row1-start".mkIndex
       gridItem.rowEnd = 3.mkIndex
-      print gridItem
+      # print gridItem
 
       let itemBox = gridItem.computePosition(gridTemplate)
-      print itemBox
+      # print itemBox
 
       check abs(itemBox.x.float - 40.0) < 1.0e-3
       check abs(itemBox.w.float - 920.0) < 1.0e-3
