@@ -16,11 +16,14 @@ proc drawMain() =
       centeredY 80'ph
       fill "#FFFFFF"
 
-      # if not current.gridTemplate.isNil:
-      #   for col in current.gridTemplate.columns:
-      #     rectangle "column":
-      #       fill "#cccccc"
-      #       box col.start, 0, 0.2'em, 100'ph
+      if not current.gridTemplate.isNil:
+        print "\nstart"
+        for col in current.gridTemplate.columns:
+          rectangle "column":
+            cornerRadius 1'em
+            fill "#cccccc"
+            box col.start, 0, 0.2'em, 100'ph
+            print current.box
 
       layout lmGrid
       gridTemplateColumns ["first"] 40'ui ["second", "line2"] 50'ui ["line3"] auto ["col4-start"] 50'ui ["five"] 40'ui ["end"]
