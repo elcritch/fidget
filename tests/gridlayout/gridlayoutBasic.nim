@@ -21,7 +21,7 @@ proc drawMain() =
       clipContent true
 
       # Setup CSS Grid Template
-      layout lmGrid
+
       gridTemplateColumns ["first"] 40'ui \
                             ["line2"] 50'ui \
                             ["line3"] auto \
@@ -48,18 +48,7 @@ proc drawMain() =
           fill rgba(245, 129, 49, 80).to(Color)
 
       # draw debug lines
-      for col in current.gridTemplate.columns[1..^2]:
-        rectangle "column":
-          fill "#888888"
-          box col.start, 0, 0.1'em, 100'ph
-      for row in current.gridTemplate.rows[1..^2]:
-        rectangle "row":
-          fill "#888888"
-          box 0, row.start, 100'pw, 0.1'em
-
-
-      
-
+      gridTemplateDebugLines true
       
 
 startFidget(drawMain, w = 600, h = 400, uiScale = 2.0)

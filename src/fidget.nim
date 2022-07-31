@@ -921,10 +921,37 @@ proc innerShadow*(blur, x, y: float32, color: string, alpha: float32) =
 ## 
 
 template gridTemplateColumns*(args: untyped) =
+  ## configure columns for CSS grid template 
+  ## 
+  ## the format is `["name"] 40'ui` for each grid line
+  ## where
+  ##   - `["name"]` is an optional name for each grid line 
+  ##   - `40''ui` is a require size for the grid line track
+  ## 
+  ## the size options are:
+  ## - `1'fr` for css grid fractions (e.g. `1'fr 1 fr1` would be ~ 1/2, 1/2)
+  ## - `40'ui` UICoord (aka 'pixels'), but helpers like `1'em` work here too
+  ## - `auto` whatever is left over
+  ## 
+  layout lmGrid
   parseGridTemplateColumns(current.gridTemplate, args)
 
 template gridTemplateRows*(args: untyped) =
+  ## configure rows for CSS grid template 
+  ## 
+  ## the format is `["name"] 40'ui` for each grid line
+  ## 
+  ## where
+  ##   - `["name"]` is an optional name for each grid line 
+  ##   - `40''ui` is a require size for the grid line track
+  ## 
+  ## the size options are:
+  ## - `1'fr` for css grid fractions (e.g. `1'fr 1 fr1` would be ~ 1/2, 1/2)
+  ## - `40'ui` UICoord (aka 'pixels'), but helpers like `1'em` work here too
+  ## - `auto` whatever is left over
+  ## 
   parseGridTemplateRows(current.gridTemplate, args)
+  layout lmGrid
 
 template setGridItem(field: untyped, idx: GridIndex) =
   if current.gridItem.isNil:
@@ -932,13 +959,30 @@ template setGridItem(field: untyped, idx: GridIndex) =
   current.gridItem.`field` = idx
 
 proc columnStart*(idx: GridIndex) =
+  ## set CSS grid starting column 
   setGridItem(columnStart, idx)
 proc columnEnd*(idx: GridIndex) =
+  ## set CSS grid ending column 
   setGridItem(columnEnd, idx)
 proc rowStart*(idx: GridIndex) =
+  ## set CSS grid starting row 
   setGridItem(rowStart, idx)
 proc rowEnd*(idx: GridIndex) =
+  ## set CSS grid ending row 
   setGridItem(rowEnd, idx)
+
+proc gridTemplateDebugLines*(draw: bool, color: Color = blackColor) =
+  ## helper that draws css grid lines. great for debugging layouts.
+  if draw:
+    # draw debug lines
+    for col in current.gridTemplate.columns[1..^2]:
+      rectangle "column":
+        fill color
+        box col.start, 0, 0.1'em, 100'ph
+    for row in current.gridTemplate.rows[1..^2]:
+      rectangle "row":
+        fill color
+        box 0, row.start, 100'pw, 0.1'em
 
 proc constraints*(vCon: Constraint, hCon: Constraint) =
   ## Sets vertical or horizontal constraint.
