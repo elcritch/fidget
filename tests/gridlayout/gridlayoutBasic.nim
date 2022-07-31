@@ -41,11 +41,11 @@ proc drawMain() =
 
       for col in current.gridTemplate.columns[1..^1]:
         rectangle "column":
-          fill "#222222"
+          fill "#888888"
           box col.start, 0, 0.1'em, 100'ph
       for row in current.gridTemplate.rows[1..^1]:
         rectangle "row":
-          fill "#222222"
+          fill "#888888"
           box 0, row.start, 100'pw, 0.1'em
 
 
