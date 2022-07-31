@@ -634,17 +634,21 @@ proc computeLayout*(parent, node: Node) =
   ## Computes constraints and auto-layout.
   
   # compute grid item's position (this item can also be a grid)
-  if node.gridItem.isNil and gridStack.len() > 0:
+  if not node.gridItem.isNil and gridStack.len() > 0:
     node.box = node.gridItem.computePosition(gridStack[^1])
 
   # next
-  if node.gridTemplate.isNil:
-    computeLayout(node.gridTemplate, node.box)
+  if not node.gridTemplate.isNil:
+    node.gridTemplate.computeLayout(node.box)
+    gridStack.add node.gridTemplate
 
   for n in node.nodes:
     computeLayout(node, n)
 
-  if node.layoutAlign == laIgnore or node.layoutMode == lmGrid:
+  if node.layoutAlign == laIgnore:
+    return
+  if node.layoutMode == lmGrid:
+    discard gridStack.pop()
     return
 
   # Constraints code.

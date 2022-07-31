@@ -274,6 +274,7 @@ proc computePosition*(item: GridItem, grid: GridTemplate): Box =
     else:
       result.`target` = findLine(item.`index`, grid.`lines`)
   # find positions
+  assert not item.isNil
   setPosition(x, columnStart, columns)
   setPosition(w, columnEnd, columns)
   setPosition(y, rowStart, rows)

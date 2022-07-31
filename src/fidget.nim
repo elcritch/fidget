@@ -926,6 +926,20 @@ template gridTemplateColumns*(args: untyped) =
 template gridTemplateRows*(args: untyped) =
   parseGridTemplateRows(current.gridTemplate, args)
 
+template setGridItem(field: untyped, idx: GridIndex) =
+  if current.gridItem.isNil:
+    current.gridItem = newGridItem()
+  current.gridItem.`field` = idx
+
+proc columnStart*(idx: GridIndex) =
+  setGridItem(columnStart, idx)
+proc columnEnd*(idx: GridIndex) =
+  setGridItem(columnEnd, idx)
+proc rowStart*(idx: GridIndex) =
+  setGridItem(rowStart, idx)
+proc rowEnd*(idx: GridIndex) =
+  setGridItem(rowEnd, idx)
+
 proc constraints*(vCon: Constraint, hCon: Constraint) =
   ## Sets vertical or horizontal constraint.
   current.constraintsVertical = vCon
