@@ -36,10 +36,10 @@ proc drawMain() =
       rectangle "css grid item":
         # Setup CSS Grid Template
         cornerRadius 1'em
-        columnStart 2.mkIndex
-        columnEnd "five".mkIndex
-        rowStart "row1-start".mkIndex
-        rowEnd 3.mkIndex
+        columnStart 2
+        columnEnd "five"
+        rowStart "row1-start"
+        rowEnd 3
         # some color stuff
         fill rgba(245, 129, 49, 123).to(Color)
         rectangle "area2":

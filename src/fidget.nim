@@ -964,16 +964,16 @@ template setGridItem(field: untyped, idx: GridIndex) =
     current.gridItem = newGridItem()
   current.gridItem.`field` = idx
 
-proc columnStart*(idx: GridIndex) =
+proc columnStart*(idx: int | string) =
   ## set CSS grid starting column 
   setGridItem(columnStart, idx)
-proc columnEnd*(idx: GridIndex) =
+proc columnEnd*(idx: int | string) =
   ## set CSS grid ending column 
   setGridItem(columnEnd, idx)
-proc rowStart*(idx: GridIndex) =
+proc rowStart*(idx: int | string) =
   ## set CSS grid starting row 
   setGridItem(rowStart, idx)
-proc rowEnd*(idx: GridIndex) =
+proc rowEnd*(idx: int | string) =
   ## set CSS grid ending row 
   setGridItem(rowEnd, idx)
 
