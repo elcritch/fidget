@@ -103,15 +103,17 @@ proc repr*(a: GridTemplate): string =
   for r in a.rows:
     result &= &"\n\t\t{r.repr}"
 
-proc parseTmplCmd*(arg: NimNode): NimNode {.compileTime.} =
-  result = newStmtList()
+proc parseTmplCmd*(tgt, arg: NimNode): (int, NimNode) {.compileTime.} =
+  result = (0, newStmtList())
+  var idx = 0
+  var idxLit: NimNode = newIntLitNode(idx)
   var node: NimNode = arg
   proc prepareNames(item: NimNode): NimNode =
     result = newStmtList()
     for x in item:
       let n = newLit x.strVal
       result.add quote do:
-        gl.aliases.incl toLineName(`n`)
+        `tgt`[`idxLit`].aliases.incl toLineName(`n`)
   while node.kind == nnkCommand:
     var item = node[0]
     node = node[1]
@@ -120,49 +122,57 @@ proc parseTmplCmd*(arg: NimNode): NimNode {.compileTime.} =
       node = nnkCommand.newTree(node[1], node[2])
     case item.kind:
     of nnkBracket:
-      result.add prepareNames(item)
+      result[1].add prepareNames(item)
     of nnkIdent:
       if item.strVal != "auto":
         error("argument must be 'auto'", item)
-      result.add quote do:
-        gl.track = mkAuto()
-        grids.add move(gl)
+      result[1].add quote do:
+        `tgt`[`idxLit`].track = mkAuto()
+        # grids.add move(gl)
+      idx.inc
+      idxLit = newIntLitNode(idx)
     of nnkDotExpr:
       let n = item[0].strVal.parseInt()
       let kd = item[1].strVal
       if kd == "'fr":
-        result.add quote do:
-          gl.track = mkFrac(`n`)
+        result[1].add quote do:
+          `tgt`[`idxLit`].track = mkFrac(`n`)
       elif kd == "'perc":
-        result.add quote do:
-          gl.track = mkPerc(`n`)
+        result[1].add quote do:
+          `tgt`[`idxLit`].track = mkPerc(`n`)
       elif kd == "'ui":
-        result.add quote do:
-          gl.track = mkFixed(`n`)
+        result[1].add quote do:
+          `tgt`[`idxLit`].track = mkFixed(`n`)
       else:
         error("error: unknown argument ", item)
-      result.add quote do:
-        grids.add move(gl)
+      # result[1].add quote do:
+        # grids.add move(gl)
+      idx.inc
+      idxLit = newIntLitNode(idx)
     else:
       discard
   ## add final implicit line
   if node.kind == nnkBracket:
-    result.add prepareNames(node)
-  result.add quote do:
-    gl.track = mkEndTrack()
-    grids.add move(gl)
+    result[1].add prepareNames(node)
+  result[1].add quote do:
+    `tgt`[`idxLit`].track = mkEndTrack()
+    # grids.add move(gl)
+  result[0] = idx + 1
 
 macro gridTemplateImpl*(gridTmpl, args: untyped, field: untyped) =
   result = newStmtList()
-  let cols = parseTmplCmd(args)
+  let tgt = quote do:
+    `gridTmpl`.`field`
+  let (colCount, cols) = parseTmplCmd(tgt, args)
   result.add quote do:
     if `gridTmpl`.isNil:
       `gridTmpl` = newGridTemplate()
     block:
-      var grids {.inject.}: seq[GridLine]
-      var gl {.inject.}: GridLine
+      # var grids {.inject.}: seq[GridLine]
+      # var gl {.inject.}: GridLine
+      `gridTmpl`.`field`.setLen(`colCount`)
       `cols`
-      `gridTmpl`.`field` = grids
+      # `gridTmpl`.`field` = grids
   # echo "gridTmplImpl: ", repr field, " => "
   # echo result.repr
 
