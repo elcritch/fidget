@@ -933,6 +933,9 @@ template gridTemplateColumns*(args: untyped) =
   ## - `40'ui` UICoord (aka 'pixels'), but helpers like `1'em` work here too
   ## - `auto` whatever is left over
   ## 
+  ## names can include multiple names (aliaes):
+  ## - `["name", "header-line", "col1" ]` to make layout easier
+  ## 
   layout lmGrid
   parseGridTemplateColumns(current.gridTemplate, args)
 
