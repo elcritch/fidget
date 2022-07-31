@@ -6,10 +6,9 @@ import commonutils
 
 type
   GridConstraint* = enum
+    gcStretch
     gcStart
     gcEnd
-    gcScale
-    gcStretch
     gcCenter
 
   GridUnits* = enum
@@ -276,21 +275,45 @@ proc findLine(index: GridIndex, lines: seq[GridLine]): UICoord =
       return line.start
   raise newException(KeyError, "couldn't find index")
 
-proc computePosition*(item: GridItem, grid: GridTemplate): Box =
+proc computePosition*(item: GridItem, grid: GridTemplate, contentSize: Position): Box =
   ## computing grid layout
   template setPosition(target, index, lines: untyped) =
     if not item.`index`.isName:
-      result.`target` = grid.`lines`[item.`index`.line - 1].start
+      `target` = grid.`lines`[item.`index`.line - 1].start
     else:
-      result.`target` = findLine(item.`index`, grid.`lines`)
-  # find positions
+      `target` = findLine(item.`index`, grid.`lines`)
+  # determine positions
   assert not item.isNil
-  setPosition(x, columnStart, columns)
-  setPosition(w, columnEnd, columns)
-  setPosition(y, rowStart, rows)
-  setPosition(h, rowEnd, rows)
-  result.w = result.w - result.x - grid.columnGap
-  result.h = result.h - result.y - grid.rowGap
+
+  # set columns
+  var rxw: UICoord
+  setPosition(result.x, columnStart, columns)
+  setPosition(rxw, columnEnd, columns)
+  case grid.justifyItems:
+  of gcStretch:
+    result.w = rxw - result.x - grid.columnGap
+  of gcStart:
+    discard
+  of gcEnd:
+    discard
+  of gcCenter:
+    discard
+
+  # set rows
+  var rxh: UICoord
+  setPosition(result.y, rowStart, rows)
+  setPosition(rxh, rowEnd, rows)
+  # setPosition(result.h, rowEnd, rows)
+  # result.h = result.h - result.y - grid.rowGap
+  case grid.alignItems:
+  of gcStretch:
+    result.h = rxh - result.y - grid.rowGap
+  of gcStart:
+    discard
+  of gcEnd:
+    discard
+  of gcCenter:
+    discard
 
 
 when isMainModule:
@@ -417,7 +440,7 @@ when isMainModule:
       gt.columnGap = 10'ui
       gt.rowGap = 10'ui
       gt.computeLayout(initBox(0, 0, 1000, 1000))
-      print "grid template: ", gt
+      # print "grid template: ", gt
       check abs(gt.columns[0].start.float - 0.0) < 1.0e-3
       check abs(gt.columns[1].start.float - 40.0 - 10.0) < 1.0e-3
       check abs(gt.columns[2].start.float - 90.0 - 20.0) < 1.0e-3
@@ -446,12 +469,39 @@ when isMainModule:
       gridItem.rowEnd = 3.mkIndex
       # print gridItem
 
-      let itemBox = gridItem.computePosition(gridTemplate)
-      # print itemBox
+      let contentSize = initPosition(0, 0)
+      let itemBox = gridItem.computePosition(gridTemplate, contentSize)
+      print itemBox
 
       check abs(itemBox.x.float - 40.0) < 1.0e-3
       check abs(itemBox.w.float - 920.0) < 1.0e-3
       check abs(itemBox.y.float - 0.0) < 1.0e-3
       check abs(itemBox.h.float - 350.0) < 1.0e-3
 
+    test "compute macro and item layout":
+      var gridTemplate: GridTemplate
+
+      # grid-template-columns: [first] 40px [line2] 50px [line3] auto [col4-start] 50px [five] 40px [end];
+      parseGridTemplateColumns gridTemplate, ["first"] 40'ui ["second", "line2"] 50'ui ["line3"] auto ["col4-start"] 50'ui ["five"] 40'ui ["end"]
+      parseGridTemplateRows gridTemplate, ["row1-start"] 25'perc ["row1-end"] 100'ui ["third-line"] auto ["last-line"]
+      gridTemplate.computeLayout(initBox(0, 0, 1000, 1000))
+      # echo "grid template: ", repr gridTemplate
+
+      var gridItem = newGridItem()
+      gridItem.columnStart = 2.mkIndex
+      gridItem.columnEnd = "five".mkIndex
+      gridItem.rowStart = "row1-start".mkIndex
+      gridItem.rowEnd = 3.mkIndex
+      # print gridItem
+
+      let contentSize = initPosition(500, 200)
+      let itemBox = gridItem.computePosition(gridTemplate, contentSize)
+      print itemBox
+
+      check abs(itemBox.x.float - 40.0) < 1.0e-3
+      check abs(itemBox.w.float - 920.0) < 1.0e-3
+      check abs(itemBox.y.float - 0.0) < 1.0e-3
+      check abs(itemBox.h.float - 350.0) < 1.0e-3
+
+      
       
