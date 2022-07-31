@@ -17,7 +17,7 @@ proc drawMain() =
       fill "#FFFFFF"
       cornerRadius 0.5'em
       clipContent true
-      strokeLine 0.1'em.float32, "#444444"
+      # strokeLine 0.1'em.float32, "#444444" # wow this is slow!!
 
       layout lmGrid
       gridTemplateColumns ["first"] 40'ui ["second", "line2"] 50'ui ["line3"] auto ["col4-start"] 50'ui ["five"] 40'ui ["end"]
