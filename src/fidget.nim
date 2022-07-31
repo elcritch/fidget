@@ -966,16 +966,16 @@ template setGridItem(field: untyped, idx: GridIndex) =
 
 proc columnStart*(idx: int | string) =
   ## set CSS grid starting column 
-  setGridItem(columnStart, idx)
+  setGridItem(columnStart, mkIndex idx)
 proc columnEnd*(idx: int | string) =
   ## set CSS grid ending column 
-  setGridItem(columnEnd, idx)
+  setGridItem(columnEnd, mkIndex idx)
 proc rowStart*(idx: int | string) =
   ## set CSS grid starting row 
-  setGridItem(rowStart, idx)
+  setGridItem(rowStart, mkIndex idx)
 proc rowEnd*(idx: int | string) =
   ## set CSS grid ending row 
-  setGridItem(rowEnd, idx)
+  setGridItem(rowEnd, mkIndex idx)
 
 proc gridTemplateDebugLines*(draw: bool, color: Color = blackColor) =
   ## helper that draws css grid lines. great for debugging layouts.
