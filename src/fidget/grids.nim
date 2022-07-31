@@ -259,8 +259,8 @@ proc computeLayout*(grid: GridTemplate, box: Box) =
     grid.rows.add initGridLine(mkEndTrack())
   # The free space is calculated after any non-flexible items. In 
   let
-    colLen = box.w - box.x
-    rowLen = box.h - box.y
+    colLen = box.w
+    rowLen = box.h
   grid.columns.computeLineLayout(length=colLen, spacing=0'ui)
   grid.rows.computeLineLayout(length=rowLen, spacing=0'ui)
 

@@ -1,4 +1,5 @@
 import fidget, random
+import fidget/grids
 
 setTitle("Auto Layout Vertical")
 
@@ -21,10 +22,17 @@ proc drawMain() =
 
       # Setup CSS Grid Template
       layout lmGrid
-      gridTemplateColumns ["first"] 40'ui ["second", "line2"] 50'ui ["line3"] auto \
-                              ["col4-start"] 50'ui ["five"] 40'ui ["end"]
-      gridTemplateRows ["row1-start"] 25'perc ["row1-end"] 100'ui ["third-line"] auto \ 
-                              ["last-line"]
+      gridTemplateColumns ["first"] 40'ui \
+                            ["line2"] 50'ui \
+                            ["line3"] auto \
+                            ["col4-start"] 50'ui \
+                            ["five"] 40'ui \
+                            ["end"]
+
+      gridTemplateRows ["row1-start"] 25'perc \
+                        ["row1-end"] 100'ui \
+                        ["third-line"] auto \ 
+                        ["last-line"]
 
       rectangle "css grid item":
         # Setup CSS Grid Template
