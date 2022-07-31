@@ -10,7 +10,7 @@ proc drawMain() =
     box 0, 0, 100'vw, 100'vh
     fill rgb(224, 239, 255).to(Color)
 
-    frame "autoFrame":
+    frame "css grid area":
       # setup frame for css grid
       box 0, 0, 80'pw, 80'ph
       centeredX 80'pw
@@ -26,7 +26,7 @@ proc drawMain() =
       gridTemplateRows ["row1-start"] 25'perc ["row1-end"] 100'ui ["third-line"] auto \ 
                               ["last-line"]
 
-      rectangle "area2":
+      rectangle "css grid item":
         # Setup CSS Grid Template
         cornerRadius 0.5'em
         columnStart 2.mkIndex
@@ -39,6 +39,7 @@ proc drawMain() =
           box 0.5'em, 0.5'em, 100'pw - 0.5'em, 100'ph - 0.5'em 
           fill rgba(245, 129, 49, 80).to(Color)
 
+      # draw debug lines
       for col in current.gridTemplate.columns[1..^1]:
         rectangle "column":
           fill "#888888"
