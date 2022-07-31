@@ -299,7 +299,7 @@ proc computePosition*(item: GridItem, grid: GridTemplate, contentSize: Position)
   of gcStart:
     result.w = contentSize.x
   of gcEnd:
-    result.w = rxw - result.w
+    result.x = rxw - contentSize.x
     result.w = contentSize.x
 
   # set rows
@@ -316,7 +316,7 @@ proc computePosition*(item: GridItem, grid: GridTemplate, contentSize: Position)
   of gcStart:
     result.h = contentSize.y
   of gcEnd:
-    result.h = ryh - result.h
+    result.y = ryh - contentSize.y
     result.h = contentSize.y
 
 
@@ -503,7 +503,7 @@ when isMainModule:
 
       ## test stretch
       itemBox = gridItem.computePosition(gridTemplate, contentSize)
-      print itemBox
+      # print itemBox
       check abs(itemBox.x.float - 40.0) < 1.0e-3
       check abs(itemBox.w.float - 920.0) < 1.0e-3
       check abs(itemBox.y.float - 0.0) < 1.0e-3
@@ -513,10 +513,19 @@ when isMainModule:
       gridTemplate.justifyItems = gcStart
       gridTemplate.alignItems = gcStart
       itemBox = gridItem.computePosition(gridTemplate, contentSize)
-      print itemBox
+      # print itemBox
       check abs(itemBox.x.float - 40.0) < 1.0e-3
       check abs(itemBox.w.float - 500.0) < 1.0e-3
       check abs(itemBox.y.float - 0.0) < 1.0e-3
       check abs(itemBox.h.float - 200.0) < 1.0e-3
-      
+
+      ## test end
+      gridTemplate.justifyItems = gcEnd
+      gridTemplate.alignItems = gcEnd
+      itemBox = gridItem.computePosition(gridTemplate, contentSize)
+      print itemBox
+      check abs(itemBox.x.float - 460.0) < 1.0e-3
+      check abs(itemBox.w.float - 500.0) < 1.0e-3
+      check abs(itemBox.y.float - 150.0) < 1.0e-3
+      check abs(itemBox.h.float - 200.0) < 1.0e-3
       
