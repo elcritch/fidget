@@ -48,7 +48,7 @@ type
     alignItems*: GridConstraint
 
   GridIndex* = object
-    line*: int
+    line*: LineName
     isSpan*: bool
     isAuto*: bool
     isName*: bool
@@ -68,6 +68,7 @@ proc `repr`*(a: LineName): string = lineName[a]
 proc `repr`*(a: HashSet[LineName]): string =
   result = "{" & a.toSeq().mapIt(repr it).join(", ") & "}"
 
+proc toLineName*(name: int): LineName = LineName(name)
 proc toLineName*(name: string): LineName =
   result = LineName(name.hash())
   lineName[result] = name
@@ -76,13 +77,13 @@ proc toLineNames*(names: varargs[string]): HashSet[LineName] =
   toHashSet names.toSeq().mapIt(it.toLineName())
 
 proc mkIndex*(line: int, isSpan = false, isAuto = false, isName = false): GridIndex =
-  GridIndex(line: line, isSpan: isSpan, isAuto: isAuto, isName: isName)
+  GridIndex(line: line.toLineName(), isSpan: isSpan, isAuto: isAuto, isName: isName)
 
 proc mkIndex*(name: string, isSpan = false, isAuto = false): GridIndex =
-  GridIndex(line: name.toLineName().int, isSpan: isSpan, isAuto: isAuto, isName: true)
+  GridIndex(line: name.toLineName(), isSpan: isSpan, isAuto: isAuto, isName: true)
 
 proc `columnStart=`*(item: GridItem, a: int) =
-  item.columnStart = GridIndex(line: a, isSpan: false, isAuto: false, isName: false)
+  item.columnStart = GridIndex(line: a.toLineName, isSpan: false, isAuto: false, isName: false)
 
 proc repr*(a: TrackSize): string =
   match a:
@@ -273,13 +274,13 @@ proc findLine(index: GridIndex, lines: seq[GridLine]): UICoord =
   for line in lines:
     if index.line.LineName in line.aliases:
       return line.start
-  raise newException(KeyError, "couldn't find index")
+  raise newException(KeyError, "couldn't find index: " & repr index)
 
 proc computePosition*(item: GridItem, grid: GridTemplate, contentSize: Position): Box =
   ## computing grid layout
   template setPosition(target, index, lines: untyped) =
     if not item.`index`.isName:
-      `target` = grid.`lines`[item.`index`.line - 1].start
+      `target` = grid.`lines`[item.`index`.line.int - 1].start
     else:
       `target` = findLine(item.`index`, grid.`lines`)
   # determine positions
