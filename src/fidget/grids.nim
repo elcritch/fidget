@@ -68,7 +68,9 @@ proc `repr`*(a: LineName): string = lineName[a]
 proc `repr`*(a: HashSet[LineName]): string =
   result = "{" & a.toSeq().mapIt(repr it).join(", ") & "}"
 
-proc toLineName*(name: int): LineName = LineName(name)
+proc toLineName*(name: int): LineName =
+  result = LineName(name)
+  lineName[result] = "idx:" & $name
 proc toLineName*(name: string): LineName =
   result = LineName(name.hash())
   lineName[result] = name
@@ -81,6 +83,9 @@ proc mkIndex*(line: int, isSpan = false, isAuto = false, isName = false): GridIn
 
 proc mkIndex*(name: string, isSpan = false, isAuto = false): GridIndex =
   GridIndex(line: name.toLineName(), isSpan: isSpan, isAuto: isAuto, isName: true)
+
+proc mkIndex*(index: GridIndex): GridIndex =
+  result = index
 
 proc `columnStart=`*(item: GridItem, a: int) =
   item.columnStart = GridIndex(line: a.toLineName, isSpan: false, isAuto: false, isName: false)

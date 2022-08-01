@@ -967,18 +967,31 @@ template setGridItem(field: untyped, idx: GridIndex) =
     current.gridItem = newGridItem()
   current.gridItem.`field` = idx
 
-proc columnStart*(idx: int | string) =
+proc span*(idx: int | string): GridIndex =
+  mkIndex(idx, isSpan = true)
+
+proc columnStart*(idx: int|string|GridIndex) =
   ## set CSS grid starting column 
   setGridItem(columnStart, mkIndex idx)
-proc columnEnd*(idx: int | string) =
+proc columnEnd*(idx: int|string|GridIndex) =
   ## set CSS grid ending column 
   setGridItem(columnEnd, mkIndex idx)
-proc rowStart*(idx: int | string) =
+proc gridColumn*(idxStart: int|string|GridIndex, idxEnd: int|string|GridIndex) =
+  ## set CSS grid ending column 
+  setGridItem(columnStart, mkIndex idxStart)
+  setGridItem(columnEnd, mkIndex idxEnd)
+
+proc rowStart*(idx: int|string|GridIndex) =
   ## set CSS grid starting row 
   setGridItem(rowStart, mkIndex idx)
-proc rowEnd*(idx: int | string) =
+proc rowEnd*(idx: int|string|GridIndex) =
   ## set CSS grid ending row 
   setGridItem(rowEnd, mkIndex idx)
+proc gridRow*(idxStart: int|string|GridIndex, idxEnd: int|string|GridIndex) =
+  ## set CSS grid ending column
+  setGridItem(rowStart, mkIndex idxStart)
+  setGridItem(rowEnd, mkIndex idxEnd)
+
 proc columnGap*(value: UICoord) =
   ## set CSS grid column gap
   defaultGridTemplate()
