@@ -25,8 +25,8 @@ proc drawMain() =
         rowGap 1'em
       
       # Setup CSS Grid Template
-      gridJustifyItems gcStart
-      gridAlignItems gcStretch
+      gridJustifyItems gcStretch
+      gridAlignItems gcEnd
       gridTemplateColumns ["first"] 3'fr \
                             ["middle"] 2'fr \
                             ["last"] 3'fr \
