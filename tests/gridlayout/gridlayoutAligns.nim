@@ -15,36 +15,41 @@ proc drawMain() =
     frame "css grid area":
       # setup frame for css grid
       box 0, 0, 80'pw, 80'ph
-      centeredX 80'pw
-      centeredY 80'ph
+      centeredXY 80'pw, 80'ph
       fill "#FFFFFF"
       cornerRadius 0.5'em
       clipContent true
+
       if hasGaps:
         columnGap 1'em
         rowGap 1'em
       
       # Setup CSS Grid Template
-      gridTemplateColumns ["first"] 2'fr \
-                            ["middle"] 1'fr \
-                            ["last"] 2'fr \
+      gridJustifyItems gcStart
+      gridAlignItems gcStretch
+      gridTemplateColumns ["first"] 3'fr \
+                            ["middle"] 2'fr \
+                            ["last"] 3'fr \
                             ["end"]
 
-      gridTemplateRows ["first"] 2'fr \
-                            ["middle"] 1'fr \
-                            ["last"] 2'fr \
+      gridTemplateRows ["first"] 3'fr \
+                            ["middle"] 2'fr \
+                            ["last"] 3'fr \
                             ["end"]
-
-      rectangle "css grid item":
-        # Setup CSS Grid Template
-        cornerRadius 1'em
-        gridColumn span 2, "middle"
-        gridRow "row1-start", 3
-        # some color stuff
-        fill rgba(245, 129, 49, 123).to(Color)
-        rectangle "area2":
-          box 0.5'em, 0.5'em, 100'pw - 0.5'em, 100'ph - 0.5'em 
-          fill rgba(245, 129, 49, 80).to(Color)
+      
+      for i in 1..3:
+        for j in 1..3:
+          rectangle "css grid item":
+            # Setup CSS Grid Template
+            size 5'em, 2'em
+            cornerRadius 1'em
+            gridColumn i, i+1
+            gridRow j, j+1
+            # some color stuff
+            fill rgba(245, 129, 49, 123).to(Color)
+            rectangle "area2":
+              box 0.5'em, 0.5'em, 100'pw - 0.5'em, 100'ph - 0.5'em 
+              fill rgba(245, 129, 49, 80).to(Color)
 
       # draw debug lines
       gridTemplateDebugLines true

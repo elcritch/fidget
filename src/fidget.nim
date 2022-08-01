@@ -1001,6 +1001,14 @@ proc rowGap*(value: UICoord) =
   defaultGridTemplate()
   current.gridTemplate.rowGap = value
 
+proc gridJustifyItems*(con: GridConstraint) =
+  ## justify items on css grid (horizontal)
+  defaultGridTemplate()
+  current.gridTemplate.justifyItems = con
+proc gridAlignItems*(con: GridConstraint) =
+  ## align items on css grid (vertical)
+  defaultGridTemplate()
+  current.gridTemplate.alignItems = con
 
 proc gridTemplateDebugLines*(draw: bool, color: Color = blackColor) =
   ## helper that draws css grid lines. great for debugging layouts.

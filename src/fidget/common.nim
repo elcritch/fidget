@@ -637,7 +637,7 @@ proc computeLayout*(parent, node: Node) =
   
   # compute grid item's position (this item can also be a grid)
   if not node.gridItem.isNil and gridStack.len() > 0:
-    node.box = node.gridItem.computePosition(gridStack[^1], initPosition(0, 0))
+    node.box = node.gridItem.computePosition(gridStack[^1], node.box.wh)
 
   # next
   if not node.gridTemplate.isNil:

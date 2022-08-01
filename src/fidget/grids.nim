@@ -535,3 +535,13 @@ when isMainModule:
       check abs(itemBox.y.float - 150.0) < 1.0e-3
       check abs(itemBox.h.float - 200.0) < 1.0e-3
       
+      ## test start / stretch
+      gridTemplate.justifyItems = gcStart
+      gridTemplate.alignItems = gcStretch
+      itemBox = gridItem.computePosition(gridTemplate, contentSize)
+      # print itemBox
+      check abs(itemBox.x.float - 40.0) < 1.0e-3
+      check abs(itemBox.w.float - 500.0) < 1.0e-3
+      check abs(itemBox.y.float - 0.0) < 1.0e-3
+      check abs(itemBox.h.float - 350.0) < 1.0e-3
+      

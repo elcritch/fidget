@@ -169,7 +169,7 @@ template `w=`*(r: Box, v: UICoord) = r.Rect.w = v.float32
 template `h=`*(r: Box, v: UICoord) = r.Rect.h = v.float32
 
 template xy*(r: Box): Position = Position r.Rect.xy
-template wh*(r: Box): Position = position(r.w.float32, r.h.float32)
+template wh*(r: Box): Position = initPosition(r.w.float32, r.h.float32)
 
 template x*(r: Position): UICoord = r.Vec2.x.UICoord
 template y*(r: Position): UICoord = r.Vec2.y.UICoord
