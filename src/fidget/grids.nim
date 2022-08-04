@@ -127,6 +127,21 @@ proc parseTmplCmd*(tgt, arg: NimNode): (int, NimNode) {.compileTime.} =
     idx.inc
     named = false
     idxLit = newIntLitNode(idx)
+  proc handleDotExpr(result, item, tgt: NimNode) =
+    echo "NNKDOTEXPR:: ", item.repr
+    let n = item[0].strVal.parseInt()
+    let kd = item[1].strVal
+    if kd == "'fr":
+      result.add quote do:
+        `tgt`[`idxLit`].track = mkFrac(`n`)
+    elif kd == "'perc":
+      result.add quote do:
+        `tgt`[`idxLit`].track = mkPerc(`n`)
+    elif kd == "'ui":
+      result.add quote do:
+        `tgt`[`idxLit`].track = mkFixed(`n`)
+    else:
+      error("error: unknown argument ", item)
   proc prepareNames(item: NimNode): NimNode =
     result = newStmtList()
     for x in item:
@@ -148,32 +163,10 @@ proc parseTmplCmd*(tgt, arg: NimNode): (int, NimNode) {.compileTime.} =
         error("argument must be 'auto'", item)
       result[1].add quote do:
         `tgt`[`idxLit`].track = mkAuto()
-        # grids.add move(gl)
       idxIncr()
-      # idx.inc
-      # named = false
-      # idxLit = newIntLitNode(idx)
     of nnkDotExpr:
-      echo "NNKDOTEXPR:: ", item.repr
-      let n = item[0].strVal.parseInt()
-      let kd = item[1].strVal
-      if kd == "'fr":
-        result[1].add quote do:
-          `tgt`[`idxLit`].track = mkFrac(`n`)
-      elif kd == "'perc":
-        result[1].add quote do:
-          `tgt`[`idxLit`].track = mkPerc(`n`)
-      elif kd == "'ui":
-        result[1].add quote do:
-          `tgt`[`idxLit`].track = mkFixed(`n`)
-      else:
-        error("error: unknown argument ", item)
-      # result[1].add quote do:
-        # grids.add move(gl)
+      result[1].handleDotExpr(item, tgt)
       idxIncr()
-      # idx.inc
-      # named = false
-      # idxLit = newIntLitNode(idx)
     else:
       discard
   ## add final implicit line
@@ -181,8 +174,8 @@ proc parseTmplCmd*(tgt, arg: NimNode): (int, NimNode) {.compileTime.} =
   if node.kind == nnkBracket:
     result[1].add prepareNames(node)
   elif node.kind == nnkDotExpr:
-    result[1].add quote do:
-      `tgt`[`idxLit`].track = mkEndTrack()
+    var item = node
+    result[1].handleDotExpr(item, tgt)
     idxIncr()
 
   result[1].add quote do:
@@ -621,6 +614,7 @@ when isMainModule:
       check abs(boxa.h.float - 350.0) < 1.0e-3
 
       let boxb = itema.computePosition(gridTemplate, contentSize)
+      echo "grid template post: ", repr gridTemplate
       print boxb
 
       check abs(boxb.x.float - 40.0) < 1.0e-3
