@@ -577,8 +577,11 @@ when isMainModule:
       # grid-template-columns: [first] 40px [line2] 50px [line3] auto [col4-start] 50px [five] 40px [end];
       parseGridTemplateColumns gridTemplate, 60'ui 60'ui
       parseGridTemplateRows gridTemplate, 90'ui 90'ui
+      echo "grid template pre: ", repr gridTemplate
+      check gridTemplate.columns.len() == 3
+      check gridTemplate.rows.len() == 3
       gridTemplate.computeLayout(initBox(0, 0, 1000, 1000))
-      # echo "grid template: ", repr gridTemplate
+      echo "grid template: ", repr gridTemplate
 
       # item a
       var itema = newGridItem()
@@ -591,6 +594,7 @@ when isMainModule:
 
       let contentSize = initPosition(0, 0)
       let boxa = itema.computePosition(gridTemplate, contentSize)
+      echo "grid template post: ", repr gridTemplate
       print boxa
 
       check abs(boxa.x.float - 40.0) < 1.0e-3
