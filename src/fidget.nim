@@ -992,11 +992,11 @@ proc gridRow*(idxStart: int|string|GridIndex, idxEnd: int|string|GridIndex) =
   setGridItem(rowStart, mkIndex idxStart)
   setGridItem(rowEnd, mkIndex idxEnd)
 
-proc columnGap*(value: UICoord) =
+proc gridColumnGap*(value: UICoord) =
   ## set CSS grid column gap
   defaultGridTemplate()
   current.gridTemplate.columnGap = value
-proc rowGap*(value: UICoord) =
+proc gridRowGap*(value: UICoord) =
   ## set CSS grid column gap
   defaultGridTemplate()
   current.gridTemplate.rowGap = value
@@ -1008,6 +1008,11 @@ proc gridJustifyItems*(con: GridConstraint) =
 proc gridAlignItems*(con: GridConstraint) =
   ## align items on css grid (vertical)
   defaultGridTemplate()
+  current.gridTemplate.alignItems = con
+proc gridPlaceItems*(con: GridConstraint) =
+  ## align items on css grid (vertical)
+  defaultGridTemplate()
+  current.gridTemplate.justifyItems = con
   current.gridTemplate.alignItems = con
 
 proc gridTemplateDebugLines*(draw: bool, color: Color = blackColor) =
