@@ -43,6 +43,8 @@ type
   GridTemplate* = ref object
     columns*: seq[GridLine]
     rows*: seq[GridLine]
+    autoColumns*: TrackSize
+    autoRows*: TrackSize
     rowGap*: UICoord
     columnGap*: UICoord
     justifyItems*: GridConstraint
@@ -212,6 +214,8 @@ proc newGridTemplate*(
   new(result)
   result.columns = columns
   result.rows = rows
+  result.autoColumns = mkFixed(0)
+  result.autoRows = mkFixed(0)
 
 proc newGridItem*(): GridItem =
   new(result)
@@ -275,6 +279,14 @@ proc computeLayout*(grid: GridTemplate, box: Box) =
   grid.columns.computeLineLayout(length=colLen, spacing=grid.columnGap)
   grid.rows.computeLineLayout(length=rowLen, spacing=grid.rowGap)
 
+proc reComputeLayout(grid: GridTemplate) =
+  var w, h: float32
+  for col in grid.columns:
+    if col.track.kind == grEnd:
+      discard
+  grid.computeLayout(initBox(0, 0, w, h))
+
+
 template parseGridTemplateColumns*(gridTmpl, args: untyped) =
   gridTemplateImpl(gridTmpl, args, columns)
 
@@ -283,15 +295,23 @@ template parseGridTemplateRows*(gridTmpl, args: untyped) =
 
 proc findLine(index: GridIndex, lines: seq[GridLine]): UICoord =
   for line in lines:
-    if index.line.LineName in line.aliases:
+    if index.line in line.aliases:
       return line.start
   raise newException(KeyError, "couldn't find index: " & repr index)
 
 proc computePosition*(item: GridItem, grid: GridTemplate, contentSize: Position): Box =
   ## computing grid layout
+  template gridAutoInsert(target, index, lines, idx: untyped) =
+    assert idx <= 1000, "max grids exceeded"
+    let ln = initGridLine(track = grid.`auto lines`)
+    grid.`lines`.insert(ln, grid.`lines`.len() - 2)
+  
   template setPosition(target, index, lines: untyped) =
     if not item.`index`.isName:
-      `target` = grid.`lines`[item.`index`.line.int - 1].start
+      let idx = item.`index`.line.int - 1
+      if grid.`lines`.len() <= idx:
+        gridAutoInsert(target, index, lines, idx)
+      `target` = grid.`lines`[idx].start
     else:
       `target` = findLine(item.`index`, grid.`lines`)
   # determine positions
@@ -556,7 +576,7 @@ when isMainModule:
 
       # grid-template-columns: [first] 40px [line2] 50px [line3] auto [col4-start] 50px [five] 40px [end];
       parseGridTemplateColumns gridTemplate, 60'ui 60'ui
-      parseGridTemplateRows  gridTemplate, 90'ui 90'ui
+      parseGridTemplateRows gridTemplate, 90'ui 90'ui
       gridTemplate.computeLayout(initBox(0, 0, 1000, 1000))
       # echo "grid template: ", repr gridTemplate
 
