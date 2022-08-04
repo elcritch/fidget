@@ -119,8 +119,14 @@ proc repr*(a: GridTemplate): string =
 proc parseTmplCmd*(tgt, arg: NimNode): (int, NimNode) {.compileTime.} =
   result = (0, newStmtList())
   var idx = 0
+  var named = false
   var idxLit: NimNode = newIntLitNode(idx)
   var node: NimNode = arg
+  echo "\n"
+  template idxIncr() =
+    idx.inc
+    named = false
+    idxLit = newIntLitNode(idx)
   proc prepareNames(item: NimNode): NimNode =
     result = newStmtList()
     for x in item:
@@ -136,15 +142,19 @@ proc parseTmplCmd*(tgt, arg: NimNode): (int, NimNode) {.compileTime.} =
     case item.kind:
     of nnkBracket:
       result[1].add prepareNames(item)
+      named = true
     of nnkIdent:
       if item.strVal != "auto":
         error("argument must be 'auto'", item)
       result[1].add quote do:
         `tgt`[`idxLit`].track = mkAuto()
         # grids.add move(gl)
-      idx.inc
-      idxLit = newIntLitNode(idx)
+      idxIncr()
+      # idx.inc
+      # named = false
+      # idxLit = newIntLitNode(idx)
     of nnkDotExpr:
+      echo "NNKDOTEXPR:: ", item.repr
       let n = item[0].strVal.parseInt()
       let kd = item[1].strVal
       if kd == "'fr":
@@ -160,13 +170,21 @@ proc parseTmplCmd*(tgt, arg: NimNode): (int, NimNode) {.compileTime.} =
         error("error: unknown argument ", item)
       # result[1].add quote do:
         # grids.add move(gl)
-      idx.inc
-      idxLit = newIntLitNode(idx)
+      idxIncr()
+      # idx.inc
+      # named = false
+      # idxLit = newIntLitNode(idx)
     else:
       discard
   ## add final implicit line
+  echo "NODE:: ", node.kind, " ", node.repr
   if node.kind == nnkBracket:
     result[1].add prepareNames(node)
+  elif node.kind == nnkDotExpr:
+    result[1].add quote do:
+      `tgt`[`idxLit`].track = mkEndTrack()
+    idxIncr()
+
   result[1].add quote do:
     `tgt`[`idxLit`].track = mkEndTrack()
     # grids.add move(gl)
@@ -575,7 +593,7 @@ when isMainModule:
       var gridTemplate: GridTemplate
 
       # grid-template-columns: [first] 40px [line2] 50px [line3] auto [col4-start] 50px [five] 40px [end];
-      parseGridTemplateColumns gridTemplate, 60'ui 60'ui
+      parseGridTemplateColumns gridTemplate, ["a"] 60'ui ["b"] 60'ui
       parseGridTemplateRows gridTemplate, 90'ui 90'ui
       echo "grid template pre: ", repr gridTemplate
       check gridTemplate.columns.len() == 3
