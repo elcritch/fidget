@@ -2,6 +2,7 @@ import algorithm, chroma, fidget/common, fidget/input, json, macros, strutils,
     sequtils, tables, bumpy
 import math, strformat
 import unicode
+import rationals
 import fidget/commonutils
 
 export chroma, common, input
@@ -980,6 +981,8 @@ proc gridColumn*(idxStart: int|string|GridIndex, idxEnd: int|string|GridIndex) =
   ## set CSS grid ending column 
   setGridItem(columnStart, mkIndex idxStart)
   setGridItem(columnEnd, mkIndex idxEnd)
+proc gridColumn*(rat: Rational[int]) =
+  gridColumn(idxStart=rat.num, idxEnd=rat.den)
 
 proc rowStart*(idx: int|string|GridIndex) =
   ## set CSS grid starting row 

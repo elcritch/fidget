@@ -3,6 +3,7 @@ import std/[sequtils, strutils, hashes, sets, tables]
 import macros except `$`
 import print
 import commonutils
+import rationals
 
 type
   GridConstraint* = enum
@@ -87,8 +88,13 @@ proc mkIndex*(name: string, isSpan = false, isAuto = false): GridIndex =
 proc mkIndex*(index: GridIndex): GridIndex =
   result = index
 
-proc `columnStart=`*(item: GridItem, a: int) =
-  item.columnStart = GridIndex(line: a.toLineName, isSpan: false, isAuto: false, isName: false)
+proc `column=`*(item: GridItem, rat: Rational[int]) =
+  item.columnStart = rat.num.mkIndex
+  item.columnEnd = rat.den.mkIndex
+proc `row=`*(item: GridItem, rat: Rational[int]) =
+  item.rowStart = rat.num.mkIndex
+  item.rowEnd = rat.den.mkIndex
+
 
 proc repr*(a: TrackSize): string =
   match a:
@@ -545,3 +551,37 @@ when isMainModule:
       check abs(itemBox.y.float - 0.0) < 1.0e-3
       check abs(itemBox.h.float - 350.0) < 1.0e-3
       
+    test "compute layout with auto columns":
+      var gridTemplate: GridTemplate
+
+      # grid-template-columns: [first] 40px [line2] 50px [line3] auto [col4-start] 50px [five] 40px [end];
+      parseGridTemplateColumns gridTemplate, 60'ui 60'ui
+      parseGridTemplateRows  gridTemplate, 90'ui 90'ui
+      gridTemplate.computeLayout(initBox(0, 0, 1000, 1000))
+      # echo "grid template: ", repr gridTemplate
+
+      # item a
+      var itema = newGridItem()
+      itema.column= 1 // 2
+      itema.row= 2 // 3
+      # item b
+      var itemb = newGridItem()
+      itemb.column= 5 // 6
+      itemb.row= 2 // 3
+
+      let contentSize = initPosition(0, 0)
+      let boxa = itema.computePosition(gridTemplate, contentSize)
+      print boxa
+
+      check abs(boxa.x.float - 40.0) < 1.0e-3
+      check abs(boxa.w.float - 920.0) < 1.0e-3
+      check abs(boxa.y.float - 0.0) < 1.0e-3
+      check abs(boxa.h.float - 350.0) < 1.0e-3
+
+      let boxb = itema.computePosition(gridTemplate, contentSize)
+      print boxb
+
+      check abs(boxb.x.float - 40.0) < 1.0e-3
+      check abs(boxb.w.float - 920.0) < 1.0e-3
+      check abs(boxb.y.float - 0.0) < 1.0e-3
+      check abs(boxb.h.float - 350.0) < 1.0e-3
