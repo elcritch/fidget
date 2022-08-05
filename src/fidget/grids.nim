@@ -122,13 +122,11 @@ proc parseTmplCmd*(tgt, arg: NimNode): (int, NimNode) {.compileTime.} =
   var named = false
   var idxLit: NimNode = newIntLitNode(idx)
   var node: NimNode = arg
-  echo "\n"
   template idxIncr() =
     idx.inc
     named = false
     idxLit = newIntLitNode(idx)
   proc handleDotExpr(result, item, tgt: NimNode) =
-    echo "NNKDOTEXPR:: ", item.repr
     let n = item[0].strVal.parseInt()
     let kd = item[1].strVal
     if kd == "'fr":
@@ -170,7 +168,6 @@ proc parseTmplCmd*(tgt, arg: NimNode): (int, NimNode) {.compileTime.} =
     else:
       discard
   ## add final implicit line
-  echo "NODE:: ", node.kind, " ", node.repr
   if node.kind == nnkBracket:
     result[1].add prepareNames(node)
   elif node.kind == nnkDotExpr:
@@ -632,10 +629,54 @@ when isMainModule:
       itemb.row= 2 // 3
 
       let boxb = itemb.computePosition(gridTemplate, contentSize)
-      echo "grid template post: ", repr gridTemplate
-      print boxb
+      # echo "grid template post: ", repr gridTemplate
+      # print boxb
 
       check abs(boxb.x.float - 120.0) < 1.0e-3
       check abs(boxb.w.float - 30.0) < 1.0e-3
       check abs(boxb.y.float - 90.0) < 1.0e-3
       check abs(boxb.h.float - 90.0) < 1.0e-3
+
+    test "compute layout with auto columns with auto-columns":
+      var gridTemplate: GridTemplate
+
+      # grid-template-columns: [first] 40px [line2] 50px [line3] auto [col4-start] 50px [five] 40px [end];
+      parseGridTemplateColumns gridTemplate, ["a"] 60'ui ["b"] 60'ui
+      parseGridTemplateRows gridTemplate, 90'ui 90'ui
+      gridTemplate.autoColumns = 60.mkFixed()
+      gridTemplate.autoRows = 20.mkFixed()
+      # echo "grid template pre: ", repr gridTemplate
+      check gridTemplate.columns.len() == 3
+      check gridTemplate.rows.len() == 3
+      gridTemplate.computeLayout(initBox(0, 0, 1000, 1000))
+      # echo "grid template: ", repr gridTemplate
+
+      let contentSize = initPosition(30, 30)
+
+      # item a
+      var itema = newGridItem()
+      itema.column= 1 // 2
+      itema.row= 2 // 3
+
+      let boxa = itema.computePosition(gridTemplate, contentSize)
+      # echo "grid template post: ", repr gridTemplate
+      # print boxa
+
+      check abs(boxa.x.float - 0.0) < 1.0e-3
+      check abs(boxa.w.float - 60.0) < 1.0e-3
+      check abs(boxa.y.float - 90.0) < 1.0e-3
+      check abs(boxa.h.float - 90.0) < 1.0e-3
+
+      # item b
+      var itemb = newGridItem()
+      itemb.column= 5 // 6
+      itemb.row= 3 // 4
+
+      let boxb = itemb.computePosition(gridTemplate, contentSize)
+      # echo "grid template post: ", repr gridTemplate
+      # print boxb
+
+      check abs(boxb.x.float - 240.0) < 1.0e-3
+      check abs(boxb.w.float - 60.0) < 1.0e-3
+      check abs(boxb.y.float - 180.0) < 1.0e-3
+      check abs(boxb.h.float - 30.0) < 1.0e-3
