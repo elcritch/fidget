@@ -189,13 +189,9 @@ macro gridTemplateImpl*(gridTmpl, args: untyped, field: untyped) =
     if `gridTmpl`.isNil:
       `gridTmpl` = newGridTemplate()
     block:
-      # var grids {.inject.}: seq[GridLine]
-      # var gl {.inject.}: GridLine
-      `gridTmpl`.`field`.setLen(`colCount`)
-      `cols`
-      # `gridTmpl`.`field` = grids
-  # echo "gridTmplImpl: ", repr field, " => "
-  # echo result.repr
+      if `gridTmpl`.`field`.len() < `colCount`:
+        `gridTmpl`.`field`.setLen(`colCount`)
+        `cols`
 
 proc mkFrac*(size: int): TrackSize = TrackSize(kind: grFrac, frac: size)
 proc mkFixed*(coord: UICoord): TrackSize = TrackSize(kind: grFixed, coord: coord)

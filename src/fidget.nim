@@ -7,6 +7,7 @@ import fidget/commonutils
 
 export chroma, common, input
 export commonutils
+export rationals
 
 import print
 
@@ -994,6 +995,8 @@ proc gridRow*(idxStart: int|string|GridIndex, idxEnd: int|string|GridIndex) =
   ## set CSS grid ending column
   setGridItem(rowStart, mkIndex idxStart)
   setGridItem(rowEnd, mkIndex idxEnd)
+proc gridRow*(rat: Rational[int]) =
+  gridRow(idxStart=rat.num, idxEnd=rat.den)
 
 proc gridColumnGap*(value: UICoord) =
   ## set CSS grid column gap
