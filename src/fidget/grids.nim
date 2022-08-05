@@ -294,9 +294,14 @@ proc reComputeLayout(grid: GridTemplate) =
   var w, h: float32
   for col in grid.columns:
     if col.track.kind == grEnd:
-      discard
+      w = col.start.float32
+      break
+  for row in grid.rows:
+    if row.track.kind == grEnd:
+      h = row.start.float32
+      break
+  # echo "reCompute"
   grid.computeLayout(initBox(0, 0, w, h))
-
 
 template parseGridTemplateColumns*(gridTmpl, args: untyped) =
   gridTemplateImpl(gridTmpl, args, columns)
@@ -310,18 +315,29 @@ proc findLine(index: GridIndex, lines: seq[GridLine]): UICoord =
       return line.start
   raise newException(KeyError, "couldn't find index: " & repr index)
 
-proc computePosition*(item: GridItem, grid: GridTemplate, contentSize: Position): Box =
+proc computePosition*(
+    item: GridItem,
+    grid: GridTemplate,
+    contentSize: Position
+): Box =
   ## computing grid layout
-  template gridAutoInsert(target, index, lines, idx: untyped) =
+  template gridAutoInsert(target, index, lines, idx, cz: untyped) =
     assert idx <= 1000, "max grids exceeded"
-    let ln = initGridLine(track = grid.`auto lines`)
-    grid.`lines`.insert(ln, grid.`lines`.len() - 2)
+    if idx >= grid.`lines`.len():
+      while idx >= grid.`lines`.len():
+        let offset = grid.`lines`.len() - 1
+        var ln = initGridLine(track = grid.`auto lines`)
+        if offset+1 == idx and ln.track.kind == grFixed:
+          # echo "insert: ", offset+1, "@", idx, "/", grid.`lines`.len()
+          ln.track.coord = max(ln.track.coord, cz)
+        grid.`lines`.insert(ln, offset)
+      grid.reComputeLayout()
   
-  template setPosition(target, index, lines: untyped) =
+  template setPosition(target, index, lines, cz: untyped) =
     if not item.`index`.isName:
       let idx = item.`index`.line.int - 1
-      if grid.`lines`.len() <= idx:
-        gridAutoInsert(target, index, lines, idx)
+      gridAutoInsert(target, index, lines, idx, cz)
+      # echo "gridGet: ", idx+1
       `target` = grid.`lines`[idx].start
     else:
       `target` = findLine(item.`index`, grid.`lines`)
@@ -330,8 +346,8 @@ proc computePosition*(item: GridItem, grid: GridTemplate, contentSize: Position)
 
   # set columns
   var rxw: UICoord
-  setPosition(result.x, columnStart, columns)
-  setPosition(rxw, columnEnd, columns)
+  setPosition(result.x, columnStart, columns, 0)
+  setPosition(rxw, columnEnd, columns, contentSize.x)
   let rww = (rxw - result.x) - grid.columnGap
   case grid.justifyItems:
   of gcStretch:
@@ -347,8 +363,8 @@ proc computePosition*(item: GridItem, grid: GridTemplate, contentSize: Position)
 
   # set rows
   var ryh: UICoord
-  setPosition(result.y, rowStart, rows)
-  setPosition(ryh, rowEnd, rows)
+  setPosition(result.y, rowStart, rows, 0)
+  setPosition(ryh, rowEnd, rows, contentSize.x)
   let rhh = (ryh - result.y) - grid.rowGap
   case grid.alignItems:
   of gcStretch:
@@ -588,36 +604,38 @@ when isMainModule:
       # grid-template-columns: [first] 40px [line2] 50px [line3] auto [col4-start] 50px [five] 40px [end];
       parseGridTemplateColumns gridTemplate, ["a"] 60'ui ["b"] 60'ui
       parseGridTemplateRows gridTemplate, 90'ui 90'ui
-      echo "grid template pre: ", repr gridTemplate
+      # echo "grid template pre: ", repr gridTemplate
       check gridTemplate.columns.len() == 3
       check gridTemplate.rows.len() == 3
       gridTemplate.computeLayout(initBox(0, 0, 1000, 1000))
-      echo "grid template: ", repr gridTemplate
+      # echo "grid template: ", repr gridTemplate
+
+      let contentSize = initPosition(30, 30)
 
       # item a
       var itema = newGridItem()
       itema.column= 1 // 2
       itema.row= 2 // 3
+
+      let boxa = itema.computePosition(gridTemplate, contentSize)
+      # echo "grid template post: ", repr gridTemplate
+      # print boxa
+
+      check abs(boxa.x.float - 0.0) < 1.0e-3
+      check abs(boxa.w.float - 60.0) < 1.0e-3
+      check abs(boxa.y.float - 90.0) < 1.0e-3
+      check abs(boxa.h.float - 90.0) < 1.0e-3
+
       # item b
       var itemb = newGridItem()
       itemb.column= 5 // 6
       itemb.row= 2 // 3
 
-      let contentSize = initPosition(0, 0)
-      let boxa = itema.computePosition(gridTemplate, contentSize)
-      echo "grid template post: ", repr gridTemplate
-      print boxa
-
-      check abs(boxa.x.float - 40.0) < 1.0e-3
-      check abs(boxa.w.float - 920.0) < 1.0e-3
-      check abs(boxa.y.float - 0.0) < 1.0e-3
-      check abs(boxa.h.float - 350.0) < 1.0e-3
-
-      let boxb = itema.computePosition(gridTemplate, contentSize)
+      let boxb = itemb.computePosition(gridTemplate, contentSize)
       echo "grid template post: ", repr gridTemplate
       print boxb
 
-      check abs(boxb.x.float - 40.0) < 1.0e-3
-      check abs(boxb.w.float - 920.0) < 1.0e-3
-      check abs(boxb.y.float - 0.0) < 1.0e-3
-      check abs(boxb.h.float - 350.0) < 1.0e-3
+      check abs(boxb.x.float - 120.0) < 1.0e-3
+      check abs(boxb.w.float - 30.0) < 1.0e-3
+      check abs(boxb.y.float - 90.0) < 1.0e-3
+      check abs(boxb.h.float - 90.0) < 1.0e-3
