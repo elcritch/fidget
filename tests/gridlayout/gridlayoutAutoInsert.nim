@@ -13,8 +13,8 @@ proc drawMain() =
     fill rgb(224, 239, 255).to(Color)
 
     frame "css grid area":
-      if current.gridTemplate != nil:
-        echo "grid template: ", repr current.gridTemplate
+      # if current.gridTemplate != nil:
+      #   echo "grid template: ", repr current.gridTemplate
       # setup frame for css grid
       box 0, 0, 80'pw, 80'ph
       centeredX 80'pw
