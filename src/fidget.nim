@@ -1020,21 +1020,28 @@ proc gridPlaceItems*(con: GridConstraint) =
   defaultGridTemplate()
   current.gridTemplate.justifyItems = con
   current.gridTemplate.alignItems = con
+proc gridAutoColumns*(item: TrackSize) =
+  defaultGridTemplate()
+  current.gridTemplate.autoColumns = item
+proc gridAutoRows*(item: TrackSize) =
+  defaultGridTemplate()
+  current.gridTemplate.autoRows = item
 
 proc gridTemplateDebugLines*(draw: bool, color: Color = blackColor) =
   ## helper that draws css grid lines. great for debugging layouts.
   if draw:
     # draw debug lines
-    let cg = current.gridTemplate.columnGap
-    let wd = max(0.1'em, cg)
-    for col in current.gridTemplate.columns[1..^2]:
-      rectangle "column":
-        fill color
-        box col.start - wd, 0, wd, 100'ph
-    for row in current.gridTemplate.rows[1..^2]:
-      rectangle "row":
-        fill color
-        box 0, row.start - wd, 100'pw, wd
+    if not current.gridTemplate.isNil:
+      let cg = current.gridTemplate.columnGap
+      let wd = max(0.1'em, cg)
+      for col in current.gridTemplate.columns[1..^2]:
+        rectangle "column":
+          fill color
+          box col.start - wd, 0, wd, 100'ph
+      for row in current.gridTemplate.rows[1..^2]:
+        rectangle "row":
+          fill color
+          box 0, row.start - wd, 100'pw, wd
 
 proc constraints*(vCon: Constraint, hCon: Constraint) =
   ## Sets vertical or horizontal constraint.

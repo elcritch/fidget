@@ -22,6 +22,8 @@ proc drawMain() =
       fill "#FFFFFF"
       cornerRadius 0.5'em
       clipContent true
+      gridAutoColumns 60.mkFixed()
+      gridAutoRows 30.mkFixed()
       
       # Setup CSS Grid Template
       gridTemplateColumns 60'ui 60'ui
@@ -37,6 +39,7 @@ proc drawMain() =
 
       rectangle "item b":
         # Setup CSS Grid Template
+        size 30'ui, 30'ui
         cornerRadius 1'em
         gridColumn 5 // 6
         gridRow 2 // 3
