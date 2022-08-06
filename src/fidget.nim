@@ -998,28 +998,37 @@ proc gridRow*(idxStart: int|string|GridIndex, idxEnd: int|string|GridIndex) =
 proc gridRow*(rat: Rational[int]) =
   gridRow(idxStart=rat.num, idxEnd=rat.den)
 
-proc gridColumnGap*(value: UICoord) =
+proc columnGap*(value: UICoord) =
   ## set CSS grid column gap
   defaultGridTemplate()
   current.gridTemplate.columnGap = value
-proc gridRowGap*(value: UICoord) =
+proc rowGap*(value: UICoord) =
   ## set CSS grid column gap
   defaultGridTemplate()
   current.gridTemplate.rowGap = value
 
-proc gridJustifyItems*(con: GridConstraint) =
+proc justifyItems*(con: GridConstraint) =
   ## justify items on css grid (horizontal)
   defaultGridTemplate()
   current.gridTemplate.justifyItems = con
-proc gridAlignItems*(con: GridConstraint) =
+proc alignItems*(con: GridConstraint) =
   ## align items on css grid (vertical)
   defaultGridTemplate()
   current.gridTemplate.alignItems = con
-proc gridPlaceItems*(con: GridConstraint) =
+proc justifyContent*(con: GridConstraint) =
+  ## justify items on css grid (horizontal)
+  defaultGridTemplate()
+  current.gridTemplate.justifyContent = con
+proc alignContent*(con: GridConstraint) =
+  ## align items on css grid (vertical)
+  defaultGridTemplate()
+  current.gridTemplate.alignContent = con
+proc placeItems*(con: GridConstraint) =
   ## align items on css grid (vertical)
   defaultGridTemplate()
   current.gridTemplate.justifyItems = con
   current.gridTemplate.alignItems = con
+
 proc gridAutoColumns*(item: TrackSize) =
   defaultGridTemplate()
   current.gridTemplate.autoColumns = item

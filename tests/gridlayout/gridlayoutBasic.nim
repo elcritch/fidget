@@ -21,8 +21,8 @@ proc drawMain() =
       cornerRadius 0.5'em
       clipContent true
       if hasGaps:
-        gridColumnGap 1'em
-        gridRowGap 1'em
+        columnGap 1'em
+        rowGap 1'em
       
       # Setup CSS Grid Template
       gridTemplateColumns ["first"] 40'ui \

@@ -49,6 +49,8 @@ type
     columnGap*: UICoord
     justifyItems*: GridConstraint
     alignItems*: GridConstraint
+    justifyContent*: GridConstraint
+    alignContent*: GridConstraint
 
   GridIndex* = object
     line*: LineName

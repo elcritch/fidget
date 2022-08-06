@@ -21,12 +21,12 @@ proc drawMain() =
       clipContent true
 
       if hasGaps:
-        gridColumnGap 1'em
-        gridRowGap 1'em
+        columnGap 1'em
+        rowGap 1'em
       
       # Setup CSS Grid Template
-      gridJustifyItems gcStretch
-      gridAlignItems gcEnd
+      justifyItems gcStretch
+      alignItems gcEnd
       gridTemplateColumns ["first"] 3'fr \
                             ["middle"] 2'fr \
                             ["last"] 3'fr \

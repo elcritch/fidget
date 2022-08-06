@@ -28,6 +28,7 @@ proc drawMain() =
       # Setup CSS Grid Template
       gridTemplateColumns 60'ui 60'ui
       gridTemplateRows 90'ui 90'ui
+      justifyContent gcCenter
 
       rectangle "item a":
         # Setup CSS Grid Template
