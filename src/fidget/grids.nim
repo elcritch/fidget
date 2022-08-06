@@ -317,6 +317,9 @@ proc findLine(index: GridIndex, lines: seq[GridLine]): UICoord =
       return line.start
   raise newException(KeyError, "couldn't find index: " & repr index)
 
+proc getGrid(lines: seq[GridLine], idx: int): UICoord =
+  lines[idx].start
+
 proc computePosition*(
     item: GridItem,
     grid: GridTemplate,
@@ -340,7 +343,7 @@ proc computePosition*(
       let idx = item.`index`.line.int - 1
       gridAutoInsert(target, index, lines, idx, cz)
       # echo "gridGet: ", idx+1
-      `target` = grid.`lines`[idx].start
+      `target` = getGrid(grid.`lines`,idx)
     else:
       `target` = findLine(item.`index`, grid.`lines`)
   # determine positions
@@ -715,7 +718,19 @@ when isMainModule:
       check abs(boxa.y.float - 0.0) < 1.0e-3
       check abs(boxa.h.float - 66.0) < 1.0e-3
 
-      # item b
+      for i in 1..3:
+        # item b
+        var itemb = newGridItem()
+
+        let boxb = itemb.computePosition(gridTemplate, contentSize)
+
+        check abs(boxb.x.float - 240.0) < 1.0e-3
+        check abs(boxb.w.float - 60.0) < 1.0e-3
+
+        check abs(boxb.y.float - 0.0) < 1.0e-3
+        check abs(boxb.h.float - 66.0) < 1.0e-3
+
+      # item e
       var itemb = newGridItem()
       itemb.column= 5 // 6
       itemb.row= 1 // 3
