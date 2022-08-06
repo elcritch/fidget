@@ -19,6 +19,12 @@ type
     grFixed
     grEnd
 
+  GridFlow* = enum
+    grRow
+    grRowDense
+    grColumn
+    grColumnDense
+
   TrackSize* = object
     case kind*: GridUnits
     of grFrac:
@@ -51,6 +57,7 @@ type
     alignItems*: GridConstraint
     justifyContent*: GridConstraint
     alignContent*: GridConstraint
+    autoFlow*: GridFlow
 
   GridIndex* = object
     line*: LineName
@@ -635,7 +642,7 @@ when isMainModule:
       check abs(boxb.y.float - 90.0) < 1.0e-3
       check abs(boxb.h.float - 90.0) < 1.0e-3
 
-    test "compute layout with auto columns with auto-columns":
+    test "compute layout with auto columns with fixed size":
       var gridTemplate: GridTemplate
 
       # grid-template-columns: [first] 40px [line2] 50px [line3] auto [col4-start] 50px [five] 40px [end];
@@ -671,10 +678,54 @@ when isMainModule:
       itemb.row= 3 // 4
 
       let boxb = itemb.computePosition(gridTemplate, contentSize)
-      echo "grid template post: ", repr gridTemplate
-      print boxb
+      # echo "grid template post: ", repr gridTemplate
+      # print boxb
 
       check abs(boxb.x.float - 240.0) < 1.0e-3
       check abs(boxb.w.float - 60.0) < 1.0e-3
       check abs(boxb.y.float - 180.0) < 1.0e-3
       check abs(boxb.h.float - 30.0) < 1.0e-3
+
+    test "compute layout with auto flow":
+      var gridTemplate: GridTemplate
+
+      # grid-template-columns: [first] 40px [line2] 50px [line3] auto [col4-start] 50px [five] 40px [end];
+      parseGridTemplateColumns gridTemplate, 60'ui 60'ui 60'ui 60'ui 60'ui
+      parseGridTemplateRows gridTemplate, 33'ui 33'ui
+      # echo "grid template pre: ", repr gridTemplate
+      check gridTemplate.columns.len() == 6
+      check gridTemplate.rows.len() == 3
+      gridTemplate.computeLayout(initBox(0, 0, 1000, 1000))
+      # echo "grid template: ", repr gridTemplate
+
+      let contentSize = initPosition(30, 30)
+
+      # item a
+      var itema = newGridItem()
+      itema.column= 1 // 2
+      itema.row= 1 // 3
+
+      let boxa = itema.computePosition(gridTemplate, contentSize)
+      # echo "grid template post: ", repr gridTemplate
+      # print boxa
+
+      check abs(boxa.x.float - 0.0) < 1.0e-3
+      check abs(boxa.w.float - 60.0) < 1.0e-3
+
+      check abs(boxa.y.float - 0.0) < 1.0e-3
+      check abs(boxa.h.float - 66.0) < 1.0e-3
+
+      # item b
+      var itemb = newGridItem()
+      itemb.column= 5 // 6
+      itemb.row= 1 // 3
+
+      let boxb = itemb.computePosition(gridTemplate, contentSize)
+      echo "grid template post: ", repr gridTemplate
+      print boxb
+
+      check abs(boxb.x.float - 240.0) < 1.0e-3
+      check abs(boxb.w.float - 60.0) < 1.0e-3
+
+      check abs(boxb.y.float - 0.0) < 1.0e-3
+      check abs(boxb.h.float - 66.0) < 1.0e-3
