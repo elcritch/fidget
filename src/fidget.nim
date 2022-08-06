@@ -1032,16 +1032,21 @@ proc gridTemplateDebugLines*(draw: bool, color: Color = blackColor) =
   if draw:
     # draw debug lines
     if not current.gridTemplate.isNil:
+      computeLayout(nil, current)
+      # echo "grid template post: ", repr current.gridTemplate
       let cg = current.gridTemplate.columnGap
       let wd = max(0.1'em, cg)
+      let w = current.gridTemplate.columns[^1].start
+      let h = current.gridTemplate.rows[^1].start
+      # echo "size: ", (w, h)
       for col in current.gridTemplate.columns[1..^2]:
         rectangle "column":
           fill color
-          box col.start - wd, 0, wd, 100'ph
+          box col.start - wd, 0, wd, h
       for row in current.gridTemplate.rows[1..^2]:
         rectangle "row":
           fill color
-          box 0, row.start - wd, 100'pw, wd
+          box 0, row.start - wd, w, wd
 
 proc constraints*(vCon: Constraint, hCon: Constraint) =
   ## Sets vertical or horizontal constraint.

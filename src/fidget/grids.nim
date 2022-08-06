@@ -669,8 +669,8 @@ when isMainModule:
       itemb.row= 3 // 4
 
       let boxb = itemb.computePosition(gridTemplate, contentSize)
-      # echo "grid template post: ", repr gridTemplate
-      # print boxb
+      echo "grid template post: ", repr gridTemplate
+      print boxb
 
       check abs(boxb.x.float - 240.0) < 1.0e-3
       check abs(boxb.w.float - 60.0) < 1.0e-3
