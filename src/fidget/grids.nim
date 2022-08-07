@@ -707,23 +707,33 @@ when isMainModule:
       var itema = newGridItem()
       itema.column= 1 // 2
       itema.row= 1 // 3
+      # let boxa = itema.computePosition(gridTemplate, contentSize)
 
+      var items: array[3, GridItem]
+      for i in 0..2:
+        # item b
+        items[i] = newGridItem()
+        gridTemplate.addGridItem()
+        # let boxb = items[i].computePosition(gridTemplate, contentSize)
+
+      # item e
+      var itemb = newGridItem()
+      itemb.column= 5 // 6
+      itemb.row= 1 // 3
+
+      # let boxb = itemb.computePosition(gridTemplate, contentSize)
+
+      # ==== item a ====
       let boxa = itema.computePosition(gridTemplate, contentSize)
-      # echo "grid template post: ", repr gridTemplate
-      # print boxa
-
       check abs(boxa.x.float - 0.0) < 1.0e-3
       check abs(boxa.w.float - 60.0) < 1.0e-3
 
       check abs(boxa.y.float - 0.0) < 1.0e-3
       check abs(boxa.h.float - 66.0) < 1.0e-3
 
-      for i in 1..3:
+      for i in 0..2:
         # item b
-        var itemb = newGridItem()
-
-        let boxb = itemb.computePosition(gridTemplate, contentSize)
-
+        let boxb = items[i].computePosition(gridTemplate, contentSize)
         check abs(boxb.x.float - 240.0) < 1.0e-3
         check abs(boxb.w.float - 60.0) < 1.0e-3
 
@@ -731,10 +741,6 @@ when isMainModule:
         check abs(boxb.h.float - 66.0) < 1.0e-3
 
       # item e
-      var itemb = newGridItem()
-      itemb.column= 5 // 6
-      itemb.row= 1 // 3
-
       let boxb = itemb.computePosition(gridTemplate, contentSize)
       echo "grid template post: ", repr gridTemplate
       print boxb
