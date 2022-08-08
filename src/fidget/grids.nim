@@ -482,46 +482,39 @@ template computeGridLayout*[N](
     template nextMinor(blk: untyped) =
       cursor[0] = 1
       cursor[1].inc
-      if cursor[1] > gridTemplate.mnLines.len():
-        echo "  .. new minor -- breaking; minor's done"
+      # echo "  .. new minor -- incr majors idx: ", majors[idx], " => ", cursor.repr
+      if cursor[1] >= gridTemplate.mnLines.len():
+        # echo "  .. new minor -- breaking; minor's overflow"
         break autoflow
-      echo "  .. new minor -- incr majors idx: ", majors[idx], " => ", cursor.repr
       break blk
+  
     template incrCursor(blk: untyped) =
-      echo "  ++ incr cursor[0]: ", cursor.repr, " ", children[i].id, "[", i, "]", " => idx: ", majors[idx][0]
+      # echo "  ++ inc'ing: cursor[0]: ", cursor.repr, " ", children[i].id, "[", i, "]", " => idx: ", majors[idx][0]
       cursor[0].inc
       if cursor[0] > gridTemplate.mjLines.len():
         nextMinor(blk)
 
+    template incrIndex(blk: untyped) =
+      idx.inc
+      if idx == len(majors):
+        idx = 0
+        nextMinor(blk)
+        break
+      # echo "  .. incr index of major cache: ", majors[idx], " => ", cursor[0] in majors[idx][0]
 
     while i < len(children):
-      j.inc
-      assert j < 100
-      echo "child: auto flow: ", children[i].id, " [", i, "]", " => ", repr cursor
+      # echo "child: auto flow: ", children[i].id, " [", i, "]", " => ", repr cursor
       block childBlock:
         while cursor[0] in majors[idx][0]:
           incrCursor(childBlock)
-          # cursor[0].inc
-          # if cursor[0] > gridTemplate.mjLines.len():
-          #   nextMinor(childBlock)
-
-          idx.inc
-          if idx == len(majors):
-            idx = 0
-            nextMinor(childBlock)
-            break
-          echo "  .. incr majors idx: ", majors[idx], " => ", cursor[0] in majors[idx][0]
+          incrIndex(childBlock)
         while cursor[0] notin majors[idx][0]:
-          echo "  ++ set cursor[0]: ", cursor.repr, " -> ", children[i].id, "[", i, "]", " :: ", majors[idx][0].repr
+          # echo "  ++ set cursor[0]: ", cursor.repr, " -> ", children[i].id, "[", i, "]", " :: ", majors[idx][0].repr
           mjSpan(children[i]) = cursor[0] .. cursor[0] + 1
           mnSpan(children[i]) = cursor[1] .. cursor[1] + 1
           if not nextChild():
             break autoflow
-
           incrCursor(childBlock)
-          # cursor[0].inc
-          # if cursor[0] > gridTemplate.mjLines.len():
-          #   nextMinor(childBlock)
 
 
 when isMainModule:
