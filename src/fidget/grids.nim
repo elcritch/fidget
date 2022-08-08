@@ -62,7 +62,6 @@ type
   GridIndex* = object
     line*: LineName
     isSpan*: bool
-    isFixed*: bool
     isName*: bool
   
   GridItem* = ref object
@@ -85,16 +84,21 @@ proc toLineName*(name: int): LineName =
   lineName[result] = "idx:" & $name
 proc toLineName*(name: string): LineName =
   result = LineName(name.hash())
-  lineName[result] = name
+  if result.int == 0:
+    result = LineName(result.int + 11)
+  if result in lineName:
+    assert lineName[result] == name
+  else:
+    lineName[result] = name
 
 proc toLineNames*(names: varargs[string]): HashSet[LineName] =
   toHashSet names.toSeq().mapIt(it.toLineName())
 
-proc mkIndex*(line: int, isSpan = false, isFixed = true, isName = false): GridIndex =
-  GridIndex(line: line.toLineName(), isSpan: isSpan, isFixed: isFixed, isName: isName)
+proc mkIndex*(line: Positive, isSpan = false, isName = false): GridIndex =
+  GridIndex(line: line.toLineName(), isSpan: isSpan, isName: isName)
 
-proc mkIndex*(name: string, isSpan = false, isFixed = true): GridIndex =
-  GridIndex(line: name.toLineName(), isSpan: isSpan, isFixed: isFixed, isName: true)
+proc mkIndex*(name: string, isSpan = false): GridIndex =
+  GridIndex(line: name.toLineName(), isSpan: isSpan, isName: true)
 
 proc mkIndex*(index: GridIndex): GridIndex =
   result = index
@@ -384,10 +388,10 @@ proc computePosition*(
     result.h = contentSize.y
 
 proc isFixed*(gridItem: GridItem): bool =
-  gridItem.columnStart.isFixed and
-  gridItem.columnEnd.isFixed and
-  gridItem.rowStart.isFixed and
-  gridItem.rowEnd.isFixed
+  gridItem.columnStart.line.int != 0 and
+  gridItem.columnEnd.line.int != 0 and
+  gridItem.rowStart.line.int != 0 and
+  gridItem.rowEnd.line.int != 0
 
 proc isAutoPositioned*(gridItem: GridItem): bool =
   if gridItem == nil:
@@ -411,7 +415,15 @@ template computeGridLayout*[N](
     node: ref N,
     children: openArray[ref N],
 ) =
-  discard
+  gridTemplate.computeLayout(node.box)
+  # compute positions for fixed children
+  for child in children:
+    if not isAutoPositioned(child.gridItem):
+      child.box = child.gridItem.computePosition(gridTemplate, child.box.wh)
+  # compute positions for partially fixed children
+  for child in children:
+    if child.gridItem != nil and isAutoPositioned(child.gridItem):
+      child.box = child.gridItem.computePosition(gridTemplate, child.box.wh)
 
 when isMainModule:
   import unittest
@@ -729,7 +741,7 @@ when isMainModule:
       check gridTemplate.rows.len() == 3
       gridTemplate.computeLayout(initBox(0, 0, 1000, 1000))
       # echo "grid template: ", repr gridTemplate
-      var parent: GridNode
+      var parent = GridNode()
 
       let contentSize = initPosition(30, 30)
       var nodes: array[5, GridNode]
