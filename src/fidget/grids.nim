@@ -369,6 +369,7 @@ proc computePosition*(
   var rxw: UICoord
   setPosition(result.x, columnStart, columns, 0, item.cspan.a)
   setPosition(rxw, columnEnd, columns, contentSize.x, item.cspan.b)
+  item.cspan.b.dec
   let rww = (rxw - result.x) - grid.columnGap
   case grid.justifyItems:
   of gcStretch:
@@ -386,6 +387,7 @@ proc computePosition*(
   var ryh: UICoord
   setPosition(result.y, rowStart, rows, 0, item.rspan.a)
   setPosition(ryh, rowEnd, rows, contentSize.x, item.rspan.b)
+  item.rspan.b.dec
   let rhh = (ryh - result.y) - grid.rowGap
   case grid.alignItems:
   of gcStretch:
@@ -420,13 +422,15 @@ proc computeAutoPosition*(
 type
   GridNode = ref object
     id: string
+    cspan: Slice[int32]
+    rspan: Slice[int32]
     box: Box
     gridItem: GridItem
 
 template computeGridLayout*[N](
     grid: GridTemplate,
     node: N,
-    children: iterable[N],
+    children: openArray[N],
 ) =
   ## implement full(ish) CSS grid algorithm here
   ## currently assumes that `N`, the ref object, has
@@ -437,16 +441,18 @@ template computeGridLayout*[N](
   ## 
   gridTemplate.computeLayout(node.box)
   # compute positions for fixed children
-  var major = newSeq[(Slice[int32], N)]()
+  var majors = newSeq[(Slice[int32], N)]()
   template mjSpan(x: untyped): untyped = x.cspan
+  template mnSpan(x: untyped): untyped = x.rspan
   template mjLines(x: untyped): untyped = x.columns
+  template mnLines(x: untyped): untyped = x.rows
 
   for child in children:
     if not isAutoPositioned(child.gridItem):
       child.box = child.gridItem.computePosition(gridTemplate, child.box.wh)
-      major.add( (child.gridItem.mjSpan, child, ) )
+      majors.add( (child.gridItem.mjSpan, child, ) )
       # echo "compute fixed child: ", child.id, " => ", repr child.gridItem.mspan
-  major.sort(proc (x, y: (Slice[int32], N)): int = cmp(x[0].a, y[0].a))
+  majors.sort(proc (x, y: (Slice[int32], N)): int = cmp(x[0].a, y[0].a))
 
   # compute positions for partially fixed children
   for child in children:
@@ -454,17 +460,52 @@ template computeGridLayout*[N](
       # child.box = child.gridItem.computePosition(gridTemplate, child.box.wh)
       assert false, "todo: implement me!"
   # compute positions for auto flow items
-  for m, v in major:
+  for m, v in majors:
     echo "C1: ", repr m
-  var cursor = (1, 1)
+  var cursor = (1'i32, 1'i32)
   var idx = 0
+  var i = -1
+  var j = 0
 
   echo "children: auto flow: ", repr (gridTemplate.columns.len(), gridTemplate.rows.len(), )
-  for child in children:
-    if isAutoPositioned(child.gridItem):
-      echo "child: auto flow: ", child.id, " => ", repr cursor
-      cursor[0] = cursor[0] + 1 mod len(gridTemplate.mjLines)
+  proc nextChild(): bool =
+    while true:
+      i.inc
+      if i >= children.len():
+        return false
+      echo "  nextChild: ", children[i].id, " [", i, "]", " => ", repr cursor
+      if isAutoPositioned(children[i].gridItem):
+        return true
 
+  discard nextChild()
+  block autoflow:
+    while i < len(children):
+      j.inc
+      assert j < 100
+      echo "child: auto flow: ", children[i].id, " [", i, "]", " => ", repr cursor
+      while cursor[0] in majors[idx][0]:
+        idx.inc
+        if idx == len(majors):
+          idx = 0
+          cursor[0] = 1
+          cursor[1].inc
+          if cursor[1] > gridTemplate.mnLines.len():
+            echo "  .. new minor -- breaking; minor's done"
+            break autoflow
+          echo "  .. new minor -- incr majors idx: ", majors[idx], " => ", cursor.repr
+          break
+        echo "  .. incr majors idx: ", majors[idx], " => ", cursor[0] in majors[idx][0]
+      while cursor[0] notin majors[idx][0]:
+        cursor[0].inc
+        if cursor[0] > gridTemplate.mjLines.len():
+          cursor[0] = 1
+          cursor[1].inc
+          echo "  .. new minor -- incr majors idx: ", majors[idx], " => ", cursor.repr
+        echo "  ++ incr cursor[0]: ", cursor.repr, " ", children[i].id, "[", i, "]", " => idx: ", majors[idx][0]
+        mjSpan(children[i]) = cursor[0] .. cursor[0] + 1
+        mnSpan(children[i]) = cursor[1] .. cursor[1] + 1
+        if not nextChild():
+          break autoflow
 
 when isMainModule:
   import unittest
@@ -785,7 +826,7 @@ when isMainModule:
       var parent = GridNode()
 
       let contentSize = initPosition(30, 30)
-      var nodes = newSeq[GridNode](7)
+      var nodes = newSeq[GridNode](9)
 
       # item a
       var itema = newGridItem()
@@ -802,10 +843,10 @@ when isMainModule:
 
       # ==== item b's ====
       for i in 2 ..< nodes.len():
-        nodes[i] = GridNode(id: "b" & $i)
+        nodes[i] = GridNode(id: "b" & $(i-2))
 
       # ==== process grid ====
-      gridTemplate.computeGridLayout(parent, nodes.items())
+      gridTemplate.computeGridLayout(parent, nodes)
 
       echo "grid template post: ", repr gridTemplate
       # ==== item a ====
@@ -823,7 +864,9 @@ when isMainModule:
 
       # ==== item b's ====
       for i in 2 ..< nodes.len():
-        discard
+        echo "auto child: cols: ", nodes[i].cspan.repr, " x ", nodes[i].rspan.repr
+
+      for i in 2 ..< nodes.len():
         echo "auto child: ", nodes[i].box.repr
         # item b
         # let boxb = computeAutoPosition(gridTemplate, contentSize)
