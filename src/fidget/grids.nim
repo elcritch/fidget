@@ -477,44 +477,42 @@ template computeGridLayout*[N](
       echo "  nextChild: ", children[i].id, " [", i, "]", " => ", repr cursor
       if isAutoPositioned(children[i].gridItem):
         return true
+  template nextMinor(blk, outer: untyped) =
+    cursor[0] = 1
+    cursor[1].inc
+    # echo "  .. new minor -- incr majors idx: ", majors[idx], " => ", cursor.repr
+    if cursor[1] >= gridTemplate.mnLines.len():
+      # echo "  .. new minor -- breaking; minor's overflow"
+      break outer
+    break blk
+  template incrCursor(amt, blk, outer: untyped) =
+    # echo "  ++ inc'ing: cursor[0]: ", cursor.repr, " ", children[i].id, "[", i, "]", " => idx: ", majors[idx][0]
+    cursor[0].inc(amt)
+    if cursor[0] > gridTemplate.mjLines.len():
+      nextMinor(blk, outer)
+  template incrIndex(blk, outer: untyped) =
+    idx.inc
+    if idx == len(majors):
+      idx = 0
+      nextMinor(blk, outer)
+      break
+    # echo "  .. incr index of major cache: ", majors[idx], " => ", cursor[0] in majors[idx][0]
   discard nextChild()
   block autoflow:
-    template nextMinor(blk: untyped) =
-      cursor[0] = 1
-      cursor[1].inc
-      # echo "  .. new minor -- incr majors idx: ", majors[idx], " => ", cursor.repr
-      if cursor[1] >= gridTemplate.mnLines.len():
-        # echo "  .. new minor -- breaking; minor's overflow"
-        break autoflow
-      break blk
-  
-    template incrCursor(blk: untyped) =
-      # echo "  ++ inc'ing: cursor[0]: ", cursor.repr, " ", children[i].id, "[", i, "]", " => idx: ", majors[idx][0]
-      cursor[0].inc
-      if cursor[0] > gridTemplate.mjLines.len():
-        nextMinor(blk)
-
-    template incrIndex(blk: untyped) =
-      idx.inc
-      if idx == len(majors):
-        idx = 0
-        nextMinor(blk)
-        break
-      # echo "  .. incr index of major cache: ", majors[idx], " => ", cursor[0] in majors[idx][0]
-
     while i < len(children):
       # echo "child: auto flow: ", children[i].id, " [", i, "]", " => ", repr cursor
       block childBlock:
+        ## increment cursor and index until one breaks the mold
         while cursor[0] in majors[idx][0]:
-          incrCursor(childBlock)
-          incrIndex(childBlock)
+          incrCursor(1 + (majors[idx][0].b - cursor[0]), childBlock, autoFlow)
+          incrIndex(childBlock, autoFlow)
         while cursor[0] notin majors[idx][0]:
           # echo "  ++ set cursor[0]: ", cursor.repr, " -> ", children[i].id, "[", i, "]", " :: ", majors[idx][0].repr
           mjSpan(children[i]) = cursor[0] .. cursor[0] + 1
           mnSpan(children[i]) = cursor[1] .. cursor[1] + 1
           if not nextChild():
             break autoflow
-          incrCursor(childBlock)
+          incrCursor(1, childBlock, autoFlow)
 
 
 when isMainModule:
