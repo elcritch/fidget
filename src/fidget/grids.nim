@@ -468,6 +468,7 @@ template computeGridLayout*[N](
   var j = 0
 
   echo "children: auto flow: ", repr (gridTemplate.columns.len(), gridTemplate.rows.len(), )
+
   proc nextChild(): bool =
     while true:
       i.inc
@@ -476,36 +477,52 @@ template computeGridLayout*[N](
       echo "  nextChild: ", children[i].id, " [", i, "]", " => ", repr cursor
       if isAutoPositioned(children[i].gridItem):
         return true
-
   discard nextChild()
   block autoflow:
+    template nextMinor(blk: untyped) =
+      cursor[0] = 1
+      cursor[1].inc
+      if cursor[1] > gridTemplate.mnLines.len():
+        echo "  .. new minor -- breaking; minor's done"
+        break autoflow
+      echo "  .. new minor -- incr majors idx: ", majors[idx], " => ", cursor.repr
+      break blk
+    template incrCursor(blk: untyped) =
+      echo "  ++ incr cursor[0]: ", cursor.repr, " ", children[i].id, "[", i, "]", " => idx: ", majors[idx][0]
+      cursor[0].inc
+      if cursor[0] > gridTemplate.mjLines.len():
+        nextMinor(blk)
+
+
     while i < len(children):
       j.inc
       assert j < 100
       echo "child: auto flow: ", children[i].id, " [", i, "]", " => ", repr cursor
-      while cursor[0] in majors[idx][0]:
-        idx.inc
-        if idx == len(majors):
-          idx = 0
-          cursor[0] = 1
-          cursor[1].inc
-          if cursor[1] > gridTemplate.mnLines.len():
-            echo "  .. new minor -- breaking; minor's done"
+      block childBlock:
+        while cursor[0] in majors[idx][0]:
+          incrCursor(childBlock)
+          # cursor[0].inc
+          # if cursor[0] > gridTemplate.mjLines.len():
+          #   nextMinor(childBlock)
+
+          idx.inc
+          if idx == len(majors):
+            idx = 0
+            nextMinor(childBlock)
+            break
+          echo "  .. incr majors idx: ", majors[idx], " => ", cursor[0] in majors[idx][0]
+        while cursor[0] notin majors[idx][0]:
+          echo "  ++ set cursor[0]: ", cursor.repr, " -> ", children[i].id, "[", i, "]", " :: ", majors[idx][0].repr
+          mjSpan(children[i]) = cursor[0] .. cursor[0] + 1
+          mnSpan(children[i]) = cursor[1] .. cursor[1] + 1
+          if not nextChild():
             break autoflow
-          echo "  .. new minor -- incr majors idx: ", majors[idx], " => ", cursor.repr
-          break
-        echo "  .. incr majors idx: ", majors[idx], " => ", cursor[0] in majors[idx][0]
-      while cursor[0] notin majors[idx][0]:
-        cursor[0].inc
-        if cursor[0] > gridTemplate.mjLines.len():
-          cursor[0] = 1
-          cursor[1].inc
-          echo "  .. new minor -- incr majors idx: ", majors[idx], " => ", cursor.repr
-        echo "  ++ incr cursor[0]: ", cursor.repr, " ", children[i].id, "[", i, "]", " => idx: ", majors[idx][0]
-        mjSpan(children[i]) = cursor[0] .. cursor[0] + 1
-        mnSpan(children[i]) = cursor[1] .. cursor[1] + 1
-        if not nextChild():
-          break autoflow
+
+          incrCursor(childBlock)
+          # cursor[0].inc
+          # if cursor[0] > gridTemplate.mjLines.len():
+          #   nextMinor(childBlock)
+
 
 when isMainModule:
   import unittest
@@ -864,7 +881,7 @@ when isMainModule:
 
       # ==== item b's ====
       for i in 2 ..< nodes.len():
-        echo "auto child: cols: ", nodes[i].cspan.repr, " x ", nodes[i].rspan.repr
+        echo "auto child: cols: ", nodes[i].id, " :: ", nodes[i].cspan.repr, " x ", nodes[i].rspan.repr
 
       for i in 2 ..< nodes.len():
         echo "auto child: ", nodes[i].box.repr
