@@ -62,7 +62,7 @@ type
   GridIndex* = object
     line*: LineName
     isSpan*: bool
-    isAuto*: bool
+    isFixed*: bool
     isName*: bool
   
   GridItem* = ref object
@@ -90,11 +90,11 @@ proc toLineName*(name: string): LineName =
 proc toLineNames*(names: varargs[string]): HashSet[LineName] =
   toHashSet names.toSeq().mapIt(it.toLineName())
 
-proc mkIndex*(line: int, isSpan = false, isAuto = false, isName = false): GridIndex =
-  GridIndex(line: line.toLineName(), isSpan: isSpan, isAuto: isAuto, isName: isName)
+proc mkIndex*(line: int, isSpan = false, isFixed = true, isName = false): GridIndex =
+  GridIndex(line: line.toLineName(), isSpan: isSpan, isFixed: isFixed, isName: isName)
 
-proc mkIndex*(name: string, isSpan = false, isAuto = false): GridIndex =
-  GridIndex(line: name.toLineName(), isSpan: isSpan, isAuto: isAuto, isName: true)
+proc mkIndex*(name: string, isSpan = false, isFixed = true): GridIndex =
+  GridIndex(line: name.toLineName(), isSpan: isSpan, isFixed: isFixed, isName: true)
 
 proc mkIndex*(index: GridIndex): GridIndex =
   result = index
@@ -383,10 +383,34 @@ proc computePosition*(
     result.y = ryh - contentSize.y
     result.h = contentSize.y
 
+proc isFixed*(gridItem: GridItem): bool =
+  gridItem.columnStart.isFixed and
+  gridItem.columnEnd.isFixed and
+  gridItem.rowStart.isFixed and
+  gridItem.rowEnd.isFixed
+
+proc isAutoPositioned*(gridItem: GridItem): bool =
+  if gridItem == nil:
+    return true
+  elif not gridItem.isFixed():
+    return true
+
 proc computeAutoPosition*(
     grid: GridTemplate,
     contentSize: Position
 ): Box =
+  discard
+
+type
+  GridNode = ref object
+    box: Box
+    gridItem: GridItem
+
+template computeGridLayout*[N](
+    grid: GridTemplate,
+    node: ref N,
+    children: openArray[ref N],
+) =
   discard
 
 when isMainModule:
@@ -705,46 +729,53 @@ when isMainModule:
       check gridTemplate.rows.len() == 3
       gridTemplate.computeLayout(initBox(0, 0, 1000, 1000))
       # echo "grid template: ", repr gridTemplate
+      var parent: GridNode
 
       let contentSize = initPosition(30, 30)
+      var nodes: array[5, GridNode]
 
       # item a
       var itema = newGridItem()
       itema.column= 1 // 2
       itema.row= 1 // 3
       # let boxa = itema.computePosition(gridTemplate, contentSize)
-
-      # ==== item a ====
-      let boxa = itema.computePosition(gridTemplate, contentSize)
-      check abs(boxa.x.float - 0.0) < 1.0e-3
-      check abs(boxa.w.float - 60.0) < 1.0e-3
-
-      check abs(boxa.y.float - 0.0) < 1.0e-3
-      check abs(boxa.h.float - 66.0) < 1.0e-3
+      nodes[0] = GridNode(gridItem: itema)
 
       # ==== item e ====
       var iteme = newGridItem()
       iteme.column= 5 // 6
       iteme.row= 1 // 3
-
-      let boxe = iteme.computePosition(gridTemplate, contentSize)
-      echo "grid template post: ", repr gridTemplate
-      print boxe
-
-      check abs(boxe.x.float - 240.0) < 1.0e-3
-      check abs(boxe.w.float - 60.0) < 1.0e-3
-
-      check abs(boxe.y.float - 0.0) < 1.0e-3
-      check abs(boxe.h.float - 66.0) < 1.0e-3
+      nodes[1] = GridNode(gridItem: iteme)
 
       # ==== item b's ====
-      for i in 0..2:
+      for i in 2..4:
+        nodes[i] = GridNode()
+
+      # ==== process grid ====
+      gridTemplate.computeGridLayout(parent, nodes)
+
+      echo "grid template post: ", repr gridTemplate
+      # ==== item a ====
+      check abs(nodes[0].box.x.float - 0.0) < 1.0e-3
+      check abs(nodes[0].box.w.float - 60.0) < 1.0e-3
+      check abs(nodes[0].box.y.float - 0.0) < 1.0e-3
+      check abs(nodes[0].box.h.float - 66.0) < 1.0e-3
+
+      # ==== item e ====
+      print nodes[1].box
+      check abs(nodes[1].box.x.float - 240.0) < 1.0e-3
+      check abs(nodes[1].box.w.float - 60.0) < 1.0e-3
+      check abs(nodes[1].box.y.float - 0.0) < 1.0e-3
+      check abs(nodes[1].box.h.float - 66.0) < 1.0e-3
+
+      # ==== item b's ====
+      for i in 2..4:
         # item b
-        let boxb = computeAutoPosition(gridTemplate, contentSize)
+        nodes[i] = GridNode()
+        # let boxb = computeAutoPosition(gridTemplate, contentSize)
 
-        check abs(boxb.x.float - 240.0) < 1.0e-3
-        check abs(boxb.w.float - 60.0) < 1.0e-3
-
-        check abs(boxb.y.float - 0.0) < 1.0e-3
-        check abs(boxb.h.float - 66.0) < 1.0e-3
+        check abs(nodes[i].box.x.float - 240.0) < 1.0e-3
+        check abs(nodes[i].box.w.float - 60.0) < 1.0e-3
+        check abs(nodes[i].box.y.float - 0.0) < 1.0e-3
+        check abs(nodes[i].box.h.float - 66.0) < 1.0e-3
 

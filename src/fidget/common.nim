@@ -632,21 +632,28 @@ proc computeEvents*(node: Node) =
   handleCapture("mouse", mouse, {evHover})
   handleCapture("gesture", gesture, {})
 
+var gridChildren: seq[Node]
+
 proc computeLayout*(parent, node: Node) =
   ## Computes constraints and auto-layout.
   
   # next
   if not node.gridTemplate.isNil:
-    echo "grid: ", node.id
-    node.gridTemplate.computeLayout(node.box)
-
-    # compute grid item's position (this item can also be a grid)
+    gridChildren.setLen(0)
     for n in node.nodes:
-      if n.layoutAlign == laIgnore:
-        continue
-      # echo "grid child: ", n.id, " => ", n.gridItem.repr
-      computeLayout(node, n)
-      n.box = n.gridItem.computePosition(node.gridTemplate, n.box.wh)
+      if n.layoutAlign != laIgnore:
+        gridChildren.add(n)
+    node.gridTemplate.computeGridLayout(node, node.nodes)
+
+    # node.gridTemplate.computeLayout(node.box)
+    # # compute grid item's position (this item can also be a grid)
+    # for n in node.nodes:
+    #   if n.layoutAlign == laIgnore:
+    #     continue
+    #   # echo "grid child: ", n.id, " => ", n.gridItem.repr
+    #   computeLayout(node, n)
+    #   if not n.gridItem.isNil:
+    #     n.box = n.gridItem.computePosition(node.gridTemplate, n.box.wh)
     
     return
 
