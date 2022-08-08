@@ -452,7 +452,8 @@ template computeGridLayout*[N](
       child.box = child.gridItem.computePosition(gridTemplate, child.box.wh)
       majors.add( (child.gridItem.mjSpan, child, ) )
       # echo "compute fixed child: ", child.id, " => ", repr child.gridItem.mspan
-  majors.sort(proc (x, y: (Slice[int32], N)): int = cmp(x[0].a, y[0].a))
+  # majors.sort(proc (x, y: (Slice[int32], N)): int = cmp(x[0], y[0]))
+  majors.sort(proc (x, y: (Slice[int32], N)): int = cmp((x[0].a, -x[0].b, ), (y[0].a, -y[0].b, )))
 
   # compute positions for partially fixed children
   for child in children:
@@ -465,7 +466,6 @@ template computeGridLayout*[N](
   var cursor = (1'i32, 1'i32)
   var idx = 0
   var i = -1
-  var j = 0
 
   echo "children: auto flow: ", repr (gridTemplate.columns.len(), gridTemplate.rows.len(), )
 
