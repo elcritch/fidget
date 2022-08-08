@@ -383,6 +383,11 @@ proc computePosition*(
     result.y = ryh - contentSize.y
     result.h = contentSize.y
 
+proc computeAutoPosition*(
+    grid: GridTemplate,
+    contentSize: Position
+): Box =
+  discard
 
 when isMainModule:
   import unittest
@@ -709,20 +714,6 @@ when isMainModule:
       itema.row= 1 // 3
       # let boxa = itema.computePosition(gridTemplate, contentSize)
 
-      var items: array[3, GridItem]
-      for i in 0..2:
-        # item b
-        items[i] = newGridItem()
-        gridTemplate.addGridItem()
-        # let boxb = items[i].computePosition(gridTemplate, contentSize)
-
-      # item e
-      var itemb = newGridItem()
-      itemb.column= 5 // 6
-      itemb.row= 1 // 3
-
-      # let boxb = itemb.computePosition(gridTemplate, contentSize)
-
       # ==== item a ====
       let boxa = itema.computePosition(gridTemplate, contentSize)
       check abs(boxa.x.float - 0.0) < 1.0e-3
@@ -731,22 +722,29 @@ when isMainModule:
       check abs(boxa.y.float - 0.0) < 1.0e-3
       check abs(boxa.h.float - 66.0) < 1.0e-3
 
+      # ==== item e ====
+      var iteme = newGridItem()
+      iteme.column= 5 // 6
+      iteme.row= 1 // 3
+
+      let boxe = iteme.computePosition(gridTemplate, contentSize)
+      echo "grid template post: ", repr gridTemplate
+      print boxe
+
+      check abs(boxe.x.float - 240.0) < 1.0e-3
+      check abs(boxe.w.float - 60.0) < 1.0e-3
+
+      check abs(boxe.y.float - 0.0) < 1.0e-3
+      check abs(boxe.h.float - 66.0) < 1.0e-3
+
+      # ==== item b's ====
       for i in 0..2:
         # item b
-        let boxb = items[i].computePosition(gridTemplate, contentSize)
+        let boxb = computeAutoPosition(gridTemplate, contentSize)
+
         check abs(boxb.x.float - 240.0) < 1.0e-3
         check abs(boxb.w.float - 60.0) < 1.0e-3
 
         check abs(boxb.y.float - 0.0) < 1.0e-3
         check abs(boxb.h.float - 66.0) < 1.0e-3
 
-      # item e
-      let boxb = itemb.computePosition(gridTemplate, contentSize)
-      echo "grid template post: ", repr gridTemplate
-      print boxb
-
-      check abs(boxb.x.float - 240.0) < 1.0e-3
-      check abs(boxb.w.float - 60.0) < 1.0e-3
-
-      check abs(boxb.y.float - 0.0) < 1.0e-3
-      check abs(boxb.h.float - 66.0) < 1.0e-3

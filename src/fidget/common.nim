@@ -635,22 +635,25 @@ proc computeEvents*(node: Node) =
 proc computeLayout*(parent, node: Node) =
   ## Computes constraints and auto-layout.
   
-  # compute grid item's position (this item can also be a grid)
-  if not node.gridItem.isNil and gridStack.len() > 0:
-    node.box = node.gridItem.computePosition(gridStack[^1], node.box.wh)
-
   # next
   if not node.gridTemplate.isNil:
+    echo "grid: ", node.id
     node.gridTemplate.computeLayout(node.box)
-    gridStack.add node.gridTemplate
+
+    # compute grid item's position (this item can also be a grid)
+    for n in node.nodes:
+      if n.layoutAlign == laIgnore:
+        continue
+      # echo "grid child: ", n.id, " => ", n.gridItem.repr
+      computeLayout(node, n)
+      n.box = n.gridItem.computePosition(node.gridTemplate, n.box.wh)
+    
+    return
 
   for n in node.nodes:
     computeLayout(node, n)
 
   if node.layoutAlign == laIgnore:
-    return
-  if node.layoutMode == lmGrid:
-    discard gridStack.pop()
     return
 
   # Constraints code.

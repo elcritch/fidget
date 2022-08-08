@@ -1036,27 +1036,6 @@ proc gridAutoRows*(item: TrackSize) =
   defaultGridTemplate()
   current.gridTemplate.autoRows = item
 
-proc gridTemplateDebugLines*(draw: bool, color: Color = blackColor) =
-  ## helper that draws css grid lines. great for debugging layouts.
-  if draw:
-    # draw debug lines
-    if not current.gridTemplate.isNil:
-      computeLayout(nil, current)
-      # echo "grid template post: ", repr current.gridTemplate
-      let cg = current.gridTemplate.columnGap
-      let wd = max(0.1'em, cg)
-      let w = current.gridTemplate.columns[^1].start
-      let h = current.gridTemplate.rows[^1].start
-      # echo "size: ", (w, h)
-      for col in current.gridTemplate.columns[1..^2]:
-        rectangle "column":
-          fill color
-          box col.start - wd, 0, wd, h
-      for row in current.gridTemplate.rows[1..^2]:
-        rectangle "row":
-          fill color
-          box 0, row.start - wd, w, wd
-
 proc constraints*(vCon: Constraint, hCon: Constraint) =
   ## Sets vertical or horizontal constraint.
   current.constraintsVertical = vCon
@@ -1088,7 +1067,30 @@ proc itemSpacing*(v: UICoord) =
 
 proc zlevel*(zidx: ZLevel) =
   ## Sets zLevel.
-  current.zLevel = zidx
+  current.zlevel = zidx
+
+proc gridTemplateDebugLines*(draw: bool, color: Color = blackColor) =
+  ## helper that draws css grid lines. great for debugging layouts.
+  if draw:
+    # draw debug lines
+    if not current.gridTemplate.isNil:
+      computeLayout(nil, current)
+      # echo "grid template post: ", repr current.gridTemplate
+      let cg = current.gridTemplate.columnGap
+      let wd = max(0.1'em, cg)
+      let w = current.gridTemplate.columns[^1].start
+      let h = current.gridTemplate.rows[^1].start
+      # echo "size: ", (w, h)
+      for col in current.gridTemplate.columns[1..^2]:
+        rectangle "column":
+          layoutAlign laIgnore
+          fill color
+          box col.start - wd, 0, wd, h
+      for row in current.gridTemplate.rows[1..^2]:
+        rectangle "row":
+          layoutAlign laIgnore
+          fill color
+          box 0, row.start - wd, w, wd
 
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ##             Scrolling support
