@@ -415,12 +415,24 @@ template computeGridLayout*[N](
     node: ref N,
     children: openArray[ref N],
 ) =
+  ## implement full(ish) CSS grid algorithm here
+  ## currently assumes that `N`, the ref object, has
+  ## both `box: Box` and `gridItem: GridItem` fields. 
+  ## 
+  ## this algorithm tries to follow the specification at:
+  ##   https://www.w3.org/TR/css3-grid-layout/#grid-item-placement-algorithm
+  ## 
   gridTemplate.computeLayout(node.box)
   # compute positions for fixed children
   for child in children:
     if not isAutoPositioned(child.gridItem):
       child.box = child.gridItem.computePosition(gridTemplate, child.box.wh)
   # compute positions for partially fixed children
+  for child in children:
+    if child.gridItem != nil and isAutoPositioned(child.gridItem):
+      # child.box = child.gridItem.computePosition(gridTemplate, child.box.wh)
+      assert false, "todo: implement me!"
+  # compute positions for auto flow items
   for child in children:
     if child.gridItem != nil and isAutoPositioned(child.gridItem):
       child.box = child.gridItem.computePosition(gridTemplate, child.box.wh)
