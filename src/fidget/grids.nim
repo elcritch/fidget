@@ -331,6 +331,7 @@ proc findLine(index: GridIndex, lines: seq[GridLine]): int16 =
   raise newException(KeyError, "couldn't find index: " & repr index)
 
 proc getGrid(lines: seq[GridLine], idx: int): UICoord =
+  # if idx == -2: lines[idx-1].start else: lines[^1].start
   lines[idx-1].start
 
 proc setGridSpans(
@@ -493,15 +494,22 @@ proc computeAutoFlow[N](
       block childBlock:
         ## increment cursor and index until one breaks the mold
         while cursor[0] in majors[idx][0]:
-          incrCursor(1 + (majors[idx][0].b - cursor[0]), childBlock, autoFlow)
+          incrCursor(1 + (majors[idx][0].b - cursor[0] - 1), childBlock, autoFlow)
           incrIndex(childBlock, autoFlow)
         while cursor[0] notin majors[idx][0]:
           echo "  ++ set cursor[0]: ", cursor.repr, " -> ", children[i].id, "[", i, "]", " :: ", majors[idx][0].repr
-          mjSpan(children[i]) = cursor[0] .. cursor[0] + 1
-          mnSpan(children[i]) = cursor[1] .. cursor[1] + 1
+          mjSpan(children[i]) = cursor[0] .. cursor[0]
+          mnSpan(children[i]) = cursor[1] .. cursor[1]
           if not nextChild():
             break autoflow
           incrCursor(1, childBlock, autoFlow)
+  # # set rest to -1
+  # if i >= children.len():
+  #   return
+  # for j in i ..< children.len():
+  #   if fixedCount(children[i].gridItem) == 0:
+  #     children[j].gridItem.cspan = -1'i16 .. -1'i16
+  #     children[j].gridItem.rspan = -1'i16 .. -1'i16
 
 proc computeGridLayout*[N](
     gridTemplate: GridTemplate,
@@ -535,9 +543,13 @@ proc computeGridLayout*[N](
   # compute positions for auto flow items
   computeAutoFlow(gridTemplate, node, children)
 
-  # for child in children:
-  #   if fixedCount(child.gridItem) == 0:
-  #     child.box = child.gridItem.computePosition(gridTemplate, child.box.wh)
+  for child in children:
+    if fixedCount(child.gridItem) == 0:
+      # print "child: ", child.gridItem
+      if 0 notin child.gridItem.cspan and
+          0 notin child.gridItem.rspan:
+        child.box = child.gridItem.computePosition(gridTemplate, child.box.wh)
+        # print "child:id: ", child.id, " box: ", child.box
     
 
 
@@ -902,7 +914,8 @@ when isMainModule:
       # ==== item b's ====
       for i in 2 ..< nodes.len():
         echo "auto child:cols: ", nodes[i].id, " :: ", nodes[i].gridItem.cspan.repr, " x ", nodes[i].gridItem.rspan.repr
-        echo "auto child:box: ", nodes[i].box.repr
+        print "auto child:cols: ", nodes[i].gridItem
+        print "auto child:box: ", nodes[i].box
 
       check abs(nodes[2].box.x.float - 60.0) < 1.0e-3
       check abs(nodes[3].box.x.float - 120.0) < 1.0e-3
