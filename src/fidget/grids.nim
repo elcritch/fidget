@@ -428,7 +428,7 @@ type
     gridItem: GridItem
 
 template computeGridLayout*[N](
-    grid: GridTemplate,
+    gridTemplate: GridTemplate,
     node: N,
     children: openArray[N],
 ) =
@@ -872,15 +872,29 @@ when isMainModule:
 
       # ==== item b's ====
       for i in 2 ..< nodes.len():
-        echo "auto child: cols: ", nodes[i].id, " :: ", nodes[i].cspan.repr, " x ", nodes[i].rspan.repr
+        echo "auto child:cols: ", nodes[i].id, " :: ", nodes[i].cspan.repr, " x ", nodes[i].rspan.repr
+        echo "auto child:box: ", nodes[i].box.repr
+
+      check abs(nodes[2].box.x.float - 60.0) < 1.0e-3
+      check abs(nodes[3].box.x.float - 120.0) < 1.0e-3
+      check abs(nodes[4].box.x.float - 180.0) < 1.0e-3
+
+      check abs(nodes[2].box.y.float - 0.0) < 1.0e-3
+      check abs(nodes[3].box.y.float - 0.0) < 1.0e-3
+      check abs(nodes[4].box.y.float - 0.0) < 1.0e-3
+
+      check abs(nodes[5].box.x.float - 60.0) < 1.0e-3
+      check abs(nodes[6].box.x.float - 120.0) < 1.0e-3
+      check abs(nodes[7].box.x.float - 180.0) < 1.0e-3
+
+      check abs(nodes[5].box.y.float - 33.0) < 1.0e-3
+      check abs(nodes[6].box.y.float - 33.0) < 1.0e-3
+      check abs(nodes[7].box.y.float - 33.0) < 1.0e-3
+
+      check abs(nodes[8].box.x.float - 0.0) < 1.0e-3
+      check abs(nodes[8].box.y.float - 0.0) < 1.0e-3
 
       for i in 2 ..< nodes.len():
-        echo "auto child: ", nodes[i].box.repr
-        # item b
-        # let boxb = computeAutoPosition(gridTemplate, contentSize)
-
-        check abs(nodes[i].box.x.float - 240.0) < 1.0e-3
-        # check abs(nodes[i].box.w.float - 60.0) < 1.0e-3
-        # check abs(nodes[i].box.y.float - 0.0) < 1.0e-3
-        # check abs(nodes[i].box.h.float - 66.0) < 1.0e-3
+        check abs(nodes[i].box.w.float - 60.0) < 1.0e-3
+        check abs(nodes[i].box.h.float - 33.0) < 1.0e-3
 
