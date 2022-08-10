@@ -404,8 +404,9 @@ proc computePosition*(
 
 proc fixedCount*(gridItem: GridItem): int =
   for name, field in gridItem[].fieldPairs():
-    if gridItem.columnStart.line.int >= 0:
-      result.inc
+    when field.typeof is GridIndex:
+      if field.line.int >= 0:
+        result.inc
 
 proc isAutoPositioned*(gridItem: GridItem): bool =
   gridItem.fixedCount() == 0
@@ -416,7 +417,7 @@ type
     box: Box
     gridItem: GridItem
 
-template computeGridLayout*[N](
+proc computeGridLayout*[N](
     gridTemplate: GridTemplate,
     node: N,
     children: seq[N],
@@ -441,11 +442,16 @@ template computeGridLayout*[N](
   for child in children:
     if child.gridItem == nil:
       child.gridItem = GridItem()
-    elif not fixedCount(child.gridItem) == 4:
+    elif fixedCount(child.gridItem) == 4:
       child.box = child.gridItem.computePosition(gridTemplate, child.box.wh)
       majors.add( (child.mjSpan, child, ) )
     
-  majors.sort(proc (x, y: (Slice[LinePos], N)): int = cmp((x[0].a, -x[0].b, ), (y[0].a, -y[0].b, )))
+  # sort majors by main index
+  majors.sort() do (x, y: (Slice[LinePos], N)) -> int:
+    cmp((x[0].a, -x[0].b, ), (y[0].a, -y[0].b, ))
+
+  for m in majors:
+    echo "majors: ", m[0].repr
 
   # compute positions for partially fixed children
   for child in children:
@@ -467,18 +473,18 @@ template computeGridLayout*[N](
       if i >= children.len():
         return false
       echo "  nextChild: ", children[i].id, " [", i, "]", " => ", repr cursor
-      if isAutoPositioned(children[i].gridItem):
+      if fixedCount(children[i].gridItem) == 0:
         return true
   template nextMinor(blk, outer: untyped) =
     cursor[0] = 1
     cursor[1].inc
-    # echo "  .. new minor -- incr majors idx: ", majors[idx], " => ", cursor.repr
+    echo "  .. new minor -- incr majors idx: ", majors[idx], " => ", cursor.repr
     if cursor[1] >= gridTemplate.mnLines.len():
-      # echo "  .. new minor -- breaking; minor's overflow"
+      echo "  .. new minor -- breaking; minor's overflow"
       break outer
     break blk
   template incrCursor(amt, blk, outer: untyped) =
-    # echo "  ++ inc'ing: cursor[0]: ", cursor.repr, " ", children[i].id, "[", i, "]", " => idx: ", majors[idx][0]
+    echo "  ++ inc'ing: cursor[0]: ", cursor.repr, " ", children[i].id, "[", i, "]", " => idx: ", majors[idx][0]
     cursor[0].inc(amt)
     if cursor[0] > gridTemplate.mjLines.len():
       nextMinor(blk, outer)
@@ -488,18 +494,18 @@ template computeGridLayout*[N](
       idx = 0
       nextMinor(blk, outer)
       break
-    # echo "  .. incr index of major cache: ", majors[idx], " => ", cursor[0] in majors[idx][0]
+    echo "  .. incr index of major cache: ", majors[idx], " => ", cursor[0] in majors[idx][0]
   discard nextChild()
   block autoflow:
     while i < len(children):
-      # echo "child: auto flow: ", children[i].id, " [", i, "]", " => ", repr cursor
+      echo "child: auto flow: ", children[i].id, " [", i, "]", " => ", repr cursor
       block childBlock:
         ## increment cursor and index until one breaks the mold
         while cursor[0] in majors[idx][0]:
           incrCursor(1 + (majors[idx][0].b - cursor[0]), childBlock, autoFlow)
           incrIndex(childBlock, autoFlow)
         while cursor[0] notin majors[idx][0]:
-          # echo "  ++ set cursor[0]: ", cursor.repr, " -> ", children[i].id, "[", i, "]", " :: ", majors[idx][0].repr
+          echo "  ++ set cursor[0]: ", cursor.repr, " -> ", children[i].id, "[", i, "]", " :: ", majors[idx][0].repr
           mjSpan(children[i]) = cursor[0] .. cursor[0] + 1
           mnSpan(children[i]) = cursor[1] .. cursor[1] + 1
           if not nextChild():
