@@ -45,6 +45,7 @@ type
       discard
   
   LineName* = distinct int
+  LinePos* = int16
 
   GridLine* = object
     aliases*: HashSet[LineName]
@@ -401,22 +402,13 @@ proc computePosition*(
     result.y = ryh - contentSize.y
     result.h = contentSize.y
 
-proc isFixed*(gridItem: GridItem): bool =
-  gridItem.columnStart.line.int != 0 and
-  gridItem.columnEnd.line.int != 0 and
-  gridItem.rowStart.line.int != 0 and
-  gridItem.rowEnd.line.int != 0
-
 proc fixedCount*(gridItem: GridItem): int =
   for name, field in gridItem[].fieldPairs():
     if gridItem.columnStart.line.int >= 0:
       result.inc
 
 proc isAutoPositioned*(gridItem: GridItem): bool =
-  if gridItem == nil:
-    return true
-  elif not gridItem.isFixed():
-    return true
+  gridItem.fixedCount() == 0
 
 type
   GridNode = ref object
@@ -438,25 +430,22 @@ template computeGridLayout*[N](
   ## 
   gridTemplate.computeLayout(node.box)
   # compute positions for fixed children
-  var majors = newSeq[(Slice[int16], N)]()
   template mjSpan(x: untyped): untyped = x.gridItem.cspan
   template mnSpan(x: untyped): untyped = x.gridItem.rspan
   template mjLines(x: untyped): untyped = x.columns
   template mnLines(x: untyped): untyped = x.rows
 
   # ensure all grid children have a GridItem
+  var majors = newSeq[(Slice[LinePos], N)]()
+
   for child in children:
     if child.gridItem == nil:
       child.gridItem = GridItem()
-  
-  for child in children:
-    if not isAutoPositioned(child.gridItem):
+    elif not fixedCount(child.gridItem) == 4:
       child.box = child.gridItem.computePosition(gridTemplate, child.box.wh)
       majors.add( (child.mjSpan, child, ) )
-      # echo "compute fixed child: ", child.id, " => ", repr child.gridItem.mspan
     
-  # majors.sort(proc (x, y: (Slice[int32], N)): int = cmp(x[0], y[0]))
-  majors.sort(proc (x, y: (Slice[int16], N)): int = cmp((x[0].a, -x[0].b, ), (y[0].a, -y[0].b, )))
+  majors.sort(proc (x, y: (Slice[LinePos], N)): int = cmp((x[0].a, -x[0].b, ), (y[0].a, -y[0].b, )))
 
   # compute positions for partially fixed children
   for child in children:
@@ -466,7 +455,7 @@ template computeGridLayout*[N](
   # compute positions for auto flow items
   for m, v in majors:
     echo "C1: ", repr m
-  var cursor = (1'i16, 1'i16)
+  var cursor = (1.LinePos, 1.LinePos)
   var idx = 0
   var i = -1
 
