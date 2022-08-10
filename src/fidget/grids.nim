@@ -5,13 +5,13 @@ import algorithm
 import print
 import commonutils
 import rationals
-
-template toIterable(x): untyped =
-  iterator it(): auto {.closure.} =
-    for y in x: yield y
-  it
+import typetraits
 
 type
+  GridDir* = enum
+    gdrow
+    gdcol
+
   GridConstraint* = enum
     gcStretch
     gcStart
@@ -71,8 +71,8 @@ type
     isName*: bool
   
   GridItem* = ref object
-    cspan*: Slice[int32]
-    rspan*: Slice[int32]
+    cspan*: Slice[int16]
+    rspan*: Slice[int16]
     columnStart*: GridIndex
     columnEnd*: GridIndex
     rowStart*: GridIndex
@@ -356,11 +356,11 @@ proc computePosition*(
       let idx = item.`index`.line.int - 1
       gridAutoInsert(target, index, lines, idx, cz)
       # echo "gridGet: ", idx+1
-      `cspn` = item.`index`.line.int32
+      `cspn` = item.`index`.line.int16
       `target` = getGrid(grid.`lines`,idx)
     else:
       let (j, tgt) = findLine(item.`index`, grid.`lines`)
-      `cspn` = j.int32
+      `cspn` = j.int16
       `target` = tgt
   # determine positions
   assert not item.isNil
@@ -407,30 +407,27 @@ proc isFixed*(gridItem: GridItem): bool =
   gridItem.rowStart.line.int != 0 and
   gridItem.rowEnd.line.int != 0
 
+proc fixedCount*(gridItem: GridItem): int =
+  for name, field in gridItem[].fieldPairs():
+    if gridItem.columnStart.line.int >= 0:
+      result.inc
+
 proc isAutoPositioned*(gridItem: GridItem): bool =
   if gridItem == nil:
     return true
   elif not gridItem.isFixed():
     return true
 
-proc computeAutoPosition*(
-    grid: GridTemplate,
-    contentSize: Position
-): Box =
-  discard
-
 type
   GridNode = ref object
     id: string
-    cspan: Slice[int32]
-    rspan: Slice[int32]
     box: Box
     gridItem: GridItem
 
 template computeGridLayout*[N](
     gridTemplate: GridTemplate,
     node: N,
-    children: openArray[N],
+    children: seq[N],
 ) =
   ## implement full(ish) CSS grid algorithm here
   ## currently assumes that `N`, the ref object, has
@@ -441,29 +438,35 @@ template computeGridLayout*[N](
   ## 
   gridTemplate.computeLayout(node.box)
   # compute positions for fixed children
-  var majors = newSeq[(Slice[int32], N)]()
-  template mjSpan(x: untyped): untyped = x.cspan
-  template mnSpan(x: untyped): untyped = x.rspan
+  var majors = newSeq[(Slice[int16], N)]()
+  template mjSpan(x: untyped): untyped = x.gridItem.cspan
+  template mnSpan(x: untyped): untyped = x.gridItem.rspan
   template mjLines(x: untyped): untyped = x.columns
   template mnLines(x: untyped): untyped = x.rows
 
+  # ensure all grid children have a GridItem
+  for child in children:
+    if child.gridItem == nil:
+      child.gridItem = GridItem()
+  
   for child in children:
     if not isAutoPositioned(child.gridItem):
       child.box = child.gridItem.computePosition(gridTemplate, child.box.wh)
-      majors.add( (child.gridItem.mjSpan, child, ) )
+      majors.add( (child.mjSpan, child, ) )
       # echo "compute fixed child: ", child.id, " => ", repr child.gridItem.mspan
+    
   # majors.sort(proc (x, y: (Slice[int32], N)): int = cmp(x[0], y[0]))
-  majors.sort(proc (x, y: (Slice[int32], N)): int = cmp((x[0].a, -x[0].b, ), (y[0].a, -y[0].b, )))
+  majors.sort(proc (x, y: (Slice[int16], N)): int = cmp((x[0].a, -x[0].b, ), (y[0].a, -y[0].b, )))
 
   # compute positions for partially fixed children
   for child in children:
-    if child.gridItem != nil and isAutoPositioned(child.gridItem):
+    if fixedCount(child.gridItem) in 1..3:
       # child.box = child.gridItem.computePosition(gridTemplate, child.box.wh)
       assert false, "todo: implement me!"
   # compute positions for auto flow items
   for m, v in majors:
     echo "C1: ", repr m
-  var cursor = (1'i32, 1'i32)
+  var cursor = (1'i16, 1'i16)
   var idx = 0
   var i = -1
 
@@ -872,7 +875,7 @@ when isMainModule:
 
       # ==== item b's ====
       for i in 2 ..< nodes.len():
-        echo "auto child:cols: ", nodes[i].id, " :: ", nodes[i].cspan.repr, " x ", nodes[i].rspan.repr
+        echo "auto child:cols: ", nodes[i].id, " :: ", nodes[i].gridItem.cspan.repr, " x ", nodes[i].gridItem.rspan.repr
         echo "auto child:box: ", nodes[i].box.repr
 
       check abs(nodes[2].box.x.float - 60.0) < 1.0e-3
