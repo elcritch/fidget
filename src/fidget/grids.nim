@@ -324,14 +324,14 @@ template parseGridTemplateColumns*(gridTmpl, args: untyped) =
 template parseGridTemplateRows*(gridTmpl, args: untyped) =
   gridTemplateImpl(gridTmpl, args, rows)
 
-proc findLine(index: GridIndex, lines: seq[GridLine]): (int, UICoord) =
+proc findLine(index: GridIndex, lines: seq[GridLine]): int16 =
   for i, line in lines:
     if index.line in line.aliases:
-      return (i+1, line.start)
+      return int16(i+1)
   raise newException(KeyError, "couldn't find index: " & repr index)
 
 proc getGrid(lines: seq[GridLine], idx: int): UICoord =
-  lines[idx].start
+  lines[idx-1].start
 
 proc computePosition*(
     item: GridItem,
@@ -351,26 +351,21 @@ proc computePosition*(
         grid.`lines`.insert(ln, offset)
       grid.reComputeLayout()
   
-  template setPosition(target, index, lines, cz, cspn: untyped) =
+  template setSpan(index, lines, cz: untyped): int16 =
     ## todo: clean this up? maybe use static bools for col vs row
     if not item.`index`.isName:
       let idx = item.`index`.line.int - 1
       gridAutoInsert(target, index, lines, idx, cz)
-      # echo "gridGet: ", idx+1
-      `cspn` = item.`index`.line.int16
-      `target` = getGrid(grid.`lines`,idx)
+      item.`index`.line.int16
     else:
-      let (j, tgt) = findLine(item.`index`, grid.`lines`)
-      `cspn` = j.int16
-      `target` = tgt
-  # determine positions
+      findLine(item.`index`, grid.`lines`)
   assert not item.isNil
 
   # set columns
-  var rxw: UICoord
-  setPosition(result.x, columnStart, columns, 0, item.cspan.a)
-  setPosition(rxw, columnEnd, columns, contentSize.x, item.cspan.b)
-  item.cspan.b.dec
+  item.cspan.a = setSpan(columnStart, columns, 0)
+  item.cspan.b = setSpan(columnEnd, columns, contentSize.x)
+  result.x = grid.columns.getGrid(item.cspan.a)
+  let rxw = grid.columns.getGrid(item.cspan.b)
   let rww = (rxw - result.x) - grid.columnGap
   case grid.justifyItems:
   of gcStretch:
@@ -385,10 +380,10 @@ proc computePosition*(
     result.w = contentSize.x
 
   # set rows
-  var ryh: UICoord
-  setPosition(result.y, rowStart, rows, 0, item.rspan.a)
-  setPosition(ryh, rowEnd, rows, contentSize.x, item.rspan.b)
-  item.rspan.b.dec
+  item.rspan.a = setSpan(rowStart, rows, 0)
+  item.rspan.b = setSpan(rowEnd, rows, contentSize.x)
+  result.y = grid.rows.getGrid(item.rspan.a)
+  let ryh = grid.rows.getGrid(item.rspan.b)
   let rhh = (ryh - result.y) - grid.rowGap
   case grid.alignItems:
   of gcStretch:
@@ -675,19 +670,22 @@ when isMainModule:
       parseGridTemplateColumns gridTemplate, ["first"] 40'ui ["second", "line2"] 50'ui ["line3"] auto ["col4-start"] 50'ui ["five"] 40'ui ["end"]
       parseGridTemplateRows gridTemplate, ["row1-start"] 25'perc ["row1-end"] 100'ui ["third-line"] auto ["last-line"]
       gridTemplate.computeLayout(initBox(0, 0, 1000, 1000))
-      # echo "grid template: ", repr gridTemplate
+      echo "grid template: ", repr gridTemplate
 
       var gridItem = newGridItem()
       gridItem.columnStart = 2.mkIndex
       gridItem.columnEnd = "five".mkIndex
       gridItem.rowStart = "row1-start".mkIndex
       gridItem.rowEnd = 3.mkIndex
-      # print gridItem
+      print gridItem
 
       let contentSize = initPosition(0, 0)
       let itemBox = gridItem.computePosition(gridTemplate, contentSize)
-      # print itemBox
+      print itemBox
+      print "post: ", gridItem
 
+      check gridItem.cspan.a == 2
+      check gridItem.cspan.b == 5
       check abs(itemBox.x.float - 40.0) < 1.0e-3
       check abs(itemBox.w.float - 920.0) < 1.0e-3
       check abs(itemBox.y.float - 0.0) < 1.0e-3
