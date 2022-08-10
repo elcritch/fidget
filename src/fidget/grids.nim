@@ -333,11 +333,11 @@ proc findLine(index: GridIndex, lines: seq[GridLine]): int16 =
 proc getGrid(lines: seq[GridLine], idx: int): UICoord =
   lines[idx-1].start
 
-proc computePosition*(
+proc setGridSpans(
     item: GridItem,
     grid: GridTemplate,
     contentSize: Position
-): Box =
+) =
   ## computing grid layout
   template gridAutoInsert(target, index, lines, idx, cz: untyped) =
     assert idx <= 1000, "max grids exceeded"
@@ -361,9 +361,22 @@ proc computePosition*(
       findLine(item.`index`, grid.`lines`)
   assert not item.isNil
 
-  # set columns
   item.cspan.a = setSpan(columnStart, columns, 0)
   item.cspan.b = setSpan(columnEnd, columns, contentSize.x)
+
+  item.rspan.a = setSpan(rowStart, rows, 0)
+  item.rspan.b = setSpan(rowEnd, rows, contentSize.x)
+
+proc computePosition*(
+    item: GridItem,
+    grid: GridTemplate,
+    contentSize: Position
+): Box =
+  ## computing grid layout
+  item.setGridSpans(grid, contentSize)
+  assert not item.isNil
+
+  # set columns
   result.x = grid.columns.getGrid(item.cspan.a)
   let rxw = grid.columns.getGrid(item.cspan.b)
   let rww = (rxw - result.x) - grid.columnGap
@@ -380,8 +393,6 @@ proc computePosition*(
     result.w = contentSize.x
 
   # set rows
-  item.rspan.a = setSpan(rowStart, rows, 0)
-  item.rspan.b = setSpan(rowEnd, rows, contentSize.x)
   result.y = grid.rows.getGrid(item.rspan.a)
   let ryh = grid.rows.getGrid(item.rspan.b)
   let rhh = (ryh - result.y) - grid.rowGap
