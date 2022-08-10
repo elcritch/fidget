@@ -361,11 +361,15 @@ proc setGridSpans(
       findLine(item.`index`, grid.`lines`)
   assert not item.isNil
 
-  item.cspan.a = setSpan(columnStart, columns, 0)
-  item.cspan.b = setSpan(columnEnd, columns, contentSize.x)
+  if item.cspan.a == 0:
+    item.cspan.a = setSpan(columnStart, columns, 0)
+  if item.cspan.b == 0:
+    item.cspan.b = setSpan(columnEnd, columns, contentSize.x)
 
-  item.rspan.a = setSpan(rowStart, rows, 0)
-  item.rspan.b = setSpan(rowEnd, rows, contentSize.x)
+  if item.rspan.a == 0:
+    item.rspan.a = setSpan(rowStart, rows, 0)
+  if item.rspan.b == 0:
+    item.rspan.b = setSpan(rowEnd, rows, contentSize.x)
 
 proc computePosition*(
     item: GridItem,
@@ -373,8 +377,8 @@ proc computePosition*(
     contentSize: Position
 ): Box =
   ## computing grid layout
-  item.setGridSpans(grid, contentSize)
   assert not item.isNil
+  item.setGridSpans(grid, contentSize)
 
   # set columns
   result.x = grid.columns.getGrid(item.cspan.a)
