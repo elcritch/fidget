@@ -403,10 +403,10 @@ proc computePosition*(
     result.h = contentSize.y
 
 proc fixedCount*(gridItem: GridItem): int =
-  for name, field in gridItem[].fieldPairs():
-    when field.typeof is GridIndex:
-      if field.line.int >= 0:
-        result.inc
+  if gridItem.columnStart.line.int != 0: result.inc
+  if gridItem.columnEnd.line.int != 0: result.inc
+  if gridItem.rowStart.line.int != 0: result.inc
+  if gridItem.rowEnd.line.int != 0: result.inc
 
 proc isAutoPositioned*(gridItem: GridItem): bool =
   gridItem.fixedCount() == 0
@@ -417,50 +417,31 @@ type
     box: Box
     gridItem: GridItem
 
-proc computeGridLayout*[N](
+proc computeAutoFlow[N](
     gridTemplate: GridTemplate,
     node: N,
     children: seq[N],
 ) =
-  ## implement full(ish) CSS grid algorithm here
-  ## currently assumes that `N`, the ref object, has
-  ## both `box: Box` and `gridItem: GridItem` fields. 
-  ## 
-  ## this algorithm tries to follow the specification at:
-  ##   https://www.w3.org/TR/css3-grid-layout/#grid-item-placement-algorithm
-  ## 
-  gridTemplate.computeLayout(node.box)
-  # compute positions for fixed children
   template mjSpan(x: untyped): untyped = x.gridItem.cspan
   template mnSpan(x: untyped): untyped = x.gridItem.rspan
   template mjLines(x: untyped): untyped = x.columns
   template mnLines(x: untyped): untyped = x.rows
 
-  # ensure all grid children have a GridItem
   var majors = newSeq[(Slice[LinePos], N)]()
 
   for child in children:
     if child.gridItem == nil:
       child.gridItem = GridItem()
     elif fixedCount(child.gridItem) == 4:
-      child.box = child.gridItem.computePosition(gridTemplate, child.box.wh)
       majors.add( (child.mjSpan, child, ) )
-    
+
   # sort majors by main index
   majors.sort() do (x, y: (Slice[LinePos], N)) -> int:
     cmp((x[0].a, -x[0].b, ), (y[0].a, -y[0].b, ))
 
-  for m in majors:
-    echo "majors: ", m[0].repr
-
-  # compute positions for partially fixed children
-  for child in children:
-    if fixedCount(child.gridItem) in 1..3:
-      # child.box = child.gridItem.computePosition(gridTemplate, child.box.wh)
-      assert false, "todo: implement me!"
-  # compute positions for auto flow items
   for m, v in majors:
-    echo "C1: ", repr m
+    echo "majors: ", repr m
+
   var cursor = (1.LinePos, 1.LinePos)
   var idx = 0
   var i = -1
@@ -511,6 +492,43 @@ proc computeGridLayout*[N](
           if not nextChild():
             break autoflow
           incrCursor(1, childBlock, autoFlow)
+
+proc computeGridLayout*[N](
+    gridTemplate: GridTemplate,
+    node: N,
+    children: seq[N],
+) =
+  ## implement full(ish) CSS grid algorithm here
+  ## currently assumes that `N`, the ref object, has
+  ## both `box: Box` and `gridItem: GridItem` fields. 
+  ## 
+  ## this algorithm tries to follow the specification at:
+  ##   https://www.w3.org/TR/css3-grid-layout/#grid-item-placement-algorithm
+  ## 
+  
+  gridTemplate.computeLayout(node.box)
+
+  for child in children:
+    if child.gridItem == nil:
+      # ensure all grid children have a GridItem
+      child.gridItem = GridItem()
+    elif fixedCount(child.gridItem) == 4:
+      # compute positions for fixed children
+      child.box = child.gridItem.computePosition(gridTemplate, child.box.wh)
+    
+  # compute positions for partially fixed children
+  for child in children:
+    if fixedCount(child.gridItem) in 1..3:
+      # child.box = child.gridItem.computePosition(gridTemplate, child.box.wh)
+      assert false, "todo: implement me!"
+
+  # compute positions for auto flow items
+  computeAutoFlow(gridTemplate, node, children)
+
+  # for child in children:
+  #   if fixedCount(child.gridItem) == 0:
+  #     child.box = child.gridItem.computePosition(gridTemplate, child.box.wh)
+    
 
 
 when isMainModule:
