@@ -2,10 +2,11 @@ import std/[strformat, sugar]
 import std/[sequtils, strutils, hashes, sets, tables]
 import macros except `$`
 import algorithm
-import print
 import commonutils
 import rationals
 import typetraits
+
+import print
 
 type
   GridDir* = enum
@@ -439,6 +440,7 @@ proc computeAutoFlow[N](
   template mnLines(x: untyped): untyped = x.rows
 
   var majors = newSeq[(Slice[LinePos], N)]()
+  majors.add((0.LinePos..0.LinePos, nil)) # default 'empty' item
 
   for child in children:
     if child.gridItem == nil:
@@ -525,6 +527,7 @@ proc computeGridLayout*[N](
   ## 
   
   gridTemplate.computeLayout(node.box)
+  echo "gridTemplate: ", gridTemplate.repr
 
   for child in children:
     if child.gridItem == nil:
@@ -549,9 +552,8 @@ proc computeGridLayout*[N](
       if 0 notin child.gridItem.cspan and
           0 notin child.gridItem.rspan:
         child.box = child.gridItem.computePosition(gridTemplate, child.box.wh)
-        # print "child:id: ", child.id, " box: ", child.box
+        echo "child:id: ", child.id, " box: ", child.box.repr
     
-
 
 when isMainModule:
   import unittest
