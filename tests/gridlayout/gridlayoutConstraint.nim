@@ -24,57 +24,59 @@ proc drawMain() =
         rowGap 1'em
       
       # Setup CSS Grid Template
-      gridTemplateColumns ["left"] 20'ui \
-                          ["middle-left"] 1'fr \
-                          ["center-left"] 40'ui \
-                          ["center-right"] 1'fr \
-                          ["middle-right"] 20'ui \
+      gridTemplateColumns ["left"] 30'ui \
+                          ["outer-left"] 2'fr \
+                          ["middle-left"] 3'fr \
+                          ["center-left"] 100'ui \
+                          ["center-right"] 3'fr \
+                          ["middle-right"] 2'fr \
+                          ["outer-right"] 30'ui \
                           ["right"]
 
-      gridTemplateRows ["top"] 20'ui \
-                       ["middle-top"] 1'fr \
-                       ["center-top"] 40'ui \
-                       ["center-bottom"] 1'fr \
-                       ["middle-bottom"] 20'ui \
+      gridTemplateRows ["top"] 30'ui \
+                       ["outer-top"] 2'fr \
+                       ["middle-top"] 3'fr \
+                       ["center-top"] 100'ui \
+                       ["center-bottom"] 3'fr \
+                       ["middle-bottom"] 2'fr \
+                       ["outer-bottom"] 30'ui \
                        ["bottom"]
 
       rectangle "Center":
         # box 150, 150, 100, 100
         gridColumn "center-left", "center-right"
         gridRow "center-top", "center-bottom"
-        constraints cCenter, cCenter
         fill "#FFFFFF", 0.50
       rectangle "Scale":
         # box 100, 100, 200, 200
-        gridColumn "center-left", "center-right"
-        gridRow "center-top", "center-bottom"
-        constraints cScale, cScale
+        gridColumn "middle-left", "middle-right"
+        gridRow "middle-top", "middle-bottom"
         fill "#FFFFFF", 0.25
       rectangle "LRTB":
-        box 40, 40, 320, 320
-        constraints cStretch, cStretch
+        gridColumn "outer-left", "outer-right"
+        gridRow "outer-top", "outer-bottom"
         fill "#70BDCF"
 
       rectangle "TR":
-        box 360, 20, 20, 20
-        constraints cMax, cMin
+        gridColumn "right", "outer-right"
+        gridRow "top", "outer-top"
         fill "#70BDCF"
       rectangle "TL":
-        box 20, 20, 20, 20
-        constraints cMin, cMin
+        gridColumn "left", "outer-left"
+        gridRow "top", "outer-top"
         fill "#70BDCF"
       rectangle "BR":
-        box 360, 360, 20, 20
-        constraints cMax, cMax
+        gridColumn "right", "outer-right"
+        gridRow "bottom", "outer-bottom"
         fill "#70BDCF"
       rectangle "BL":
-        box 20, 360, 20, 20
-        constraints cMin, cMax
+        gridColumn "left", "outer-left"
+        gridRow "bottom", "outer-bottom"
         fill "#70BDCF"
 
 
-        # draw debug lines
-        gridTemplateDebugLines true
+      # draw debug lines
+      # gridTemplateDebugLines true
         
 
 startFidget(drawMain, w = 600, h = 400, uiScale = 2.0)
