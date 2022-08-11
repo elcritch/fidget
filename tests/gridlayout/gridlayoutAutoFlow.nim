@@ -36,23 +36,23 @@ proc drawMain() =
         # some color stuff
         fill rgba(245, 129, 49, 123).to(Color)
 
-      for i in 1..3:
+      for i in 1..4:
         rectangle "item b" & $i:
           # Setup CSS Grid Template
           size 30'ui, 30'ui
           cornerRadius 1'em
           
           # some color stuff
-          fill rgba(66, 77, 44, 200).to(Color)
+          fill rgba(66, 177, 44, 167).to(Color).spin(i.toFloat*50)
 
-      # rectangle "item e":
-      #   # Setup CSS Grid Template
-      #   size 30'ui, 30'ui
-      #   cornerRadius 1'em
-      #   gridColumn 5 // 6
-      #   gridRow 1 // 3
-      #   # some color stuff
-      #   fill rgba(245, 129, 49, 123).to(Color)
+      rectangle "item e":
+        # Setup CSS Grid Template
+        size 30'ui, 30'ui
+        cornerRadius 1'em
+        gridColumn 5 // 6
+        gridRow 1 // 3
+        # some color stuff
+        fill rgba(245, 129, 49, 123).to(Color)
 
       # draw debug lines
       gridTemplateDebugLines true

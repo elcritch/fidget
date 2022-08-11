@@ -454,7 +454,7 @@ type
     box: Box
     gridItem: GridItem
 
-proc `in`[N](cur: (LinePos, LinePos), col: HashSet[N]): bool =
+proc `in`(cur: (LinePos, LinePos), col: HashSet[GridSpan]): bool =
   for span in col:
     if cur[0] in span[dcol] and cur[1] in span[drow]:
       return true
@@ -487,38 +487,26 @@ proc computeAutoFlow[N](
     else:
       autos.add child
 
-  # for i in 1..gridTemplate.mjLines.len():
-  #   echo "fixedCache: ", i, " => ", fixedCache[i.LinePos]
-
   # setup cursor for current grid position
   var cursor = (1.LinePos, 1.LinePos)
   var i = 0
 
-  echo "children: auto flow: ",
-        repr (gridTemplate.columns.len(), gridTemplate.rows.len(), )
-
   template incrCursor(amt, blk, outer: untyped) =
     ## increment major index
-    # echo "  ++ inc'ing: cursor: ", autos[i].id, "[", i, "]", " => idx: ", cursor.repr
     cursor[0].inc
     ## increment minor when at end of major
     if cursor[0] >= gridTemplate.mjLines.len():
       cursor = (1.LinePos, cursor[1] + 1)
-      # echo "  .. new minor -- incr majors idx: ", fixedCache[cursor[0]].len(), " => ", cursor.repr
       if cursor[1] >= gridTemplate.mnLines.len():
-        # echo "  .. new minor -- breaking; minor's overflow"
         break outer
       break blk
   block autoflow:
     while i < len(autos):
-      # echo "child: auto flow: ", autos[i].id, " [", i, "]", " @ ", repr cursor
       block childBlock:
         ## increment cursor and index until one breaks the mold
         while cursor in fixedCache[cursor[0]]:
           incrCursor(1, childBlock, autoFlow)
-          # echo "  .. incr index of major cache: ", fixedCache[cursor[0]].len(), " @ ", cursor.repr
         while not (cursor in fixedCache[cursor[0]]):
-          # echo "  ++ set cursor[0]: ", cursor.repr, " -> ", autos[i].id, "[", i, "]", " :: ", fixedCache[cursor[0]].len
           autos[i].gridItem.span[mx] = cursor[0] .. cursor[0] + 1
           autos[i].gridItem.span[my] = cursor[1] .. cursor[1] + 1
           i.inc
@@ -561,11 +549,9 @@ proc computeGridLayout*[N](
 
   for child in children:
     if fixedCount(child.gridItem) == 0:
-      # print "child: ", child.gridItem
       if 0 notin child.gridItem.span[dcol] and
           0 notin child.gridItem.span[drow]:
         child.box = child.gridItem.computePosition(gridTemplate, child.box.wh)
-        echo "child:id: ", child.id, " box: ", child.box.repr
 
 when isMainModule:
   import unittest
