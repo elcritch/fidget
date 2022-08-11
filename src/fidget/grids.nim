@@ -84,6 +84,9 @@ var lineName: Table[LineName, string]
 
 proc `==`*(a, b: LineName): bool {.borrow.}
 proc hash*(a: LineName): Hash {.borrow.}
+proc hash*(a: GridItem): Hash =
+  if a != nil:
+    result = hash(a.cspan) !& hash(a.rspan)
 
 proc `repr`*(a: LineName): string = lineName[a]
 proc `repr`*(a: HashSet[LineName]): string =
@@ -465,17 +468,20 @@ proc computeAutoFlow[N](
   template mjLines(x: untyped): untyped = x.columns
   template mnLines(x: untyped): untyped = x.rows
 
-  var fixedCache = newTable[LinePos, HashSet[GridItem]]()
+  # setup caches
   var autos = newSeqOfCap[N](children.len())
+  var fixedCache = newTable[LinePos, HashSet[GridItem]]()
+  for i in 1..gridTemplate.mjLines.len():
+    fixedCache[i.LinePos] = initHashSet[GridItem]()
 
+  # populate caches
   for child in children:
     if child.gridItem == nil:
       child.gridItem = GridItem()
-    let cnt = fixedCount(child.gridItem)
-    if cnt == 4:
+    if fixedCount(child.gridItem) == 4:
       for j in child.mjSpan:
         fixedCache[j].incl child.gridItem
-    if cnt in 0..3:
+    else:
       autos.add child
 
   # sort majors by main index
