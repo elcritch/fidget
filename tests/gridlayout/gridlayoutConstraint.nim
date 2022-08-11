@@ -42,21 +42,6 @@ proc drawMain() =
                        ["outer-bottom"] 30'ui \
                        ["bottom"]
 
-      rectangle "Center":
-        # box 150, 150, 100, 100
-        gridColumn "center-left", "center-right"
-        gridRow "center-top", "center-bottom"
-        fill "#FFFFFF", 0.50
-      rectangle "Scale":
-        # box 100, 100, 200, 200
-        gridColumn "middle-left", "middle-right"
-        gridRow "middle-top", "middle-bottom"
-        fill "#FFFFFF", 0.25
-      rectangle "LRTB":
-        gridColumn "outer-left", "outer-right"
-        gridRow "outer-top", "outer-bottom"
-        fill "#70BDCF"
-
       rectangle "TR":
         gridColumn "right", "outer-right"
         gridRow "top", "outer-top"
@@ -72,6 +57,21 @@ proc drawMain() =
       rectangle "BL":
         gridColumn "left", "outer-left"
         gridRow "bottom", "outer-bottom"
+        fill "#70BDCF"
+
+      rectangle "Center":
+        # box 150, 150, 100, 100
+        gridColumn "center-left", "center-right"
+        gridRow "center-top", "center-bottom"
+        fill "#FFFFFF", 0.50
+      rectangle "Scale":
+        # box 100, 100, 200, 200
+        gridColumn "middle-left", "middle-right"
+        gridRow "middle-top", "middle-bottom"
+        fill "#FFFFFF", 0.25
+      rectangle "LRTB":
+        gridColumn "outer-left", "outer-right"
+        gridRow "outer-top", "outer-bottom"
         fill "#70BDCF"
 
 
