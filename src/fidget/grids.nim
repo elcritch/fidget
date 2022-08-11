@@ -435,7 +435,7 @@ proc computePosition*(
     result.y = ryh - contentSize.y
     result.h = contentSize.y
 
-proc fixedCount*(gridItem: GridItem): int =
+proc fixedCount*(gridItem: GridItem): range[0..4] =
   if gridItem.columnStart.line.int != 0: result.inc
   if gridItem.columnEnd.line.int != 0: result.inc
   if gridItem.rowStart.line.int != 0: result.inc
@@ -450,6 +450,11 @@ type
     box: Box
     gridItem: GridItem
 
+proc `in`[N](cur: (LinePos, LinePos), col: HashSet[N]): bool =
+  for item in col:
+    if cur[0] in item.cspan and cur[1] in item.rspan:
+      return true
+
 proc computeAutoFlow[N](
     gridTemplate: GridTemplate,
     node: N,
@@ -460,27 +465,25 @@ proc computeAutoFlow[N](
   template mjLines(x: untyped): untyped = x.columns
   template mnLines(x: untyped): untyped = x.rows
 
-  var majors = newSeq[(Slice[LinePos], N)]()
-  # majors.add((0.LinePos..0.LinePos, nil)) # default 'empty' item
+  var fixedCache = newTable[LinePos, HashSet[GridItem]]()
+  var autos = newSeqOfCap[N](children.len())
 
   for child in children:
     if child.gridItem == nil:
       child.gridItem = GridItem()
-    elif fixedCount(child.gridItem) == 4:
-      majors.add( (child.mjSpan, child, ) )
+    let cnt = fixedCount(child.gridItem)
+    if cnt == 4:
+      for j in child.mjSpan:
+        fixedCache[j].incl child.gridItem
+    if cnt in 0..3:
+      autos.add child
 
   # sort majors by main index
-  majors.sort() do (x, y: (Slice[LinePos], N)) -> int:
-    cmp((x[0].a, -x[0].b, ), (y[0].a, -y[0].b, ))
-
-  for m, v in majors:
-    echo "majors: ", repr m
-
   var cursor = (1.LinePos, 1.LinePos)
-  var idx = 0
   var i = -1
 
-  echo "children: auto flow: ", repr (gridTemplate.columns.len(), gridTemplate.rows.len(), )
+  echo "children: auto flow: ",
+        repr (gridTemplate.columns.len(), gridTemplate.rows.len(), )
 
   proc nextChild(): bool =
     while true:
@@ -493,34 +496,31 @@ proc computeAutoFlow[N](
   template nextMinor(blk, outer: untyped) =
     cursor[0] = 1
     cursor[1].inc
-    echo "  .. new minor -- incr majors idx: ", majors[idx], " => ", cursor.repr
+    echo "  .. new minor -- incr majors idx: ", fixedCache[cursor[0]].len(), " => ", cursor.repr
     if cursor[1] >= gridTemplate.mnLines.len():
       echo "  .. new minor -- breaking; minor's overflow"
       break outer
     break blk
   template incrCursor(amt, blk, outer: untyped) =
-    echo "  ++ inc'ing: cursor[0]: ", cursor.repr, " ", children[i].id, "[", i, "]", " => idx: ", majors[idx][0]
-    cursor[0].inc(amt)
+    echo "  ++ inc'ing: cursor[0]: ", cursor.repr, " ", autos[i].id, "[", i, "]", " => idx: ", fixedCache[cursor[0]].len()
+    cursor[0].inc
     if cursor[0] > gridTemplate.mjLines.len():
       nextMinor(blk, outer)
-  template incrIndex(blk, outer: untyped) =
-    idx.inc
-    if idx == len(majors):
-      idx = 0
-      nextMinor(blk, outer)
-      break
-    echo "  .. incr index of major cache: ", majors[idx], " => ", cursor[0] in majors[idx][0]
   discard nextChild()
   block autoflow:
     while i < len(children):
       echo "child: auto flow: ", children[i].id, " [", i, "]", " => ", repr cursor
       block childBlock:
         ## increment cursor and index until one breaks the mold
-        while cursor[0] in majors[idx][0]:
-          incrCursor(1 + (majors[idx][0].b - cursor[0] - 1), childBlock, autoFlow)
-          incrIndex(childBlock, autoFlow)
-        while cursor[0] notin majors[idx][0]:
-          echo "  ++ set cursor[0]: ", cursor.repr, " -> ", children[i].id, "[", i, "]", " :: ", majors[idx][0].repr
+        while cursor in fixedCache[cursor[0]]:
+          # incrCursor(1 + (fixedCache[cursor[0]][0].b - cursor[0] - 1), childBlock, autoFlow)
+          incrCursor(1, childBlock, autoFlow)
+          if cursor[0] == gridTemplate.mjLines.len():
+            nextMinor(childBlock, autoflow)
+            break
+          echo "  .. incr index of major cache: ", fixedCache[cursor[0]].len(), " => ", cursor in fixedCache[cursor[0]]
+        while not (cursor in fixedCache[cursor[0]]):
+          echo "  ++ set cursor[0]: ", cursor.repr, " -> ", children[i].id, "[", i, "]", " :: ", fixedCache[cursor[0]].len
           mjSpan(children[i]) = cursor[0] .. cursor[0] + 1
           mnSpan(children[i]) = cursor[1] .. cursor[1] + 1
           if not nextChild():
