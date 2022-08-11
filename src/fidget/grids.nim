@@ -9,9 +9,9 @@ import typetraits
 import print
 
 type
-  GridDir* = enum
-    gdrow
-    gdcol
+  GridDir = enum
+    drow
+    dcol
 
   GridConstraint* = enum
     gcStretch
@@ -73,8 +73,7 @@ type
     isName*: bool
   
   GridItem* = ref object
-    cspan*: Slice[int16]
-    rspan*: Slice[int16]
+    span*: array[GridDir, Slice[int16]]
     columnStart*: GridIndex
     columnEnd*: GridIndex
     rowStart*: GridIndex
@@ -86,7 +85,7 @@ proc `==`*(a, b: LineName): bool {.borrow.}
 proc hash*(a: LineName): Hash {.borrow.}
 proc hash*(a: GridItem): Hash =
   if a != nil:
-    result = hash(a.cspan) !& hash(a.rspan)
+    result = hash(a.span[drow]) !& hash(a.span[dcol])
 
 proc `repr`*(a: LineName): string = lineName[a]
 proc `repr`*(a: HashSet[LineName]): string =
@@ -101,8 +100,8 @@ proc `repr`*(a: GridIndex): string =
 proc `repr`*(a: GridItem): string =
   if a != nil:
     result = "GridItem{" 
-    result &= " cspan: " & $a.cspan
-    result &= ", rspan: " & $a.rspan
+    result &= " span[dcol]: " & $a.span[dcol]
+    result &= ", span[drow]: " & $a.span
     result &= "\n\t\t"
     result &= ", cS: " & repr a.columnStart
     result &= "\n\t\t"
@@ -387,15 +386,15 @@ proc setGridSpans(
       findLine(item.`index`, grid.`lines`)
   assert not item.isNil
 
-  if item.cspan.a == 0:
-    item.cspan.a = setSpan(columnStart, columns, 0)
-  if item.cspan.b == 0:
-    item.cspan.b = setSpan(columnEnd, columns, contentSize.x)
+  if item.span[dcol].a == 0:
+    item.span[dcol].a = setSpan(columnStart, columns, 0)
+  if item.span[dcol].b == 0:
+    item.span[dcol].b = setSpan(columnEnd, columns, contentSize.x)
 
-  if item.rspan.a == 0:
-    item.rspan.a = setSpan(rowStart, rows, 0)
-  if item.rspan.b == 0:
-    item.rspan.b = setSpan(rowEnd, rows, contentSize.x)
+  if item.span[drow].a == 0:
+    item.span[drow].a = setSpan(rowStart, rows, 0)
+  if item.span[drow].b == 0:
+    item.span[drow].b = setSpan(rowEnd, rows, contentSize.x)
 
 proc computePosition*(
     item: GridItem,
@@ -407,8 +406,8 @@ proc computePosition*(
   item.setGridSpans(grid, contentSize)
 
   # set columns
-  result.x = grid.columns.getGrid(item.cspan.a)
-  let rxw = grid.columns.getGrid(item.cspan.b)
+  result.x = grid.columns.getGrid(item.span[dcol].a)
+  let rxw = grid.columns.getGrid(item.span[dcol].b)
   let rww = (rxw - result.x) - grid.columnGap
   case grid.justifyItems:
   of gcStretch:
@@ -423,8 +422,8 @@ proc computePosition*(
     result.w = contentSize.x
 
   # set rows
-  result.y = grid.rows.getGrid(item.rspan.a)
-  let ryh = grid.rows.getGrid(item.rspan.b)
+  result.y = grid.rows.getGrid(item.span[drow].a)
+  let ryh = grid.rows.getGrid(item.span[drow].b)
   let rhh = (ryh - result.y) - grid.rowGap
   case grid.alignItems:
   of gcStretch:
@@ -455,50 +454,42 @@ type
 
 proc `in`[N](cur: (LinePos, LinePos), col: HashSet[N]): bool =
   for item in col:
-    if cur[0] in item.cspan and cur[1] in item.rspan:
+    if cur[0] in item.span[dcol] and cur[1] in item.span[drow]:
       return true
 
 proc computeAutoFlow[N](
     gridTemplate: GridTemplate,
     node: N,
-    children: seq[N],
+    allNodes: seq[N],
 ) =
-  template mjSpan(x: untyped): untyped = x.gridItem.cspan
-  template mnSpan(x: untyped): untyped = x.gridItem.rspan
+  template mjSpan(x: untyped): untyped = x.gridItem.span[dcol]
+  template mnSpan(x: untyped): untyped = x.gridItem.span[drow]
   template mjLines(x: untyped): untyped = x.columns
   template mnLines(x: untyped): untyped = x.rows
 
   # setup caches
-  var autos = newSeqOfCap[N](children.len())
+  var autos = newSeqOfCap[N](allNodes.len())
   var fixedCache = newTable[LinePos, HashSet[GridItem]]()
   for i in 1..gridTemplate.mjLines.len():
     fixedCache[i.LinePos] = initHashSet[GridItem]()
 
   # populate caches
-  for child in children:
+  for child in allNodes:
     if child.gridItem == nil:
       child.gridItem = GridItem()
     if fixedCount(child.gridItem) == 4:
+      let item = child.gridItem
       for j in child.mjSpan:
-        fixedCache[j].incl child.gridItem
+        fixedCache[j].incl item
     else:
       autos.add child
 
   # sort majors by main index
   var cursor = (1.LinePos, 1.LinePos)
-  var i = -1
+  var i = 0
 
   echo "children: auto flow: ",
         repr (gridTemplate.columns.len(), gridTemplate.rows.len(), )
-
-  proc nextChild(): bool =
-    while true:
-      i.inc
-      if i >= children.len():
-        return false
-      echo "  nextChild: ", children[i].id, " [", i, "]", " => ", repr cursor
-      if fixedCount(children[i].gridItem) == 0:
-        return true
   template nextMinor(blk, outer: untyped) =
     cursor[0] = 1
     cursor[1].inc
@@ -508,28 +499,25 @@ proc computeAutoFlow[N](
       break outer
     break blk
   template incrCursor(amt, blk, outer: untyped) =
-    echo "  ++ inc'ing: cursor[0]: ", cursor.repr, " ", autos[i].id, "[", i, "]", " => idx: ", fixedCache[cursor[0]].len()
+    echo "  ++ inc'ing: cursor: ", autos[i].id, "[", i, "]", " => idx: ", cursor.repr
     cursor[0].inc
     if cursor[0] > gridTemplate.mjLines.len():
       nextMinor(blk, outer)
-  discard nextChild()
   block autoflow:
-    while i < len(children):
-      echo "child: auto flow: ", children[i].id, " [", i, "]", " => ", repr cursor
+    while i < len(autos):
+      echo "child: auto flow: ", autos[i].id, " [", i, "]", " @ ", repr cursor
       block childBlock:
         ## increment cursor and index until one breaks the mold
         while cursor in fixedCache[cursor[0]]:
           # incrCursor(1 + (fixedCache[cursor[0]][0].b - cursor[0] - 1), childBlock, autoFlow)
           incrCursor(1, childBlock, autoFlow)
-          if cursor[0] == gridTemplate.mjLines.len():
-            nextMinor(childBlock, autoflow)
-            break
-          echo "  .. incr index of major cache: ", fixedCache[cursor[0]].len(), " => ", cursor in fixedCache[cursor[0]]
+          echo "  .. incr index of major cache: ", fixedCache[cursor[0]].len(), " @ ", cursor.repr
         while not (cursor in fixedCache[cursor[0]]):
-          echo "  ++ set cursor[0]: ", cursor.repr, " -> ", children[i].id, "[", i, "]", " :: ", fixedCache[cursor[0]].len
-          mjSpan(children[i]) = cursor[0] .. cursor[0] + 1
-          mnSpan(children[i]) = cursor[1] .. cursor[1] + 1
-          if not nextChild():
+          echo "  ++ set cursor[0]: ", cursor.repr, " -> ", autos[i].id, "[", i, "]", " :: ", fixedCache[cursor[0]].len
+          mjSpan(autos[i]) = cursor[0] .. cursor[0] + 1
+          mnSpan(autos[i]) = cursor[1] .. cursor[1] + 1
+          i.inc
+          if i >= autos.len():
             break autoflow
           incrCursor(1, childBlock, autoFlow)
   # # set rest to -1
@@ -537,8 +525,8 @@ proc computeAutoFlow[N](
   #   return
   # for j in i ..< children.len():
   #   if fixedCount(children[i].gridItem) == 0:
-  #     children[j].gridItem.cspan = -1'i16 .. -1'i16
-  #     children[j].gridItem.rspan = -1'i16 .. -1'i16
+  #     children[j].gridItem.span[dcol] = -1'i16 .. -1'i16
+  #     children[j].gridItem.span[drow] = -1'i16 .. -1'i16
 
 proc computeGridLayout*[N](
     gridTemplate: GridTemplate,
@@ -576,8 +564,8 @@ proc computeGridLayout*[N](
   for child in children:
     if fixedCount(child.gridItem) == 0:
       # print "child: ", child.gridItem
-      if 0 notin child.gridItem.cspan and
-          0 notin child.gridItem.rspan:
+      if 0 notin child.gridItem.span[dcol] and
+          0 notin child.gridItem.span[drow]:
         child.box = child.gridItem.computePosition(gridTemplate, child.box.wh)
         echo "child:id: ", child.id, " box: ", child.box.repr
 
@@ -739,8 +727,8 @@ when isMainModule:
       print itemBox
       print "post: ", gridItem
 
-      check gridItem.cspan.a == 2
-      check gridItem.cspan.b == 5
+      check gridItem.span[dcol].a == 2
+      check gridItem.span[dcol].b == 5
       check abs(itemBox.x.float - 40.0) < 1.0e-3
       check abs(itemBox.w.float - 920.0) < 1.0e-3
       check abs(itemBox.y.float - 0.0) < 1.0e-3
@@ -904,7 +892,7 @@ when isMainModule:
       var parent = GridNode()
 
       let contentSize = initPosition(30, 30)
-      var nodes = newSeq[GridNode](9)
+      var nodes = newSeq[GridNode](8)
 
       # item a
       var itema = newGridItem()
@@ -942,7 +930,7 @@ when isMainModule:
 
       # ==== item b's ====
       for i in 2 ..< nodes.len():
-        echo "auto child:cols: ", nodes[i].id, " :: ", nodes[i].gridItem.cspan.repr, " x ", nodes[i].gridItem.rspan.repr
+        echo "auto child:cols: ", nodes[i].id, " :: ", nodes[i].gridItem.span[dcol].repr, " x ", nodes[i].gridItem.span[drow].repr
         echo "auto child:cols: ", nodes[i].gridItem.repr
         echo "auto child:box: ", nodes[i].id, " => ", nodes[i].box
 
@@ -956,14 +944,13 @@ when isMainModule:
 
       check abs(nodes[5].box.x.float - 60.0) < 1.0e-3
       check abs(nodes[6].box.x.float - 120.0) < 1.0e-3
-      check abs(nodes[7].box.x.float - 180.0) < 1.0e-3
 
       check abs(nodes[5].box.y.float - 33.0) < 1.0e-3
       check abs(nodes[6].box.y.float - 33.0) < 1.0e-3
       check abs(nodes[7].box.y.float - 33.0) < 1.0e-3
 
-      check abs(nodes[8].box.x.float - 0.0) < 1.0e-3
-      check abs(nodes[8].box.y.float - 0.0) < 1.0e-3
+      # check abs(nodes[8].box.x.float - 0.0) < 1.0e-3
+      # check abs(nodes[8].box.y.float - 0.0) < 1.0e-3
 
       for i in 2 ..< nodes.len() - 1:
         check abs(nodes[i].box.w.float - 60.0) < 1.0e-3
