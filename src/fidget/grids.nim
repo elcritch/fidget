@@ -462,8 +462,8 @@ proc computeAutoFlow[N](
     node: N,
     allNodes: seq[N],
 ) =
-  template mjSpan(x: untyped): untyped = x.gridItem.span[dcol]
-  template mnSpan(x: untyped): untyped = x.gridItem.span[drow]
+  let mx = dcol
+  let my = drow
   template mjLines(x: untyped): untyped = x.columns
   template mnLines(x: untyped): untyped = x.rows
 
@@ -479,7 +479,7 @@ proc computeAutoFlow[N](
       child.gridItem = GridItem()
     if fixedCount(child.gridItem) == 4:
       let item = child.gridItem
-      for j in child.mjSpan:
+      for j in child.gridItem.span[mx]:
         fixedCache[j].incl item
     else:
       autos.add child
@@ -514,8 +514,10 @@ proc computeAutoFlow[N](
           echo "  .. incr index of major cache: ", fixedCache[cursor[0]].len(), " @ ", cursor.repr
         while not (cursor in fixedCache[cursor[0]]):
           echo "  ++ set cursor[0]: ", cursor.repr, " -> ", autos[i].id, "[", i, "]", " :: ", fixedCache[cursor[0]].len
-          mjSpan(autos[i]) = cursor[0] .. cursor[0] + 1
-          mnSpan(autos[i]) = cursor[1] .. cursor[1] + 1
+          autos[i].gridItem.span[mx] = cursor[0] .. cursor[0] + 1
+          autos[i].gridItem.span[my] = cursor[1] .. cursor[1] + 1
+          # mjSpan(autos[i]) = cursor[0] .. cursor[0] + 1
+          # mnSpan(autos[i]) = cursor[1] .. cursor[1] + 1
           i.inc
           if i >= autos.len():
             break autoflow
