@@ -32,7 +32,6 @@ if defined(emscripten):
   # switch("--shell-file src/shell_minimal.html")
 
 elif defined(macosx):
-  --d:pixieNoSimd
   --d:kqueueUserEvent
   --threads:on
 

@@ -528,7 +528,7 @@ proc computeGridLayout*[N](
   ## 
   
   gridTemplate.computeLayout(node.box)
-  echo "gridTemplate: ", gridTemplate.repr
+  # echo "gridTemplate: ", gridTemplate.repr
 
   for child in children:
     if child.gridItem == nil:
