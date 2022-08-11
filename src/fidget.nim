@@ -1075,7 +1075,7 @@ proc gridTemplateDebugLines*(draw: bool, color: Color = blackColor) =
     # draw debug lines
     if not current.gridTemplate.isNil:
       computeLayout(nil, current)
-      # echo "grid template post: ", repr current.gridTemplate
+      echo "grid template post: ", repr current.gridTemplate
       let cg = current.gridTemplate.columnGap
       let wd = max(0.1'em, cg)
       let w = current.gridTemplate.columns[^1].start

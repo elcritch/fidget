@@ -22,11 +22,9 @@ proc drawMain() =
       fill "#FFFFFF"
       cornerRadius 0.5'em
       clipContent true
-      gridAutoColumns 60.mkFixed()
-      gridAutoRows 30.mkFixed()
       
       # Setup CSS Grid Template
-      gridTemplateColumns 60'ui 60'ui
+      gridTemplateColumns 60'ui 60'ui 60'ui 60'ui 60'ui
       gridTemplateRows 90'ui 90'ui
       justifyContent gcCenter
 

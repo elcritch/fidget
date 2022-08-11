@@ -643,7 +643,7 @@ proc computeLayout*(parent, node: Node) =
     for n in node.nodes:
       if n.layoutAlign != laIgnore:
         gridChildren.add(n)
-    node.gridTemplate.computeGridLayout(node, node.nodes)
+    node.gridTemplate.computeGridLayout(node, gridChildren)
 
     # node.gridTemplate.computeLayout(node.box)
     # # compute grid item's position (this item can also be a grid)
