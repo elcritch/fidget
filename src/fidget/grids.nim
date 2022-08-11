@@ -72,8 +72,10 @@ type
     isSpan*: bool
     isName*: bool
   
+  GridSpan* = array[GridDir, Slice[int16]]
+  
   GridItem* = ref object
-    span*: array[GridDir, Slice[int16]]
+    span*: GridSpan
     columnStart*: GridIndex
     columnEnd*: GridIndex
     rowStart*: GridIndex
@@ -453,8 +455,8 @@ type
     gridItem: GridItem
 
 proc `in`[N](cur: (LinePos, LinePos), col: HashSet[N]): bool =
-  for item in col:
-    if cur[0] in item.span[dcol] and cur[1] in item.span[drow]:
+  for span in col:
+    if cur[0] in span[dcol] and cur[1] in span[drow]:
       return true
 
 proc computeAutoFlow[N](
@@ -469,16 +471,16 @@ proc computeAutoFlow[N](
 
   # setup caches
   var autos = newSeqOfCap[N](allNodes.len())
-  var fixedCache = newTable[LinePos, HashSet[GridItem]]()
+  var fixedCache = newTable[LinePos, HashSet[GridSpan]]()
   for i in 1..gridTemplate.mjLines.len():
-    fixedCache[i.LinePos] = initHashSet[GridItem]()
+    fixedCache[i.LinePos] = initHashSet[GridSpan]()
 
   # populate caches
   for child in allNodes:
     if child.gridItem == nil:
       child.gridItem = GridItem()
     if fixedCount(child.gridItem) == 4:
-      let item = child.gridItem
+      let item = child.gridItem.span
       for j in child.gridItem.span[mx]:
         fixedCache[j].incl item
     else:
@@ -516,19 +518,10 @@ proc computeAutoFlow[N](
           echo "  ++ set cursor[0]: ", cursor.repr, " -> ", autos[i].id, "[", i, "]", " :: ", fixedCache[cursor[0]].len
           autos[i].gridItem.span[mx] = cursor[0] .. cursor[0] + 1
           autos[i].gridItem.span[my] = cursor[1] .. cursor[1] + 1
-          # mjSpan(autos[i]) = cursor[0] .. cursor[0] + 1
-          # mnSpan(autos[i]) = cursor[1] .. cursor[1] + 1
           i.inc
           if i >= autos.len():
             break autoflow
           incrCursor(1, childBlock, autoFlow)
-  # # set rest to -1
-  # if i >= children.len():
-  #   return
-  # for j in i ..< children.len():
-  #   if fixedCount(children[i].gridItem) == 0:
-  #     children[j].gridItem.span[dcol] = -1'i16 .. -1'i16
-  #     children[j].gridItem.span[drow] = -1'i16 .. -1'i16
 
 proc computeGridLayout*[N](
     gridTemplate: GridTemplate,
