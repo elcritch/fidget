@@ -10,8 +10,8 @@ import print
 
 type
   GridDir = enum
-    drow
     dcol
+    drow
 
   GridConstraint* = enum
     gcStretch
@@ -480,42 +480,45 @@ proc computeAutoFlow[N](
     if child.gridItem == nil:
       child.gridItem = GridItem()
     if fixedCount(child.gridItem) == 4:
-      let item = child.gridItem.span
+      var span = child.gridItem.span
+      span[mx].b.dec
       for j in child.gridItem.span[mx]:
-        fixedCache[j].incl item
+        fixedCache[j].incl span
     else:
       autos.add child
 
-  # sort majors by main index
+  # for i in 1..gridTemplate.mjLines.len():
+  #   echo "fixedCache: ", i, " => ", fixedCache[i.LinePos]
+
+  # setup cursor for current grid position
   var cursor = (1.LinePos, 1.LinePos)
   var i = 0
 
   echo "children: auto flow: ",
         repr (gridTemplate.columns.len(), gridTemplate.rows.len(), )
-  template nextMinor(blk, outer: untyped) =
-    cursor[0] = 1
-    cursor[1].inc
-    echo "  .. new minor -- incr majors idx: ", fixedCache[cursor[0]].len(), " => ", cursor.repr
-    if cursor[1] >= gridTemplate.mnLines.len():
-      echo "  .. new minor -- breaking; minor's overflow"
-      break outer
-    break blk
+
   template incrCursor(amt, blk, outer: untyped) =
-    echo "  ++ inc'ing: cursor: ", autos[i].id, "[", i, "]", " => idx: ", cursor.repr
+    ## increment major index
+    # echo "  ++ inc'ing: cursor: ", autos[i].id, "[", i, "]", " => idx: ", cursor.repr
     cursor[0].inc
-    if cursor[0] > gridTemplate.mjLines.len():
-      nextMinor(blk, outer)
+    ## increment minor when at end of major
+    if cursor[0] >= gridTemplate.mjLines.len():
+      cursor = (1.LinePos, cursor[1] + 1)
+      # echo "  .. new minor -- incr majors idx: ", fixedCache[cursor[0]].len(), " => ", cursor.repr
+      if cursor[1] >= gridTemplate.mnLines.len():
+        # echo "  .. new minor -- breaking; minor's overflow"
+        break outer
+      break blk
   block autoflow:
     while i < len(autos):
-      echo "child: auto flow: ", autos[i].id, " [", i, "]", " @ ", repr cursor
+      # echo "child: auto flow: ", autos[i].id, " [", i, "]", " @ ", repr cursor
       block childBlock:
         ## increment cursor and index until one breaks the mold
         while cursor in fixedCache[cursor[0]]:
-          # incrCursor(1 + (fixedCache[cursor[0]][0].b - cursor[0] - 1), childBlock, autoFlow)
           incrCursor(1, childBlock, autoFlow)
-          echo "  .. incr index of major cache: ", fixedCache[cursor[0]].len(), " @ ", cursor.repr
+          # echo "  .. incr index of major cache: ", fixedCache[cursor[0]].len(), " @ ", cursor.repr
         while not (cursor in fixedCache[cursor[0]]):
-          echo "  ++ set cursor[0]: ", cursor.repr, " -> ", autos[i].id, "[", i, "]", " :: ", fixedCache[cursor[0]].len
+          # echo "  ++ set cursor[0]: ", cursor.repr, " -> ", autos[i].id, "[", i, "]", " :: ", fixedCache[cursor[0]].len
           autos[i].gridItem.span[mx] = cursor[0] .. cursor[0] + 1
           autos[i].gridItem.span[my] = cursor[1] .. cursor[1] + 1
           i.inc
