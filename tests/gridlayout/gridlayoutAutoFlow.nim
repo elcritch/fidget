@@ -28,13 +28,13 @@ proc drawMain() =
       gridTemplateRows 90'ui 90'ui
       justifyContent gcCenter
 
-      # rectangle "item a":
-      #   # Setup CSS Grid Template
-      #   cornerRadius 1'em
-      #   gridColumn 1 // 2
-      #   gridRow 1 // 3
-      #   # some color stuff
-      #   fill rgba(245, 129, 49, 123).to(Color)
+      rectangle "item a":
+        # Setup CSS Grid Template
+        cornerRadius 1'em
+        gridColumn 1 // 2
+        gridRow 1 // 3
+        # some color stuff
+        fill rgba(245, 129, 49, 123).to(Color)
 
       for i in 1..3:
         rectangle "item b" & $i:

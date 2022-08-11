@@ -88,6 +88,27 @@ proc hash*(a: LineName): Hash {.borrow.}
 proc `repr`*(a: LineName): string = lineName[a]
 proc `repr`*(a: HashSet[LineName]): string =
   result = "{" & a.toSeq().mapIt(repr it).join(", ") & "}"
+proc `repr`*(a: GridIndex): string =
+  result = "GridIdx{" 
+  result &= "" & $a.line.int
+  result &= ",s:" & $a.isSpan
+  result &= ",n:" & $a.isName
+  result &= "}"
+
+proc `repr`*(a: GridItem): string =
+  if a != nil:
+    result = "GridItem{" 
+    result &= " cspan: " & $a.cspan
+    result &= ", rspan: " & $a.rspan
+    result &= "\n\t\t"
+    result &= ", cS: " & repr a.columnStart
+    result &= "\n\t\t"
+    result &= ", cE: " & repr a.columnEnd
+    result &= "\n\t\t"
+    result &= ", rS: " & repr a.rowStart
+    result &= "\n\t\t"
+    result &= ", rE: " & repr a.rowEnd
+    result &= "}"
 
 proc toLineName*(name: int): LineName =
   result = LineName(name)
@@ -440,7 +461,7 @@ proc computeAutoFlow[N](
   template mnLines(x: untyped): untyped = x.rows
 
   var majors = newSeq[(Slice[LinePos], N)]()
-  majors.add((0.LinePos..0.LinePos, nil)) # default 'empty' item
+  # majors.add((0.LinePos..0.LinePos, nil)) # default 'empty' item
 
   for child in children:
     if child.gridItem == nil:
@@ -500,8 +521,8 @@ proc computeAutoFlow[N](
           incrIndex(childBlock, autoFlow)
         while cursor[0] notin majors[idx][0]:
           echo "  ++ set cursor[0]: ", cursor.repr, " -> ", children[i].id, "[", i, "]", " :: ", majors[idx][0].repr
-          mjSpan(children[i]) = cursor[0] .. cursor[0]
-          mnSpan(children[i]) = cursor[1] .. cursor[1]
+          mjSpan(children[i]) = cursor[0] .. cursor[0] + 1
+          mnSpan(children[i]) = cursor[1] .. cursor[1] + 1
           if not nextChild():
             break autoflow
           incrCursor(1, childBlock, autoFlow)
@@ -553,7 +574,6 @@ proc computeGridLayout*[N](
           0 notin child.gridItem.rspan:
         child.box = child.gridItem.computePosition(gridTemplate, child.box.wh)
         echo "child:id: ", child.id, " box: ", child.box.repr
-    
 
 when isMainModule:
   import unittest
@@ -869,6 +889,7 @@ when isMainModule:
       # grid-template-columns: [first] 40px [line2] 50px [line3] auto [col4-start] 50px [five] 40px [end];
       parseGridTemplateColumns gridTemplate, 60'ui 60'ui 60'ui 60'ui 60'ui
       parseGridTemplateRows gridTemplate, 33'ui 33'ui
+      gridTemplate.justifyItems = gcStretch
       # echo "grid template pre: ", repr gridTemplate
       check gridTemplate.columns.len() == 6
       check gridTemplate.rows.len() == 3
@@ -916,8 +937,8 @@ when isMainModule:
       # ==== item b's ====
       for i in 2 ..< nodes.len():
         echo "auto child:cols: ", nodes[i].id, " :: ", nodes[i].gridItem.cspan.repr, " x ", nodes[i].gridItem.rspan.repr
-        print "auto child:cols: ", nodes[i].gridItem
-        print "auto child:box: ", nodes[i].box
+        echo "auto child:cols: ", nodes[i].gridItem.repr
+        echo "auto child:box: ", nodes[i].id, " => ", nodes[i].box
 
       check abs(nodes[2].box.x.float - 60.0) < 1.0e-3
       check abs(nodes[3].box.x.float - 120.0) < 1.0e-3
@@ -938,7 +959,7 @@ when isMainModule:
       check abs(nodes[8].box.x.float - 0.0) < 1.0e-3
       check abs(nodes[8].box.y.float - 0.0) < 1.0e-3
 
-      for i in 2 ..< nodes.len():
+      for i in 2 ..< nodes.len() - 1:
         check abs(nodes[i].box.w.float - 60.0) < 1.0e-3
         check abs(nodes[i].box.h.float - 33.0) < 1.0e-3
 
