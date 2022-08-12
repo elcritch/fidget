@@ -25,23 +25,24 @@ proc drawMain() =
       
       # Setup CSS Grid Template
       gridTemplateColumns:
-        ["left"] 30'ui 
-        ["outer-left"] 2'fr 
-        ["middle-left"] 3'fr 
-        ["center-left"] 100'ui 
-        ["center-right"] 3'fr 
-        ["middle-right"] 2'fr 
-        ["outer-right"] 30'ui 
+        ["left"] 30'ui
+        ["outer-left"] 2'fr
+        ["middle-left"] 3'fr
+        ["center-left"] 100'ui
+        ["center-right"] 3'fr
+        ["middle-right"] 2'fr
+        ["outer-right"] 30'ui
         ["right"]
 
-      gridTemplateRows ["top"] 30'ui \
-                       ["outer-top"] 2'fr \
-                       ["middle-top"] 3'fr \
-                       ["center-top"] 100'ui \
-                       ["center-bottom"] 3'fr \
-                       ["middle-bottom"] 2'fr \
-                       ["outer-bottom"] 30'ui \
-                       ["bottom"]
+      gridTemplateRows:
+        ["top"] 30'ui
+        ["outer-top"] 2'fr
+        ["middle-top"] 3'fr
+        ["center-top"] 100'ui
+        ["center-bottom"] 3'fr
+        ["middle-bottom"] 2'fr
+        ["outer-bottom"] 30'ui
+        ["bottom"]
 
       rectangle "TR":
         gridColumn "right" // "outer-right"

@@ -198,7 +198,6 @@ proc parseTmplCmd*(tgt, arg: NimNode): (int, NimNode) {.compileTime.} =
         `tgt`[`idxLit`].aliases.incl toLineName(`n`)
   if isCmdStyle:
     for node in arg:
-      echo "NODE: ", node.lispRepr
       var item: NimNode = node
       ## handle `\` for line wrap
       case node.kind:
