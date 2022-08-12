@@ -254,7 +254,7 @@ proc parseTmplCmd*(tgt, arg: NimNode): (int, NimNode) {.compileTime.} =
   result[0] = idx + 1
 
 macro gridTemplateImpl*(gridTmpl, args: untyped, field: untyped) =
-  echo "gridTemplateImpl: ", args.treeRepr
+  # echo "gridTemplateImpl: ", args.treeRepr
   result = newStmtList()
   let tgt = quote do:
     `gridTmpl`.`field`
@@ -266,7 +266,7 @@ macro gridTemplateImpl*(gridTmpl, args: untyped, field: untyped) =
       if `gridTmpl`.`field`.len() < `colCount`:
         `gridTmpl`.`field`.setLen(`colCount`)
         `cols`
-  echo "result: ", result.repr
+  # echo "result: ", result.repr
 
 proc mkFrac*(size: int): TrackSize = TrackSize(kind: grFrac, frac: size)
 proc mkFixed*(coord: UICoord): TrackSize = TrackSize(kind: grFixed, coord: coord)
