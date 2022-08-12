@@ -505,6 +505,7 @@ proc computeAutoFlow[N](
   for child in allNodes:
     if child.gridItem == nil:
       child.gridItem = GridItem()
+  for child in allNodes:
     if fixedCount(child.gridItem) == 4:
       var span = child.gridItem.span
       span[mx].b.dec
@@ -556,13 +557,17 @@ proc computeGridLayout*[N](
   gridTemplate.computeLayout(node.box)
   # echo "gridTemplate: ", gridTemplate.repr
 
+  var hasAutos = false
   for child in children:
     if child.gridItem == nil:
       # ensure all grid children have a GridItem
       child.gridItem = GridItem()
+      hasAutos = true
     elif fixedCount(child.gridItem) == 4:
       # compute positions for fixed children
       child.box = child.gridItem.computePosition(gridTemplate, child.box.wh)
+    else:
+      hasAutos = true
     
   # compute positions for partially fixed children
   for child in children:
@@ -571,7 +576,8 @@ proc computeGridLayout*[N](
       assert false, "todo: implement me!"
 
   # compute positions for auto flow items
-  computeAutoFlow(gridTemplate, node, children)
+  if hasAutos:
+    computeAutoFlow(gridTemplate, node, children)
 
   for child in children:
     if fixedCount(child.gridItem) == 0:
