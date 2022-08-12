@@ -18,17 +18,11 @@ proc drawMain() =
       columnGap 1'em
       rowGap 1'em
     
-    # Setup CSS Grid Template
-    gridTemplateColumns:
-      ["left"] 30'ui
-      ["outer-left"] 2'fr
-      ["middle-left"] 3'fr
-      ["center-left"] 100'ui
-      ["center-right"] 3'fr
-      ["middle-right"] 2'fr
-      ["outer-right"] 30'ui
-      ["right"]
+    # Setup columns using inline syntax
+    gridTemplateColumns ["left"] 30'ui ["outer-left"] 2'fr ["middle-left"] 3'fr ["center-left"] 100'ui \
+                        ["center-right"] 3'fr ["middle-right"] 2'fr ["outer-right"] 30'ui ["right"]
 
+    # Setup rows using a command-style syntax (one per row)
     gridTemplateRows:
       ["top"] 30'ui
       ["outer-top"] 2'fr
