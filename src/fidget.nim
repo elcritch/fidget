@@ -972,6 +972,9 @@ template setGridItem(field: untyped, idx: GridIndex) =
 proc span*(idx: int | string): GridIndex =
   mkIndex(idx, isSpan = true)
 
+proc `//`*(a, b: string): (string, string) =
+  (a, b, )
+
 proc columnStart*(idx: int|string|GridIndex) =
   ## set CSS grid starting column 
   setGridItem(columnStart, mkIndex idx)
@@ -983,7 +986,11 @@ proc gridColumn*(idxStart: int|string|GridIndex, idxEnd: int|string|GridIndex) =
   setGridItem(columnStart, mkIndex idxStart)
   setGridItem(columnEnd, mkIndex idxEnd)
 proc gridColumn*(rat: Rational[int]) =
+  ## set CSS grid ending column 
   gridColumn(idxStart=rat.num, idxEnd=rat.den)
+proc gridColumn*(idx: (string, string, ) ) =
+  ## set CSS grid ending column 
+  gridColumn(idxStart=idx[0], idxEnd=idx[1])
 
 proc rowStart*(idx: int|string|GridIndex) =
   ## set CSS grid starting row 
@@ -997,6 +1004,9 @@ proc gridRow*(idxStart: int|string|GridIndex, idxEnd: int|string|GridIndex) =
   setGridItem(rowEnd, mkIndex idxEnd)
 proc gridRow*(rat: Rational[int]) =
   gridRow(idxStart=rat.num, idxEnd=rat.den)
+proc gridRow*(idx: (string, string,)) =
+  ## set CSS grid ending column
+  gridRow(idxStart=idx[0], idxEnd=idx[1])
 
 proc columnGap*(value: UICoord) =
   ## set CSS grid column gap

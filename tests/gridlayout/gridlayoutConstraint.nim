@@ -43,35 +43,35 @@ proc drawMain() =
                        ["bottom"]
 
       rectangle "TR":
-        gridColumn "right", "outer-right"
-        gridRow "top", "outer-top"
+        gridColumn "right" // "outer-right"
+        gridRow "top" // "outer-top"
         fill "#70BDCF"
       rectangle "TL":
-        gridColumn "left", "outer-left"
-        gridRow "top", "outer-top"
+        gridColumn "left" // "outer-left"
+        gridRow "top" // "outer-top"
         fill "#70BDCF"
       rectangle "BR":
-        gridColumn "right", "outer-right"
-        gridRow "bottom", "outer-bottom"
+        gridColumn "right" // "outer-right"
+        gridRow "bottom" // "outer-bottom"
         fill "#70BDCF"
       rectangle "BL":
-        gridColumn "left", "outer-left"
-        gridRow "bottom", "outer-bottom"
+        gridColumn "left" // "outer-left"
+        gridRow "bottom" // "outer-bottom"
         fill "#70BDCF"
 
       rectangle "Center":
         # box 150, 150, 100, 100
-        gridColumn "center-left", "center-right"
-        gridRow "center-top", "center-bottom"
+        gridColumn "center-left" // "center-right"
+        gridRow "center-top" // "center-bottom"
         fill "#FFFFFF", 0.50
       rectangle "Scale":
         # box 100, 100, 200, 200
-        gridColumn "middle-left", "middle-right"
-        gridRow "middle-top", "middle-bottom"
+        gridColumn "middle-left" // "middle-right"
+        gridRow "middle-top" // "middle-bottom"
         fill "#FFFFFF", 0.25
       rectangle "LRTB":
-        gridColumn "outer-left", "outer-right"
-        gridRow "outer-top", "outer-bottom"
+        gridColumn "outer-left" // "outer-right"
+        gridRow "outer-top" // "outer-bottom"
         fill "#70BDCF"
 
 
