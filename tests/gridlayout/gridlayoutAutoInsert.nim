@@ -3,9 +3,6 @@ import fidget/grids
 
 setTitle("Auto Layout Vertical")
 
-import print
-const hasGaps = false
-
 proc drawMain() =
   frame "autoLayout":
     font "IBM Plex Sans", 16, 400, 16, hLeft, vCenter
@@ -13,8 +10,6 @@ proc drawMain() =
     fill rgb(224, 239, 255).to(Color)
 
     frame "css grid area":
-      # if current.gridTemplate != nil:
-      #   echo "grid template: ", repr current.gridTemplate
       # setup frame for css grid
       box 0, 0, 80'pw, 80'ph
       centeredX 80'pw
