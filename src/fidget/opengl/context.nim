@@ -519,7 +519,7 @@ proc fillRect*(ctx: Context, rect: Rect, color: Color) =
     uvRect.xy + uvRect.wh / 2, color
   )
 
-proc roundedCorner(
+proc drawCorner(
     radius: int,
     quadrant: range[1..4],
     fill: Paint,
@@ -540,7 +540,7 @@ proc roundedCorner(
     trc = tr + vec2(0, r * s)
     blc = bl + vec2(r * s, 0)
 
-  template drawCorner(ctx: untyped, doStroke: bool) = 
+  template drawImpl(ctx: untyped, doStroke: bool) = 
     let path = newPath()
     if doStroke:
       path.moveTo(bl)
@@ -572,13 +572,13 @@ proc roundedCorner(
 
   let ctx1 = newContext(image)
   ctx1.fillStyle = fill
-  drawCorner(ctx1, false)
+  drawImpl(ctx1, false)
 
   if lineWidth > 0'f32:
     let ctx2 = newContext(image)
     ctx2.strokeStyle = stroke
     ctx2.lineWidth = lineWidth
-    drawCorner(ctx2, true)
+    drawImpl(ctx2, true)
 
   result = image
 
@@ -620,12 +620,19 @@ proc fillRoundedRect*(
     )
     ctx.putImage(hash, image)
 
-    # let fill = rgba(0, 0, 255, 255)
-    # let redFill = rgba(255, 0, 0, 255)
-    # for quad in 1..4:
-    #   let img = roundedCorner(100, quad, fill, redFill, 3'f32)
-    #   img.writeFile("examples/rounded_rectangle_corners_quad" & $quad & ".png")
+  var hashes: array[4, Hash]
+  for quadrant in 1..4:
+    let qhash = hash !& quadrant
+    hashes[quadrant-1] = qhash
+    if qhash notin ctx.entries:
+      let
+        fillStyle = rgba(255, 255, 255, 255)
+        img = drawCorner(rw, quadrant, fillStyle, fillStyle, 0'f32)
+      ctx.putImage(hashes[quadrant-1], img)
 
+  var uvRects: array[4, Rect]
+  for corner in 0..3:
+    uvRects[corner] = ctx.entries[hashes[corner]]
 
   let
     uvRect = ctx.entries[hash]
