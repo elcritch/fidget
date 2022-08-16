@@ -594,31 +594,17 @@ proc fillRoundedRect*(
     return
 
   let
-    w = ceil(rect.w).int
-    h = ceil(rect.h).int
-
-  # TODO: Make this a 9 patch
-  let
-    radius = min(radius, min(rect.w/2, rect.h/2))
-    rw = ceil(radius).int
-    rh = ceil(radius).int
+    w = rect.w.ceil()
+    h = rect.h.ceil()
+    radius = min(radius, min(rect.w/2, rect.h/2)).ceil()
+    rw = radius
+    rh = radius
 
   let hash = hash((
     6118,
     (rw*100).int, (rh*100).int,
     (radius*100).int
   ))
-
-  if hash notin ctx.entries:
-    let
-      image = newImage(2*rw, 2*rh)
-      c = newContext(image)
-    c.fillStyle = rgba(255, 255, 255, 255)
-    c.fillRoundedRect(
-      rect(0, 0, 2.0*rw.toFloat, 2.0*rh.toFloat),
-      radius
-    )
-    ctx.putImage(hash, image)
 
   var hashes: array[4, Hash]
   for quadrant in 1..4:
@@ -627,37 +613,47 @@ proc fillRoundedRect*(
     if qhash notin ctx.entries:
       let
         fillStyle = rgba(255, 255, 255, 255)
-        img = drawCorner(rw, quadrant, fillStyle, fillStyle, 0'f32)
+        img = drawCorner(radius.int, quadrant, fillStyle, fillStyle, 0'f32)
       ctx.putImage(hashes[quadrant-1], img)
 
-  var uvRects: array[4, Rect]
+  let
+    xy = rect.xy 
+    offsets = [vec2(w-rw, 0), vec2(0, 0), vec2(0, h-rh), vec2(w-rw, h-rh)]
+
   for corner in 0..3:
-    uvRects[corner] = ctx.entries[hashes[corner]]
-
-  let
-    uvRect = ctx.entries[hash]
-    wh = rect.wh * ctx.atlasSize.float32
-
-  let
-    ra = rect(rect.x + rw/2, rect.y, rect.w - rw/1, rect.h)
-    rb = rect(rect.x, rect.y + rh/2, rect.w, rect.h - rh/1)
-  fillRect(ctx, ra, color)
-  fillRect(ctx, rb, color)
-
-  for i, idx in [(0, 0), (0, 1), (1, 0), (1, 1)]:
     let
-      uidx = vec2(idx[0].float32, idx[1].float32)
+      uvRect = ctx.entries[hashes[corner]]
+      wh = rect.wh * ctx.atlasSize.float32
+      pt = xy + offsets[corner]
+    
+    ctx.drawUvRect(pt, pt + rw,
+                   uvRect.xy, uvRect.xy + uvRect.wh,
+                   color)
 
-      rwh = vec2(w.float32, h.float32)
-      rrwh = vec2(rw.float32, rh.float32)
+  # let
+  #   uvRect = ctx.entries[hash]
+  #   wh = rect.wh * ctx.atlasSize.float32
 
-    ctx.drawUvRect(
-      rect.xy + uidx * rwh - uidx * rrwh,
-      rect.xy + rrwh + uidx * rwh - uidx * rrwh,
-      uvRect.xy,
-      uvRect.xy + uvRect.wh,
-      color,
-    )
+  # let
+  #   ra = rect(rect.x + rw/2, rect.y, rect.w - rw/1, rect.h)
+  #   rb = rect(rect.x, rect.y + rh/2, rect.w, rect.h - rh/1)
+  # fillRect(ctx, ra, color)
+  # fillRect(ctx, rb, color)
+
+  # for i, idx in [(0, 0), (0, 1), (1, 0), (1, 1)]:
+  #   let
+  #     uidx = vec2(idx[0].float32, idx[1].float32)
+
+  #     rwh = vec2(w.float32, h.float32)
+  #     rrwh = vec2(rw.float32, rh.float32)
+
+  #   ctx.drawUvRect(
+  #     rect.xy + uidx * rwh - uidx * rrwh,
+  #     rect.xy + rrwh + uidx * rwh - uidx * rrwh,
+  #     uvRect.xy,
+  #     uvRect.xy + uvRect.wh,
+  #     color,
+  #   )
 
 proc strokeRoundedRect*(
   ctx: Context, rect: Rect, color: Color, weight: float32, radius: float32
