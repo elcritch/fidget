@@ -519,6 +519,69 @@ proc fillRect*(ctx: Context, rect: Rect, color: Color) =
     uvRect.xy + uvRect.wh / 2, color
   )
 
+proc roundedCorner(
+    radius: int,
+    quadrant: range[1..4],
+    fill: Paint,
+    stroke: Paint,
+    lineWidth: float32 = 0'f32,
+): Image =
+  const s = 4.0/3.0 * (sqrt(2.0) - 1.0)
+
+  let
+    x = radius.toFloat
+    y = radius.toFloat
+    r = radius.toFloat
+
+    tl = vec2(0, 0)
+    tr = vec2(x, 0)
+    bl = vec2(0, y)
+    br = vec2(x, y)
+    trc = tr + vec2(0, r * s)
+    blc = bl + vec2(r * s, 0)
+
+  template drawCorner(ctx: untyped, doStroke: bool) = 
+    let path = newPath()
+    if doStroke:
+      path.moveTo(bl)
+    else:
+      path.moveTo(tr)
+      path.lineTo(tl)
+      path.lineTo(bl)
+    path.bezierCurveTo(blc, trc, tr)
+
+    case quadrant:
+    of 1:
+      ctx.rotate(270 * PI / 180)
+      ctx.translate(-tr)
+    of 2:
+      ctx.rotate(180 * PI / 180)
+      ctx.translate(-br)
+    of 3:
+      ctx.rotate(90 * PI / 180)
+      ctx.translate(-bl)
+    of 4:
+      discard
+
+    if doStroke:
+      ctx.stroke(path)
+    else:
+      ctx.fill(path)
+
+  let image = newImage(radius, radius)
+
+  let ctx1 = newContext(image)
+  ctx1.fillStyle = fill
+  drawCorner(ctx1, false)
+
+  if lineWidth > 0'f32:
+    let ctx2 = newContext(image)
+    ctx2.strokeStyle = stroke
+    ctx2.lineWidth = lineWidth
+    drawCorner(ctx2, true)
+
+  result = image
+
 proc fillRoundedRect*(
     ctx: Context,
     rect: Rect,
@@ -556,6 +619,13 @@ proc fillRoundedRect*(
       radius
     )
     ctx.putImage(hash, image)
+
+    # let fill = rgba(0, 0, 255, 255)
+    # let redFill = rgba(255, 0, 0, 255)
+    # for quad in 1..4:
+    #   let img = roundedCorner(100, quad, fill, redFill, 3'f32)
+    #   img.writeFile("examples/rounded_rectangle_corners_quad" & $quad & ".png")
+
 
   let
     uvRect = ctx.entries[hash]
