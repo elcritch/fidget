@@ -19,7 +19,7 @@ proc drawMain() =
       centeredY 80'ph
       fill "#FFFFFF"
       cornerRadius 0.5'em
-      clipContent true
+      # clipContent true
       if hasGaps:
         columnGap 1'em
         rowGap 1'em
@@ -46,9 +46,9 @@ proc drawMain() =
         rowEnd 3
         # some color stuff
         fill rgba(245, 129, 49, 123).to(Color)
-        rectangle "area2":
-          box 0.5'em, 0.5'em, 100'pw - 0.5'em, 100'ph - 0.5'em 
-          fill rgba(245, 129, 49, 80).to(Color)
+        # rectangle "area2":
+        #   box 0.5'em, 0.5'em, 100'pw - 0.5'em, 100'ph - 0.5'em 
+        #   fill rgba(245, 129, 49, 80).to(Color)
 
       # draw debug lines
       gridTemplateDebugLines true

@@ -630,6 +630,19 @@ proc fillRoundedRect*(
                    uvRect.xy, uvRect.xy + uvRect.wh,
                    color)
 
+  let
+    rrw = w-rw
+    rrh = h-rh
+    wrw = w-2*rw
+    hrh = h-2*rh
+  fillRect(ctx, rect(rect.x+rw, rect.y+rh, wrw, hrh), color)
+
+  fillRect(ctx, rect(rect.x+rw, rect.y,     wrw, rh), color)
+  fillRect(ctx, rect(rect.x+rw, rect.y+rrh, wrw, rh), color)
+
+  fillRect(ctx, rect(rect.x, rect.y+rh,     rw, hrh), color)
+  fillRect(ctx, rect(rect.x+rrw, rect.y+rh, rw, hrh), color)
+
   # let
   #   uvRect = ctx.entries[hash]
   #   wh = rect.wh * ctx.atlasSize.float32
