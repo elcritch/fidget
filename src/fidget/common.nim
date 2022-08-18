@@ -3,6 +3,7 @@ import strutils, strformat
 import unicode
 import typetraits
 import variant, chroma, input
+import pixie
 
 import commonutils
 import grids
@@ -16,7 +17,7 @@ export grids
 when defined(js):
   import dom2, html/ajax
 else:
-  import typography, asyncfutures
+  import asyncfutures
   import patches/textboxes 
 
 const
@@ -135,7 +136,7 @@ type
     uid*: NodeUID
     idPath*: string
     kind*: NodeKind
-    text*: seq[Rune]
+    text*: TextBox
     code*: string
     nodes*: seq[Node]
     box*: Box
@@ -178,7 +179,7 @@ type
     listens*: ListenEvents
     zlevel*: ZLevel
     when not defined(js):
-      textLayout*: seq[GlyphPosition]
+      textLayout*: Arrangement
     else:
       element*: Element
       textElement*: Element
@@ -231,7 +232,7 @@ type
     focusNode*: Node
     onFocusNode*: Node
     onUnFocusNode*: Node
-    input*: seq[Rune]
+    # input*: seq[Rune]
     textCursor*: int ## At which character in the input string are we
     selectionCursor*: int ## To which character are we selecting to
   
@@ -361,20 +362,20 @@ proc imageStyle*(name: string, color: Color): ImageStyle =
 
 when not defined(js):
   var
-    currTextBox*: TextBox[Node]
+    currTextBox*: TextBox
     fonts*: Table[string, Font]
 
-  func hAlignMode*(align: HAlign): HAlignMode =
+  func hAlignMode*(align: HAlign): HorizontalAlignment =
     case align:
-      of hLeft: HAlignMode.Left
-      of hCenter: Center
-      of hRight: HAlignMode.Right
+      of hLeft: LeftAlign
+      of hCenter: CenterAlign
+      of hRight: RightAlign
 
-  func vAlignMode*(align: VAlign): VAlignMode =
+  func vAlignMode*(align: VAlign): VerticalAlignment =
     case align:
-      of vTop: Top
-      of vCenter: Middle
-      of vBottom: Bottom
+      of vTop: TopAlign
+      of vCenter: MiddleAlign
+      of vBottom: BottomAlign
 
 mouse = Mouse()
 mouse.pos = vec2(0, 0)
@@ -425,7 +426,7 @@ proc resetToDefault*(node: Node)=
   # node.uid = ""
   # node.idPath = ""
   # node.kind = nkRoot
-  node.text = "".toRunes()
+  # node.text = "".toRunes()
   node.code = ""
   # node.nodes = @[]
   node.box = initBox(0,0,0,0)

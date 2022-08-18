@@ -3,13 +3,14 @@ import algorithm, chroma, fidget/common, fidget/input, json, macros, strutils,
 import math, strformat
 import unicode
 import rationals
+
 import fidget/commonutils
+import fidget/patches/textboxes
 
 export chroma, common, input
 export commonutils
 export rationals
 
-import print
 
 when defined(js):
   import fidget/htmlbackend
@@ -667,9 +668,22 @@ proc textAutoResize*(textAutoResize: TextAutoResize) =
 
 proc characters*(text: string) =
   ## Sets text.
-  let rtext = text.toRunes()
-  if current.text != rtext:
-    current.text = rtext
+  # let rtext = text.toRunes()
+  if current.text == nil:
+    let font = common.fonts[current.textStyle.fontFamily]
+    current.text = newTextBox(
+          font,
+          current.screenBox.w.scaled,
+          current.screenBox.h.scaled,
+          font.size * adjustTopTextFactor,
+          hAlignMode(current.textStyle.textAlignHorizontal),
+          vAlignMode(current.textStyle.textAlignVertical),
+          current.multiline,
+          worldWrap = true,
+          pattern = nil
+          )
+  # if current.text != rtext:
+  #   current.text = rtext
 
 proc selectable*(v: bool) =
   ## Set text selectable flag.

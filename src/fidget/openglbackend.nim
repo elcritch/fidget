@@ -1,7 +1,7 @@
 import chroma, common, hashes, input, internal, opengl/base,
-    opengl/context, os, strformat, strutils, tables, times, typography,
+    opengl/context, os, strformat, strutils, tables, times,
     unicode,
-    typography/svgfont, pixie
+    pixie
 
 import patches/textboxes 
 import opengl/draw
@@ -26,18 +26,19 @@ computeTextLayout = proc(node: Node) =
     size: Vec2 = node.box.scaled.wh
   # if node.textStyle.autoResize == tsWidthAndHeight:
     # size.x = 0
-  node.textLayout = font.typeset(
-    node.text,
-    # pos = vec2(0, 0),
-    pos = vec2(0, font.lineHeight * common.adjustTopTextFactor),
-    # pos = vec2(-size.x/2, -size.y/2),
-    size = size,
-    hAlignMode(node.textStyle.textAlignHorizontal),
-    vAlignMode(node.textStyle.textAlignVertical),
-    clip = false,
-    boundsMin = boundsMin,
-    boundsMax = boundsMax
-  )
+  node.text.updateLayout()
+  # node.textLayout = font.typeset(
+  #   node.text,
+  #   # pos = vec2(0, 0),
+  #   pos = vec2(0, font.lineHeight * common.adjustTopTextFactor),
+  #   # pos = vec2(-size.x/2, -size.y/2),
+  #   size = size,
+  #   hAlignMode(node.textStyle.textAlignHorizontal),
+  #   vAlignMode(node.textStyle.textAlignVertical),
+  #   clip = false,
+  #   boundsMin = boundsMin,
+  #   boundsMax = boundsMax
+  # )
   let bMin = boundsMin.descaled
   let bMax = boundsMin.descaled
   node.textLayoutWidth = bMax.x - bMin.x
@@ -86,8 +87,8 @@ proc setupFidget(
     scrollBox.h = windowLogicalSize.y.descaled()
     root.box = scrollBox
 
-    if currTextBox != nil:
-      keyboard.input = currTextBox.text
+    # if currTextBox != nil:
+    #   keyboard.input = currTextBox.text
     computeEvents(root)
 
     drawMain()
@@ -234,14 +235,8 @@ proc setUrl*(url: string) =
 proc loadFontAbsolute*(name: string, pathOrUrl: string) =
   ## Loads fonts anywhere in the system.
   ## Not supported on js, emscripten, ios or android.
-  if pathOrUrl.endsWith(".svg"):
-    fonts[name] = readFontSvg(pathOrUrl)
-  elif pathOrUrl.endsWith(".ttf"):
-    fonts[name] = readFontTtf(pathOrUrl)
-  elif pathOrUrl.endsWith(".otf"):
-    fonts[name] = readFontOtf(pathOrUrl)
-  else:
-    raise newException(Exception, "Unsupported font format")
+  fonts[name] = readFont(pathOrUrl / name)
+
 
 proc loadFont*(name: string, pathOrUrl: string) =
   ## Loads the font from the dataDir.

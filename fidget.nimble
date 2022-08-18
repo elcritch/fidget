@@ -9,7 +9,6 @@ srcDir        = "src"
 # Dependencies
 
 requires "nim >= 1.4.0"
-requires "typography >= 0.7.13"
 requires "pixie >= 3.1.1"
 requires "print >= 0.1.0"
 requires "opengl >= 1.2.3"

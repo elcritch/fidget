@@ -9,13 +9,13 @@ export math, vmath, bumpy
 import macros, macroutils
 import typetraits
 
-import typography/font
+import pixie
 
 proc repr*(font: Font): string =
   if font.isNil:
     result = "Font(nil)"
   else:
-    result = fmt"Font({font.typeface.name=}, {font.size=}, {font.weight=})"
+    result = fmt"Font({font.typeface.name=}, {font.size=}, )"
 
 macro variants*(name, code: untyped) =
   ## convenience wrapper for Patty variant macros
