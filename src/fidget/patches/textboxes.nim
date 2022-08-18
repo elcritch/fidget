@@ -55,7 +55,6 @@ type TextBox* = ref object
   wordWrap*: bool   # Should the lines wrap or not.
   pattern*: Regex   # pattern for input chars
 
-  glyphs: Arrangement
   savedX: float
 
   boundsMin: Vec2
@@ -105,7 +104,7 @@ template runes*(textBox: TextBox): seq[Rune] =
 
 proc text*(textBox: TextBox): seq[Rune] =
   ## Converts internal runes to string.
-  textBox.runes
+  textBox.runes()
 
 proc `text=`*(textBox: TextBox, text: string) =
   ## Converts string to internal runes.
@@ -129,9 +128,9 @@ proc selection*(textBox: TextBox): HSlice[int, int] =
 
 proc updateLayout*(textBox: TextBox) =
   assert not textBox.font.isNil
-  if textBox.layout == nil:
-    textBox.multilineCheck()
-    textBox.glyphs = textBox.spans.typeset(
+  if textBox.layout == nil or textBox.stale:
+    # textBox.multilineCheck()
+    textBox.layout = textBox.spans.typeset(
       bounds = textBox.boundsMax,
       textBox.hAling,
       textBox.vAlign,

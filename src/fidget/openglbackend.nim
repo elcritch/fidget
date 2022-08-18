@@ -235,7 +235,7 @@ proc setUrl*(url: string) =
 proc loadFontAbsolute*(name: string, pathOrUrl: string) =
   ## Loads fonts anywhere in the system.
   ## Not supported on js, emscripten, ios or android.
-  fonts[name] = readFont(pathOrUrl / name)
+  fonts[name] = readFont(pathOrUrl)
 
 
 proc loadFont*(name: string, pathOrUrl: string) =
