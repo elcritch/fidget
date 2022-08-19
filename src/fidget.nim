@@ -671,6 +671,7 @@ proc characters*(text: string) =
   # let rtext = text.toRunes()
   if current.text == nil:
     let font = common.fonts[current.textStyle.fontFamily]
+    echo "setting new text box"
     current.text = newTextBox(
           font,
           current.screenBox.w.scaled,
@@ -683,7 +684,7 @@ proc characters*(text: string) =
           pattern = nil
           )
   # if current.text != rtext:
-  #   current.text = rtext
+  current.text.text = text
 
 proc selectable*(v: bool) =
   ## Set text selectable flag.

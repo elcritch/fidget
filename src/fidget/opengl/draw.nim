@@ -8,6 +8,8 @@ import ../input
 import ../common
 import ../commonutils
 
+import print
+
 type
   Context = context.Context
 
@@ -67,9 +69,12 @@ proc hashFontStroke(node: Node, font: Font, rune: Rune): Hash {.inline.} =
 
 proc getGlyphPath(font: Font, rune: Rune): Image = 
   let path = font.typeface.getGlyphPath(rune)
-  let bound = path.computeBounds()
-  result = newImage(bound.w.int, bound.h.int)
-  result.fillPath(path, rgba(255, 255, 255, 255))
+  # let bound = path.computeBounds()
+  let bound = vec2(font.size, font.size)
+  result = newImage(bound.x.int, bound.y.int)
+  # result.fillPath(path, rgba(255, 255, 255, 255))
+  # result.fill(rgba(255, 255, 255, 255))
+  result.fillText(font, $rune)
 
 proc drawBoxes*(node: Node)
 
@@ -87,8 +92,11 @@ proc drawGlyph(node: Node, span, idx: int) =
   let rune = layout.runes[idx]
   let pos = layout.positions[idx]
   let font = layout.fonts[span]
+  font.lineHeight = node.textStyle.lineHeight.scaled
+  font.size = node.textStyle.fontSize.scaled
 
-  if font.typeface.hasGlyph(rune):
+  if not font.typeface.hasGlyph(rune):
+    echo "missing glyph: ", $rune 
     return
 
   if rune == Rune(32):
@@ -108,6 +116,7 @@ proc drawGlyph(node: Node, span, idx: int) =
     let
       glyphFill = font.getGlyphPath(rune)
 
+    echo "glyph: putting new hashFill: ", $rune, " ", $hashFill, " ", glyphFill.width, "x", glyphFill.height
     ctx.putImage(hashFill, glyphFill)
     glyphOffsets[hashFill] = glyphOffset
 
@@ -218,8 +227,6 @@ proc drawBoxes*(node: Node) =
                           color = node.stroke.color,
                           weight = node.stroke.weight,
                           radius = node.cornerRadius[0].scaled)
-
-import print
 
 proc draw*(node, parent: Node) =
   ## Draws the node.

@@ -50,7 +50,6 @@ type TextBox* = ref object
   mousePos*: Vec2
   hasChange*: bool
 
-  stale*: bool  # Single line only (good for input fields).
   multiline*: bool  # Single line only (good for input fields).
   wordWrap*: bool   # Should the lines wrap or not.
   pattern*: Regex   # pattern for input chars
@@ -61,7 +60,7 @@ type TextBox* = ref object
   boundsMax: Vec2
 
 proc clearLayout*(textBox: TextBox) =
-  textBox.stale = true
+  textBox.hasChange = true
 
 proc clamp(v, a, b: int): int =
   max(a, min(b, v))
@@ -128,7 +127,7 @@ proc selection*(textBox: TextBox): HSlice[int, int] =
 
 proc updateLayout*(textBox: TextBox) =
   assert not textBox.font.isNil
-  if textBox.layout == nil or textBox.stale:
+  if textBox.layout == nil or textBox.hasChange:
     # textBox.multilineCheck()
     textBox.layout = textBox.spans.typeset(
       bounds = textBox.boundsMax,

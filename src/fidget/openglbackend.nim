@@ -235,7 +235,10 @@ proc setUrl*(url: string) =
 proc loadFontAbsolute*(name: string, pathOrUrl: string) =
   ## Loads fonts anywhere in the system.
   ## Not supported on js, emscripten, ios or android.
-  fonts[name] = readFont(pathOrUrl)
+  let ft = readFont(pathOrUrl)
+  ft.paint = newPaint(SolidPaint)
+  ft.paint.color = color(1, 1, 1, 1)
+  fonts[name] = ft
 
 
 proc loadFont*(name: string, pathOrUrl: string) =
