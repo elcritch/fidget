@@ -519,6 +519,69 @@ proc fillRect*(ctx: Context, rect: Rect, color: Color) =
     uvRect.xy + uvRect.wh / 2, color
   )
 
+proc drawCorner(
+    radius: int,
+    quadrant: range[1..4],
+    fill: Paint,
+    stroke: Paint,
+    lineWidth: float32 = 0'f32,
+): Image =
+  const s = 4.0/3.0 * (sqrt(2.0) - 1.0)
+
+  let
+    x = radius.toFloat
+    y = radius.toFloat
+    r = radius.toFloat
+
+    tl = vec2(0, 0)
+    tr = vec2(x, 0)
+    bl = vec2(0, y)
+    br = vec2(x, y)
+    trc = tr + vec2(0, r * s)
+    blc = bl + vec2(r * s, 0)
+
+  template drawImpl(ctx: untyped, doStroke: bool) = 
+    let path = newPath()
+    if doStroke:
+      path.moveTo(bl)
+    else:
+      path.moveTo(tr)
+      path.lineTo(tl)
+      path.lineTo(bl)
+    path.bezierCurveTo(blc, trc, tr)
+
+    case quadrant:
+    of 1:
+      ctx.rotate(270 * PI / 180)
+      ctx.translate(-tr)
+    of 2:
+      ctx.rotate(180 * PI / 180)
+      ctx.translate(-br)
+    of 3:
+      ctx.rotate(90 * PI / 180)
+      ctx.translate(-bl)
+    of 4:
+      discard
+
+    if doStroke:
+      ctx.stroke(path)
+    else:
+      ctx.fill(path)
+
+  let image = newImage(radius, radius)
+
+  let ctx1 = newContext(image)
+  ctx1.fillStyle = fill
+  drawImpl(ctx1, false)
+
+  if lineWidth > 0'f32:
+    let ctx2 = newContext(image)
+    ctx2.strokeStyle = stroke
+    ctx2.lineWidth = lineWidth
+    drawImpl(ctx2, true)
+
+  result = image
+
 proc fillRoundedRect*(
     ctx: Context,
     rect: Rect,
@@ -531,14 +594,11 @@ proc fillRoundedRect*(
     return
 
   let
-    w = ceil(rect.w).int
-    h = ceil(rect.h).int
-
-  # TODO: Make this a 9 patch
-  let
-    radius = min(radius, min(rect.w/2, rect.h/2))
-    rw = ceil(radius).int
-    rh = ceil(radius).int
+    w = rect.w.ceil()
+    h = rect.h.ceil()
+    radius = min(radius, min(rect.w/2, rect.h/2)).ceil()
+    rw = radius
+    rh = radius
 
   let hash = hash((
     6118,
@@ -546,41 +606,67 @@ proc fillRoundedRect*(
     (radius*100).int
   ))
 
-  if hash notin ctx.entries:
-    let
-      image = newImage(2*rw, 2*rh)
-      c = newContext(image)
-    c.fillStyle = rgba(255, 255, 255, 255)
-    c.fillRoundedRect(
-      rect(0, 0, 2.0*rw.toFloat, 2.0*rh.toFloat),
-      radius
-    )
-    ctx.putImage(hash, image)
+  var hashes: array[4, Hash]
+  for quadrant in 1..4:
+    let qhash = hash !& quadrant
+    hashes[quadrant-1] = qhash
+    if qhash notin ctx.entries:
+      let
+        fillStyle = rgba(255, 255, 255, 255)
+        img = drawCorner(radius.int, quadrant, fillStyle, fillStyle, 0'f32)
+      ctx.putImage(hashes[quadrant-1], img)
 
   let
-    uvRect = ctx.entries[hash]
-    wh = rect.wh * ctx.atlasSize.float32
+    xy = rect.xy 
+    offsets = [vec2(w-rw, 0), vec2(0, 0), vec2(0, h-rh), vec2(w-rw, h-rh)]
+
+  for corner in 0..3:
+    let
+      uvRect = ctx.entries[hashes[corner]]
+      wh = rect.wh * ctx.atlasSize.float32
+      pt = xy + offsets[corner]
+    
+    ctx.drawUvRect(pt, pt + rw,
+                   uvRect.xy, uvRect.xy + uvRect.wh,
+                   color)
 
   let
-    ra = rect(rect.x + rw/2, rect.y, rect.w - rw/1, rect.h)
-    rb = rect(rect.x, rect.y + rh/2, rect.w, rect.h - rh/1)
-  fillRect(ctx, ra, color)
-  fillRect(ctx, rb, color)
+    rrw = w-rw
+    rrh = h-rh
+    wrw = w-2*rw
+    hrh = h-2*rh
+  fillRect(ctx, rect(rect.x+rw, rect.y+rh, wrw, hrh), color)
 
-  for i, idx in [(0, 0), (0, 1), (1, 0), (1, 1)]:
-    let
-      uidx = vec2(idx[0].float32, idx[1].float32)
+  fillRect(ctx, rect(rect.x+rw, rect.y,     wrw, rh), color)
+  fillRect(ctx, rect(rect.x+rw, rect.y+rrh, wrw, rh), color)
 
-      rwh = vec2(w.float32, h.float32)
-      rrwh = vec2(rw.float32, rh.float32)
+  fillRect(ctx, rect(rect.x, rect.y+rh,     rw, hrh), color)
+  fillRect(ctx, rect(rect.x+rrw, rect.y+rh, rw, hrh), color)
 
-    ctx.drawUvRect(
-      rect.xy + uidx * rwh - uidx * rrwh,
-      rect.xy + rrwh + uidx * rwh - uidx * rrwh,
-      uvRect.xy,
-      uvRect.xy + uvRect.wh,
-      color,
-    )
+  # let
+  #   uvRect = ctx.entries[hash]
+  #   wh = rect.wh * ctx.atlasSize.float32
+
+  # let
+  #   ra = rect(rect.x + rw/2, rect.y, rect.w - rw/1, rect.h)
+  #   rb = rect(rect.x, rect.y + rh/2, rect.w, rect.h - rh/1)
+  # fillRect(ctx, ra, color)
+  # fillRect(ctx, rb, color)
+
+  # for i, idx in [(0, 0), (0, 1), (1, 0), (1, 1)]:
+  #   let
+  #     uidx = vec2(idx[0].float32, idx[1].float32)
+
+  #     rwh = vec2(w.float32, h.float32)
+  #     rrwh = vec2(rw.float32, rh.float32)
+
+  #   ctx.drawUvRect(
+  #     rect.xy + uidx * rwh - uidx * rrwh,
+  #     rect.xy + rrwh + uidx * rwh - uidx * rrwh,
+  #     uvRect.xy,
+  #     uvRect.xy + uvRect.wh,
+  #     color,
+  #   )
 
 proc strokeRoundedRect*(
   ctx: Context, rect: Rect, color: Color, weight: float32, radius: float32
