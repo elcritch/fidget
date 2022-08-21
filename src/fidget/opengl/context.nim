@@ -519,7 +519,7 @@ proc fillRect*(ctx: Context, rect: Rect, color: Color) =
     uvRect.xy + uvRect.wh / 2, color
   )
 
-proc drawCorner(
+proc generateCorner(
     radius: int,
     quadrant: range[1..4],
     lineWidth: float32 = 0'f32,
@@ -610,7 +610,7 @@ proc fillRoundedRect*(
     hashes[quadrant-1] = qhash
     if qhash notin ctx.entries:
       let
-        img = drawCorner(radius.int, quadrant, 0'f32)
+        img = generateCorner(radius.int, quadrant, 0'f32)
       ctx.putImage(hashes[quadrant-1], img)
 
   let
@@ -654,7 +654,6 @@ proc strokeRoundedRect*(
     rect.w.int,
     rect.h.int,
     (weight*100).int,
-    hash(color),
     (radius*100).int
   ))
 
