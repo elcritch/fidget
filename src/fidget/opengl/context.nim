@@ -522,13 +522,11 @@ proc fillRect*(ctx: Context, rect: Rect, color: Color) =
 proc drawCorner(
     radius: int,
     quadrant: range[1..4],
-    fill: Paint,
-    stroke: Paint,
     lineWidth: float32 = 0'f32,
 ): Image =
   const s = 4.0/3.0 * (sqrt(2.0) - 1.0)
-
   let
+    fillStyle = rgba(255, 255, 255, 255)
     x = radius.toFloat
     y = radius.toFloat
     r = radius.toFloat
@@ -570,13 +568,13 @@ proc drawCorner(
 
   let image = newImage(radius, radius)
 
-  let ctx1 = newContext(image)
-  ctx1.fillStyle = fill
-  drawImpl(ctx1, false)
-
-  if lineWidth > 0'f32:
+  if lineWidth == 0'f32:
+    let ctx1 = newContext(image)
+    ctx1.fillStyle = fillStyle
+    drawImpl(ctx1, false)
+  else:
     let ctx2 = newContext(image)
-    ctx2.strokeStyle = stroke
+    ctx2.strokeStyle = fillStyle
     ctx2.lineWidth = lineWidth
     drawImpl(ctx2, true)
 
@@ -612,8 +610,7 @@ proc fillRoundedRect*(
     hashes[quadrant-1] = qhash
     if qhash notin ctx.entries:
       let
-        fillStyle = rgba(255, 255, 255, 255)
-        img = drawCorner(radius.int, quadrant, fillStyle, fillStyle, 0'f32)
+        img = drawCorner(radius.int, quadrant, 0'f32)
       ctx.putImage(hashes[quadrant-1], img)
 
   let
@@ -642,31 +639,6 @@ proc fillRoundedRect*(
 
   fillRect(ctx, rect(rect.x, rect.y+rh,     rw, hrh), color)
   fillRect(ctx, rect(rect.x+rrw, rect.y+rh, rw, hrh), color)
-
-  # let
-  #   uvRect = ctx.entries[hash]
-  #   wh = rect.wh * ctx.atlasSize.float32
-
-  # let
-  #   ra = rect(rect.x + rw/2, rect.y, rect.w - rw/1, rect.h)
-  #   rb = rect(rect.x, rect.y + rh/2, rect.w, rect.h - rh/1)
-  # fillRect(ctx, ra, color)
-  # fillRect(ctx, rb, color)
-
-  # for i, idx in [(0, 0), (0, 1), (1, 0), (1, 1)]:
-  #   let
-  #     uidx = vec2(idx[0].float32, idx[1].float32)
-
-  #     rwh = vec2(w.float32, h.float32)
-  #     rrwh = vec2(rw.float32, rh.float32)
-
-  #   ctx.drawUvRect(
-  #     rect.xy + uidx * rwh - uidx * rrwh,
-  #     rect.xy + rrwh + uidx * rwh - uidx * rrwh,
-  #     uvRect.xy,
-  #     uvRect.xy + uvRect.wh,
-  #     color,
-  #   )
 
 proc strokeRoundedRect*(
   ctx: Context, rect: Rect, color: Color, weight: float32, radius: float32
