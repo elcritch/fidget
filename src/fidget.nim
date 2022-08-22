@@ -644,6 +644,10 @@ proc lineHeight*(lineHeight: float32) =
   ## Sets the font size.
   current.textStyle.lineHeight = lineHeight.UICoord
 
+proc lineHeight*(): float32 =
+  ## gets the font line height.
+  current.textStyle.lineHeight.float32
+
 proc textStyle*(style: TextStyle) =
   ## Sets the font size.
   current.textStyle = style
