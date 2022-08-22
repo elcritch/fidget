@@ -654,6 +654,8 @@ proc computeLayout*(parent, node: Node) =
     #   computeLayout(node, n)
     #   if not n.gridItem.isNil:
     #     n.box = n.gridItem.computePosition(node.gridTemplate, n.box.wh)
+    for n in node.nodes:
+      computeLayout(node, n)
     
     return
 
