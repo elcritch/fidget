@@ -43,10 +43,8 @@ proc focus*(keyboard: Keyboard, node: Node) =
     node.screenBox.w.scaled,
     node.screenBox.h.scaled,
     node,
-    # hAlignMode(node.textStyle.textAlignHorizontal),
-    # vAlignMode(node.textStyle.textAlignVertical),
-    HAlignMode.Left, # hAlignMode(current.textStyle.textAlignHorizontal),
-    VAlignMode.Top, # vAlignMode(current.textStyle.textAlignVertical),
+    hAlignMode(current.textStyle.textAlignHorizontal),
+    vAlignMode(current.textStyle.textAlignVertical),
     node.multiline,
     worldWrap = true,
   )
