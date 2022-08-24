@@ -64,7 +64,6 @@ proc newTextBox*[T](
   font: Font,
   width: float32,
   height: float32,
-  adjustTopTextFactor: float32,
   item: T,
   hAlign = Left,
   vAlign = Top,
@@ -79,7 +78,6 @@ proc newTextBox*[T](
   result = TextBox[T]()
   result.item = item
   result.font = font
-  result.adjustTopTextFactor = adjustTopTextFactor
   result.width = width
   result.height = height
   result.hAling = hAlign
