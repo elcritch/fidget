@@ -24,13 +24,11 @@ computeTextLayout = proc(node: Node) =
     boundsMin: Vec2
     boundsMax: Vec2
     size: Vec2 = node.box.scaled.wh
-  # if node.textStyle.autoResize == tsWidthAndHeight:
-    # size.x = 0
+  if node.textStyle.autoResize == tsWidthAndHeight:
+    size.x = 0
   node.textLayout = font.typeset(
     node.text,
-    # pos = vec2(0, 0),
-    pos = vec2(0, font.lineHeight * common.adjustTopTextFactor),
-    # pos = vec2(-size.x/2, -size.y/2),
+    pos = vec2(0, 0),
     size = size,
     hAlignMode(node.textStyle.textAlignHorizontal),
     vAlignMode(node.textStyle.textAlignVertical),

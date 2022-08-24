@@ -343,7 +343,7 @@ var
   scrollBarHighlight* = rgba(92, 143, 156, 230).color 
 
 proc defaultLineHeight*(fontSize: UICoord): UICoord =
-  result = fontSize * defaultlineHeightRatio + 2.0.UICoord
+  result = fontSize * defaultlineHeightRatio
 proc defaultLineHeight*(ts: TextStyle): UICoord =
   result = defaultLineHeight(ts.fontSize)
 
