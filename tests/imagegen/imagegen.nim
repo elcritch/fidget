@@ -1,4 +1,4 @@
-import chroma, fidget, flippy
+import chroma, fidget_dev, flippy
 
 # Generate an image - color palette.
 var f = newImage(600, 300, 4)

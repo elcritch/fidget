@@ -1,6 +1,6 @@
 ## A bunch of nice looking controls.
 
-import fidget
+import fidget_dev
 
 loadFont("IBM Plex Sans", "IBMPlexSans-Regular.ttf")
 loadFont("IBM Plex Sans Bold", "IBMPlexSans-Bold.ttf")

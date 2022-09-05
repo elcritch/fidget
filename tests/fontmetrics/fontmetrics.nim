@@ -1,5 +1,5 @@
 
-import fidget
+import fidget_dev
 
 loadFont("Jura", "Jura-Regular.ttf")
 loadFont("Lato", "Lato-Regular.ttf")

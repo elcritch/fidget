@@ -1,7 +1,7 @@
 ## An example of how to implement a todo program based on:
 ## https://medium.com/javascript-in-plain-english/i-created-the-exact-same-app-in-react-and-vue-part-2-angular-39b1aa289878
 
-import fidget
+import fidget_dev
 
 loadFont("IBM Plex Sans Regular", "IBMPlexSans-Regular.ttf")
 loadFont("IBM Plex Sans Bold", "IBMPlexSans-Bold.ttf")

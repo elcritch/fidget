@@ -1,4 +1,4 @@
-import fidget, math, random
+import fidget_dev, math, random
 
 var bars = newSeq[int](10)
 for i, bar in bars:

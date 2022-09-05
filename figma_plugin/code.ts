@@ -185,7 +185,7 @@ if (text.trim().length == 0) {
   text = `# Please select a node to generate fidget code for the node.
 
 # Here is want an empty fidget app looks like:
-import fidget
+import fidget_dev
 
 proc drawMain() =
   # Fidget code goes here.

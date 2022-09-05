@@ -1,9 +1,9 @@
-import algorithm, chroma, fidget/common, fidget/input, json, macros, strutils,
+import algorithm, chroma, fidget_dev/common, fidget_dev/input, json, macros, strutils,
     sequtils, tables, bumpy
 import math, strformat
 import unicode
 import rationals
-import fidget/commonutils
+import fidget_dev/commonutils
 
 export chroma, common, input
 export commonutils
@@ -12,13 +12,13 @@ export rationals
 import print
 
 when defined(js):
-  import fidget/htmlbackend
+  import fidget_dev/htmlbackend
   export htmlbackend
 elif defined(nullbackend):
-  import fidget/nullbackend
+  import fidget_dev/nullbackend
   export nullbackend
 else:
-  import fidget/openglbackend
+  import fidget_dev/openglbackend
   export openglbackend
 
 proc preNode(kind: NodeKind, id: string) =

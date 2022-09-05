@@ -1,4 +1,4 @@
-import fidget
+import fidget_dev
 
 type
   Area = ref object

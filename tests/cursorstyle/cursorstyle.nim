@@ -1,6 +1,6 @@
 ## Test the mouse cursor changing when you hover over an element.
 
-import fidget
+import fidget_dev
 
 proc drawMain() =
   rectangle "example":

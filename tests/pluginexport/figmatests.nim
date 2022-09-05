@@ -1,4 +1,4 @@
-import fidget
+import fidget_dev
 
 proc frameTest1Square_root*() =
   frame "test1Square_root": # 1:2

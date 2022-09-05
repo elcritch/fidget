@@ -1,7 +1,7 @@
 ## A bunch of nice looking controls.
 ## Based on free Figma template:
 ##   https://www.figmafreebies.com/download/grada-free-figma-ui-kit/
-import fidget
+import fidget_dev
 
 
 

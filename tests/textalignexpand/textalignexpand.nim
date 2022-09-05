@@ -1,4 +1,4 @@
-import fidget
+import fidget_dev
 
 loadFont("Ubuntu", "Ubuntu.ttf")
 setTitle("Text Align Expand")

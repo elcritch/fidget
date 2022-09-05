@@ -35,7 +35,7 @@ See code here: [examples/demo/demo.nim](examples/demo/demo.nim)
 ## Minimal Sample:
 
 ```nim
-import fidget, vmath
+import fidget_dev, vmath
 
 proc drawMain() =
   frame "main":

@@ -1,6 +1,6 @@
 ## Shows code pad with monospace font.
 
-import fidget
+import fidget_dev
 
 loadFont("Inconsolata", "Inconsolata-Regular.ttf")
 

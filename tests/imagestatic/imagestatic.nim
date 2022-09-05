@@ -1,4 +1,4 @@
-import chroma, fidget, fidget/opengl/base, fidget/opengl/context, flippy,
+import chroma, fidget, fidget/opengl/base, fidget_dev/opengl/context, flippy,
     hashes, random, tables
 
 # Generate an image.

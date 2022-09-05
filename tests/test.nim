@@ -1,1 +1,1 @@
-import fidget
+import fidget_dev

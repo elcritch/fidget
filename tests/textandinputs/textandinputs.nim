@@ -1,4 +1,4 @@
-import fidget
+import fidget_dev
 
 loadFont("IBM Plex Sans Regular", "IBMPlexSans-Regular.ttf")
 

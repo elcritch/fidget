@@ -1,4 +1,4 @@
-import fidget, figmatests
+import fidget_dev, figmatests
 
 var screen = 0
 

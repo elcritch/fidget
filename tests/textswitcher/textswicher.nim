@@ -1,4 +1,4 @@
-import fidget
+import fidget_dev
 
 var showText = true
 var inputVar = ""

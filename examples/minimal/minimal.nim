@@ -1,6 +1,6 @@
 ## This minimal example shows 5 blue squares.
 
-import fidget
+import fidget_dev
 
 proc drawMain() =
   frame "main":

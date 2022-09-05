@@ -1,4 +1,4 @@
-import fidget, random
+import fidget_dev, random
 
 setTitle("Auto Layout Horizontal")
 

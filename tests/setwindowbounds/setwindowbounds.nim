@@ -2,7 +2,7 @@
 ## or larger by the user.
 ## Note: setWindowBounds does not work in JS mode.
 
-import fidget, vmath
+import fidget_dev, vmath
 
 proc loadMain() =
   setWindowBounds(vec2(200, 200), vec2(300, 300))
