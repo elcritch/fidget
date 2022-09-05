@@ -240,6 +240,7 @@ type
     evClickOut
     evHover
     evHoverOut
+    evOverlapped
     evPress
     evRelease
 
@@ -558,7 +559,7 @@ proc mouseOverlapsNode*(node: Node): bool =
     (if inPopup: mouse.pos.descaled.overlaps(popupBox) else: true)
 
 const
-  MouseOnOutEvents = {evClickOut, evHoverOut}
+  MouseOnOutEvents = {evClickOut, evHoverOut, evOverlapped}
 
 proc max[T](a, b: EventsCapture[T]): EventsCapture[T] =
   if b.zlvl >= a.zlvl and b.flags != {}: b else: a
@@ -576,9 +577,10 @@ proc checkMouseEvents*(node: Node): MouseEventFlags =
     checkEvent(evPress, mouse.down())
     checkEvent(evRelease, mouse.release())
     checkEvent(evHover, true)
+    checkEvent(evOverlapped, true)
   else:
-    checkEvent(evHoverOut, true)
     checkEvent(evClickOut, mouse.click())
+    checkEvent(evHoverOut, true)
 
 proc checkGestureEvents*(node: Node): GestureEventFlags =
   ## Compute gesture events

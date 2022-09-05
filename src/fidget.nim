@@ -242,6 +242,12 @@ template onHover*(inner: untyped) =
   if evHover in current.events.mouse:
     inner
 
+template onOverlapped*(inner: untyped) =
+  ## Code in the block will run when this box is hovered.
+  current.listens.mouse.incl(evOverlapped)
+  if evOverlapped in current.events.mouse:
+    inner
+
 template onHoverOut*(inner: untyped) =
   ## Code in the block will run when hovering outside the box.
   current.listens.mouse.incl(evHoverOut)

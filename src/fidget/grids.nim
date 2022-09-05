@@ -35,7 +35,7 @@ type
   TrackSize* = object
     case kind*: GridUnits
     of grFrac:
-      frac*: int
+      frac*: float
     of grAuto:
       discard
     of grPerc:
@@ -177,19 +177,26 @@ proc parseTmplCmd*(tgt, arg: NimNode): (int, NimNode) {.compileTime.} =
     idx.inc
     idxLit = newIntLitNode(idx)
   proc handleDotExpr(result, item, tgt: NimNode) =
-    let n = item[0].strVal.parseInt()
-    let kd = item[1].strVal
-    if kd == "'fr":
-      result.add quote do:
-        `tgt`[`idxLit`].track = mkFrac(`n`)
-    elif kd == "'perc":
-      result.add quote do:
-        `tgt`[`idxLit`].track = mkPerc(`n`)
-    elif kd == "'ui":
-      result.add quote do:
-        `tgt`[`idxLit`].track = mkFixed(`n`)
+    # echo item.lispRepr
+    if item[0].kind == nnkRStrLit:
+      let n = item[0].strVal.parseInt()
+      let kd = item[1].strVal
+      if kd == "'fr":
+        result.add quote do:
+          `tgt`[`idxLit`].track = mkFrac(`n`)
+      elif kd == "'perc":
+        result.add quote do:
+          `tgt`[`idxLit`].track = mkPerc(`n`)
+      elif kd == "'ui":
+        result.add quote do:
+          `tgt`[`idxLit`].track = mkFixed(`n`)
+      else:
+        # error("error: unknown argument ", item)
+        result.add quote do:
+          `tgt`[`idxLit`].track = mkFixed(`item`)
     else:
-      error("error: unknown argument ", item)
+      result.add quote do:
+        `tgt`[`idxLit`].track = mkFixed(`item`)
   proc prepareNames(item: NimNode): NimNode =
     result = newStmtList()
     for x in item:
@@ -253,7 +260,7 @@ proc parseTmplCmd*(tgt, arg: NimNode): (int, NimNode) {.compileTime.} =
   result[0] = idx + 1
 
 macro gridTemplateImpl*(gridTmpl, args: untyped, field: untyped) =
-  # echo "gridTemplateImpl: ", args.treeRepr
+  echo "gridTemplateImpl: ", args.treeRepr
   result = newStmtList()
   let tgt = quote do:
     `gridTmpl`.`field`
@@ -267,11 +274,16 @@ macro gridTemplateImpl*(gridTmpl, args: untyped, field: untyped) =
         `cols`
   # echo "result: ", result.repr
 
-proc mkFrac*(size: int): TrackSize = TrackSize(kind: grFrac, frac: size)
+proc mkFrac*(size: float): TrackSize = TrackSize(kind: grFrac, frac: size)
 proc mkFixed*(coord: UICoord): TrackSize = TrackSize(kind: grFixed, coord: coord)
 proc mkPerc*(perc: float): TrackSize = TrackSize(kind: grPerc, perc: perc)
 proc mkAuto*(): TrackSize = TrackSize(kind: grAuto)
 proc mkEndTrack*(): TrackSize = TrackSize(kind: grEnd)
+
+proc `'fr`*(n: string): TrackSize =
+  ## numeric literal UI Coordinate unit
+  let f = parseFloat(n)
+  result = TrackSize(kind: grFrac, frac: f)
 
 proc initGridLine*(
     track = mkFrac(1),
@@ -279,9 +291,8 @@ proc initGridLine*(
 ): GridLine =
   GridLine(track: track, aliases: toHashSet(aliases))
 
-proc `'fr`*(n: string): GridLine =
-  ## numeric literal percent of parent height
-  result = initGridLine(track=mkFrac(parseInt(n)))
+proc gl*(track: TrackSize): GridLine =
+  GridLine(track: track)
 
 let defaultLine = GridLine(track: mkFrac(1))
 
@@ -601,8 +612,8 @@ when isMainModule:
 
     test "basic grid compute":
       var gt = newGridTemplate(
-        columns = @[1'fr, 1'fr],
-        rows = @[1'fr, 1'fr],
+        columns = @[initGridLine 1'fr, initGridLine 1'fr],
+        rows = @[gl 1'fr, gl 1'fr],
       )
       gt.computeLayout(initBox(0, 0, 100, 100))
       # print "grid template: ", gt
@@ -614,8 +625,8 @@ when isMainModule:
 
     test "3x3 grid compute with frac's":
       var gt = newGridTemplate(
-        columns = @[1'fr, 1'fr, 1'fr],
-        rows = @[1'fr, 1'fr, 1'fr],
+        columns = @[gl 1'fr, gl 1'fr, gl 1'fr],
+        rows = @[gl 1'fr, gl 1'fr, gl 1'fr],
       )
       gt.computeLayout(initBox(0, 0, 100, 100))
       # print "grid template: ", gt
@@ -629,7 +640,7 @@ when isMainModule:
 
     test "4x1 grid test":
       var gt = newGridTemplate(
-        columns = @[1'fr, initGridLine(5.mkFixed), 1'fr, 1'fr],
+        columns = @[1'fr.gl, initGridLine(5.mkFixed), 1'fr.gl, 1'fr.gl],
       )
       gt.computeLayout(initBox(0, 0, 100, 100))
       # print "grid template: ", gt

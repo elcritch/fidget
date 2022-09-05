@@ -39,7 +39,7 @@ proc drawMain() =
       
       for i in 1..3:
         for j in 1..3:
-          rectangle "css grid item":
+          rectangle &"css grid item {i}{j}":
             # Setup CSS Grid Template
             size 5'em, 2'em
             cornerRadius 1'em
@@ -47,9 +47,13 @@ proc drawMain() =
             gridRow j, j+1
             # some color stuff
             fill rgba(245, 129, 49, 123).to(Color)
-            rectangle "area2":
+            onOverlapped:
+              fill rgba(245, 129, 49, 40).to(Color)
+            rectangle &"subarea2 {i}{j}":
               box 0.5'em, 0.5'em, 100'pw - 0.5'em, 100'ph - 0.5'em 
               fill rgba(245, 129, 49, 80).to(Color)
+              onHover:
+                fill rgba(245, 129, 49, 40).to(Color)
 
       # draw debug lines
       gridTemplateDebugLines true
