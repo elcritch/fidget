@@ -139,7 +139,8 @@ type
     code*: string
     nodes*: seq[Node]
     box*: Box
-    orgBox: Box
+    orgBox*: Box
+    minContent*: Box
     screenBox*: Box
     offset*: Position
     totalOffset*: Position
@@ -398,7 +399,7 @@ proc setNodePath*(node: Node) =
 
 proc dumpTree*(node: Node, indent = "") =
 
-  echo indent, "`", node.id, "`", " sb: ", $node.screenBox, " org: ", $node.orgBox
+  echo indent, "`", node.id, "`", " sb: ", $node.screenBox
   for n in node.nodes:
     dumpTree(n, "  " & indent)
 
