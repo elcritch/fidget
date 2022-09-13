@@ -199,7 +199,7 @@ type
     data*: TableRef[string, seq[Variant]]
 
   Events* = object
-    data*: TableRef[TypeId, seq[Variant]]
+    data*: TableRef[TypeId, Variant]
   
   KeyState* = enum
     Empty
@@ -820,10 +820,10 @@ proc getAs*[T](events: GeneralEvents, key: string, default: typedesc[T]): T =
 
 proc add*[T](events: var Events, evt: T) =
   if events.data.isNil:
-    events.data = newTable[TypeId, seq[Variant]]()
+    events.data = newTable[TypeId, Variant]()
   let key = T.getTypeId()
-  let val = newVariant(evt)
-  events.data.mgetOrPut(key, newSeq[Variant]()).add(val)
+  let res = events.data.mgetOrPut(key, newVariant(new seq[T])).get(ref seq[T])
+  res[].add(evt)
 
 proc `[]`*[T](events: Events, tp: typedesc[T]): seq[T] =
   if events.data.isNil:
@@ -831,14 +831,19 @@ proc `[]`*[T](events: Events, tp: typedesc[T]): seq[T] =
   let key = T.getTypeId()
   result = events.data.pop(key)
 
+import std/monotimes, std/times
+
 proc popEvents*[T](events: Events, vals: var seq[T]): bool =
+  let a = getMonoTime()
   if events.data.isNil:
     return false
-  var res: seq[Variant]
+  var res: Variant
   result = events.data.pop(T.getTypeId(), res)
-  vals.reset()
-  for v in res:
-    vals.add v.get(T)
+  if result:
+    vals = res.get(ref seq[T])[]
+  let b = getMonoTime()
+  echo "popEvents: ", $inNanoseconds(b-a), "ns"
+
 
 template dispatchEvent*(evt: typed) =
   result.add(evt)
