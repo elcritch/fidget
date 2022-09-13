@@ -192,6 +192,7 @@ type
     hookName*: string
     hookStates*: TableRef[TypeId, Variant]
     hookEvents*: GeneralEvents
+    userEvents*: Events
     points*: seq[Position]
 
   GeneralEvents* = object
@@ -830,11 +831,14 @@ proc `[]`*[T](events: Events, tp: typedesc[T]): seq[T] =
   let key = T.getTypeId()
   result = events.data.pop(key)
 
-proc pop*[T](events: Events, tp: typedesc[T], vals: var seq[T]): bool =
+proc popEvents*[T](events: Events, vals: var seq[T]): bool =
   if events.data.isNil:
     return false
-  let key = T.getTypeId()
-  result = events.data.pop(key, vals)
+  var res: seq[Variant]
+  result = events.data.pop(T.getTypeId(), res)
+  vals.reset()
+  for v in res:
+    vals.add v.get(T)
 
 template dispatchEvent*(evt: typed) =
   result.add(evt)
