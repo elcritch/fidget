@@ -190,7 +190,7 @@ type
     selectable*: bool
     scrollBars*: bool 
     hookName*: string
-    hookStates*: Variant
+    hookStates*: TableRef[TypeId, Variant]
     hookEvents*: GeneralEvents
     points*: seq[Position]
 
@@ -469,7 +469,7 @@ proc resetToDefault*(node: Node)=
   node.selectable = false
   node.scrollBars = false
   node.hasRendered = false
-  node.hookStates = newVariant()
+  node.hookStates = newTable[TypeId, Variant]()
   node.hookEvents = GeneralEvents(data: nil)
 
 proc setupRoot*() =
@@ -817,7 +817,7 @@ proc hasKey*(events: GeneralEvents, key: string): bool =
 proc getAs*[T](events: GeneralEvents, key: string, default: typedesc[T]): T =
   events.data[key][0].get(T)
 
-proc add*[T](events: Events, evt: T) =
+proc add*[T](events: var Events, evt: T) =
   if events.data.isNil:
     events.data = newTable[TypeId, seq[Variant]]()
   let key = T.getTypeId()
