@@ -197,6 +197,9 @@ type
   GeneralEvents* = object
     data*: TableRef[string, seq[Variant]]
 
+  Events* = object
+    data*: TableRef[TypeId, seq[Variant]]
+  
   KeyState* = enum
     Empty
     Up
@@ -813,6 +816,28 @@ proc hasKey*(events: GeneralEvents, key: string): bool =
 
 proc getAs*[T](events: GeneralEvents, key: string, default: typedesc[T]): T =
   events.data[key][0].get(T)
+
+proc add*[T](events: Events, evt: T) =
+  if events.data.isNil:
+    events.data = newTable[TypeId, seq[Variant]]()
+  let key = T.getTypeId()
+  let val = newVariant(evt)
+  events.data.mgetOrPut(key, newSeq[Variant]()).add(val)
+
+proc `[]`*[T](events: Events, tp: typedesc[T]): seq[T] =
+  if events.data.isNil:
+    return @[]
+  let key = T.getTypeId()
+  result = events.data.pop(key)
+
+proc pop*[T](events: Events, tp: typedesc[T], vals: var seq[T]): bool =
+  if events.data.isNil:
+    return false
+  let key = T.getTypeId()
+  result = events.data.pop(key, vals)
+
+template dispatchEvent*(evt: typed) =
+  result.add(evt)
 
 proc currentEvents*(node: Node): GeneralEvents =
   if node.hookEvents.data.isNil:

@@ -21,7 +21,7 @@ macro variants*(name, code: untyped) =
   ## convenience wrapper for Patty variant macros
   result = quote do:
     {.push hint[Name]: off.}
-    variantp ScrollEvent:
+    variantp `name`:
       ## test
     {.pop.}
   result[1][2] = code
