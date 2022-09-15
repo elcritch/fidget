@@ -297,6 +297,35 @@ type
     else:
       future*: Future[string]
 
+type
+    MouseEvent* = object
+      case kind*: MouseEventType
+      of evClick: discard
+      of evClickOut: discard
+      of evHover: discard
+      of evHoverOut: discard
+      of evOverlapped: discard
+      of evPress: discard
+      of evRelease: discard
+
+    KeyboardEvent* = object
+      case kind*: KeyboardEventType
+      of evKeyboardInput: discard
+      of evKeyboardFocus: discard
+      of evKeyboardFocusOut: discard
+
+    GestureEvent* = object
+      case kind*: GestureEventType
+      of evScroll: discard
+      of evDrag: discard
+
+proc toEvent*(kind: MouseEventType): MouseEvent =
+  MouseEvent(kind: kind)
+proc toEvent*(kind: KeyboardEventType): KeyboardEvent =
+  KeyboardEvent(kind: kind)
+proc toEvent*(kind: GestureEventType): GestureEvent =
+  GestureEvent(kind: kind)
+
 const
   DataDirPath* {.strdefine.} = "data"
 
