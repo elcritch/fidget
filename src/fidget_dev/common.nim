@@ -863,15 +863,15 @@ proc `[]`*[T](events: Events, tp: typedesc[T]): seq[T] =
 import std/monotimes, std/times
 
 proc popEvents*[T](events: Events, vals: var seq[T]): bool =
-  let a = getMonoTime()
+  # let a = getMonoTime()
   if events.data.isNil:
     return false
   var res: Variant
   result = events.data.pop(T.getTypeId(), res)
   if result:
     vals = res.get(ref seq[T])[]
-  let b = getMonoTime()
-  echo "popEvents: ", $inNanoseconds(b-a), "ns"
+  # let b = getMonoTime()
+  # echo "popEvents: ", $inNanoseconds(b-a), "ns"
 
 
 template dispatchEvent*(evt: typed) =
