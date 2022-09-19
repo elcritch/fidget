@@ -1,5 +1,4 @@
 import fidget_dev, random
-import fidget_dev/grids
 
 setTitle("Auto Layout Vertical")
 
@@ -25,15 +24,15 @@ proc drawMain() =
         rowGap 1'em
       
       # Setup CSS Grid Template
-      gridTemplateColumns ["first"] 40'ui \
-                            ["line2"] 50'ui \
+      gridTemplateColumns ["first"] 40'ux \
+                            ["line2"] 50'ux \
                             ["line3"] auto \
-                            ["col4-start"] 50'ui \
-                            ["five"] 40'ui \
+                            ["col4-start"] 50'ux \
+                            ["five"] 40'ux \
                             ["end"]
 
-      gridTemplateRows ["row1-start"] 25'perc \
-                        ["row1-end"] 100'ui \
+      gridTemplateRows ["row1-start"] 25'pp \
+                        ["row1-end"] 100'ux \
                         ["third-line"] auto \ 
                         ["last-line"]
 

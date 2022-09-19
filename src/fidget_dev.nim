@@ -980,6 +980,11 @@ template setGridItem(field, pos: untyped, idx: GridIndex) =
     current.gridItem = newGridItem()
   current.gridItem.`field`.`pos` = idx
 
+template getGridItem(): untyped =
+  if current.gridItem.isNil:
+    current.gridItem = newGridItem()
+  current.gridItem
+
 proc span*(idx: int | string): GridIndex =
   mkIndex(idx, isSpan = true)
 
@@ -988,36 +993,36 @@ proc `//`*(a, b: string): (string, string) =
 
 proc columnStart*(idx: int|string|GridIndex) =
   ## set CSS grid starting column 
-  setGridItem(column.a, mkIndex idx)
-proc columnEnd*(idx: int|string|GridIndex) =
+  getGridItem().index[dcol].a = idx
+proc columnEnd*(idx: int|GridIndex) =
   ## set CSS grid ending column 
-  setGridItem(column.b, mkIndex idx)
-proc gridColumn*(idxStart: int|string|GridIndex, idxEnd: int|string|GridIndex) =
+  getGridItem().index[dcol].b = idx
+proc gridColumn*(index: Slice[GridIndex]) =
   ## set CSS grid ending column 
-  setGridItem(column, a, mkIndex idxStart)
-  setGridItem(column, b, mkIndex idxEnd)
-proc gridColumn*(rat: Rational[int]) =
-  ## set CSS grid ending column 
-  gridColumn(idxStart=rat.num, idxEnd=rat.den)
-proc gridColumn*(idx: (string, string, ) ) =
-  ## set CSS grid ending column 
-  gridColumn(idxStart=idx[0], idxEnd=idx[1])
+  # setGridItem(column, a, mkIndex idxStart)
+  # setGridItem(column, b, mkIndex idxEnd)
+  getGridItem().index[dcol] = index
+# proc gridColumn*(rat: Rational[int]) =
+#   ## set CSS grid ending column 
+#   gridColumn(idxStart=rat.num, idxEnd=rat.den)
+# proc gridColumn*(idx: (string, string, ) ) =
+#   ## set CSS grid ending column 
+#   gridColumn(idxStart=idx[0], idxEnd=idx[1])
 
-proc rowStart*(idx: int|string|GridIndex) =
+proc rowStart*(idx: int|GridIndex) =
   ## set CSS grid starting row 
-  setGridItem(row, a, mkIndex idx)
-proc rowEnd*(idx: int|string|GridIndex) =
+  getGridItem().index[dcol].a = idx
+proc rowEnd*(idx: int|GridIndex) =
   ## set CSS grid ending row 
-  setGridItem(row, b, mkIndex idx)
-proc gridRow*(idxStart: int|string|GridIndex, idxEnd: int|string|GridIndex) =
+  getGridItem().index[dcol].b = idx
+proc gridRow*(index: Slice[GridIndex]) =
   ## set CSS grid ending column
-  setGridItem(row, a, mkIndex idxStart)
-  setGridItem(row, b, mkIndex idxEnd)
-proc gridRow*(rat: Rational[int]) =
-  gridRow(idxStart=rat.num, idxEnd=rat.den)
-proc gridRow*(idx: (string, string,)) =
-  ## set CSS grid ending column
-  gridRow(idxStart=idx[0], idxEnd=idx[1])
+  getGridItem().index[drow] = index
+# proc gridRow*(rat: Rational[int]) =
+#   gridRow(idxStart=rat.num, idxEnd=rat.den)
+# proc gridRow*(idx: (string, string,)) =
+#   ## set CSS grid ending column
+#   gridRow(idxStart=idx[0], idxEnd=idx[1])
 
 proc columnGap*(value: UICoord) =
   ## set CSS grid column gap

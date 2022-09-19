@@ -1,5 +1,4 @@
 import fidget_dev, random
-import fidget_dev/grids
 
 setTitle("Auto Layout Vertical")
 
