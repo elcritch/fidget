@@ -1,5 +1,5 @@
 import fidget_dev, random
-import fidget_dev/grids
+import cssgrid/parser
 
 setTitle("Auto Layout Vertical")
 
@@ -19,18 +19,18 @@ proc drawMain() =
       rowGap 1'em
     
     # Setup columns using inline syntax
-    gridTemplateColumns ["left"] 30'ui ["outer-left"] 2'fr ["middle-left"] 3'fr ["center-left"] 100'ui \
-                        ["center-right"] 3'fr ["middle-right"] 2'fr ["outer-right"] 30'ui ["right"]
+    gridTemplateColumns ["left"] 30'ux ["outer-left"] 2'fr ["middle-left"] 3'fr ["center-left"] 100'ux \
+                        ["center-right"] 3'fr ["middle-right"] 2'fr ["outer-right"] 30'ux ["right"]
 
     # Setup rows using a command-style syntax (one per row)
     gridTemplateRows:
-      ["top"] 30'ui
+      ["top"] 30'ux
       ["outer-top"] 2'fr
       ["middle-top"] 3'fr
-      ["center-top"] 100'ui
+      ["center-top"] 100'ux
       ["center-bottom"] 3'fr
       ["middle-bottom"] 2'fr
-      ["outer-bottom"] 30'ui
+      ["outer-bottom"] 30'ux
       ["bottom"]
 
     rectangle "TR":

@@ -2,13 +2,12 @@ import algorithm, chroma, fidget_dev/common, fidget_dev/input, json, macros, str
     sequtils, tables, bumpy
 import math, strformat
 import unicode
-import rationals
 import fidget_dev/commonutils
 import cssgrid
 
 export chroma, common, input
 export commonutils
-export rationals
+export cssgrid
 
 import print
 
@@ -988,20 +987,17 @@ template getGridItem(): untyped =
 proc span*(idx: int | string): GridIndex =
   mkIndex(idx, isSpan = true)
 
-proc `//`*(a, b: string): (string, string) =
-  (a, b, )
-
-proc columnStart*(idx: int|string|GridIndex) =
+template columnStart*(idx: untyped) =
   ## set CSS grid starting column 
-  getGridItem().index[dcol].a = idx
-proc columnEnd*(idx: int|GridIndex) =
+  getGridItem().index[dcol].a = idx.mkIndex()
+template columnEnd*(idx: untyped) =
   ## set CSS grid ending column 
-  getGridItem().index[dcol].b = idx
-proc gridColumn*(index: Slice[GridIndex]) =
+  getGridItem().index[dcol].b = idx.mkIndex()
+template gridColumn*(val: untyped) =
   ## set CSS grid ending column 
   # setGridItem(column, a, mkIndex idxStart)
   # setGridItem(column, b, mkIndex idxEnd)
-  getGridItem().index[dcol] = index
+  getGridItem().index[dcol] = val
 # proc gridColumn*(rat: Rational[int]) =
 #   ## set CSS grid ending column 
 #   gridColumn(idxStart=rat.num, idxEnd=rat.den)
@@ -1009,15 +1005,15 @@ proc gridColumn*(index: Slice[GridIndex]) =
 #   ## set CSS grid ending column 
 #   gridColumn(idxStart=idx[0], idxEnd=idx[1])
 
-proc rowStart*(idx: int|GridIndex) =
+template rowStart*(idx: untyped) =
   ## set CSS grid starting row 
-  getGridItem().index[dcol].a = idx
-proc rowEnd*(idx: int|GridIndex) =
+  getGridItem().index[drow].a = idx.mkIndex()
+template rowEnd*(idx: untyped) =
   ## set CSS grid ending row 
-  getGridItem().index[dcol].b = idx
-proc gridRow*(index: Slice[GridIndex]) =
+  getGridItem().index[drow].b = idx.mkIndex()
+template gridRow*(val: untyped) =
   ## set CSS grid ending column
-  getGridItem().index[drow] = index
+  getGridItem().index[drow] = val
 # proc gridRow*(rat: Rational[int]) =
 #   gridRow(idxStart=rat.num, idxEnd=rat.den)
 # proc gridRow*(idx: (string, string,)) =
@@ -1100,7 +1096,7 @@ proc gridTemplateDebugLines*(draw: bool, color: Color = blackColor) =
   if draw:
     # draw debug lines
     if not current.gridTemplate.isNil:
-      computeLayout(nil, current)
+      # computeLayout(nil, current)
       # echo "grid template post: ", repr current.gridTemplate
       let cg = current.gridTemplate.gaps[dcol]
       let wd = max(0.1'em, cg.UICoord)

@@ -36,6 +36,10 @@ proc drawMain() =
                         ["third-line"] auto \ 
                         ["last-line"]
 
+      echo "hi"
+      echo "grid template post: ", repr current.gridTemplate
+      echo "done"
+
       rectangle "css grid item":
         # Setup CSS Grid Template
         cornerRadius 1'em

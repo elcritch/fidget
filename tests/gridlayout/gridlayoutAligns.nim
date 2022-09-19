@@ -42,8 +42,8 @@ proc drawMain() =
             # Setup CSS Grid Template
             size 5'em, 2'em
             cornerRadius 1'em
-            gridColumn i, i+1
-            gridRow j, j+1
+            gridColumn i // (i+1)
+            gridRow j // (j+1)
             # some color stuff
             fill rgba(245, 129, 49, 123).to(Color)
             onOverlapped:
