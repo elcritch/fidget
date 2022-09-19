@@ -4,6 +4,7 @@ import math, strformat
 import unicode
 import rationals
 import fidget_dev/commonutils
+import cssgrid
 
 export chroma, common, input
 export commonutils
@@ -824,11 +825,11 @@ proc strokeLine*(node: Node) =
   current.stroke.color = node.stroke.color
   current.stroke.weight = node.stroke.weight
 
-proc cornerRadius*(a, b, c, d: UICoord) =
+proc cornerRadius*(a, b, c, d: UICoord|float|float32) =
   ## Sets all radius of all 4 corners.
   current.cornerRadius = (a.UICoord, b.UICoord, c.UICoord, d.UICoord)
 
-proc cornerRadius*(radius: UICoord) =
+proc cornerRadius*(radius: UICoord|float|float32) =
   ## Sets all radius of all 4 corners.
   cornerRadius(radius, radius, radius, radius)
 
@@ -974,10 +975,10 @@ template gridTemplateRows*(args: untyped) =
 template defaultGridTemplate() =
   if current.gridTemplate.isNil:
     current.gridTemplate = newGridTemplate()
-template setGridItem(field: untyped, idx: GridIndex) =
+template setGridItem(field, pos: untyped, idx: GridIndex) =
   if current.gridItem.isNil:
     current.gridItem = newGridItem()
-  current.gridItem.`field` = idx
+  current.gridItem.`field`.`pos` = idx
 
 proc span*(idx: int | string): GridIndex =
   mkIndex(idx, isSpan = true)
@@ -987,14 +988,14 @@ proc `//`*(a, b: string): (string, string) =
 
 proc columnStart*(idx: int|string|GridIndex) =
   ## set CSS grid starting column 
-  setGridItem(columnStart, mkIndex idx)
+  setGridItem(column.a, mkIndex idx)
 proc columnEnd*(idx: int|string|GridIndex) =
   ## set CSS grid ending column 
-  setGridItem(columnEnd, mkIndex idx)
+  setGridItem(column.b, mkIndex idx)
 proc gridColumn*(idxStart: int|string|GridIndex, idxEnd: int|string|GridIndex) =
   ## set CSS grid ending column 
-  setGridItem(columnStart, mkIndex idxStart)
-  setGridItem(columnEnd, mkIndex idxEnd)
+  setGridItem(column, a, mkIndex idxStart)
+  setGridItem(column, b, mkIndex idxEnd)
 proc gridColumn*(rat: Rational[int]) =
   ## set CSS grid ending column 
   gridColumn(idxStart=rat.num, idxEnd=rat.den)
@@ -1004,14 +1005,14 @@ proc gridColumn*(idx: (string, string, ) ) =
 
 proc rowStart*(idx: int|string|GridIndex) =
   ## set CSS grid starting row 
-  setGridItem(rowStart, mkIndex idx)
+  setGridItem(row, a, mkIndex idx)
 proc rowEnd*(idx: int|string|GridIndex) =
   ## set CSS grid ending row 
-  setGridItem(rowEnd, mkIndex idx)
+  setGridItem(row, b, mkIndex idx)
 proc gridRow*(idxStart: int|string|GridIndex, idxEnd: int|string|GridIndex) =
   ## set CSS grid ending column
-  setGridItem(rowStart, mkIndex idxStart)
-  setGridItem(rowEnd, mkIndex idxEnd)
+  setGridItem(row, a, mkIndex idxStart)
+  setGridItem(row, b, mkIndex idxEnd)
 proc gridRow*(rat: Rational[int]) =
   gridRow(idxStart=rat.num, idxEnd=rat.den)
 proc gridRow*(idx: (string, string,)) =
@@ -1021,42 +1022,42 @@ proc gridRow*(idx: (string, string,)) =
 proc columnGap*(value: UICoord) =
   ## set CSS grid column gap
   defaultGridTemplate()
-  current.gridTemplate.columnGap = value
+  current.gridTemplate.gaps[dcol] = value.UiScalar
 proc rowGap*(value: UICoord) =
   ## set CSS grid column gap
   defaultGridTemplate()
-  current.gridTemplate.rowGap = value
+  current.gridTemplate.gaps[drow] = value.UiScalar
 
-proc justifyItems*(con: GridConstraint) =
+proc justifyItems*(con: ConstraintBehavior) =
   ## justify items on css grid (horizontal)
   defaultGridTemplate()
   current.gridTemplate.justifyItems = con
-proc alignItems*(con: GridConstraint) =
+proc alignItems*(con: ConstraintBehavior) =
   ## align items on css grid (vertical)
   defaultGridTemplate()
   current.gridTemplate.alignItems = con
-proc justifyContent*(con: GridConstraint) =
+proc justifyContent*(con: ConstraintBehavior) =
   ## justify items on css grid (horizontal)
   defaultGridTemplate()
   current.gridTemplate.justifyContent = con
-proc alignContent*(con: GridConstraint) =
+proc alignContent*(con: ConstraintBehavior) =
   ## align items on css grid (vertical)
   defaultGridTemplate()
   current.gridTemplate.alignContent = con
-proc placeItems*(con: GridConstraint) =
+proc placeItems*(con: ConstraintBehavior) =
   ## align items on css grid (vertical)
   defaultGridTemplate()
   current.gridTemplate.justifyItems = con
   current.gridTemplate.alignItems = con
 
-proc gridAutoColumns*(item: TrackSize) =
+proc gridAutoColumns*(item: Constraint) =
   defaultGridTemplate()
-  current.gridTemplate.autoColumns = item
-proc gridAutoRows*(item: TrackSize) =
+  current.gridTemplate.autos[dcol] = item
+proc gridAutoRows*(item: Constraint) =
   defaultGridTemplate()
-  current.gridTemplate.autoRows = item
+  current.gridTemplate.autos[drow] = item
 
-proc constraints*(vCon: Constraint, hCon: Constraint) =
+proc constraints*(vCon: FidgetConstraint, hCon: FidgetConstraint) =
   ## Sets vertical or horizontal constraint.
   current.constraintsVertical = vCon
   current.constraintsHorizontal = hCon
@@ -1096,8 +1097,8 @@ proc gridTemplateDebugLines*(draw: bool, color: Color = blackColor) =
     if not current.gridTemplate.isNil:
       computeLayout(nil, current)
       # echo "grid template post: ", repr current.gridTemplate
-      let cg = current.gridTemplate.columnGap
-      let wd = max(0.1'em, cg)
+      let cg = current.gridTemplate.gaps[dcol]
+      let wd = max(0.1'em, cg.UICoord)
       let w = current.gridTemplate.columns[^1].start
       let h = current.gridTemplate.rows[^1].start
       # echo "size: ", (w, h)
@@ -1105,12 +1106,12 @@ proc gridTemplateDebugLines*(draw: bool, color: Color = blackColor) =
         rectangle "column":
           layoutAlign laIgnore
           fill color
-          box col.start - wd, 0, wd, h
+          box col.start.UICoord - wd, 0.UICoord, wd, h.UICoord
       for row in current.gridTemplate.rows[1..^2]:
         rectangle "row":
           layoutAlign laIgnore
           fill color
-          box 0, row.start - wd, w, wd
+          box 0, row.start.UICoord - wd, w.UICoord, wd
 
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ##             Scrolling support

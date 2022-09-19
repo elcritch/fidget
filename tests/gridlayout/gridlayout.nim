@@ -21,7 +21,7 @@ proc drawMain() =
 
         scrollBars true
         layout lmVertical
-        counterAxisSizingMode csAuto
+        counterAxisSizingMode CounterAxisSizingMode.csAuto
 
         itemSpacing 10
 
@@ -30,8 +30,8 @@ proc drawMain() =
           fill "#90caff"
 
           layout lmGrid
-          gridTemplateColumns ["first"] 40'ui ["second", "line2"] 50'ui ["line3"] auto ["col4-start"] 50'ui ["five"] 40'ui ["end"]
-          gridTemplateRows ["row1-start"] 25'perc ["row1-end"] 100'ui ["third-line"] auto ["last-line"]
+          gridTemplateColumns ["first"] 40'ux ["second", "line2"] 50'ux ["line3"] auto ["col4-start"] 50'ux ["five"] 40'ux ["end"]
+          gridTemplateRows ["row1-start"] 25'pp ["row1-end"] 100'ux ["third-line"] auto ["last-line"]
 
           rectangle "area2":
             box 0, 0, 100'pw, 70'vh

@@ -3,15 +3,15 @@ import strutils, strformat
 import unicode
 import typetraits
 import variant, chroma, input
+import cssgrid
 
 import commonutils
-import grids
 
 export sequtils, strformat, tables, hashes
 export variant
 export unicode
 export commonutils
-export grids
+export cssgrid
 
 when defined(js):
   import dom2, html/ajax
@@ -30,7 +30,7 @@ else:
   type NodeUID* = int64
 
 type
-  Constraint* = enum
+  FidgetConstraint* = enum
     cMin
     cMax
     cScale
@@ -162,8 +162,8 @@ type
     highlightColor*: Color
     disabledColor*: Color
     shadows*: seq[Shadow]
-    constraintsHorizontal*: Constraint
-    constraintsVertical*: Constraint
+    constraintsHorizontal*: FidgetConstraint
+    constraintsVertical*: FidgetConstraint
     layoutAlign*: LayoutAlign
     layoutMode*: LayoutMode
     counterAxisSizingMode*: CounterAxisSizingMode
@@ -679,17 +679,8 @@ proc computeLayout*(parent, node: Node) =
     for n in node.nodes:
       if n.layoutAlign != laIgnore:
         gridChildren.add(n)
-    node.gridTemplate.computeGridLayout(node, gridChildren)
+    node.gridTemplate.computeNodeLayout(node, gridChildren)
 
-    # node.gridTemplate.computeLayout(node.box)
-    # # compute grid item's position (this item can also be a grid)
-    # for n in node.nodes:
-    #   if n.layoutAlign == laIgnore:
-    #     continue
-    #   # echo "grid child: ", n.id, " => ", n.gridItem.repr
-    #   computeLayout(node, n)
-    #   if not n.gridItem.isNil:
-    #     n.box = n.gridItem.computePosition(node.gridTemplate, n.box.wh)
     for n in node.nodes:
       computeLayout(node, n)
     
