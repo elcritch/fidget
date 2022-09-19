@@ -420,23 +420,21 @@ proc box*(rect: Box) =
   box(rect.x, rect.y, rect.w, rect.h)
 
 proc size*(
-  w: int|float32|float64|UICoord,
-  h: int|float32|float64|UICoord
+  w: int|float32|float64|UICoord|Constraint,
+  h: int|float32|float64|UICoord|Constraint,
 ) =
   ## Sets the box dimension width and height
-  let cb = current.box
-  box(cb.x, cb.y, w, h)
-  current.cxSize = [csFixed(w.UiScalar), csFixed(h.UiScalar)]
-  # orgBox(cb.x, cb.y, float32 w, float32 h)
-
-proc size*(
-  w: Constraint,
-  h: Constraint,
-) =
-  ## Sets the box dimension width and height
-  current.cxSize[dcol] = w
-  current.cxSize[drow] = h
-  # orgBox(cb.x, cb.y, float32 w, float32 h)
+  when w is Constraint:
+    current.cxSize[dcol] = w
+  else:
+    current.cxSize[dcol] = csFixed(w.UiScalar)
+    current.box.w = w.UICoord
+  
+  when h is Constraint:
+    current.cxSize[drow] = h
+  else:
+    current.cxSize[drow] = csFixed(h.UiScalar)
+    current.box.h = h.UICoord
 
 proc width*(w: int|float32|float64|UICoord) =
   ## Sets the width of current node

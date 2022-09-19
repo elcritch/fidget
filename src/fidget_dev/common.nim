@@ -673,22 +673,45 @@ proc computeEvents*(node: Node) =
 
 var gridChildren: seq[Node]
 
+proc setBasicConstraint(parent, node: Node, dir: static GridDir) =
+  when dir == dcol:
+    template f(b: untyped): untyped = b.w
+    template `f=`(b, v: untyped) = b.w = v
+  else:
+    template f(b: untyped): untyped = b.h
+    template `f=`(b, v: untyped) = b.h = v
+  
+  match node.cxSize[dir]:
+    UiAuto():
+      node.box.f = parent.box.f
+    UiValue(value):
+      match value:
+        UiFixed(coord):
+          node.box.f = coord.UICoord
+        UiFrac(frac):
+          raise newException(ValueError, "unsupported type `UiFrac` for basic constraints")
+        UiPerc(perc):
+          node.box.f = perc.UICoord / 100.0.UICoord * parent.box.f
+        _:
+          discard
+    _:
+      discard
+  
+  # case node.cxSize[dcol].kind:
+  # of UiAuto:
+  #   node.box.w = parent.box.w
+  # of UiValue:
+  #   discard
+  # else:
+  #   discard
+
 proc computeLayout*(parent, node: Node) =
   ## Computes constraints and auto-layout.
   
   # simple constraints
   if node.gridItem.isNil:
-    case node.cxSize[dcol].kind:
-    of UiAuto:
-      node.box.w = parent.box.w
-    else:
-      discard
-
-    case node.cxSize[drow].kind:
-    of UiAuto:
-      node.box.h = parent.box.h
-    else:
-      discard
+    setBasicConstraint(parent, node, drow)
+    setBasicConstraint(parent, node, dcol)
 
   # css grid impl
   if not node.gridTemplate.isNil:
@@ -764,7 +787,7 @@ proc computeLayout*(parent, node: Node) =
         # Text will grow down and wide.
         node.box.w = node.textLayoutWidth
         node.box.h = node.textLayoutHeight
-    print "layout:nkText: ", node.id, node.box
+    # print "layout:nkText: ", node.id, node.box
 
   template compAutoLayoutNorm(field, fieldSz, padding: untyped;
                               orth, orthSz, orthPadding: untyped) =
