@@ -108,19 +108,19 @@ template frame*(id: string, inner: untyped): untyped =
   ## Starts a new frame.
   node(nkFrame, id, inner):
     # boxSizeOf parent
-    current.constraint = [csAuto(), csAuto()]
+    current.cxSize = [csAuto(), csAuto()]
 
 template group*(id: string, inner: untyped): untyped =
   ## Starts a new node.
   node(nkGroup, id, inner):
     # boxSizeOf parent
-    current.constraint = [csAuto(), csAuto()]
+    current.cxSize = [csAuto(), csAuto()]
 
 template component*(id: string, inner: untyped): untyped =
   ## Starts a new component.
   node(nkComponent, id, inner):
     # boxSizeOf parent
-    current.constraint = [csAuto(), csAuto()]
+    current.cxSize = [csAuto(), csAuto()]
 
 template rectangle*(id: string, inner: untyped): untyped =
   ## Starts a new text element.
@@ -130,13 +130,13 @@ template element*(id: string, inner: untyped): untyped =
   ## Starts a new rectangle.
   node(nkRectangle, id, inner):
     # boxSizeOf parent
-    current.constraint = [csAuto(), csAuto()]
+    current.cxSize = [csAuto(), csAuto()]
 
 template text*(id: string, inner: untyped): untyped =
   ## Starts a new text element.
   node(nkText, id, inner):
     # boxSizeOf parent
-    current.constraint = [csAuto(), csAuto()]
+    current.cxSize = [csAuto(), csAuto()]
 
 template instance*(id: string, inner: untyped): untyped =
   ## Starts a new instance of a component.
@@ -410,6 +410,8 @@ proc box*(
   ## Sets the box dimensions with integers
   ## Always set box before orgBox when doing constraints.
   boxFrom(float32 x, float32 y, float32 w, float32 h)
+  current.cxOffset = [csFixed(x.UiScalar), csFixed(y.UiScalar)]
+  current.cxSize = [csFixed(w.UiScalar), csFixed(h.UiScalar)]
   # autoOrg()
   # orgBox(float32 x, float32 y, float32 w, float32 h)
 
@@ -424,6 +426,16 @@ proc size*(
   ## Sets the box dimension width and height
   let cb = current.box
   box(cb.x, cb.y, w, h)
+  current.cxSize = [csFixed(w.UiScalar), csFixed(h.UiScalar)]
+  # orgBox(cb.x, cb.y, float32 w, float32 h)
+
+proc size*(
+  w: Constraint,
+  h: Constraint,
+) =
+  ## Sets the box dimension width and height
+  current.cxSize[dcol] = w
+  current.cxSize[drow] = h
   # orgBox(cb.x, cb.y, float32 w, float32 h)
 
 proc width*(w: int|float32|float64|UICoord) =
@@ -443,6 +455,8 @@ proc offset*(
   ## Sets the box dimension offset
   let cb = current.box
   box(float32 x, float32 y, cb.w, cb.h)
+
+  current.cxOffset = [csFixed(w.UiScalar), csFixed(h.UiScalar)]
   # orgBox(float32 x, float32 y, cb.w, cb.h)
 
 proc xy*(

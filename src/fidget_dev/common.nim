@@ -139,11 +139,11 @@ type
     kind*: NodeKind
     text*: seq[Rune]
     code*: string
+    cxSize*: array[GridDir, Constraint]
+    cxOffset*: array[GridDir, Constraint]
     nodes*: seq[Node]
     box*: Box
     orgBox*: Box
-    constraint*: array[GridDir, Constraint]
-    minContent*: Box
     screenBox*: Box
     offset*: Position
     totalOffset*: Position
@@ -676,28 +676,23 @@ var gridChildren: seq[Node]
 proc computeLayout*(parent, node: Node) =
   ## Computes constraints and auto-layout.
   
-  case node.constraint[dcol].kind:
-  of UiAuto:
-    node.box.w = parent.box.w
-  else:
-    discard
+  # simple constraints
+  if node.gridItem.isNil:
+    case node.cxSize[dcol].kind:
+    of UiAuto:
+      node.box.w = parent.box.w
+    else:
+      discard
 
-  case node.constraint[drow].kind:
-  of UiAuto:
-    node.box.h = parent.box.h
-  else:
-    discard
+    case node.cxSize[drow].kind:
+    of UiAuto:
+      node.box.h = parent.box.h
+    else:
+      discard
 
-  # next
+  # css grid impl
   if not node.gridTemplate.isNil:
-    # print "layout:gridTemplate:pre:"
-    # for n in node.nodes:
-    #   echo ""
-    #   print "layout:gridChild:pre: ", n.id, n.box
-    #   computeLayout(node, n)
-    #   print "layout:gridChild: ", n.id, n.box
     
-    print "layout:gridTemplate"
     gridChildren.setLen(0)
     for n in node.nodes:
       if n.layoutAlign != laIgnore:
@@ -705,10 +700,7 @@ proc computeLayout*(parent, node: Node) =
     node.gridTemplate.computeNodeLayout(node, gridChildren)
 
     for n in node.nodes:
-      echo ""
       computeLayout(node, n)
-      print "layout:gridChild:after: ", n.id, n.box
-      print node.constraint
     
     return
 
@@ -842,7 +834,6 @@ proc atXY*[T: Rect](rect: T, x, y: int | float32): T =
   result = rect
   result.x = x
   result.y = y
-
 
 proc `+`*(rect: Rect, xy: Vec2): Rect =
   ## offset rect with xy vec2 
