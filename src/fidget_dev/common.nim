@@ -13,6 +13,8 @@ export unicode
 export commonutils
 export cssgrid
 
+import print
+
 when defined(js):
   import dom2, html/ajax
 else:
@@ -140,6 +142,7 @@ type
     nodes*: seq[Node]
     box*: Box
     orgBox*: Box
+    constraint*: array[GridDir, Constraint]
     minContent*: Box
     screenBox*: Box
     offset*: Position
@@ -673,8 +676,28 @@ var gridChildren: seq[Node]
 proc computeLayout*(parent, node: Node) =
   ## Computes constraints and auto-layout.
   
+  case node.constraint[dcol].kind:
+  of UiAuto:
+    node.box.w = parent.box.w
+  else:
+    discard
+
+  case node.constraint[drow].kind:
+  of UiAuto:
+    node.box.h = parent.box.h
+  else:
+    discard
+
   # next
   if not node.gridTemplate.isNil:
+    # print "layout:gridTemplate:pre:"
+    # for n in node.nodes:
+    #   echo ""
+    #   print "layout:gridChild:pre: ", n.id, n.box
+    #   computeLayout(node, n)
+    #   print "layout:gridChild: ", n.id, n.box
+    
+    print "layout:gridTemplate"
     gridChildren.setLen(0)
     for n in node.nodes:
       if n.layoutAlign != laIgnore:
@@ -682,7 +705,10 @@ proc computeLayout*(parent, node: Node) =
     node.gridTemplate.computeNodeLayout(node, gridChildren)
 
     for n in node.nodes:
+      echo ""
       computeLayout(node, n)
+      print "layout:gridChild:after: ", n.id, n.box
+      print node.constraint
     
     return
 
@@ -746,6 +772,7 @@ proc computeLayout*(parent, node: Node) =
         # Text will grow down and wide.
         node.box.w = node.textLayoutWidth
         node.box.h = node.textLayoutHeight
+    print "layout:nkText: ", node.id, node.box
 
   template compAutoLayoutNorm(field, fieldSz, padding: untyped;
                               orth, orthSz, orthPadding: untyped) =

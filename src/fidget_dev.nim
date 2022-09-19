@@ -107,17 +107,20 @@ template withDefaultName(name: untyped): untyped =
 template frame*(id: string, inner: untyped): untyped =
   ## Starts a new frame.
   node(nkFrame, id, inner):
-    boxSizeOf parent
+    # boxSizeOf parent
+    current.constraint = [csAuto(), csAuto()]
 
 template group*(id: string, inner: untyped): untyped =
   ## Starts a new node.
   node(nkGroup, id, inner):
-    boxSizeOf parent
+    # boxSizeOf parent
+    current.constraint = [csAuto(), csAuto()]
 
 template component*(id: string, inner: untyped): untyped =
   ## Starts a new component.
   node(nkComponent, id, inner):
-    boxSizeOf parent
+    # boxSizeOf parent
+    current.constraint = [csAuto(), csAuto()]
 
 template rectangle*(id: string, inner: untyped): untyped =
   ## Starts a new text element.
@@ -126,12 +129,14 @@ template rectangle*(id: string, inner: untyped): untyped =
 template element*(id: string, inner: untyped): untyped =
   ## Starts a new rectangle.
   node(nkRectangle, id, inner):
-    boxSizeOf parent
+    # boxSizeOf parent
+    current.constraint = [csAuto(), csAuto()]
 
 template text*(id: string, inner: untyped): untyped =
   ## Starts a new text element.
   node(nkText, id, inner):
-    boxSizeOf parent
+    # boxSizeOf parent
+    current.constraint = [csAuto(), csAuto()]
 
 template instance*(id: string, inner: untyped): untyped =
   ## Starts a new instance of a component.
