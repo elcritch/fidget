@@ -401,18 +401,27 @@ proc boxFrom(x, y, w, h: float32) =
   ## Sets the box dimensions.
   current.box = initBox(x, y, w, h)
 
+proc csOrFixed(x: int|float32|float64|UICoord|Constraint): Constraint =
+  when x is Constraint:
+    x
+  else: csFixed(x.UiScalar)
+proc fltOrZero(x: int|float32|float64|UICoord|Constraint): float32 =
+  when x is Constraint:
+    0.0
+  else:
+    x.float32
+
 proc box*(
-  x: int|float32|float64|UICoord,
-  y: int|float32|float64|UICoord,
-  w: int|float32|float64|UICoord,
-  h: int|float32|float64|UICoord
+  x: int|float32|float64|UICoord|Constraint,
+  y: int|float32|float64|UICoord|Constraint,
+  w: int|float32|float64|UICoord|Constraint,
+  h: int|float32|float64|UICoord|Constraint
 ) =
   ## Sets the box dimensions with integers
   ## Always set box before orgBox when doing constraints.
-  boxFrom(float32 x, float32 y, float32 w, float32 h)
-  current.cxOffset = [csFixed(x.UiScalar), csFixed(y.UiScalar)]
-  current.cxSize = [csFixed(w.UiScalar), csFixed(h.UiScalar)]
-  # autoOrg()
+  boxFrom(fltOrZero x, fltOrZero y, fltOrZero w, fltOrZero h)
+  current.cxOffset = [csOrFixed(x), csOrFixed(y)]
+  current.cxSize = [csOrFixed(w), csOrFixed(h)]
   # orgBox(float32 x, float32 y, float32 w, float32 h)
 
 proc box*(rect: Box) =
@@ -447,14 +456,14 @@ proc height*(h: int|float32|float64|UICoord) =
   box(cb.x, cb.y, float32 cb.w, float32 h)
 
 proc offset*(
-  x: int|float32|float64|UICoord,
-  y: int|float32|float64|UICoord
+  x: int|float32|float64|UICoord|Constraint,
+  y: int|float32|float64|UICoord|Constraint
 ) =
   ## Sets the box dimension offset
-  let cb = current.box
-  box(float32 x, float32 y, cb.w, cb.h)
+  current.box.w = x.fltOrZero().UICoord
+  current.box.h = y.fltOrZero().UICoord
 
-  current.cxOffset = [csFixed(w.UiScalar), csFixed(h.UiScalar)]
+  current.cxOffset = [csOrFixed(x), csOrFixed(y)]
   # orgBox(float32 x, float32 y, cb.w, cb.h)
 
 proc xy*(

@@ -669,25 +669,23 @@ proc computeEvents*(node: Node) =
 
 var gridChildren: seq[Node]
 
-proc setBasicConstraint(parent, node: Node, dir: static GridDir) =
+template setBasicConstraintImpl(parent, node: Node, dir: static GridDir, f: untyped) =
   ## computes basic constraints for box'es when set
   ## this let's the use do things like set 90'pp (90 percent)
   ## of the box width post css grid or auto constraints layout
-  when dir == dcol:
-    template f(b: untyped): untyped = b.w
-    template `f=`(b, v: untyped) = b.w = v
-  else:
-    template f(b: untyped): untyped = b.h
-    template `f=`(b, v: untyped) = b.h = v
-  
-  match node.cxSize[dir]:
+  let csValue = when astToStr(f) in ["w", "h"]: node.cxSize[dir] 
+                else: node.cxOffset[dir]
+  match csValue:
     UiAuto():
-      node.box.f = parent.box.f
+      when astToStr(f) in ["w", "h"]:
+        node.box.f = parent.box.f
+      else:
+        discard
     UiValue(value):
       match value:
         UiFixed(coord):
           node.box.f = coord.UICoord
-        UiFrac(frac):
+        UiFrac(_):
           raise newException(ValueError, "unsupported type `UiFrac` for basic constraints")
         UiPerc(perc):
           node.box.f = perc.UICoord / 100.0.UICoord * parent.box.f
@@ -696,13 +694,25 @@ proc setBasicConstraint(parent, node: Node, dir: static GridDir) =
     _:
       discard
 
+proc setBasicConstraint(parent, node: Node, dir: static GridDir, isXY: static bool) =
+  when isXY == true and dir == dcol: 
+    setBasicConstraintImpl(parent, node, dir, x)
+  elif isXY == true and dir == drow: 
+    setBasicConstraintImpl(parent, node, dir, y)
+  elif isXY == false and dir == dcol: 
+    setBasicConstraintImpl(parent, node, dir, w)
+  elif isXY == false and dir == drow: 
+    setBasicConstraintImpl(parent, node, dir, h)
+
 proc computeLayout*(parent, node: Node) =
   ## Computes constraints and auto-layout.
   
   # simple constraints
   if node.gridItem.isNil:
-    setBasicConstraint(parent, node, drow)
-    setBasicConstraint(parent, node, dcol)
+    setBasicConstraint(parent, node, dcol, true)
+    setBasicConstraint(parent, node, drow, true)
+    setBasicConstraint(parent, node, dcol, false)
+    setBasicConstraint(parent, node, drow, false)
 
   # css grid impl
   if not node.gridTemplate.isNil:
