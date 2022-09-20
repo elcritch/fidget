@@ -1025,7 +1025,7 @@ template gridColumn*(val: untyped) =
   ## set CSS grid ending column 
   # setGridItem(column, a, mkIndex idxStart)
   # setGridItem(column, b, mkIndex idxEnd)
-  getGridItem().index[dcol] = val
+  getGridItem().column = val
 # proc gridColumn*(rat: Rational[int]) =
 #   ## set CSS grid ending column 
 #   gridColumn(idxStart=rat.num, idxEnd=rat.den)
@@ -1041,12 +1041,15 @@ template rowEnd*(idx: untyped) =
   getGridItem().index[drow].b = idx.mkIndex()
 template gridRow*(val: untyped) =
   ## set CSS grid ending column
-  getGridItem().index[drow] = val
+  getGridItem().row = val
 # proc gridRow*(rat: Rational[int]) =
 #   gridRow(idxStart=rat.num, idxEnd=rat.den)
 # proc gridRow*(idx: (string, string,)) =
 #   ## set CSS grid ending column
 #   gridRow(idxStart=idx[0], idxEnd=idx[1])
+template gridArea*(c, r: untyped) =
+  getGridItem().column = c
+  getGridItem().row = r
 
 proc columnGap*(value: UICoord) =
   ## set CSS grid column gap
