@@ -669,7 +669,7 @@ proc computeEvents*(node: Node) =
 
 var gridChildren: seq[Node]
 
-template setBasicConstraintImpl(parent, node: Node, dir: static GridDir, f: untyped) =
+template calcBasicConstraintImpl(parent, node: Node, dir: static GridDir, f: untyped) =
   ## computes basic constraints for box'es when set
   ## this let's the use do things like set 90'pp (90 percent)
   ## of the box width post css grid or auto constraints layout
@@ -694,25 +694,25 @@ template setBasicConstraintImpl(parent, node: Node, dir: static GridDir, f: unty
     _:
       discard
 
-proc setBasicConstraint(parent, node: Node, dir: static GridDir, isXY: static bool) =
+proc calcBasicConstraint(parent, node: Node, dir: static GridDir, isXY: static bool) =
   when isXY == true and dir == dcol: 
-    setBasicConstraintImpl(parent, node, dir, x)
+    calcBasicConstraintImpl(parent, node, dir, x)
   elif isXY == true and dir == drow: 
-    setBasicConstraintImpl(parent, node, dir, y)
+    calcBasicConstraintImpl(parent, node, dir, y)
   elif isXY == false and dir == dcol: 
-    setBasicConstraintImpl(parent, node, dir, w)
+    calcBasicConstraintImpl(parent, node, dir, w)
   elif isXY == false and dir == drow: 
-    setBasicConstraintImpl(parent, node, dir, h)
+    calcBasicConstraintImpl(parent, node, dir, h)
 
 proc computeLayout*(parent, node: Node) =
   ## Computes constraints and auto-layout.
   
   # simple constraints
   if node.gridItem.isNil:
-    setBasicConstraint(parent, node, dcol, true)
-    setBasicConstraint(parent, node, drow, true)
-    setBasicConstraint(parent, node, dcol, false)
-    setBasicConstraint(parent, node, drow, false)
+    calcBasicConstraint(parent, node, dcol, true)
+    calcBasicConstraint(parent, node, drow, true)
+    calcBasicConstraint(parent, node, dcol, false)
+    calcBasicConstraint(parent, node, drow, false)
 
   # css grid impl
   if not node.gridTemplate.isNil:

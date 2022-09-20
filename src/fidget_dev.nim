@@ -356,6 +356,8 @@ proc `'ph`*(n: string): UICoord =
   ## numeric literal percent of parent height
   result = HPerc(parseFloat(n))
 
+proc csFixed*(coord: UICoord): Constraint =
+  csFixed(coord.UiScalar)
 
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ##             Node Content and Settings
