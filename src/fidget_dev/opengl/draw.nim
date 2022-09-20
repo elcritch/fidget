@@ -27,7 +27,8 @@ proc focus*(keyboard: Keyboard, node: Node, textBox: TextBox) =
     keyboard.focusNode = node
 
     keyboard.input = node.text
-    currTextBox = node.currentEvents().mgetOrPut("$textbox", textBox)
+    # currTextBox = node.userStates.mgetOrPut("$textbox", textBox)
+    currTextBox = textBox
     currTextBox.editable = node.editableText
     currTextBox.scrollable = true
     requestedFrame.inc

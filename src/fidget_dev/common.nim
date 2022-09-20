@@ -191,18 +191,15 @@ type
     textLayoutWidth*: UICoord
     ## Can the text be selected.
     selectable*: bool
-    scrollBars*: bool 
-    hookName*: string
-    hookStates*: TableRef[TypeId, Variant]
-    hookEvents*: GeneralEvents
+    scrollBars*: bool
+    userStates*: Table[string, Variant]
     userEvents*: Events
     points*: seq[Position]
 
-  GeneralEvents* = object
-    data*: TableRef[string, seq[Variant]]
-
-  Events* = object
+  GenericEvents*[T] = object
     data*: TableRef[TypeId, Variant]
+
+  Events* = GenericEvents[void]
   
   KeyState* = enum
     Empty
@@ -502,8 +499,7 @@ proc resetToDefault*(node: Node)=
   node.selectable = false
   node.scrollBars = false
   node.hasRendered = false
-  node.hookStates = newTable[TypeId, Variant]()
-  node.hookEvents = GeneralEvents(data: nil)
+  node.userStates = initTable[string, Variant]()
 
 proc setupRoot*() =
   if root == nil:
@@ -867,18 +863,6 @@ proc `+`*(rect: Rect, xy: Vec2): Rect =
 proc `~=`*(rect: Vec2, val: float32): bool =
   result = rect.x ~= val and rect.y ~= val
 
-proc `[]=`*[T](events: GeneralEvents, key: string, evt: T) =
-  events.data.mgetOrPut(key, newSeq[Variant]()).add newVariant(evt)
-
-proc pop*(events: GeneralEvents, key: string, vals: var seq[Variant]): bool =
-  result = events.data.pop(key, vals)
-
-proc hasKey*(events: GeneralEvents, key: string): bool =
-  result = events.data.hasKey(key) and events.data[key].len() > 0
-
-proc getAs*[T](events: GeneralEvents, key: string, default: typedesc[T]): T =
-  events.data[key][0].get(T)
-
 proc add*[T](events: var Events, evt: T) =
   if events.data.isNil:
     events.data = newTable[TypeId, Variant]()
@@ -905,26 +889,14 @@ proc popEvents*[T](events: Events, vals: var seq[T]): bool =
   # let b = getMonoTime()
   # echo "popEvents: ", $inNanoseconds(b-a), "ns"
 
-
 template dispatchEvent*(evt: typed) =
   result.add(evt)
 
-proc currentEvents*(node: Node): GeneralEvents =
-  if node.hookEvents.data.isNil:
-    node.hookEvents.data = newTable[string, seq[Variant]]()
-  result = node.hookEvents
-
-proc mgetOrPut*[T](events: GeneralEvents, key: string, default: typedesc[T]): T =
-  if not events.data.hasKey(key):
-    let x = T()
-    events.data[key] = @[newVariant(x)]
-  events.data[key][0].get(T)
-
-template mgetOrPut*(events: GeneralEvents, key: string, default: untyped): auto =
-  if not events.data.hasKey(key):
-    let x = default
-    events.data[key] = @[newVariant(x)]
-  events.data[key][0].get(typeof default)
+template useState*[T: ref](tp: typedesc[T], vname: untyped) =
+  # if not current.userStates.hasKey(tp.getTypeId()):
+  if not current.userStates.hasKey(astToStr(vname)):
+    current.userStates[astToStr(vname)] = newVariant(tp.new())
+  var `vname` {.inject.} = current.userStates[astToStr(vname)].get(tp)
 
 template toRunes*(item: Node): seq[Rune] =
   item.text

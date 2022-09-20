@@ -205,15 +205,15 @@ proc isCovered*(screenBox: Box): bool =
   let cb = current.screenBox
   result = sb.overlaps(cb + off)
 
-template bindEvents*(name: string, events: GeneralEvents) =
-  ## On click event handler.
-  current.code = name
-  current.hookEvents = events
+# template bindEvents*(name: string, events: GeneralEvents) =
+#   ## On click event handler.
+#   current.code = name
+#   current.hookEvents = events
 
-template useEvents*(): GeneralEvents =
-  if current.hookEvents.data.isNil:
-    current.hookEvents.data = newTable[string, seq[Variant]]()
-  current.hookEvents
+# template useEvents*(): GeneralEvents =
+#   if current.hookEvents.data.isNil:
+#     current.hookEvents.data = newTable[string, seq[Variant]]()
+#   current.hookEvents
 
 template onClick*(inner: untyped, button = MOUSE_LEFT) =
   ## On click event handler.
@@ -1155,8 +1155,8 @@ variants ScrollEvent:
 #   ScrollPage(amount: float32)
 # {.pop.}
 
-proc scrollEvent*(events: GeneralEvents, evt: ScrollEvent) =
-  events["$scrollbar.event"] = evt
+# proc scrollEvent*(events: GeneralEvents, evt: ScrollEvent) =
+#   events["$scrollbar.event"] = evt
 
 proc scrollBars*(scrollBars: bool, hAlign = hRight, setup: proc() = nil) =
   ## Causes the parent to clip the children and draw scroll bars.
@@ -1173,8 +1173,9 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight, setup: proc() = nil) =
       current.offset.y = current.offset.y.clamp(0'ui, ch)
 
   # todo? make useData?
-  let evts = useEvents()
-  let pip = evts.mgetOrPut("$scrollbar", ScrollPip)
+  # let evts = useEvents()
+  useState(ScrollPip, pip)
+  # let pip = evts.mgetOrPut("$scrollbar", ScrollPip)
 
   let
     halign: HAlign = hAlign
