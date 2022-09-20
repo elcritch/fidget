@@ -670,6 +670,9 @@ proc computeEvents*(node: Node) =
 var gridChildren: seq[Node]
 
 proc setBasicConstraint(parent, node: Node, dir: static GridDir) =
+  ## computes basic constraints for box'es when set
+  ## this let's the use do things like set 90'pp (90 percent)
+  ## of the box width post css grid or auto constraints layout
   when dir == dcol:
     template f(b: untyped): untyped = b.w
     template `f=`(b, v: untyped) = b.w = v
@@ -692,14 +695,6 @@ proc setBasicConstraint(parent, node: Node, dir: static GridDir) =
           discard
     _:
       discard
-  
-  # case node.cxSize[dcol].kind:
-  # of UiAuto:
-  #   node.box.w = parent.box.w
-  # of UiValue:
-  #   discard
-  # else:
-  #   discard
 
 proc computeLayout*(parent, node: Node) =
   ## Computes constraints and auto-layout.
