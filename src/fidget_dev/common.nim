@@ -191,7 +191,7 @@ type
     textLayoutWidth*: UICoord
     ## Can the text be selected.
     selectable*: bool
-    scrollBars*: bool
+    scrollpane*: bool
     userStates*: Table[int, Variant]
     userEvents*: Events
     points*: seq[Position]
@@ -373,9 +373,8 @@ var
   adjustTopTextFactor* = 1/16.0 # adjust top of text box for visual balance with descender's -- about 1/8 of fonts, so 1/2 that
 
   # global scroll bar settings
-  scrollBarWidth* = 14'f32
-  scrollBarFill* = rgba(92, 143, 156, 102).color
-  scrollBarHighlight* = rgba(92, 143, 156, 230).color 
+  scrollBarFill* = rgba(187, 187, 187, 162).color 
+  scrollBarHighlight* = rgba(137, 137, 137, 162).color
 
 proc defaultLineHeight*(fontSize: UICoord): UICoord =
   result = fontSize * defaultlineHeightRatio
@@ -497,7 +496,7 @@ proc resetToDefault*(node: Node)=
   node.diffIndex = 0
   node.zlevel = ZLevelDefault
   node.selectable = false
-  node.scrollBars = false
+  node.scrollpane = false
   node.hasRendered = false
   node.userStates = initTable[int, Variant]()
 

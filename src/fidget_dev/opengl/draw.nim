@@ -279,7 +279,7 @@ proc draw*(node, parent: Node) =
   # restores the opengl context back to the parent node's (see above)
   ctx.restoreTransform()
 
-  ifdraw node.scrollBars:
+  ifdraw node.scrollpane:
     # handles scrolling panel
     ctx.saveTransform()
     ctx.translate(-node.offset.scaled)
