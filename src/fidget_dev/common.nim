@@ -1,5 +1,5 @@
 import sequtils, tables, json, hashes
-import strutils, strformat
+import strformat
 import unicode
 import typetraits
 import variant, chroma, input
@@ -9,7 +9,7 @@ import commonutils
 
 export sequtils, strformat, tables, hashes
 export variant
-export unicode
+# export unicode
 export commonutils
 export cssgrid
 
