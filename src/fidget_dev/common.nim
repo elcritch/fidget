@@ -848,8 +848,6 @@ proc computeScreenBox*(parent, node: Node) =
   for n in node.nodes:
     computeScreenBox(node, n)
 
-proc box*(node: Node): Box = node.box
-
 proc atXY*[T: Box](rect: T, x, y: int | float32 | UICoord): T =
   result = rect
   result.x = UICoord(x)

@@ -205,6 +205,11 @@ proc isCovered*(screenBox: Box): bool =
   let cb = current.screenBox
   result = sb.overlaps(cb + off)
 
+proc mouseRelative*(): Position =
+  let x = mouse.pos.descaled.x - current.screenBox.x
+  let y = mouse.pos.descaled.y - current.screenBox.y
+  result = initPosition(x.float32, y.float32)
+
 # template bindEvents*(name: string, events: GeneralEvents) =
 #   ## On click event handler.
 #   current.code = name
@@ -456,6 +461,14 @@ proc height*(h: int|float32|float64|UICoord) =
   ## Sets the height of current node
   let cb = current.box
   box(cb.x, cb.y, float32 cb.w, float32 h)
+
+proc width*(): UICoord =
+  ## width of current node
+  current.box.w
+
+proc height*(): UICoord =
+  ## width of current node
+  current.box.h
 
 proc offset*(
   x: int|float32|float64|UICoord|Constraint,
