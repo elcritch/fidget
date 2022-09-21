@@ -1243,18 +1243,14 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight, setup: proc() = nil) =
     current.offset.y = current.offset.y.clamp(0'ui, topOffsetY)
 
   let
-    xx = if halign == hLeft: 0'ui else: currBox.w - width
+    xx = if halign == hLeft: 0'ui else: parent.box.w - width
     currOffset = current.offset.y
     hPerc = clamp(currOffset/(currBox.h - parentBox.h), 0'ui, 1'ui)
-    bx = initBox(x= xx,
-                  y= hPerc*(parentBox.h - scrollBoxH),
-                  w= width,
-                  h= scrollBoxH)
   
   # define basics of scrollbar
   rectangle "$scrollbar":
     current.kind = nkScrollBar
-    box bx
+    box xx, hPerc*(parentBox.h - scrollBoxH), width, scrollBoxH
     current.offset = parent.offset * -1'ui
     layoutAlign laIgnore
     fill scrollBarFill
