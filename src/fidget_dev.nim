@@ -205,10 +205,25 @@ proc isCovered*(screenBox: Box): bool =
   let cb = current.screenBox
   result = sb.overlaps(cb + off)
 
-proc mouseRelative*(): Position =
-  let x = mouse.pos.descaled.x - current.screenBox.x
-  let y = mouse.pos.descaled.y - current.screenBox.y
+proc mouseRelative*(node: Node): Position =
+  ## computes relative position of the mouse to the node position
+  let x = mouse.pos.descaled.x - node.screenBox.x
+  let y = mouse.pos.descaled.y - node.screenBox.y
   result = initPosition(x.float32, y.float32)
+proc mouseRelative*(): Position =
+  ## computes relative position of the mouse to the current node position
+  mouseRelative(current)
+
+proc mouseRatio*(node: Node, pad: Position|UICoord, clamped = false): Position =
+  ## computes relative fraction of the mouse's position to the node's area
+  let pad =
+    when pad is Position: pad
+    else: initPosition(pad.float32, pad.float32)
+  let track = node.box.wh - pad
+  result = (mouseRelative() - pad/2)/track 
+  if clamped:
+    result.x = result.x.clamp(0'ui, 1'ui)
+    result.y = result.y.clamp(0'ui, 1'ui)
 
 # template bindEvents*(name: string, events: GeneralEvents) =
 #   ## On click event handler.
