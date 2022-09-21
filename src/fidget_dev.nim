@@ -1216,7 +1216,7 @@ proc scrollBars*(scrollBars: bool, hAlign = hRight, setup: proc() = nil) =
 
   # todo? make useData?
   # let evts = useEvents()
-  useState(ScrollPip, pip)
+  var pip = withState(ScrollPip)
   # let pip = evts.mgetOrPut("$scrollbar", ScrollPip)
 
   let

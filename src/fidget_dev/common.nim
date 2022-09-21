@@ -895,11 +895,28 @@ proc popEvents*[T](events: Events, vals: var seq[T]): bool =
 template dispatchEvent*(evt: typed) =
   result.add(evt)
 
-template useState*[T: ref](tp: typedesc[T], vname: untyped) =
-  # if not current.userStates.hasKey(tp.getTypeId()):
+template useState*[T: ref](vname: untyped) =
+  ## creates and caches a new state ref object
   if not current.userStates.hasKey(astToStr(vname)):
-    current.userStates[astToStr(vname)] = newVariant(tp.new())
-  var `vname` {.inject.} = current.userStates[astToStr(vname)].get(tp)
+    current.userStates[astToStr(vname)] = newVariant(T.new())
+  var `vname` {.inject.} = current.userStates[astToStr(vname)].get(typeof T)
+
+import std/macrocache
+import std/macros
+
+const mcStateCounter = CacheCounter"stateCounter"
+
+template withState*[T: ref](tp: typedesc[T]): untyped =
+  ## creates and caches a new state ref object
+  block:
+    const id = 
+      static:
+        mcStateCounter.inc(1)
+        $(value(mcStateCounter))
+
+    if not current.userStates.hasKey(id):
+      current.userStates[astToStr(vname)] = newVariant(tp.new())
+    current.userStates[astToStr(vname)].get(tp)
 
 template toRunes*(item: Node): seq[Rune] =
   item.text
