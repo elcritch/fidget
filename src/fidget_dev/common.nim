@@ -192,7 +192,7 @@ type
     ## Can the text be selected.
     selectable*: bool
     scrollBars*: bool
-    userStates*: Table[string, Variant]
+    userStates*: Table[int, Variant]
     userEvents*: Events
     points*: seq[Position]
 
@@ -499,7 +499,7 @@ proc resetToDefault*(node: Node)=
   node.selectable = false
   node.scrollBars = false
   node.hasRendered = false
-  node.userStates = initTable[string, Variant]()
+  node.userStates = initTable[int, Variant]()
 
 proc setupRoot*() =
   if root == nil:
@@ -895,16 +895,17 @@ proc popEvents*[T](events: Events, vals: var seq[T]): bool =
 template dispatchEvent*(evt: typed) =
   result.add(evt)
 
+import std/macrocache
+const mcStateCounter = CacheCounter"stateCounter"
+
 template useState*[T: ref](vname: untyped) =
   ## creates and caches a new state ref object
-  if not current.userStates.hasKey(astToStr(vname)):
-    current.userStates[astToStr(vname)] = newVariant(T.new())
-  var `vname` {.inject.} = current.userStates[astToStr(vname)].get(typeof T)
-
-import std/macrocache
-import std/macros
-
-const mcStateCounter = CacheCounter"stateCounter"
+  const id = static:
+    mcStateCounter.inc(1)
+    value(mcStateCounter)
+  if not current.userStates.hasKey(id):
+    current.userStates[id] = newVariant(T.new())
+  var `vname` {.inject.} = current.userStates[id].get(typeof T)
 
 template withState*[T: ref](tp: typedesc[T]): untyped =
   ## creates and caches a new state ref object
@@ -912,11 +913,11 @@ template withState*[T: ref](tp: typedesc[T]): untyped =
     const id = 
       static:
         mcStateCounter.inc(1)
-        $(value(mcStateCounter))
+        value(mcStateCounter)
 
     if not current.userStates.hasKey(id):
-      current.userStates[astToStr(vname)] = newVariant(tp.new())
-    current.userStates[astToStr(vname)].get(tp)
+      current.userStates[id] = newVariant(tp.new())
+    current.userStates[id].get(tp)
 
 template toRunes*(item: Node): seq[Rune] =
   item.text
