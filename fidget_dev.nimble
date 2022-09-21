@@ -9,7 +9,7 @@ srcDir        = "src"
 # Dependencies
 
 requires "nim >= 1.4.0"
-requires "https://github.com/elcritch/cssgrid.git >= 0.1.1"
+requires "https://github.com/elcritch/cssgrid.git >= 0.2.1"
 requires "typography >= 0.7.14"
 requires "pixie >= 5.0.1"
 requires "print >= 0.1.0"
