@@ -674,22 +674,41 @@ template calcBasicConstraintImpl(parent, node: Node, dir: static GridDir, f: unt
   ## of the box width post css grid or auto constraints layout
   let csValue = when astToStr(f) in ["w", "h"]: node.cxSize[dir] 
                 else: node.cxOffset[dir]
+  
+  template calcBasic(val: untyped): untyped =
+    block:
+      var res: UICoord
+      match val:
+        UiFixed(coord):
+          res = coord.UICoord
+        UiFrac(frac):
+          res = frac.UICoord * parent.box.f
+        UiPerc(perc):
+          res = perc.UICoord / 100.0.UICoord * parent.box.f
+        _:
+          discard
+      res
+  
   match csValue:
     UiAuto():
       when astToStr(f) in ["w", "h"]:
         node.box.f = parent.box.f
       else:
         discard
+    UiSum(ls, rs):
+      let lv = ls.calcBasic()
+      let rv = rs.calcBasic()
+      node.box.f = lv + rv
+    UiMin(ls, rs):
+      let lv = ls.calcBasic()
+      let rv = rs.calcBasic()
+      node.box.f = min(lv, rv)
+    UiMax(ls, rs):
+      let lv = ls.calcBasic()
+      let rv = rs.calcBasic()
+      node.box.f = max(lv, rv)
     UiValue(value):
-      match value:
-        UiFixed(coord):
-          node.box.f = coord.UICoord
-        UiFrac(_):
-          raise newException(ValueError, "unsupported type `UiFrac` for basic constraints")
-        UiPerc(perc):
-          node.box.f = perc.UICoord / 100.0.UICoord * parent.box.f
-        _:
-          discard
+      node.box.f = calcBasic(value)
     _:
       discard
 
