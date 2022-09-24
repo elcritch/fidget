@@ -360,15 +360,13 @@ proc `'vh`*(n: string): UICoord =
   ## numeric literal view height unit
   result = Vh(parseFloat(n))
 
-proc `'pw`*(n: string): UICoord =
+template WPerc*(n: SomeNumber): UICoord =
   ## numeric literal percent of parent width
-  let size = parseFloat(n)
-  result = UICoord(max(0'f32, parent.box.w.float32 * size / 100.0))
+  UICoord(max(0'f32, parent.box.w.float32 * n.float32 / 100.0))
 
-proc `'ph`*(n: string): UICoord =
+template HPerc*(n: SomeNumber): UICoord =
   ## numeric literal percent of parent height
-  let size = parseFloat(n)
-  UICoord(max(0'f32, parent.box.h.float32 * size / 100.0))
+  UICoord(max(0'f32, parent.box.h.float32 * n.float32 / 100.0))
 
 proc csFixed*(coord: UICoord): Constraint =
   csFixed(coord.UiScalar)
@@ -554,7 +552,7 @@ proc centeredX*(
   ## 
   let
     cb = current.box
-    tw = if absolute: 100'vw else: 100'pw
+    tw = if absolute: 100'vw else: 100.WPerc
     wpad = (tw - width)/2.0
   box(wpad, cb.y, width, cb.h)
 
@@ -569,7 +567,7 @@ proc centeredY*(
   ## 
   let
     cb = current.box
-    th = if absolute: 100'vh else: 100'ph
+    th = if absolute: 100'vh else: 100.HPerc
     hpad = (th - height)/2.0
   box(cb.x, hpad, cb.w, height)
 

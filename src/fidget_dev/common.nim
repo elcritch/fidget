@@ -668,13 +668,14 @@ proc computeEvents*(node: Node) =
 
 var gridChildren: seq[Node]
 
-template calcBasicConstraintImpl(parent, node: Node, dir: static GridDir, f: untyped) =
+template calcBasicConstraintImpl(
+    parent, node: Node,
+    dir: static GridDir,
+    f: untyped
+) =
   ## computes basic constraints for box'es when set
   ## this let's the use do things like set 90'pp (90 percent)
   ## of the box width post css grid or auto constraints layout
-  let csValue = when astToStr(f) in ["w", "h"]: node.cxSize[dir] 
-                else: node.cxOffset[dir]
-  
   template calcBasic(val: untyped): untyped =
     block:
       var res: UICoord
@@ -684,11 +685,14 @@ template calcBasicConstraintImpl(parent, node: Node, dir: static GridDir, f: unt
         UiFrac(frac):
           res = frac.UICoord * parent.box.f
         UiPerc(perc):
-          res = perc.UICoord / 100.0.UICoord * parent.box.f
-        _:
-          discard
+          let ppval = when astToStr(f) == "x": parent.box.w
+                      elif astToStr(f) == "y": parent.box.h
+                      else: parent.box.f
+          res = perc.UICoord / 100.0.UICoord * ppval
       res
   
+  let csValue = when astToStr(f) in ["w", "h"]: node.cxSize[dir] 
+                else: node.cxOffset[dir]
   match csValue:
     UiAuto():
       when astToStr(f) in ["w", "h"]:
