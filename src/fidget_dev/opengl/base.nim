@@ -26,6 +26,10 @@ type
     ## But calls the tick function for keyboard and mouse updates at 240hz
     ## Used for low latency games.
     RepaintSplitUpdate
+  
+  ScaleInfo* = object
+    x*: float32
+    y*: float32
 
 const
   deltaTick: int64 = 1_000_000_000 div 240
@@ -63,6 +67,12 @@ proc setCursor*(cursor: CursorHandle) =
   echo "set cursor"
   window.setCursor(cursor)
 
+proc getScaleInfo*(monitor: Monitor): ScaleInfo =
+  var xs, ys: cfloat
+  getMonitorContentScale(monitor, addr xs, addr ys)
+  result.x = xs
+  result.y = ys
+
 proc updateWindowSize() =
   requestedFrame.inc
 
@@ -86,7 +96,11 @@ proc updateWindowSize() =
   monitor.getMonitorPhysicalSize(addr cwidth, addr cheight)
   dpi = mode.width.float32 / (cwidth.float32 / 25.4)
 
-  windowLogicalSize = windowSize / pixelScale * pixelRatio
+  let scale = monitor.getScaleInfo()
+  if common.autoUiScale:
+    common.uiScale = min(scale.x, scale.y)
+
+  windowLogicalSize = windowSize / common.pixelScale * common.pixelRatio
 
 proc setWindowTitle*(title: string) =
   if window != nil:
@@ -340,21 +354,24 @@ proc start*(openglVersion: (int, int), msaa: MSAA, mainLoopMode: MainLoopMode) =
   windowHint(CONTEXT_VERSION_MAJOR, openglVersion[0].cint)
   windowHint(CONTEXT_VERSION_MINOR, openglVersion[1].cint)
 
+  let
+    monitor = getPrimaryMonitor()
+    scale = monitor.getScaleInfo()
+  
+  if common.autoUiScale:
+    common.uiScale = min(scale.x, scale.y)
+
   if fullscreen:
-    let
-      monitor = getPrimaryMonitor()
-      mode = getVideoMode(monitor)
+    let mode = getVideoMode(monitor)
     window = createWindow(mode.width, mode.height, "", monitor, nil)
   else:
-    let
-      monitor = getPrimaryMonitor()
     var dpiScale, yScale: cfloat
     monitor.getMonitorContentScale(addr dpiScale, addr yScale)
     assert dpiScale == yScale
 
     window = createWindow(
-      (windowSize.x / dpiScale * pixelScale).cint,
-      (windowSize.y / dpiScale * pixelScale).cint,
+      (windowSize.x / dpiScale * common.pixelScale * common.uiScale).cint,
+      (windowSize.y / dpiScale * common.pixelScale * common.uiScale).cint,
       "",
       nil,
       nil
