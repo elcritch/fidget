@@ -205,6 +205,16 @@ proc isCovered*(screenBox: Box): bool =
   let cb = current.screenBox
   result = sb.overlaps(cb + off)
 
+proc mouseRelativeStart*(node: Node): Position =
+  ## computes relative position of the mouse to the node position
+  let sb = mouse.pos.descaled
+  result = initPosition(sb.x.float32, sb.y.float32)
+proc mouseRelativeDiff*(initial: Position): Position =
+  ## computes relative position of the mouse to the node position
+  let x = mouse.pos.descaled.x - initial.x
+  let y = mouse.pos.descaled.y - initial.y
+  result = initPosition(x.float32, y.float32)
+
 proc mouseRelative*(node: Node): Position =
   ## computes relative position of the mouse to the node position
   let x = mouse.pos.descaled.x - node.screenBox.x
@@ -837,6 +847,12 @@ proc stroke*(color: string, alpha = 1.0) =
   current.stroke.color = parseHtmlColor(color)
   current.stroke.color.a = alpha
 
+proc stroke*(weight: float32|UICoord, color: Color, alpha = 1.0) =
+  ## Sets stroke/border color.
+  current.stroke.color = color
+  current.stroke.color.a = alpha
+  current.stroke.weight = weight.float32
+
 proc stroke*(stroke: Stroke) =
   ## Sets stroke/border color.
   current.stroke = stroke
@@ -845,13 +861,13 @@ proc strokeWeight*(weight: float32|UICoord) =
   ## Sets stroke/border weight.
   current.stroke.weight = weight.float32
 
-proc stroke*(weight: float32|UICoord, color: string, alpha = 1.0): Stroke =
+proc init*(tp: typedesc[Stroke], weight: float32|UICoord, color: string, alpha = 1.0): Stroke =
   ## Sets stroke/border color.
   result.color = parseHtmlColor(color)
   result.color.a = alpha
   result.weight = weight.float32
 
-proc stroke*(weight: float32|UICoord, color: Color, alpha = 1.0): Stroke =
+proc init*(tp: typedesc[Stroke], weight: float32|UICoord, color: Color, alpha = 1.0): Stroke =
   ## Sets stroke/border color.
   result.color = color
   result.color.a = alpha

@@ -13,9 +13,7 @@ proc drawMain() =
 
     frame "css grid area":
       # setup frame for css grid
-      box 0, 0, 80'pw, 80'ph
-      centeredX 80'pw
-      centeredY 80'ph
+      box 0, 0, 80'pp, 80'pp
       fill "#FFFFFF"
       cornerRadius 0.5'em
       # clipContent true

@@ -23,7 +23,7 @@ proc basicText() =
     box 130, 0, root.box.w - 130'ui, root.box.h
     fill "#ffffff"
     layout lmVertical
-    counterAxisSizingMode csFixed
+    counterAxisSizingMode CounterAxisSizingMode.csFixed
     horizontalPadding 30
     verticalPadding 30
     itemSpacing 10
@@ -105,7 +105,7 @@ proc basicControls() =
           box 0, 0, 100, 4.Em
           orgBox 0, 0, 100, 4.Em
           layout lmVertical
-          counterAxisSizingMode csAuto
+          counterAxisSizingMode CounterAxisSizingMode.csAuto
           horizontalPadding 0
           verticalPadding 0
           itemSpacing 0
@@ -195,7 +195,7 @@ proc basicControls() =
     box 152, 115, 100, 20
     orgBox 152, 115, 100, 20
     layout lmVertical
-    counterAxisSizingMode csAuto
+    counterAxisSizingMode CounterAxisSizingMode.csAuto
     horizontalPadding 0
     verticalPadding 0
     itemSpacing 0
@@ -264,7 +264,7 @@ proc basicControls() =
     cornerRadius 5
     clipContent true
     layout lmHorizontal
-    counterAxisSizingMode csAuto
+    counterAxisSizingMode CounterAxisSizingMode.csAuto
     horizontalPadding 0
     verticalPadding 0
     itemSpacing 0
@@ -453,7 +453,7 @@ proc drawMain() =
     frame "verticalTabs":
       box 0, 15, 130, 120
       layout lmVertical
-      counterAxisSizingMode csAuto
+      counterAxisSizingMode CounterAxisSizingMode.csAuto
       horizontalPadding 0
       verticalPadding 0
       itemSpacing 0
