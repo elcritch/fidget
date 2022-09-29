@@ -151,17 +151,11 @@ proc startFidget*(
     msaa = msaaDisabled,
     mainLoopMode: MainLoopMode = RepaintOnEvent,
     pixelate = false,
-    pixelScale = 1.0,
-    uiScale = 0.0,
-    autoUiScale = true,
+    pixelScale = 1.0
 ) =
   ## Starts Fidget UI library
   ## 
   common.fullscreen = fullscreen
-  common.autoUiScale = autoUiScale
-
-  if uiScale != 0.0:
-    common.uiScale = uiScale
   
   if not fullscreen:
     windowSize = vec2(uiScale * w.float32, uiScale * h.float32)

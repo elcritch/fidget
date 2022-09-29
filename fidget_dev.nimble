@@ -1,6 +1,6 @@
 # Package
 
-version       = "1.7.9"
+version       = "1.7.10"
 author        = "Andre von Houck"
 description   = "Fidget - UI Library"
 license       = "MIT"
